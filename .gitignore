@@ -1,3 +1,45 @@
+.bmad-core/
+.claude/
+.github/workflows/
+.spec-workflow/
+.trae/documents/
+_bmad/
+backups/
+logs/
+node_modules/
+.DS_Store
+
+# 临时文件
+*.bak
+*.old
+*.span.bak
+*_report.json
+
+# 测试覆盖率文件
+pytest.ini
+.coveragerc
+
+# 临时脚本（保留有用脚本在 scripts/ 中）
+add_missing_fields.py
+check_template*.py
+delete_*.py
+fix_*.py
+init_*.py
+scan_templates.py
+test_*.py
+locustfile.py
+
+# 临时报告文档
+*_REPORT.md
+*_ROADMAP.md
+*_DEPLOYMENT.md
+*_GUIDE.md
+*_PLAN.md
+SUMMARY.md
+IFLOW.md
+
+
+
 ### Django ###
 *.log
 *.pot
