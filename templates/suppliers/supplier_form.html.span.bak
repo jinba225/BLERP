@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}{% if action == 'create' %}新建供应商{% else %}编辑供应商{% endif %} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">基础设置</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'suppliers:supplier_list' %}" class="text-gray-500 hover:text-gray-700">供应商管理</a>
+{% if action == 'update' %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'suppliers:supplier_detail' supplier.pk %}" class="text-gray-500 hover:text-gray-700">{{ supplier.name }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">编辑供应商</span>
+{% else %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">新建供应商</span>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto"><form method="post">{% csrf_token %}<div class="flex justify-between items-center mb-6"><h3 class="text-lg font-semibold text-gray-900">{% if action == 'create' %}新建供应商{% else %}编辑供应商{% endif %}</h3><div class="flex space-x-3"><a href="{% if action == 'update' %}{% url 'suppliers:supplier_detail' supplier.pk %}{% else %}{% url 'suppliers:supplier_list' %}{% endif %}" class="btn btn-outline"><svg x-data="heroicon('x-mark')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>取消</a><button type="submit" class="btn btn-primary"><svg x-data="heroicon('check')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>保存</button></div></div>
+<div class="bg-white rounded-lg shadow mb-6 p-6"><h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">基本信息</h4><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-2">供应商名称 *</label><input type="text" name="name" value="{{ supplier.name|default:'' }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700 mb-2">供应商编码 *</label><input type="text" name="code" value="{{ supplier.code|default:'' }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg" {% if action == 'update' %}readonly{% endif %}></div><div><label class="block text-sm font-medium text-gray-700 mb-2">供应商等级</label><select name="level" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="A" {% if supplier.level == 'A' %}selected{% endif %}>A级</option><option value="B" {% if supplier.level == 'B' %}selected{% endif %}>B级</option><option value="C" {% if supplier.level == 'C' or not supplier %}selected{% endif %}>C级</option><option value="D" {% if supplier.level == 'D' %}selected{% endif %}>D级</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">分类</label><select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="">未分类</option>{% for cat in categories %}<option value="{{ cat.id }}" {% if supplier.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>{% endfor %}</select></div></div></div>
+<div class="bg-white rounded-lg shadow mb-6 p-6"><h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">联系信息</h4><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-2">联系人</label><input type="text" name="contact_person" value="{{ supplier.contact_person|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700 mb-2">电话</label><input type="text" name="phone" value="{{ supplier.phone|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700 mb-2">手机</label><input type="text" name="mobile" value="{{ supplier.mobile|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700 mb-2">邮箱</label><input type="email" name="email" value="{{ supplier.email|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700 mb-2">网站</label><input type="url" name="website" value="{{ supplier.website|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="https://www.example.com"></div></div></div>
+
+{% if action == 'create' %}
+<div class="bg-white rounded-lg shadow mb-6 p-6">
+  <div class="flex justify-between items-center mb-4">
+    <h4 class="text-md font-semibold text-gray-900 pb-2 border-b flex-1">联系人（可添加多个）</h4>
+    <button type="button" id="add-supplier-contact-btn" class="btn btn-primary text-sm px-3 py-1.5">
+      <svg x-data="heroicon('plus')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>添加联系人
+    </button>
+  </div>
+  <div id="supplier-contacts-container">
+    <div class="supplier-contact-item border border-gray-200 rounded-lg p-4 mb-4" data-index="0">
+      <div class="flex justify-between items-center mb-3">
+        <h5 class="text-sm font-medium text-gray-700">联系人 <span class="supplier-contact-number">1</span></h5>
+        <button type="button" class="remove-supplier-contact-btn text-red-600 hover:text-red-800 text-sm" style="display: none;">
+          <svg x-data="heroicon('trash')" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+        </button>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">姓名 *</label>
+          <input type="text" name="contacts[0][name]" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">职位</label>
+          <input type="text" name="contacts[0][position]" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">联系人类型</label>
+          <select name="contacts[0][contact_type]" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            <option value="primary">主要联系人</option>
+            <option value="finance">财务联系人</option>
+            <option value="technical">技术联系人</option>
+            <option value="sales">销售联系人</option>
+            <option value="other" selected>其他</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">电话</label>
+          <input type="text" name="contacts[0][phone]" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">手机</label>
+          <input type="text" name="contacts[0][mobile]" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">邮箱</label>
+          <input type="email" name="contacts[0][email]" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">QQ</label>
+          <input type="text" name="contacts[0][qq]" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">微信</label>
+          <input type="text" name="contacts[0][wechat]" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div class="flex items-center">
+          <label class="flex items-center mt-6">
+            <input type="checkbox" name="contacts[0][is_primary]" class="rounded border-gray-300 text-theme-600 focus:ring-theme-500">
+            <span class="ml-2 text-sm text-gray-700">设为主联系人</span>
+          </label>
+        </div>
+        <div class="lg:col-span-3">
+          <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+          <textarea name="contacts[0][notes]" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const container = document.getElementById('supplier-contacts-container');
+  const addBtn = document.getElementById('add-supplier-contact-btn');
+  let idx = 1;
+  addBtn.addEventListener('click', function() {
+    const div = document.createElement('div');
+    div.className = 'supplier-contact-item border border-gray-200 rounded-lg p-4 mb-4';
+    div.dataset.index = idx;
+    div.innerHTML = `
+      <div class=\"flex justify-between items-center mb-3\">
+        <h5 class=\"text-sm font-medium text-gray-700\">联系人 <span class=\"supplier-contact-number\">${idx + 1}</span></h5>
+        <button type=\"button\" class=\"remove-supplier-contact-btn text-red-600 hover:text-red-800 text-sm\"><i class=\"fas fa-trash\"></i></button>
+      </div>
+      <div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4\">
+        <div><label class=\"block text-sm font-medium text-gray-700 mb-2\">姓名 *</label><input type=\"text\" name=\"contacts[${idx}][name]\" required class=\"w-full px-3 py-2 border border-gray-300 rounded-lg\"></div>
+        <div><label class=\"block text-sm font-medium text-gray-700 mb-2\">职位</label><input type=\"text\" name=\"contacts[${idx}][position]\" class=\"w-full px-3 py-2 border border-gray-300 rounded-lg\"></div>
+        <div><label class=\"block text-sm font-medium text-gray-700 mb-2\">联系人类型</label><select name=\"contacts[${idx}][contact_type]\" class=\"w-full px-3 py-2 border border-gray-300 rounded-lg\"><option value=\"primary\">主要联系人</option><option value=\"finance\">财务联系人</option><option value=\"technical\">技术联系人</option><option value=\"sales\">销售联系人</option><option value=\"other\" selected>其他</option></select></div>
+        <div><label class=\"block text-sm font-medium text-gray-700 mb-2\">电话</label><input type=\"text\" name=\"contacts[${idx}][phone]\" class=\"w-full px-3 py-2 border border-gray-300 rounded-lg\"></div>
+        <div><label class=\"block text-sm font-medium text-gray-700 mb-2\">手机</label><input type=\"text\" name=\"contacts[${idx}][mobile]\" class=\"w-full px-3 py-2 border border-gray-300 rounded-lg\"></div>
+        <div><label class=\"block text-sm font-medium text-gray-700 mb-2\">邮箱</label><input type=\"email\" name=\"contacts[${idx}][email]\" class=\"w-full px-3 py-2 border border-gray-300 rounded-lg\"></div>
+        <div><label class=\"block text-sm font-medium text-gray-700 mb-2\">QQ</label><input type=\"text\" name=\"contacts[${idx}][qq]\" class=\"w-full px-3 py-2 border border-gray-300 rounded-lg\"></div>
+        <div><label class=\"block text-sm font-medium text-gray-700 mb-2\">微信</label><input type=\"text\" name=\"contacts[${idx}][wechat]\" class=\"w-full px-3 py-2 border border-gray-300 rounded-lg\"></div>
+        <div class=\"flex items-center\"><label class=\"flex items-center mt-6\"><input type=\"checkbox\" name=\"contacts[${idx}][is_primary]\" class=\"rounded border-gray-300 text-theme-600 focus:ring-theme-500\"><span class=\"ml-2 text-sm text-gray-700\">设为主联系人</span></label></div>
+        <div class=\"lg:col-span-3\"><label class=\"block text-sm font-medium text-gray-700 mb-2\">备注</label><textarea name=\"contacts[${idx}][notes]\" rows=\"2\" class=\"w-full px-3 py-2 border border-gray-300 rounded-lg\"></textarea></div>
+      </div>`;
+    container.appendChild(div);
+    const rm = div.querySelector('.remove-supplier-contact-btn');
+    rm.addEventListener('click', function() { div.remove(); updateNumbers(); });
+    idx++;
+  });
+  document.querySelectorAll('.remove-supplier-contact-btn').forEach((btn, i) => { if (i > 0) { btn.style.display = 'inline-block'; btn.addEventListener('click', function() { btn.closest('.supplier-contact-item').remove(); updateNumbers(); }); } });
+  function updateNumbers() { const items = container.querySelectorAll('.supplier-contact-item'); items.forEach((el, i) => { const span = el.querySelector('.supplier-contact-number'); if (span) { span.textContent = i + 1; } }); idx = items.length; }
+});
+</script>
+{% endif %}
+<div class="bg-white rounded-lg shadow mb-6 p-6"><h4 class="text-md font-semibold text-gray-700 mb-4 pb-2 border-b">采购信息</h4><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-2">采购员</label><select name="buyer" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="">未指定</option>{% for b in buyers %}<option value="{{ b.id }}" {% if supplier.buyer_id == b.id %}selected{% endif %}>{{ b.username }}</option>{% endfor %}</select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">交货周期(天)</label><input type="number" name="lead_time" value="{{ supplier.lead_time|default:0 }}" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div><div><label class="block text-sm font-medium text-gray-700 mb-2">付款方式</label><select name="payment_terms" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="">请选择付款方式</option><option value="tt_100" {% if supplier.payment_terms == 'tt_100' %}selected{% endif %}>T/T 100%</option><option value="net_30" {% if supplier.payment_terms == 'net_30' %}selected{% endif %}>NET 30 EOM.</option><option value="net_60" {% if supplier.payment_terms == 'net_60' %}selected{% endif %}>NET 60 EOM.</option><option value="30_70" {% if supplier.payment_terms == '30_70' %}selected{% endif %}>30% Adv,70% B4 SHPT.30%+70%</option><option value="cash" {% if supplier.payment_terms == 'cash' %}selected{% endif %}>Cash</option><option value="be" {% if supplier.payment_terms == 'be' %}selected{% endif %}>B/E</option></select></div></div><div class="mt-4"><label class="flex items-center"><input type="checkbox" name="is_approved" class="rounded border-gray-300 text-theme-600 focus:ring-theme-500" {% if supplier.is_approved or not supplier %}checked{% endif %}><span class="ml-2 text-sm text-gray-700">已审核通过</span></label></div></div>
+</form></div>
+{% endblock %}

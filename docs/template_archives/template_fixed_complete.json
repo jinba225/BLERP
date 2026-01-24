@@ -1,0 +1,457 @@
+{
+  "panels": [
+    {
+      "index": 0,
+      "name": 1,
+      "height": 297,
+      "width": 210,
+      "paperHeader": 10,
+      "paperFooter": 10,
+      "printElements": [
+        {
+          "options": {
+            "left": 0,
+            "top": 9,
+            "height": 40,
+            "width": 574.5,
+            "testData": "报价单",
+            "fontSize": 24,
+            "fontWeight": "bold",
+            "textAlign": "center",
+            "color": "#000000",
+            "title": "销售报价单",
+            "right": 267,
+            "bottom": 49,
+            "vCenter": 117,
+            "hCenter": 29,
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "qrCodeLevel": 0
+          },
+          "printElementType": {
+            "title": "标题",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 199.5,
+            "top": 79.5,
+            "height": 20,
+            "width": 135,
+            "field": "quote_date",
+            "testData": "2025-01-07",
+            "fontSize": 12,
+            "fontWeight": "normal",
+            "title": "报价日期",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "qrCodeLevel": 0
+          },
+          "printElementType": {
+            "title": "报价日期",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 394.5,
+            "top": 81,
+            "height": 20,
+            "width": 135,
+            "field": "valid_until",
+            "testData": "2025-02-07",
+            "fontSize": 12,
+            "fontWeight": "normal",
+            "title": "有效期至",
+            "right": 519.75,
+            "bottom": 143.75,
+            "vCenter": 459.75,
+            "hCenter": 133.75,
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "qrCodeLevel": 0
+          },
+          "printElementType": {
+            "title": "有效期至",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 12,
+            "top": 81,
+            "height": 20,
+            "width": 150,
+            "field": "quote_number",
+            "testData": "BL-Q-20250107-001",
+            "fontSize": 12,
+            "fontWeight": "normal",
+            "textAlign": "left",
+            "hideTitle": false,
+            "title": "报价单号",
+            "right": 155.25,
+            "bottom": 98.75,
+            "vCenter": 80.25,
+            "hCenter": 88.75
+          },
+          "printElementType": {
+            "title": "报价单号",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 10.5,
+            "top": 111,
+            "height": 20,
+            "width": 200,
+            "field": "customer_name",
+            "testData": "示例客户有限公司",
+            "fontSize": 12,
+            "fontWeight": "normal",
+            "textAlign": "left",
+            "hideTitle": false,
+            "title": "客户名称"
+          },
+          "printElementType": {
+            "title": "客户名称",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 10.5,
+            "top": 141,
+            "height": 20,
+            "width": 150,
+            "field": "customer_phone",
+            "testData": "138-0000-0000",
+            "fontSize": 12,
+            "fontWeight": "normal",
+            "textAlign": "left",
+            "hideTitle": false,
+            "title": "客户电话"
+          },
+          "printElementType": {
+            "title": "客户电话",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 10.5,
+            "top": 174,
+            "height": 40,
+            "width": 300,
+            "field": "customer_address",
+            "testData": "广东省深圳市南山区",
+            "fontSize": 12,
+            "fontWeight": "normal",
+            "textAlign": "left",
+            "hideTitle": false,
+            "title": "客户地址",
+            "right": 320.25,
+            "bottom": 199,
+            "vCenter": 170.25,
+            "hCenter": 179
+          },
+          "printElementType": {
+            "title": "客户地址",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 169.5,
+            "top": 241.5,
+            "height": 20,
+            "width": 120,
+            "field": "items.#.specifications",
+            "testData": "10W红外",
+            "fontSize": 11,
+            "fontWeight": "normal",
+            "textAlign": "left",
+            "hideTitle": true,
+            "title": "规格型号",
+            "borderWidth": 1,
+            "borderColor": "#d1d5db",
+            "borderStyle": "solid",
+            "right": 364.5,
+            "bottom": 260,
+            "vCenter": 304.5,
+            "hCenter": 250
+          },
+          "printElementType": {
+            "title": "规格型号",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 289.5,
+            "top": 241.5,
+            "height": 20,
+            "width": 40,
+            "field": "items.#.quantity",
+            "testData": "10",
+            "fontSize": 11,
+            "fontWeight": "normal",
+            "textAlign": "right",
+            "hideTitle": true,
+            "title": "数量",
+            "borderWidth": "1",
+            "borderColor": "#d1d5db",
+            "borderStyle": "solid",
+            "right": 353.5,
+            "bottom": 261.5,
+            "vCenter": 333.5,
+            "hCenter": 251.5,
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "qrCodeLevel": 0
+          },
+          "printElementType": {
+            "title": "数量",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 328.5,
+            "top": 241.5,
+            "height": 20,
+            "width": 30,
+            "field": "items.#.unit",
+            "testData": "台",
+            "fontSize": 11,
+            "fontWeight": "normal",
+            "textAlign": "center",
+            "hideTitle": true,
+            "title": "单位",
+            "borderWidth": "1",
+            "borderColor": "#d1d5db",
+            "borderStyle": "solid",
+            "right": 462,
+            "bottom": 260.75,
+            "vCenter": 447,
+            "hCenter": 250.75,
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "qrCodeLevel": 0
+          },
+          "printElementType": {
+            "title": "单位",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 358.5,
+            "top": 241.5,
+            "height": 20,
+            "width": 80,
+            "field": "items.#.unit_price",
+            "testData": "1000.00",
+            "fontSize": 11,
+            "fontWeight": "normal",
+            "textAlign": "right",
+            "hideTitle": true,
+            "title": "单价",
+            "borderWidth": 1,
+            "borderColor": "#d1d5db",
+            "borderStyle": "solid"
+          },
+          "printElementType": {
+            "title": "单价",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 100.5,
+            "top": 241.5,
+            "height": 20,
+            "width": 70,
+            "field": "items.#.product_name",
+            "testData": "激光器A",
+            "fontSize": 11,
+            "fontWeight": "normal",
+            "hideTitle": true,
+            "title": "产品名称",
+            "borderWidth": "1",
+            "borderColor": "#d1d5db",
+            "borderStyle": "solid",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "qrCodeLevel": 0
+          },
+          "printElementType": {
+            "title": "产品名称",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 438,
+            "top": 241.5,
+            "height": 20,
+            "width": 30,
+            "field": "items.#.discount_rate",
+            "testData": "5%",
+            "fontSize": 11,
+            "fontWeight": "normal",
+            "textAlign": "center",
+            "hideTitle": true,
+            "title": "折扣率",
+            "borderWidth": "1",
+            "borderColor": "#d1d5db",
+            "borderStyle": "solid",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "qrCodeLevel": 0,
+            "right": 492,
+            "bottom": 260.75,
+            "vCenter": 477,
+            "hCenter": 250.75
+          },
+          "printElementType": {
+            "title": "折扣率",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 51,
+            "top": 241.5,
+            "height": 20,
+            "width": 50,
+            "field": "items.#.product_code",
+            "testData": "BL-001",
+            "fontSize": 11,
+            "fontWeight": "normal",
+            "hideTitle": true,
+            "title": "产品编码",
+            "borderWidth": "1",
+            "borderColor": "#d1d5db",
+            "borderStyle": "solid",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "qrCodeLevel": 0,
+            "right": 122,
+            "bottom": 260,
+            "vCenter": 97,
+            "hCenter": 250
+          },
+          "printElementType": {
+            "title": "产品编码",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 468,
+            "top": 241.5,
+            "height": 20,
+            "width": 70,
+            "field": "items.#.line_total",
+            "testData": "9500.00",
+            "fontSize": 11,
+            "fontWeight": "normal",
+            "textAlign": "right",
+            "hideTitle": true,
+            "title": "小计",
+            "borderWidth": "1",
+            "borderColor": "#d1d5db",
+            "borderStyle": "solid",
+            "coordinateSync": false,
+            "widthHeightSync": false,
+            "qrCodeLevel": 0
+          },
+          "printElementType": {
+            "title": "小计",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 10.5,
+            "top": 241.5,
+            "height": 20,
+            "width": 40,
+            "field": "items.#.index",
+            "testData": "1",
+            "fontSize": 11,
+            "fontWeight": "normal",
+            "textAlign": "center",
+            "hideTitle": true,
+            "title": "序号",
+            "borderWidth": 1,
+            "borderColor": "#d1d5db",
+            "borderStyle": "solid",
+            "right": 74.5,
+            "bottom": 260.75,
+            "vCenter": 54.5,
+            "hCenter": 250.75
+          },
+          "printElementType": {
+            "title": "序号",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 259.5,
+            "top": 330,
+            "height": 20,
+            "width": 50,
+            "field": "items.#.tax_rate",
+            "testData": "13%",
+            "fontSize": 11,
+            "fontWeight": "normal",
+            "textAlign": "center",
+            "hideTitle": true,
+            "title": "税率",
+            "borderWidth": 1,
+            "borderColor": "#d1d5db",
+            "borderStyle": "solid"
+          },
+          "printElementType": {
+            "title": "税率",
+            "type": "text"
+          }
+        },
+        {
+          "options": {
+            "left": 375,
+            "top": 342,
+            "height": 20,
+            "width": 80,
+            "field": "items.#.lead_time",
+            "testData": "30天",
+            "fontSize": 11,
+            "fontWeight": "normal",
+            "textAlign": "center",
+            "hideTitle": true,
+            "title": "交货期",
+            "borderWidth": 1,
+            "borderColor": "#d1d5db",
+            "borderStyle": "solid"
+          },
+          "printElementType": {
+            "title": "交货期",
+            "type": "text"
+          }
+        }
+      ],
+      "paperNumberContinue": true,
+      "leftOffset": 10,
+      "watermarkOptions": {},
+      "table": {
+        "top": 236.5,
+        "height": 130.5,
+        "columns": []
+      }
+    }
+  ]
+}

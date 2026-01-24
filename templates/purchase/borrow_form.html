@@ -1,0 +1,511 @@
+{% extends 'base.html' %}
+{% block title %}{% if action == 'create' %}新建{% else %}编辑{% endif %}借用单 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">采购管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:borrow_list' %}" class="text-gray-500 hover:text-gray-700">借用单</a>
+{% if action == 'update' %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:borrow_detail' borrow.pk %}" class="text-gray-500 hover:text-gray-700">{{ borrow.borrow_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">编辑</span>
+{% else %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">新建借用单</span>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+    <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-900">{% if action == 'create' %}新建{% else %}编辑{% endif %}借用单</h3>
+    </div> <form method="post" id="borrowForm" class="space-y-6">
+        {% csrf_token %} <!-- 基本信息 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-base font-semibold text-gray-900 mb-4">基本信息</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">供应商 <span class="text-red-500">*</span></label>
+                    <div x-data="supplierSelect()" class="relative">
+                        <!-- 隐藏的input用于表单提交 -->
+                        <input type="hidden" name="supplier" :value="selectedSupplier ? selectedSupplier.id : ''">
+
+                        <!-- 搜索输入框 -->
+                        <div class="relative">
+                            <input
+                                type="text"
+                                x-model="searchValue"
+                                @input="filterSuppliers()"
+                                @keydown.enter="selectFirstMatch()"
+                                @keydown.escape="isOpen = false"
+                                @focus="isOpen = true"
+                                @blur="setTimeout(() => isOpen = false, 150)"
+                                placeholder="请选择供应商"
+                                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent outline-none transition-all"
+                            >
+                            <!-- 下拉箭头 -->
+                            <button
+                                type="button"
+                                @click="isOpen = !isOpen"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <svg x-show="!isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                                <svg x-show="isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- 下拉选项面板 -->
+                        <div
+                            x-show="isOpen && filteredSuppliers.length > 0"
+                            x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            class="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200"
+                            style="display: none;"
+                        >
+                            <template x-for="supplier in filteredSuppliers" :key="supplier.id">
+                                <div
+                                    @click="selectSupplier(supplier)"
+                                    class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors text-gray-800"
+                                    :class="{ 'bg-theme-100 font-medium': selectedSupplier && selectedSupplier.id === supplier.id }"
+                                    x-text="supplier.name"
+                                >
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- 无匹配结果提示 -->
+                        <div
+                            x-show="isOpen && filteredSuppliers.length === 0"
+                            class="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-3 text-gray-500"
+                            style="display: none;"
+                        >
+                            未找到匹配的供应商
+                        </div>
+                    </div>
+                    {% if errors.supplier %}
+                    <p class="mt-1 text-sm text-red-600">{{ errors.supplier }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">借用日期 <span class="text-red-500">*</span></label>
+                    <input type="date" name="borrow_date" id="borrowDate" required
+                           value="{% if borrow %}{{ borrow.borrow_date|date:'Y-m-d' }}{% elif form_data.borrow_date %}{{ form_data.borrow_date }}{% endif %}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">预计归还日期</label>
+                    <input type="date" name="expected_return_date"
+                           value="{% if borrow and borrow.expected_return_date %}{{ borrow.expected_return_date|date:'Y-m-d' }}{% elif form_data.expected_return_date %}{{ form_data.expected_return_date }}{% endif %}"
+                           class="w-full px-3 py-2 border {% if errors.expected_return_date %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:outline-none focus:border-theme-500">
+                    {% if errors.expected_return_date %}
+                    <p class="mt-1 text-sm text-red-600">{{ errors.expected_return_date }}</p>
+                    {% endif %}
+                </div> <div class="md:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">借用目的</label>
+                    <textarea name="purpose" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">{% if borrow %}{{ borrow.purpose }}{% elif form_data.purpose %}{{ form_data.purpose }}{% endif %}</textarea>
+                </div> <div class="md:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                    <textarea name="notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">{% if borrow %}{{ borrow.notes }}{% elif form_data.notes %}{{ form_data.notes }}{% endif %}</textarea>
+                </div>
+            </div>
+        </div> <!-- 借用明细 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-base font-semibold text-gray-900">借用明细</h4>
+                <button class="btn btn-primary" type="button" id="addItemBtn">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+</svg>添加产品
+                </button>
+            </div>
+            <table class="min-w-full divide-y divide-gray-200" id="itemsTable">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品 <span class="text-red-500">*</span></th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">借用数量 <span class="text-red-500">*</span></th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">备注</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="itemsBody">
+                    <!-- 将通过 JavaScript 动态添加行 -->
+                </tbody>
+            </table>
+            <div id="noItemsMessage" class="py-8 text-center text-gray-400">
+                <svg class="icon text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                <p class="text-sm">暂无明细，请点击"添加产品"按钮添加</p>
+            </div>
+        </div> <!-- 隐藏字段：用于提交明细数据 -->
+        <input type="hidden" name="items_json" id="itemsJson"> <!-- 操作按钮 -->
+        <div class="flex gap-3">
+            <button class="btn btn-primary" type="submit">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>保存
+            </button>
+            <a href="{% if action == 'update' %}{% url 'purchase:borrow_detail' borrow.pk %}{% else %}{% url 'purchase:borrow_list' %}{% endif %}"
+               class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>取消
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+// 初始化数据
+window.suppliersData = {{ suppliers|safe }};
+window.productsData = {{ products|safe }};
+const existingItems = {{ existing_items|default:"[]"|safe }};
+
+let itemsData = [];
+
+// Alpine.js供应商选择器组件
+document.addEventListener('alpine:init', () => {
+    Alpine.data('supplierSelect', () => ({
+        // 状态
+        isOpen: false,
+        searchValue: '',
+        selectedSupplier: null,
+        allSuppliers: window.suppliersData || [],
+
+        // 计算属性：过滤后的供应商
+        get filteredSuppliers() {
+            if (!this.searchValue.trim()) {
+                return this.allSuppliers;
+            }
+            const query = this.searchValue.toLowerCase().trim();
+            return this.allSuppliers.filter(supplier =>
+                supplier.name.toLowerCase().includes(query) ||
+                (supplier.code && supplier.code.toLowerCase().includes(query))
+            );
+        },
+
+        // 方法：过滤供应商
+        filterSuppliers() {
+            this.isOpen = true;
+        },
+
+        // 方法：选择供应商
+        selectSupplier(supplier) {
+            this.selectedSupplier = supplier;
+            this.searchValue = supplier.name;
+            this.isOpen = false;
+        },
+
+        // 方法：回车选择第一个匹配项
+        selectFirstMatch() {
+            if (this.filteredSuppliers.length > 0) {
+                this.selectSupplier(this.filteredSuppliers[0]);
+            }
+        },
+
+        // 初始化：设置已选供应商
+        init() {
+            {% if borrow %}
+            const initialId = {{ borrow.supplier.id }};
+            this.selectedSupplier = this.allSuppliers.find(s => s.id === initialId);
+            if (this.selectedSupplier) {
+                this.searchValue = this.selectedSupplier.name;
+            }
+            {% elif form_data.supplier %}
+            const initialId = {{ form_data.supplier }};
+            this.selectedSupplier = this.allSuppliers.find(s => s.id === initialId);
+            if (this.selectedSupplier) {
+                this.searchValue = this.selectedSupplier.name;
+            }
+            {% endif %}
+        }
+    }));
+});
+
+// Alpine.js表格行产品选择器组件
+document.addEventListener('alpine:init', () => {
+    Alpine.data('productSelect', () => ({
+        // 状态
+        isOpen: false,
+        searchValue: '',
+        selectedProductId: null,
+        allProducts: [],
+
+        // 计算属性：过滤后的产品（支持输入检索）
+        get filteredProducts() {
+            if (!this.searchValue.trim()) {
+                return this.allProducts;
+            }
+            const query = this.searchValue.toLowerCase().trim();
+            return this.allProducts.filter(product =>
+                product.name.toLowerCase().includes(query) ||
+                (product.code && product.code.toLowerCase().includes(query))
+            );
+        },
+
+        // 方法：过滤产品（输入时触发）
+        filterProducts() {
+            this.isOpen = true;
+        },
+
+        // 方法：选择产品（点击选项或回车触发）
+        selectProduct(product) {
+            this.selectedProductId = product.id;
+            this.searchValue = product.name + ' (' + product.code + ')';
+            this.isOpen = false;
+        },
+
+        // 方法：回车选择第一个匹配项
+        selectFirstMatch() {
+            if (this.filteredProducts.length > 0) {
+                this.selectProduct(this.filteredProducts[0]);
+            }
+        },
+
+        // 初始化
+        init() {
+            // 从隐藏input获取产品数据
+            const hiddenInput = this.$el.querySelector('input[type="hidden"]');
+            this.allProducts = JSON.parse(hiddenInput.dataset.products || '[]');
+
+            const selectedId = hiddenInput.dataset.selected;
+            if (selectedId) {
+                this.selectedProductId = parseInt(selectedId);
+                const product = this.allProducts.find(p => p.id === this.selectedProductId);
+                if (product) {
+                    this.searchValue = product.name + ' (' + product.code + ')';
+                }
+            }
+        }
+    }));
+});
+
+// 添加明细行
+function addItemRow(itemData = {}) {
+    const tbody = document.getElementById('itemsBody');
+    const rowIndex = itemsData.length;
+    const row = document.createElement('tr');
+    row.className = 'hover:bg-gray-50';
+
+    // 创建产品选择器容器（用于Alpine.js）
+    const productCell = document.createElement('td');
+    productCell.className = 'px-4 py-3';
+
+    // 创建产品选择器元素（Alpine.js组件）
+    const productSelect = document.createElement('div');
+    productSelect.className = 'relative';
+    productSelect.setAttribute('x-data', 'productSelect()');
+
+    // 隐藏的input（表单提交用）
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.className = 'item-product';
+    hiddenInput.name = 'product_id';
+    hiddenInput.dataset.products = JSON.stringify(window.productsData || []);
+    hiddenInput.dataset.selected = itemData.product_id || '';
+    hiddenInput.setAttribute('x-model', 'selectedProductId');
+    productSelect.appendChild(hiddenInput);
+
+    // 输入框容器
+    const inputWrapper = document.createElement('div');
+    inputWrapper.className = 'relative';
+
+    // 搜索输入框（支持输入检索）
+    const displayInput = document.createElement('input');
+    displayInput.type = 'text';
+    displayInput.className = 'w-full px-3 py-2 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:border-theme-500 focus:border-transparent outline-none transition-all text-sm';
+    displayInput.placeholder = '搜索或选择产品';
+    displayInput.setAttribute('x-model', 'searchValue');
+    displayInput.setAttribute('@input', 'filterProducts()');
+    displayInput.setAttribute('@keydown.enter', 'selectFirstMatch()');
+    displayInput.setAttribute('@keydown.escape', 'isOpen = false');
+    displayInput.setAttribute('@focus', 'isOpen = true');
+    displayInput.setAttribute('@blur', 'setTimeout(() => isOpen = false, 150)');
+    inputWrapper.appendChild(displayInput);
+
+    // 下拉箭头按钮（支持点击展开）
+    const arrowBtn = document.createElement('button');
+    arrowBtn.type = 'button';
+    arrowBtn.className = 'absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors';
+    arrowBtn.setAttribute('@click', 'isOpen = !isOpen');
+    arrowBtn.innerHTML = `
+        <svg x-show="!isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+        <svg x-show="isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+    `;
+    inputWrapper.appendChild(arrowBtn);
+    productSelect.appendChild(inputWrapper);
+
+    // 下拉选项面板
+    const dropdown = document.createElement('div');
+    dropdown.className = 'absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200';
+    dropdown.setAttribute('x-show', 'isOpen && filteredProducts.length > 0');
+    dropdown.setAttribute('x-transition:enter', 'transition ease-out duration-100');
+    dropdown.setAttribute('x-transition:enter-start', 'opacity-0 scale-95');
+    dropdown.setAttribute('x-transition:enter-end', 'opacity-100 scale-100');
+    dropdown.setAttribute('x-transition:leave', 'transition ease-in duration-75');
+    dropdown.setAttribute('x-transition:leave-start', 'opacity-100 scale-100');
+    dropdown.setAttribute('x-transition:leave-end', 'opacity-0 scale-95');
+    dropdown.style.display = 'none';
+
+    // 下拉选项列表（直接使用 template，与供应商一致）
+    dropdown.innerHTML = `
+        <template x-for="product in filteredProducts" :key="product.id">
+            <div
+                @click="selectProduct(product)"
+                class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors text-gray-800"
+                :class="{ 'bg-theme-100 font-medium': selectedProductId == product.id }"
+                x-text="product.name + ' (' + product.code + ')'">
+            </div>
+        </template>
+    `;
+    productSelect.appendChild(dropdown);
+
+    // 无匹配结果提示（独立div，与供应商一致）
+    const noMatch = document.createElement('div');
+    noMatch.className = 'absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-3 text-gray-500';
+    noMatch.setAttribute('x-show', 'isOpen && filteredProducts.length === 0');
+    noMatch.style.display = 'none';
+    noMatch.textContent = '未找到匹配的产品';
+    productSelect.appendChild(noMatch);
+
+    productCell.appendChild(productSelect);
+
+    // 数量单元格
+    const quantityCell = document.createElement('td');
+    quantityCell.className = 'px-4 py-3';
+    quantityCell.innerHTML = `
+        <input type="number" class="item-quantity w-full px-2 py-1 rounded"
+               data-index="${rowIndex}" value="${itemData.quantity || ''}" step="1" min="1" required>
+    `;
+
+    // 备注单元格
+    const notesCell = document.createElement('td');
+    notesCell.className = 'px-4 py-3';
+    notesCell.innerHTML = `
+        <input type="text" class="item-notes w-full px-2 py-1 rounded"
+               data-index="${rowIndex}" value="${itemData.notes || ''}">
+    `;
+
+    // 操作单元格
+    const actionCell = document.createElement('td');
+    actionCell.className = 'px-4 py-3 text-center';
+    actionCell.innerHTML = `
+        <button type="button" onclick="removeItemRow(this)" class="text-red-600 hover:text-red-800">
+            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>
+        </button>
+    `;
+
+    row.appendChild(productCell);
+    row.appendChild(quantityCell);
+    row.appendChild(notesCell);
+    row.appendChild(actionCell);
+
+    tbody.appendChild(row);
+
+    // 添加到数据数组
+    itemsData.push({
+        product_id: itemData.product_id || '',
+        quantity: itemData.quantity || '',
+        notes: itemData.notes || ''
+    });
+
+    updateNoItemsMessage();
+}
+
+// 删除明细行
+function removeItemRow(btn) {
+    const row = btn.closest('tr');
+    const productSelect = row.querySelector('.item-product');
+    const index = parseInt(productSelect.dataset.index);
+
+    // 销毁 Tom Select 实例（如果存在）
+    if (productSelect && productSelect.tomselect) {
+        productSelect.tomselect.destroy();
+    }
+
+    itemsData.splice(index, 1);
+    row.remove(); // 重新索引
+    reindexRows();
+    updateNoItemsMessage();
+}
+
+// 重新索引所有行
+function reindexRows() {
+    const rows = document.querySelectorAll('#itemsBody tr');
+    rows.forEach((row, index) => {
+        row.querySelectorAll('[data-index]').forEach(el => {
+            el.dataset.index = index;
+        });
+    });
+}
+
+// 更新"无明细"提示
+function updateNoItemsMessage() {
+    const noMsg = document.getElementById('noItemsMessage');
+    const table = document.getElementById('itemsTable'); if (itemsData.length === 0) {
+        noMsg.classList.remove('hidden');
+        table.classList.add('hidden');
+    } else {
+        noMsg.classList.add('hidden');
+        table.classList.remove('hidden');
+    }
+}
+
+// 收集表单数据
+function collectItemsData() {
+    const items = [];
+    const rows = document.querySelectorAll('#itemsBody tr'); rows.forEach((row, index) => {
+        const productId = row.querySelector('.item-product').value;
+        const quantity = row.querySelector('.item-quantity').value;
+        const notes = row.querySelector('.item-notes').value; if (productId && quantity) {
+            items.push({
+                product_id: parseInt(productId),
+                quantity: parseFloat(quantity),
+                notes: notes
+            });
+        }
+    }); return items;
+}
+
+// 表单提交前处理
+document.getElementById('borrowForm').addEventListener('submit', function(e) {
+    const items = collectItemsData(); if (items.length === 0) {
+        e.preventDefault();
+        alert('请至少添加一个产品明细');
+        return false;
+    } document.getElementById('itemsJson').value = JSON.stringify(items);
+    return true;
+});
+
+// 添加产品按钮事件
+document.getElementById('addItemBtn').addEventListener('click', function() {
+    addItemRow();
+});
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 设置默认借用日期为今天
+    const borrowDate = document.getElementById('borrowDate');
+    if (!borrowDate.value) {
+        borrowDate.value = new Date().toISOString().split('T')[0];
+    } // 加载现有明细（编辑模式）
+    if (existingItems.length > 0) {
+        existingItems.forEach(item => {
+            addItemRow(item);
+        });
+    } updateNoItemsMessage();
+});
+</script>
+{% endblock %}

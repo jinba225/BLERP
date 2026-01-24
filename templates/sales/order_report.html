@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}销售订单报表{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:order_list' %}" class="text-gray-500 hover:text-gray-700">销售管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">销售报表</span>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">销售订单报表</h1>
+        <div class="flex space-x-2">
+            <button onclick="resetFilters()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                重置筛选
+            </button>
+            <button class="btn btn-primary" onclick="exportReport()">
+                导出报表
+            </button>
+        </div>
+    </div> <!-- 筛选表单 -->
+    <form method="get" action="{% url 'sales:order_report' %}" id="filterForm" class="mb-6" x-data="{ filterExpanded: true }">
+        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <!-- 标题栏（带收起/展开按钮） -->
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-700">筛选条件</h3>
+                <button type="button"
+                        @click="filterExpanded = !filterExpanded"
+                        class="flex items-center space-x-2 px-3 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors">
+                    <span x-text="filterExpanded ? '收起' : '展开'"></span>
+                    <svg class="w-4 h-4 transition-transform duration-200"
+                         :class="{ 'rotate-180': !filterExpanded }"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+            </div> <!-- 筛选条件内容 -->
+            <div x-show="filterExpanded"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-2"> <!-- 第一行：状态、日期范围、客户 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <!-- 订单状态 -->
+                <div>
+                    <label class="block mb-2">
+                        <span class="text-base font-medium text-gray-700">订单状态</span>
+                    </label>
+                    <select name="status" id="status"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                        <option value="">全部</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if filter_status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div> <!-- 订单日期 -->
+                <div>
+                    <label class="block mb-2">
+                        <span class="text-base font-medium text-gray-700">订单日期</span>
+                    </label>
+                    <div class="flex space-x-2">
+                        <input type="date" name="date_from" id="date_from"
+                               value="{{ filter_date_from }}"
+                               placeholder="开始日期"
+                               class="w-1/2 h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                        <input type="date" name="date_to" id="date_to"
+                               value="{{ filter_date_to }}"
+                               placeholder="结束日期"
+                               class="w-1/2 h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                    </div>
+                </div> <!-- 客户 -->
+                <div>
+                    <label class="block mb-2">
+                        <span class="text-base font-medium text-gray-700">客户</span>
+                    </label>
+                    <select name="customer" id="customer"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                        <option value="">全部</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.id }}" {% if filter_customer == customer.id|stringformat:"s" %}selected{% endif %}>
+                            {{ customer.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div> <!-- 第二行：业务员、产品 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <!-- 业务员 -->
+                <div>
+                    <label class="block mb-2">
+                        <span class="text-base font-medium text-gray-700">业务员</span>
+                    </label>
+                    <select name="salesperson" id="salesperson"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                        <option value="">全部</option>
+                        {% for person in salespersons %}
+                        <option value="{{ person.id }}" {% if filter_salesperson == person.id|stringformat:"s" %}selected{% endif %}>
+                            {{ person.username }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div> <!-- 产品 -->
+                <div>
+                    <label class="block mb-2">
+                        <span class="text-base font-medium text-gray-700">产品</span>
+                    </label>
+                    <select name="product" id="product"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                        <option value="">全部</option>
+                        {% for prod in products %}
+                        <option value="{{ prod.id }}" {% if filter_product == prod.id|stringformat:"s" %}selected{% endif %}>
+                            {{ prod.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div> <!-- 操作按钮 -->
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="button" onclick="resetFilters()"
+                        class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded">
+                    清空
+                </button>
+                <button class="btn btn-primary" type="submit">
+                    应用筛选
+                </button>
+            </div>
+            </div><!-- 结束 x-show 筛选条件内容 -->
+        </div>
+    </form> <!-- 统计信息 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-theme-50 p-4 rounded-lg border border-theme-200">
+            <div class="text-sm text-theme-600 mb-1">订单总数</div>
+            <div class="text-2xl font-bold text-theme-900">{{ stats.total_count|default:0 }}</div>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+            <div class="text-sm text-green-600 mb-1">订单总金额</div>
+            <div class="text-2xl font-bold text-green-900">¥{{ stats.total_amount|default:0|floatformat:2 }}</div>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+            <div class="text-sm text-purple-600 mb-1">平均订单金额</div>
+            <div class="text-2xl font-bold text-purple-900">¥{{ stats.avg_amount|default:0|floatformat:2 }}</div>
+        </div>
+    </div> <!-- 数据表格 -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">序号</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">订单编号</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">订单日期</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户名称</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">业务员</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">订单金额</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">要求交期</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for order in page_obj %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ forloop.counter|add:page_obj.start_index|add:"-1" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-theme-600">
+                        <a href="{% url 'sales:order_detail' order.pk %}" class="hover:text-theme-800">
+                            {{ order.order_number }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ order.order_date|date:"Y-m-d" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                     {% if order.status == 'draft' %}bg-gray-100 text-gray-800
+                                     {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                     {% elif order.status == 'confirmed' %}bg-theme-100 text-theme-800
+                                     {% elif order.status == 'in_production' %}bg-purple-100 text-purple-800
+                                     {% elif order.status == 'ready_to_ship' %}bg-indigo-100 text-indigo-800
+                                     {% elif order.status == 'shipped' %}bg-teal-100 text-teal-800
+                                     {% elif order.status == 'delivered' %}bg-green-100 text-green-800
+                                     {% elif order.status == 'completed' %}bg-green-100 text-green-800
+                                     {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                                     {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ order.customer.name }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ order.sales_rep.username|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ¥{{ order.total_amount|floatformat:2 }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ order.required_date|date:"Y-m-d"|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{% url 'sales:order_detail' order.pk %}"
+                           class="text-theme-600 hover:text-theme-900 mr-3">查看</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="px-6 py-4 text-center text-gray-500">
+                        暂无数据
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div> <!-- 分页 -->
+    {% if page_obj.has_other_pages %}
+    <div class="mt-6 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+            显示第 <span class="font-medium">{{ page_obj.start_index }}</span> 到
+            <span class="font-medium">{{ page_obj.end_index }}</span> 条,
+            共 <span class="font-medium">{{ page_obj.paginator.count }}</span> 条记录
+        </div>
+        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+            <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                首页
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+               class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                上一页
+            </a>
+            {% endif %} <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页
+            </span> {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+               class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                下一页
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                末页
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// 重置筛选
+function resetFilters() {
+    window.location.href = '{% url "sales:order_report" %}';
+}
+
+// 导出报表
+function exportReport() {
+    alert('导出功能开发中...');
+    // TODO: 实现导出功能
+}
+</script>
+{% endblock %}

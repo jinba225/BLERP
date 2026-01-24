@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}转换为订单 - {{ quote.quote_number }} - BetterLaser ERP{% endblock %}
+{% block page_title %}转换报价单为销售订单{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">销售管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:quote_list' %}" class="text-gray-500 hover:text-gray-700">报价单</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:quote_detail' quote.pk %}" class="text-gray-500 hover:text-gray-700">{{ quote.quote_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">转换为订单</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-6 pb-4 border-b">转换报价单为销售订单</h3> <!-- Quote Summary -->
+        <div class="bg-theme-50 rounded-lg p-6 mb-6">
+            <h4 class="text-sm font-semibold text-theme-900 mb-4">报价单信息</h4>
+            <dl class="grid grid-cols-2 gap-4">
+                <div>
+                    <dt class="text-xs text-theme-700">报价单号</dt>
+                    <dd class="text-sm font-medium text-theme-900 mt-1">{{ quote.quote_number }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs text-theme-700">客户名称</dt>
+                    <dd class="text-sm font-medium text-theme-900 mt-1">{{ quote.customer.name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs text-theme-700">报价日期</dt>
+                    <dd class="text-sm font-medium text-theme-900 mt-1">{{ quote.quote_date }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs text-theme-700">总金额</dt>
+                    <dd class="text-sm font-medium text-theme-900 mt-1">¥{{ quote.total_amount }}</dd>
+                </div>
+            </dl>
+        </div> <!-- Quote Items Preview -->
+        <div class="mb-6">
+            <h4 class="text-sm font-semibold text-gray-900 mb-3">产品明细 ({{ quote.items.count }} 项)</h4>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品编码</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品名称</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">规格型号</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">单位</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">数量</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">含税单价</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">含税小计</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">交期(天)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for item in quote.items.all %}
+                        <tr>
+                            <td class="px-4 py-3 text-sm text-gray-900">{{ forloop.counter }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-900">{{ item.product.code }}</td>
+                            <td class="px-4 py-3">
+                                <div class="text-sm font-medium text-gray-900">{{ item.product.name }}</div>
+                                {% if item.notes %}
+                                <div class="text-xs text-gray-400 mt-1">{{ item.notes }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900">{{ item.specifications|default:"-" }}</td>
+                            <td class="px-4 py-3 text-sm text-center text-gray-900">{{ item.unit|default:"-" }}</td>
+                            <td class="px-4 py-3 text-sm text-right text-gray-900">{{ item.quantity }}</td>
+                            <td class="px-4 py-3 text-sm text-right text-gray-900">¥{{ item.unit_price }}</td>
+                            <td class="px-4 py-3 text-sm text-right font-medium text-gray-900">¥{{ item.line_total }}</td>
+                            <td class="px-4 py-3 text-sm text-center text-gray-900">{{ item.lead_time|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div> <div class="mt-6 flex justify-end">
+                <div class="w-full max-w-sm space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">含税小计：</span>
+                        <span class="font-medium">¥{{ quote.subtotal }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">折扣金额：</span>
+                        <span class="font-medium text-red-600">¥{{ quote.discount_amount }}</span>
+                    </div>
+                    <div class="flex justify-between text-lg font-bold pt-2 border-t">
+                        <span>含税总计：</span>
+                        <span class="text-theme-600">¥{{ quote.total_amount }}</span>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- Conversion Form -->
+        <form method="post">
+            {% csrf_token %} <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">订单日期</label>
+                    {{ form.order_date }}
+                    {% if form.order_date.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.order_date.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">要求交期</label>
+                    {{ form.required_date }}
+                    {% if form.required_date.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.required_date.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">客户要求的交货日期</p>
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">订单备注</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                    {% endif %}
+                </div> <div class="pt-4 border-t">
+                    <label class="flex items-start">
+                        {{ form.confirm }}
+                        <span class="ml-2 text-sm text-gray-700">我确认要将此报价单转换为销售订单</span>
+                    </label>
+                    {% if form.confirm.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.confirm.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div> <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <div class="flex">
+                    <svg class="icon text-yellow-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                    <div class="text-sm text-yellow-800">
+                        <p class="font-medium mb-1">转换说明：</p>
+                        <ul class="list-disc list-inside space-y-1 text-xs">
+                            <li>报价单将被标记为"已转订单"状态，不可再次转换</li>
+                            <li>所有产品明细、价格条款将自动复制到新订单</li>
+                            <li>转换后可在销售订单中查看和管理</li>
+                        </ul>
+                    </div>
+                </div>
+            </div> <div class="flex space-x-3">
+                <a href="{% url 'sales:quote_detail' quote.pk %}"
+                   class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>取消
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>确认转换
+                </button>
+            </div>
+        </form> <script>
+        (function() {
+            try {
+                var orderInput = document.querySelector('input[name="order_date"]');
+                var requiredInput = document.querySelector('input[name="required_date"]'); function pad(n) { return n < 10 ? '0' + n : '' + n; } var now = new Date();
+                var todayStr = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()); if (orderInput && !orderInput.value) {
+                    orderInput.value = todayStr;
+                } var req = new Date(now);
+                req.setDate(req.getDate() + 15);
+                var reqStr = req.getFullYear() + '-' + pad(req.getMonth() + 1) + '-' + pad(req.getDate()); if (requiredInput && !requiredInput.value) {
+                    requiredInput.value = reqStr;
+                }
+            } catch (e) {}
+        })();
+        </script>
+    </div>
+</div>
+{% endblock %}

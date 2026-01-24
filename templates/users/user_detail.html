@@ -1,0 +1,516 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user.username }} - 用户详情 - BetterLaser ERP{% endblock %}
+{% block page_title %}用户详情{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'users:user_list' %}" class="text-gray-500 hover:text-gray-700">用户管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ user.username }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 用户基本信息卡片 -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-900">
+                <svg class="icon mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>基本信息
+            </h2>
+            <div class="flex space-x-2">
+                {% if user.is_active %}
+                <a href="{% url 'users:user_toggle_status' user.pk %}"
+                   onclick="return confirm('确定要停用此用户吗？');"
+                   class="px-4 py-2 border border-orange-600 text-orange-600 rounded-lg hover:bg-orange-50">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>停用用户
+                </a>
+                {% else %}
+                <a href="{% url 'users:user_toggle_status' user.pk %}"
+                   onclick="return confirm('确定要启用此用户吗？');"
+                   class="px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>启用用户
+                </a>
+                {% endif %}
+                <a href="{% url 'users:user_update' user.pk %}"
+                   class="px-4 py-2 border border-theme-600 text-theme-600 rounded-lg hover:bg-theme-50">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+</svg>编辑
+                </a>
+                <a href="{% url 'users:user_delete' user.pk %}"
+                   class="px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>删除
+                </a>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <div class="flex items-start space-x-6">
+                <!-- 头像 -->
+                <div class="flex-shrink-0">
+                    {% if user.avatar %}
+                    <img class="h-32 w-32 rounded-full border-4 border-gray-200"
+                         src="{{ user.avatar.url }}"
+                         alt="{{ user.username }}">
+                    {% else %}
+                    <div class="h-32 w-32 rounded-full bg-theme-100 flex items-center justify-center border-4 border-gray-200">
+                        <span class="text-theme-600 font-bold text-5xl">
+                            {{ user.username|first|upper }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- 基本信息 -->
+                <div class="flex-1">
+                    <div class="mb-4">
+                        <h3 class="text-2xl font-bold text-gray-900">
+                            {{ user.get_full_name|default:user.username }}
+                            {% if user.is_superuser %}
+                            <span class="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>超级管理员
+                            </span>
+                            {% elif user.is_staff %}
+                            <span class="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zm-1.476 3.488a8.987 8.987 0 00-6.03-2.326c-2.043 0-3.926.678-5.446 1.826M14 6a4 4 0 11-8 0 4 4 0 018 0zM2.21 20.89a9 9 0 0112.66-2.08c.31.24.59.51.84.79M12 12V9.5m0 2.5h.01" />
+</svg>管理员
+                            </span>
+                            {% endif %}
+                        </h3>
+                        <p class="text-gray-500 mt-1">@{{ user.username }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center">
+                            <div class="bg-theme-100 rounded-lg p-3 mr-3">
+                                <svg class="icon text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+</svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">邮箱</p>
+                                <p class="text-sm font-medium text-gray-900">{{ user.email }}</p>
+                            </div>
+                        </div>
+
+                        {% if user.phone %}
+                        <div class="flex items-center">
+                            <div class="bg-green-100 rounded-lg p-3 mr-3">
+                                <svg class="icon text-green-600 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">手机号</p>
+                                <p class="text-sm font-medium text-gray-900">{{ user.phone }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="flex items-center">
+                            <div class="bg-purple-100 rounded-lg p-3 mr-3">
+                                <svg class="icon text-purple-600 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">员工编号</p>
+                                <p class="text-sm font-medium text-gray-900">{{ user.employee_id|default:"未设置" }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center">
+                            <div class="bg-{% if user.is_active %}green{% else %}red{% endif %}-100 rounded-lg p-3 mr-3">
+                                {% if user.is_active %}
+<svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+{% else %}
+<svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+{% endif %}
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">账户状态</p>
+                                <p class="text-sm font-medium {% if user.is_active %}text-green-600{% else %}text-red-600{% endif %}">
+                                    {% if user.is_active %}活跃{% else %}已停用{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 组织信息 -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <svg class="icon mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-9a2 2 0 012-2h4a2 2 0 012 2v9" />
+</svg>组织信息
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="text-sm font-medium text-gray-500">所属部门</label>
+                    <p class="mt-1 text-gray-900">
+                        {% if user.department %}
+                        <svg class="icon mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-9a2 2 0 012-2h4a2 2 0 012 2v9" />
+</svg>
+                        {{ user.department.name }}
+                        {% else %}
+                        <span class="text-gray-400">未分配部门</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">职位</label>
+                    <p class="mt-1 text-gray-900">
+                        {% if user.position %}
+                        <svg class="icon mr-2" text-gray-400 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        {{ user.position }}
+                        {% else %}
+                        <span class="text-gray-400">未设置职位</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">直属上级</label>
+                    <p class="mt-1 text-gray-900">
+                        {% if user.manager %}
+                        <svg class="icon mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+                        <a href="{% url 'users:user_detail' user.manager.pk %}"
+                           class="text-theme-600 hover:text-theme-800">
+                            {{ user.manager.get_full_name|default:user.manager.username }}
+                        </a>
+                        {% else %}
+                        <span class="text-gray-400">无直属上级</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if user.hire_date %}
+                <div>
+                    <label class="text-sm font-medium text-gray-500">入职日期</label>
+                    <p class="mt-1 text-gray-900">
+                        <svg class="icon mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m-7.664-16.664l1.414 1.414m0 0L5.336 5.336m11.314 0l1.414-1.414M5.336 18.664l1.414-1.414M12 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 6a1.5 1.5 0 110 3 1.5 1.5 0 010-3z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                        {{ user.hire_date|date:"Y年m月d日" }}
+                    </p>
+                </div>
+                {% endif %}
+
+                {% if user.birth_date %}
+                <div>
+                    <label class="text-sm font-medium text-gray-500">出生日期</label>
+                    <p class="mt-1 text-gray-900">
+                        <svg class="icon mr-2" text-gray-400 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z" /></svg>
+                        {{ user.birth_date|date:"Y年m月d日" }}
+                    </p>
+                </div>
+                {% endif %}
+
+                {% if user.gender %}
+                <div>
+                    <label class="text-sm font-medium text-gray-500">性别</label>
+                    <p class="mt-1 text-gray-900">
+                        {% if user.gender == 'M' %}
+<svg class="w-5 h-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+{% elif user.gender == 'F' %}
+<svg class="w-5 h-5 mr-2 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+{% else %}
+<svg class="w-5 h-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+{% endif %}
+                        {{ user.get_gender_display }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 账户信息 -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <svg class="icon mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 5.25a3 3 0 013 3m3 0a3 3 0 01-3 3m3-3h-3.375c-.621 0-1.125.504-1.125 1.125v3.5c0 .621.504 1.125 1.125 1.125h3.375m-12-5.25a3 3 0 00-3 3m0 3a3 3 0 013 3m-3-3h3.375c.621 0 1.125.504 1.125 1.125v3.5c0 .621-.504 1.125-1.125 1.125H8.25m3.75-9a3 3 0 11-6 0 3 3 0 016 0zm9 9a3 3 0 11-6 0 3 3 0 016 0z" />
+</svg>账户信息
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="text-sm font-medium text-gray-500">注册时间</label>
+                    <p class="mt-1 text-gray-900">
+                        <svg class="icon mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                        {{ user.date_joined|date:"Y-m-d H:i:s" }}
+                    </p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">最后登录</label>
+                    <p class="mt-1 text-gray-900">
+                        {% if user.last_login %}
+                        <svg class="icon mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+</svg>
+                        {{ user.last_login|date:"Y-m-d H:i:s" }}
+                        {% else %}
+                        <span class="text-gray-400">从未登录</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">账户权限</label>
+                    <div class="mt-2 space-y-2">
+                        <div class="flex items-center">
+                            {% if user.is_superuser %}
+<svg class="w-5 h-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+{% else %}
+<svg class="w-5 h-5 mr-2 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+{% endif %}
+                            <span class="text-sm {% if user.is_superuser %}text-green-600 font-medium{% else %}text-gray-500{% endif %}">
+                                超级管理员
+                            </span>
+                        </div>
+                        <div class="flex items-center">
+                            {% if user.is_staff %}
+<svg class="w-5 h-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+{% else %}
+<svg class="w-5 h-5 mr-2 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+{% endif %}
+                            <span class="text-sm {% if user.is_staff %}text-green-600 font-medium{% else %}text-gray-500{% endif %}">
+                                管理员
+                            </span>
+                        </div>
+                        <div class="flex items-center">
+                            {% if user.is_active %}
+<svg class="w-5 h-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+{% else %}
+<svg class="w-5 h-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+{% endif %}
+                            <span class="text-sm {% if user.is_active %}text-green-600 font-medium{% else %}text-red-600 font-medium{% endif %}">
+                                活跃状态
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">创建人</label>
+                    <p class="mt-1 text-gray-900">
+                        {% if user.created_by %}
+                        <svg class="icon mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+                        {{ user.created_by.get_full_name|default:user.created_by.username }}
+                        {% else %}
+                        <span class="text-gray-400">系统创建</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if user.updated_by %}
+                <div>
+                    <label class="text-sm font-medium text-gray-500">最后更新人</label>
+                    <p class="mt-1 text-gray-900">
+                        <svg class="icon mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+                        {{ user.updated_by.get_full_name|default:user.updated_by.username }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户角色 -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <svg class="icon mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zm-1.476 3.488a8.987 8.987 0 00-6.03-2.326c-2.043 0-3.926.678-5.446 1.826M14 6a4 4 0 11-8 0 4 4 0 018 0zM2.21 20.89a9 9 0 0112.66-2.08c.31.24.59.51.84.79M12 12V9.5m0 2.5h.01" />
+</svg>用户角色
+            </h3>
+            <span class="text-sm text-gray-500">共 {{ user_roles|length }} 个角色</span>
+        </div>
+        <div class="p-6">
+            {% if user_roles %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for user_role in user_roles %}
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-theme-300 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-medium text-gray-900">{{ user_role.role.name }}</h4>
+                        {% if user_role.role.is_active %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>启用
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                            <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>停用
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">{{ user_role.role.description|default:"暂无描述" }}</p>
+                    <div class="text-xs text-gray-500">
+                        <div><svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>代码：{{ user_role.role.code }}</div>
+                        <div class="mt-1"><svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m-7.664-16.664l1.414 1.414m0 0L5.336 5.336m11.314 0l1.414-1.414M5.336 18.664l1.414-1.414M12 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 6a1.5 1.5 0 110 3 1.5 1.5 0 010-3z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>分配时间：{{ user_role.created_at|date:"Y-m-d" }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-400">
+                <svg class="icon mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zm-1.476 3.488a8.987 8.987 0 00-6.03-2.326c-2.043 0-3.926.678-5.446 1.826M14 6a4 4 0 11-8 0 4 4 0 018 0zM2.21 20.89a9 9 0 0112.66-2.08c.31.24.59.51.84.79M12 12V9.5m0 2.5h.01" />
+</svg>
+                <p>该用户暂未分配角色</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 最近登录记录 -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <svg class="icon mr-2" text-theme-600 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>最近登录记录
+            </h3>
+            <a href="{% url 'users:login_log_list' %}?user={{ user.id }}"
+               class="text-sm text-theme-600 hover:text-theme-800">
+                查看全部 <svg class="icon ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+</svg>
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            {% if recent_logins %}
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            登录时间
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            IP地址
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            登录方式
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            状态
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            会话时长
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for log in recent_logins %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <svg class="icon mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                            {{ log.login_time|date:"Y-m-d H:i:s" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <svg class="icon mr-1" text-gray-400 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            {{ log.ip_address|default:"未知" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <svg class="icon mr-1" text-gray-400 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                            {{ log.login_method|default:"Web" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if log.is_successful %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>成功
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>失败
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {% if log.logout_time %}
+                            <svg class="icon mr-1" text-gray-400 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            {{ log.session_duration|default:"计算中..." }}
+                            {% else %}
+                            <span class="text-green-600">
+                                <svg class="icon mr-1 text-xs" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+</svg>活跃中
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="text-center py-12 text-gray-400">
+                <svg class="icon text-4xl mb-3 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <p>暂无登录记录</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 返回按钮 -->
+    <div class="flex justify-between">
+        <a href="{% url 'users:user_list' %}"
+           class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg>返回列表
+        </a>
+    </div>
+</div>
+{% endblock %}

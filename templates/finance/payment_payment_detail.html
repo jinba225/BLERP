@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}付款记录详情 - {{ payment.payment_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">财务管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:payment_payment_list' %}" class="text-gray-500 hover:text-gray-700">付款记录</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ payment.payment_number }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">付款记录详情</h3>
+            <p class="text-sm text-gray-600">{{ payment.payment_number }}</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'finance:payment_payment_list' %}"
+               class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg>返回列表
+            </a>
+            {% if can_edit %}
+            <a class="btn btn-primary" href="{% url 'finance:payment_payment_update' payment.pk %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+</svg>编辑
+            </a>
+            {% endif %}
+            {% if can_cancel %}
+            <a class="btn btn-primary" href="{% url 'finance:payment_payment_cancel' payment.pk %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>取消
+            </a>
+            {% endif %}
+        </div>
+    </div> <!-- Basic Information -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">基本信息</h4>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">付款单号</label>
+                    <p class="text-sm font-semibold text-gray-900">{{ payment.payment_number }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">供应商</label>
+                    <p class="text-sm text-gray-900">
+                        {% if payment.supplier %}
+                            <a href="{% url 'suppliers:supplier_detail' payment.supplier.pk %}"
+                               class="text-theme-600 hover:text-theme-700">
+                                {{ payment.supplier.name }}
+                            </a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">状态</label>
+                    <span class="px-2 py-1 text-xs font-semibold rounded
+                        {% if payment.status == 'completed' %}bg-green-100 text-green-800
+                        {% elif payment.status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% elif payment.status == 'cancelled' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ payment.get_status_display }}
+                    </span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">付款金额</label>
+                    <p class="text-lg font-bold text-red-600">¥{{ payment.amount }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">币种</label>
+                    <p class="text-sm text-gray-900">{{ payment.currency }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">付款日期</label>
+                    <p class="text-sm text-gray-900">{{ payment.payment_date }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">付款方式</label>
+                    <p class="text-sm text-gray-900">{{ payment.get_payment_method_display }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">银行账户</label>
+                    <p class="text-sm text-gray-900">{{ payment.bank_account|default:"-" }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">开户行</label>
+                    <p class="text-sm text-gray-900">{{ payment.bank_name|default:"-" }}</p>
+                </div>
+            </div>
+        </div>
+    </div> <!-- Reference Information -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">关联信息</h4>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">参考单号</label>
+                    <p class="text-sm text-gray-900">{{ payment.reference_number|default:"-" }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">交易流水号</label>
+                    <p class="text-sm text-gray-900">{{ payment.transaction_reference|default:"-" }}</p>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-500 mb-1">说明</label>
+                    <p class="text-sm text-gray-900">{{ payment.description|default:"-" }}</p>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-500 mb-1">备注</label>
+                    <p class="text-sm text-gray-900 whitespace-pre-wrap">{{ payment.notes|default:"-" }}</p>
+                </div>
+            </div>
+        </div>
+    </div> <!-- Processing Information -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">处理信息</h4>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">处理人</label>
+                    <p class="text-sm text-gray-900">
+                        {% if payment.processed_by %}{{ payment.processed_by.username }}{% else %}-{% endif %}
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">创建人</label>
+                    <p class="text-sm text-gray-900">
+                        {% if payment.created_by %}{{ payment.created_by.username }}{% else %}-{% endif %}
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">创建时间</label>
+                    <p class="text-sm text-gray-900">{{ payment.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">更新时间</label>
+                    <p class="text-sm text-gray-900">{{ payment.updated_at|date:"Y-m-d H:i" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

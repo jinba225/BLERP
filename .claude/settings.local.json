@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python scan_templates.py:*)",
+      "Bash(find:*)",
+      "Bash(done)",
+      "Bash(xargs -I {} sh -c 'echo \"\"\"\"=== {} ===\"\"\"\" && find apps/{} -maxdepth 1 -type f -name \"\"\"\"*.py\"\"\"\" | sed \"\"\"\"s|apps/{}||\"\"\"\" | sort')",
+      "Bash(xargs ls:*)",
+      "Bash(python3:*)",
+      "Bash(python manage.py showmigrations:*)",
+      "Bash(test:*)",
+      "Bash(python manage.py check:*)",
+      "Bash(source venv/bin/activate)",
+      "Bash(python:*)",
+      "Bash(curl:*)",
+      "Bash(apps/sales/models.py)",
+      "Bash(apps/sales/views.py)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(cat:*)",
+      "Bash(tar:*)",
+      "WebFetch(domain:blog.csdn.net)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:gitee.com)",
+      "Bash(node:*)",
+      "WebFetch(domain:segmentfault.com)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(timeout 5 python:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install)",
+      "Bash(file:*)",
+      "Bash(__NEW_LINE__ echo \"✅ 已压缩画布尺寸面板字体\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

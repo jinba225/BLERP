@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block title %}删除角色 - {{ role.name }} - BetterLaser ERP{% endblock %}
+{% block page_title %}删除角色确认{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'users:role_list' %}" class="text-gray-500 hover:text-gray-700">角色管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'users:role_detail' role.pk %}" class="text-gray-500 hover:text-gray-700">{{ role.name }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">删除确认</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- 警告提示 -->
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="icon text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+</svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                    <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>您即将删除此角色
+                </h3>
+                <div class="mt-2 text-sm text-red-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>此操作将软删除角色，角色数据将被标记为已删除</li>
+                        <li>已删除的角色不会在系统中显示，但数据会保留在数据库中</li>
+                        <li>用户与角色的关联关系将被保留</li>
+                        <li>如需恢复，请联系系统管理员</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div> <!-- 角色信息卡片 -->
+    <div class="bg-white rounded-lg shadow mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <svg class="icon mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zm-1.476 3.488a8.987 8.987 0 00-6.03-2.326c-2.043 0-3.926.678-5.446 1.826M14 6a4 4 0 11-8 0 4 4 0 018 0zM2.21 20.89a9 9 0 0112.66-2.08c.31.24.59.51.84.79M12 12V9.5m0 2.5h.01" />
+</svg>待删除角色信息
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="flex items-center space-x-4 mb-6">
+                <!-- 角色图标 -->
+                <div class="flex-shrink-0">
+                    <div class="h-20 w-20 rounded-lg bg-purple-100 flex items-center justify-center border-2 border-purple-200">
+                        <svg class="icon text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zm-1.476 3.488a8.987 8.987 0 00-6.03-2.326c-2.043 0-3.926.678-5.446 1.826M14 6a4 4 0 11-8 0 4 4 0 018 0zM2.21 20.89a9 9 0 0112.66-2.08c.31.24.59.51.84.79M12 12V9.5m0 2.5h.01" />
+</svg>
+                    </div>
+                </div> <!-- 基本信息 -->
+                <div class="flex-1">
+                    <h4 class="text-xl font-bold text-gray-900 mb-1">
+                        {{ role.name }}
+                        {% if role.is_active %}
+                        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>启用
+                        </span>
+                        {% else %}
+                        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>停用
+                        </span>
+                        {% endif %}
+                    </h4>
+                    <p class="text-sm text-gray-600">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                            <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>{{ role.code }}
+                        </span>
+                    </p>
+                </div>
+            </div> <!-- 详细信息 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-200 pt-4">
+                <div>
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">角色描述</label>
+                    <p class="mt-1 text-sm text-gray-900">
+                        {{ role.description|default:"暂无描述" }}
+                    </p>
+                </div> <div>
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">使用该角色的用户</label>
+                    <p class="mt-1 text-sm text-gray-900">
+                        <svg class="icon mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+                        <span class="{% if user_count > 0 %}text-red-600 font-semibold{% endif %}">{{ user_count }} 人</span>
+                    </p>
+                </div> <div>
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</label>
+                    <p class="mt-1 text-sm text-gray-900">
+                        <svg class="icon mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m-7.664-16.664l1.414 1.414m0 0L5.336 5.336m11.314 0l1.414-1.414M5.336 18.664l1.414-1.414M12 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 6a1.5 1.5 0 110 3 1.5 1.5 0 010-3z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                        {{ role.created_at|date:"Y-m-d H:i" }}
+                    </p>
+                </div> <div>
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">最后更新</label>
+                    <p class="mt-1 text-sm text-gray-900">
+                        <svg class="icon mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                        {{ role.updated_at|date:"Y-m-d H:i" }}
+                    </p>
+                </div> <div>
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">创建人</label>
+                    <p class="mt-1 text-sm text-gray-900">
+                        {% if role.created_by %}
+                        <svg class="icon mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+                        {{ role.created_by.get_full_name|default:role.created_by.username }}
+                        {% else %}
+                        <span class="text-gray-400">系统创建</span>
+                        {% endif %}
+                    </p>
+                </div> <div>
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">当前状态</label>
+                    <p class="mt-1 text-sm">
+                        {% if role.is_active %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>启用中
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                            <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>已停用
+                        </span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div> <!-- 使用情况警告 -->
+    {% if user_count > 0 %}
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="icon text-red-500 text-xl fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+            </div>
+            <div class="ml-3">
+                <h4 class="text-sm font-medium text-red-800 mb-2">
+                    <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>无法删除：该角色正在被使用
+                </h4>
+                <div class="text-sm text-red-700">
+                    <p class="mb-2">该角色正在被 <strong class="text-lg">{{ user_count }}</strong> 个用户使用，无法删除。</p>
+                    <p class="mb-3">您可以：</p>
+                    <ol class="list-decimal list-inside space-y-1 pl-2">
+                        <li>先为这些用户取消该角色分配</li>
+                        <li>或者暂时停用该角色，而不是删除</li>
+                        <li>查看 <a href="{% url 'users:role_detail' role.pk %}" class="underline font-medium">角色详情</a> 了解哪些用户正在使用</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div> <!-- 禁用删除按钮时的操作选项 -->
+    <div class="flex justify-between items-center">
+        <a href="{% url 'users:role_detail' role.pk %}"
+           class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg>返回详情
+        </a>
+        <a class="btn btn-primary" href="{% url 'users:role_update' role.pk %}">
+            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>停用角色
+        </a>
+    </div> {% else %}
+    <!-- 确认表单 -->
+    <form method="post" class="bg-white rounded-lg shadow">
+        {% csrf_token %} <div class="p-6">
+            <h4 class="text-md font-semibold text-gray-900 mb-4">
+                <svg class="icon mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+</svg>确认操作
+            </h4> <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <label class="flex items-start">
+                    <input type="checkbox" id="confirm-checkbox" required
+                           class="rounded border-gray-300 text-red-600 focus:ring-red-500 mt-1">
+                    <span class="ml-3 text-sm text-gray-700">
+                        <strong>我确认要删除角色"{{ role.name }}"</strong><br>
+                        <span class="text-gray-500">我理解此操作将软删除该角色，数据会被保留但不再显示</span>
+                    </span>
+                </label>
+            </div> <div class="bg-theme-50 border-l-4 border-theme-400 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="icon text-theme-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                    </div>
+                    <div class="ml-3 text-sm text-theme-700">
+                        <p class="font-medium mb-2">删除后可以恢复吗？</p>
+                        <p>可以。删除操作是软删除，数据会保留在数据库中。如需恢复，请联系系统管理员通过数据库操作恢复。</p>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- 操作按钮 -->
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between rounded-b-lg">
+            <a href="{% url 'users:role_detail' role.pk %}"
+               class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg>取消
+            </a>
+            <button class="btn btn-primary" type="submit" disabled id="delete-button">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>确认删除
+            </button>
+        </div>
+    </form> <script>
+    // 确认复选框启用删除按钮
+    document.getElementById('confirm-checkbox').addEventListener('change', function() {
+        document.getElementById('delete-button').disabled = !this.checked;
+    });
+    </script>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}退货统计{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">采购管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:return_list' %}" class="text-gray-500 hover:text-gray-700">采购退货</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">退货统计</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <h3 class="text-lg font-semibold">采购退货统计</h3>
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="grid grid-cols-2 gap-4">
+            <div><span class="text-gray-600">总退货次数:</span> <span class="font-medium">{{ total_returns }}</span></div>
+            <div><span class="text-gray-600">总退货金额:</span> <span class="font-medium">¥{{ total_amount|floatformat:2 }}</span></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load erp_filters %}
+
+{% block title %}利润表 - {{ report.start_date|date:"Y-m-d" }} 至 {{ report.end_date|date:"Y-m-d" }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">财务管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:report_list' %}" class="text-gray-500 hover:text-gray-700">财务报表</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">利润表</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">利润表</h3>
+            <p class="text-sm text-gray-600">报表期间：{{ report.start_date|date:"Y年m月d日" }} 至 {{ report.end_date|date:"Y年m月d日" }}</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'finance:report_list' %}"
+               class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                <svg x-data="heroicon('queue-list')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>返回列表
+            </a>
+            <button class="btn btn-primary" onclick="window.print()">
+                <svg x-data="heroicon('printer')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>打印
+            </button>
+        </div>
+    </div> <!-- Report Content -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="p-6">
+            <!-- Revenue -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between bg-green-50 px-4 py-2 rounded-t-lg">
+                    <h4 class="text-sm font-semibold text-green-800">营业收入</h4>
+                    <span class="text-lg font-bold text-green-800">¥{{ report.report_data.revenue.total|floatformat:2 }}</span>
+                </div>
+                <table class="w-full text-sm">
+                    {% for item in report.report_data.revenue.items %}
+                    <tr class="border-b border-gray-100">
+                        <td class="py-2 px-4 text-gray-600">{{ item.name }}</td>
+                        <td class="py-2 px-4 text-right text-gray-900">¥{{ item.amount|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div> <!-- Cost -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between bg-red-50 px-4 py-2 rounded-t-lg">
+                    <h4 class="text-sm font-semibold text-red-800">营业成本</h4>
+                    <span class="text-lg font-bold text-red-800">¥{{ report.report_data.cost.total|floatformat:2 }}</span>
+                </div>
+                <table class="w-full text-sm">
+                    {% for item in report.report_data.cost.items %}
+                    <tr class="border-b border-gray-100">
+                        <td class="py-2 px-4 text-gray-600">{{ item.name }}</td>
+                        <td class="py-2 px-4 text-right text-gray-900">¥{{ item.amount|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div> <!-- Gross Profit -->
+            <div class="mb-6 bg-gray-50 px-4 py-3 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-semibold text-gray-700">毛利润</span>
+                    <span class="text-lg font-bold {% if report.report_data.gross_profit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        ¥{{ report.report_data.gross_profit|floatformat:2 }}
+                    </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">营业收入 - 营业成本</p>
+            </div> <!-- Expenses -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between bg-orange-50 px-4 py-2 rounded-t-lg">
+                    <h4 class="text-sm font-semibold text-orange-800">费用</h4>
+                    <span class="text-lg font-bold text-orange-800">¥{{ report.report_data.expenses.total|floatformat:2 }}</span>
+                </div>
+                <table class="w-full text-sm">
+                    {% for item in report.report_data.expenses.items %}
+                    <tr class="border-b border-gray-100">
+                        <td class="py-2 px-4 text-gray-600">{{ item.name }}</td>
+                        <td class="py-2 px-4 text-right text-gray-900">¥{{ item.amount|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div> <!-- Operating Profit -->
+            <div class="mb-6 bg-theme-50 px-4 py-3 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-semibold text-theme-700">营业利润</span>
+                    <span class="text-lg font-bold {% if report.report_data.operating_profit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        ¥{{ report.report_data.operating_profit|floatformat:2 }}
+                    </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">毛利润 - 费用</p>
+            </div> <!-- Net Profit -->
+            <div class="bg-theme-50 px-4 py-4 rounded-lg border-2 border-theme-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-base font-bold text-theme-700">净利润</span>
+                    <span class="text-2xl font-bold {% if report.net_profit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        ¥{{ report.net_profit|floatformat:2 }}
+                    </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">营业利润（简化版，未计营业外收支和所得税）</p>
+            </div>
+        </div>
+    </div> <!-- Report Metadata -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="grid grid-cols-3 gap-4 text-sm">
+            <div>
+                <span class="text-gray-500">生成时间：</span>
+                <span class="text-gray-900">{{ report.generated_at|date:"Y-m-d H:i:s" }}</span>
+            </div>
+            <div>
+                <span class="text-gray-500">生成人：</span>
+                <span class="text-gray-900">{% if report.generated_by %}{{ report.generated_by.username }}{% else %}-{% endif %}</span>
+            </div>
+            <div>
+                <span class="text-gray-500">报表ID：</span>
+                <span class="text-gray-900">#{{ report.id }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    body {
+        background: white;
+    }
+}
+</style>
+{% endblock %}

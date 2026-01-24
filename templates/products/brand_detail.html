@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ brand.name }} - 品牌详情{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">基础设置</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'products:brand_list' %}" class="text-gray-500 hover:text-gray-700">品牌管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ brand.name }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-900">品牌详情</h3>
+        <div class="space-x-2">
+            <a class="btn btn-primary" href="{% url 'products:brand_update' brand.pk %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+</svg>编辑
+            </a>
+            <a class="btn btn-primary" href="{% url 'products:brand_delete' brand.pk %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>删除
+            </a>
+        </div>
+    </div> <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">基本信息</h4>
+        </div>
+        <div class="p-6">
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">品牌代码</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ brand.code }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">品牌名称</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ brand.name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">国家/地区</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ brand.country|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">官方网站</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {% if brand.website %}
+                        <a href="{{ brand.website }}" target="_blank" class="text-theme-600 hover:text-theme-700">
+                            {{ brand.website }} <svg class="icon text-xs" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+</svg>
+                        </a>
+                        {% else %}-{% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">状态</dt>
+                    <dd class="mt-1">
+                        <span class="px-2 py-1 text-xs font-semibold rounded
+                            {% if brand.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if brand.is_active %}启用{% else %}停用{% endif %}
+                        </span>
+                    </dd>
+                </div>
+                <div class="md:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500">品牌描述</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ brand.description|default:"-" }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div> <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">该品牌的产品（前10条）</h4>
+            <p class="text-sm text-gray-600">共 {{ product_count }} 个产品</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品编码</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品名称</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">分类</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for product in products %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ product.code }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ product.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ product.category.name|default:"-" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{% url 'products:product_detail' product.pk %}" class="text-theme-600 hover:text-theme-700">查看</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center text-gray-500">暂无该品牌的产品</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div> <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">系统信息</h4>
+        </div>
+        <div class="p-6">
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">创建时间</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ brand.created_at|date:"Y-m-d H:i:s" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">创建人</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ brand.created_by.username|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">最后更新</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ brand.updated_at|date:"Y-m-d H:i:s" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">更新人</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ brand.updated_by.username|default:"-" }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

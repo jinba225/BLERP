@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - BetterLaser ERP 系统</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Heroicons -->
+    <script src="{% static 'js/heroicons.js' %}"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        .bg-gradient-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-custom min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full">
+        <!-- Logo and Title -->
+        <div class="text-center mb-8">
+            <div class="bg-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <svg x-data="heroicon('building')" class="text-3xl text-theme-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">BetterLaser ERP</h1>
+            <p class="text-theme-100">企业资源规划管理系统</p>
+        </div>
+        
+        <!-- Login Form -->
+        <div class="bg-white rounded-lg shadow-xl p-8" x-data="loginForm()">
+            <form @submit.prevent="login()">
+                <!-- Username -->
+                <div class="mb-6">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                        <svg x-data="heroicon('user')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>用户名
+                    </label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        x-model="form.username"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500 transition-colors"
+                        placeholder="请输入用户名"
+                        required
+                    >
+                </div>
+                
+                <!-- Password -->
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        <svg x-data="heroicon('lock-closed')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>密码
+                    </label>
+                    <div class="relative">
+                        <input 
+                            :type="showPassword ? 'text' : 'password'" 
+                            id="password" 
+                            x-model="form.password"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500 transition-colors pr-12"
+                            placeholder="请输入密码"
+                            required
+                        >
+                        <button 
+                            type="button"
+                            @click="showPassword = !showPassword"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                            <svg x-data="heroicon('eye')" x-show="!showPassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak style="display: none;"><span x-html="svg"></span></svg>
+                            <svg x-data="heroicon('eye-slash')" x-show="showPassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak style="display: none;"><span x-html="svg"></span></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Remember Me -->
+                <div class="flex items-center justify-between mb-6">
+                    <label class="flex items-center">
+                        <input 
+                            type="checkbox" 
+                            x-model="form.remember_me"
+                            class="rounded border-gray-300 text-theme-600 shadow-sm focus:border-theme-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                        >
+                        <span class="ml-2 text-sm text-gray-600">记住我</span>
+                    </label>
+                    <a href="#" class="text-sm text-theme-600 hover:text-theme-700">忘记密码？</a>
+                </div>
+                
+                <!-- Error Message -->
+                <div x-show="error" x-cloak class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p class="text-sm text-red-600" x-text="error"></p>
+                </div>
+                
+                <!-- Success Message -->
+                <div x-show="success" x-cloak class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p class="text-sm text-green-600" x-text="success"></p>
+                </div>
+                
+                <!-- Login Button -->
+                <button
+                    type="submit"
+                    :disabled="loading"
+                    class="w-full bg-theme-600 text-white py-3 px-4 rounded-lg hover:bg-theme-700 focus:ring-2 focus:ring-theme-500 focus:ring-offset-2 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <span x-show="!loading">
+                        <svg x-data="heroicon('arrow-right-on-rectangle')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>登录
+                    </span>
+                    <span x-show="loading" x-cloak>
+                        <svg x-data="heroicon('arrow-path')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>登录中...
+                    </span>
+                </button>
+            </form>
+            
+            <!-- Divider -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <p class="text-center text-sm text-gray-600">
+                    还没有账户？
+                    <a href="#" class="text-theme-600 hover:text-theme-700 font-medium">联系管理员</a>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="text-center mt-8">
+            <p class="text-theme-100 text-sm">
+                © 2024 BetterLaser ERP. All rights reserved.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function loginForm() {
+            return {
+                form: {
+                    username: '',
+                    password: '',
+                    remember_me: false
+                },
+                loading: false,
+                error: '',
+                success: '',
+                showPassword: false,
+                
+                async login() {
+                    this.loading = true;
+                    this.error = '';
+                    this.success = '';
+                    
+                    try {
+                        const response = await fetch('/api/auth/login/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': this.getCsrfToken()
+                            },
+                            body: JSON.stringify(this.form)
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (response.ok) {
+                            this.success = data.message || '登录成功';
+                            
+                            // Store token
+                            localStorage.setItem('token', data.token);
+                            localStorage.setItem('user', JSON.stringify(data.user));
+                            
+                            // Redirect to dashboard
+                            setTimeout(() => {
+                                window.location.href = '/';
+                            }, 1000);
+                        } else {
+                            this.error = data.detail || data.non_field_errors?.[0] || '登录失败';
+                        }
+                    } catch (error) {
+                        this.error = '网络错误，请稍后重试';
+                        console.error('Login error:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                
+                getCsrfToken() {
+                    const cookies = document.cookie.split(';');
+                    for (let cookie of cookies) {
+                        const [name, value] = cookie.trim().split('=');
+                        if (name === 'csrftoken') {
+                            return value;
+                        }
+                    }
+                    return '';
+                }
+            }
+        }
+
+        // 注册 Heroicons 组件
+        document.addEventListener('alpine:init', function() {
+            Alpine.data('heroicon', (name, strokeWidth = 1.5) => ({
+                svgData: null,
+                iconName: name,
+
+                init() {
+                    // 延迟获取数据，确保 window.HeroiconsPaths 已加载
+                    this.$nextTick(() => {
+                        if (window.HeroiconsPaths && window.HeroiconsPaths[this.iconName]) {
+                            this.svgData = window.HeroiconsPaths[this.iconName];
+                        } else {
+                            console.error(`❌ Heroicon "${this.iconName}" not found`);
+                        }
+                    });
+                },
+
+                get svg() {
+                    if (!this.svgData || !this.svgData.outline) {
+                        return '';
+                    }
+                    return `<path stroke-linecap="round" stroke-linejoin="round" d="${this.svgData.outline}" />`;
+                },
+
+                get viewBox() {
+                    return this.svgData && this.svgData.viewBox ? this.svgData.viewBox : '0 0 24 24';
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打印报价单 - {{ quote.quote_number }}</title>
+    <style>
+        @media print {
+            .no-print { display: none; }
+            @page {
+                margin: {{ layout_config.page_settings.margin.top|default:"1cm" }}
+                        {{ layout_config.page_settings.margin.right|default:"1cm" }}
+                        {{ layout_config.page_settings.margin.bottom|default:"1cm" }}
+                        {{ layout_config.page_settings.margin.left|default:"1cm" }};
+            }
+        }
+
+        body {
+            font-family: {{ layout_config.styles.font_family|default:"Microsoft YaHei, Arial, sans-serif" }};
+            font-size: {{ layout_config.styles.font_size|default:"12px" }};
+            line-height: 1.5;
+            color: {{ layout_config.styles.primary_color|default:"#333" }};
+            max-width: 21cm;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+        }
+
+        .company-info {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            border-bottom: 2px solid #666;
+            padding-bottom: 5px;
+            margin: 20px 0 10px 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 30px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+        }
+
+        .info-label {
+            font-weight: bold;
+            min-width: 80px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th,
+        table td {
+            border: 1px solid {{ layout_config.styles.border_color|default:"#ddd" }};
+            padding: 8px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .summary {
+            margin-left: auto;
+            width: 300px;
+            border: 1px solid #ddd;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            background-color: #f5f5f5;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .print-button {
+            padding: 10px 20px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .print-button:hover {
+            background-color: #2563eb;
+        }
+
+        {{ template.custom_css }}
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <div style="margin-bottom: 10px; padding: 10px; background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span style="font-size: 12px; color: #1e40af;">
+                        <i class="fas fa-file-alt"></i> 当前使用模板：<strong>{{ template.name }}</strong>
+                    </span>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="window.print()" class="print-button">
+                        <i class="fas fa-print"></i> 打印报价单
+                    </button>
+                    <a href="{% url 'core:print_template_edit' template.pk %}" target="_blank" class="print-button" style="background-color: #10b981; text-decoration: none; display: inline-block;">
+                        <i class="fas fa-edit"></i> 编辑模板
+                    </a>
+                    <a href="{% url 'core:print_template_list' %}" target="_blank" class="print-button" style="background-color: #8b5cf6; text-decoration: none; display: inline-block;">
+                        <i class="fas fa-th-list"></i> 模板管理
+                    </a>
+                    <button onclick="window.close()" class="print-button" style="background-color: #6b7280;">
+                        <i class="fas fa-times"></i> 关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% for section in layout_config.sections %}
+        {% if section.visible %}
+            {% if section.id == 'header' %}
+                <div class="header section">
+                    <h1>销售报价单</h1>
+                    <div class="company-info">
+                        {{ template.company_name }}<br>
+                        {% if template.company_address %}地址：{{ template.company_address }} | {% endif %}
+                        {% if template.company_phone %}电话：{{ template.company_phone }} | {% endif %}
+                        {% if template.company_email %}邮箱：{{ template.company_email }}{% endif %}
+                    </div>
+                </div>
+
+            {% elif section.id == 'quote_info' %}
+                <div class="section">
+                    <div class="section-title">{{ section.name }}</div>
+                    <div class="info-grid">
+                        {% for field in section.fields %}
+                            {% if field.visible %}
+                                {% if field.id == 'quote_number' %}
+                                    <div class="info-item"><span class="info-label">报价单号：</span><span>{{ quote.quote_number }}</span></div>
+                                {% elif field.id == 'quote_type' %}
+                                    <div class="info-item"><span class="info-label">报价类型：</span><span>{{ quote.get_quote_type_display }}</span></div>
+                                {% elif field.id == 'quote_date' %}
+                                    <div class="info-item"><span class="info-label">报价日期：</span><span>{{ quote.quote_date }}</span></div>
+                                {% elif field.id == 'valid_until' %}
+                                    <div class="info-item"><span class="info-label">有效期至：</span><span>{{ quote.valid_until }}</span></div>
+                                {% elif field.id == 'sales_rep' %}
+                                    <div class="info-item"><span class="info-label">销售代表：</span><span>{{ quote.sales_rep.username|default:"-" }}</span></div>
+                                {% elif field.id == 'currency' %}
+                                    <div class="info-item"><span class="info-label">币种：</span><span>{{ quote.currency }}</span></div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+            {% elif section.id == 'customer_info' %}
+                <div class="section">
+                    <div class="section-title">{{ section.name }}</div>
+                    <div class="info-grid">
+                        {% for field in section.fields %}
+                            {% if field.visible %}
+                                {% if field.id == 'customer_name' %}
+                                    <div class="info-item"><span class="info-label">客户名称：</span><span>{{ quote.customer.name }}</span></div>
+                                {% elif field.id == 'customer_phone' %}
+                                    <div class="info-item"><span class="info-label">联系电话：</span><span>{{ quote.customer.phone|default:"-" }}</span></div>
+                                {% elif field.id == 'contact_person' and quote.contact_person %}
+                                    <div class="info-item"><span class="info-label">联系人：</span><span>{{ quote.contact_person.name }}</span></div>
+                                {% elif field.id == 'contact_email' and quote.contact_person %}
+                                    <div class="info-item"><span class="info-label">联系邮箱：</span><span>{{ quote.contact_person.email|default:"-" }}</span></div>
+                                {% elif field.id == 'customer_address' %}
+                                    <div class="info-item" style="grid-column: 1 / -1;"><span class="info-label">地址：</span><span>{{ quote.customer.address|default:"-" }}</span></div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+            {% elif section.id == 'items' %}
+                <div class="section">
+                    <div class="section-title">{{ section.name }}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width: 40px;">#</th>
+                                {% for field in section.fields %}
+                                    {% if field.visible %}
+                                        <th {% if field.id in 'quantity,unit_price,discount_rate,subtotal,lead_time' %}class="text-right"{% endif %}>
+                                            {{ field.label }}
+                                        </th>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                {% for field in section.fields %}
+                                    {% if field.visible %}
+                                        {% if field.id == 'product_name' %}
+                                            <td>
+                                                <div><strong>{{ item.product.name }}</strong></div>
+                                                <div style="font-size: 10px; color: #666;">{{ item.product.code }}</div>
+                                            </td>
+                                        {% elif field.id == 'quantity' %}
+                                            <td class="text-right">{{ item.quantity }}</td>
+                                        {% elif field.id == 'unit_price' %}
+                                            <td class="text-right">{{ item.unit_price }}</td>
+                                        {% elif field.id == 'discount_rate' %}
+                                            <td class="text-right">{{ item.discount_rate }}%</td>
+                                        {% elif field.id == 'subtotal' %}
+                                            <td class="text-right"><strong>{{ item.subtotal }}</strong></td>
+                                        {% elif field.id == 'lead_time' %}
+                                            <td class="text-center">{{ item.lead_time|default:"-" }}</td>
+                                        {% elif field.id == 'notes' and item.notes %}
+                                            <td style="font-size: 10px; color: #999;">{{ item.notes }}</td>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% elif section.id == 'summary' %}
+                <div class="section">
+                    <div class="summary">
+                        {% for field in section.fields %}
+                            {% if field.visible %}
+                                {% if field.id == 'subtotal' %}
+                                    <div class="summary-row"><span>含税小计：</span><span>¥{{ quote.subtotal }}</span></div>
+                                {% elif field.id == 'discount_amount' %}
+                                    <div class="summary-row"><span>折扣金额：</span><span style="color: #dc2626;">¥{{ quote.discount_amount }}</span></div>
+                                {% elif field.id == 'tax_amount' %}
+                                    <div class="summary-row"><span>税额：</span><span>¥{{ quote.tax_amount }}</span></div>
+                                {% elif field.id == 'total_amount' %}
+                                    <div class="summary-row"><span>含税总计：</span><span>¥{{ quote.total_amount }}</span></div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+            {% elif section.id == 'terms' %}
+                <div class="section">
+                    <div class="section-title">{{ section.name }}</div>
+                    <div style="background: #f9f9f9; border: 1px solid #ddd; padding: 10px;">
+                        {% for field in section.fields %}
+                            {% if field.visible %}
+                                {% if field.id == 'payment_terms' and quote.payment_terms %}
+                                    <div style="margin-bottom: 10px;"><strong>付款方式：</strong> {{ quote.payment_terms }}</div>
+                                {% elif field.id == 'delivery_terms' and quote.delivery_terms %}
+                                    <div style="margin-bottom: 10px;"><strong>交货条件：</strong> {{ quote.delivery_terms }}</div>
+                                {% elif field.id == 'warranty_terms' and quote.warranty_terms %}
+                                    <div><strong>保修条款：</strong><br><div style="white-space: pre-wrap; margin-top: 5px;">{{ quote.warranty_terms }}</div></div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+            {% elif section.id == 'notes' and quote.notes %}
+                <div class="section">
+                    <div class="section-title">{{ section.name }}</div>
+                    <div style="background: #f9f9f9; border: 1px solid #ddd; padding: 10px; white-space: pre-wrap;">{{ quote.notes }}</div>
+                </div>
+
+            {% elif section.id == 'footer' %}
+                <div class="section">
+                    <div style="display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+                        {% for field in section.fields %}
+                            {% if field.visible %}
+                                {% if field.id == 'sales_signature' %}
+                                    <div>
+                                        <div style="margin-bottom: 5px;">销售代表签字：</div>
+                                        <div style="width: 200px; border-bottom: 1px solid #333; margin-top: 40px;"></div>
+                                    </div>
+                                {% elif field.id == 'customer_signature' %}
+                                    <div>
+                                        <div style="margin-bottom: 5px;">客户确认签字：</div>
+                                        <div style="width: 200px; border-bottom: 1px solid #333; margin-top: 40px;"></div>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% for field in section.fields %}
+                        {% if field.visible and field.id == 'print_date' %}
+                            <div style="margin-top: 30px; text-align: center; font-size: 10px; color: #999;">
+                                打印日期：{{ print_date|date:"Y年m月d日 H:i" }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+</body>
+</html>

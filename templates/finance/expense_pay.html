@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}支付费用 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">财务管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:expense_list' %}" class="text-gray-500 hover:text-gray-700">费用管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">支付费用</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <!-- Header -->
+        <div class="bg-purple-50 px-6 py-4 border-b border-purple-100">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="icon text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-semibold text-purple-900">费用支付</h3>
+                    <p class="text-sm text-purple-700">请选择支付科目并确认支付信息</p>
+                </div>
+            </div>
+        </div> <!-- Form -->
+        <form method="post">
+            {% csrf_token %}
+            <div class="px-6 py-6 space-y-6">
+                <!-- 费用信息 -->
+                <div>
+                    <h4 class="text-base font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                        <svg class="icon text-theme-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>费用信息
+                    </h4>
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">费用单号</dt>
+                            <dd class="text-sm text-gray-900 font-medium">{{ expense.expense_number }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">费用日期</dt>
+                            <dd class="text-sm text-gray-900">{{ expense.expense_date|date:"Y-m-d" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">申请人</dt>
+                            <dd class="text-sm text-gray-900">{{ expense.applicant.get_full_name|default:expense.applicant.username }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">费用类别</dt>
+                            <dd class="text-sm text-gray-900">{{ expense.get_category_display }}</dd>
+                        </div>
+                        <div class="md:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500 mb-1">支付金额</dt>
+                            <dd class="text-2xl font-bold text-purple-600">¥{{ expense.amount|floatformat:2 }}</dd>
+                        </div>
+                        <div class="md:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500 mb-1">费用说明</dt>
+                            <dd class="text-sm text-gray-900 whitespace-pre-wrap">{{ expense.description }}</dd>
+                        </div>
+                    </dl>
+                </div> <!-- 支付设置 -->
+                <div>
+                    <h4 class="text-base font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                        <svg class="icon text-theme-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>支付设置
+                    </h4>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                支付科目 <span class="text-red-500">*</span>
+                            </label>
+                            <select name="payment_account" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors">
+                                <option value="">-- 请选择支付科目 --</option>
+                                {% for account in payment_accounts %}
+                                <option value="{{ account.pk }}">{{ account.code }} - {{ account.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>选择用于支付此费用的银行账户或现金科目
+                            </p>
+                        </div> <div>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="auto_create_journal" checked
+                                       class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 transition-colors">
+                                <span class="ml-2 text-sm text-gray-700">自动生成会计凭证</span>
+                            </label>
+                            <p class="mt-1 text-xs text-gray-500 ml-6">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>勾选后系统将自动生成对应的会计凭证
+                            </p>
+                        </div>
+                    </div>
+                </div> <!-- 会计凭证预览 -->
+                <div class="bg-theme-50 border border-theme-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="icon text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+</svg>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <h5 class="text-sm font-semibold text-theme-900 mb-2">会计凭证说明</h5>
+                            <div class="text-xs text-theme-800 space-y-1">
+                                <p><strong>借方：</strong>{{ expense.get_category_display }}费用科目（根据费用类别自动确定）</p>
+                                <p><strong>贷方：</strong>所选支付科目（如：银行存款、库存现金）</p>
+                                <p><strong>金额：</strong>¥{{ expense.amount|floatformat:2 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- 重要提示 -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="icon text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+</svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-800">
+                                <strong>重要提示：</strong>
+                            </p>
+                            <ul class="mt-2 text-xs text-yellow-700 list-disc list-inside space-y-1">
+                                <li>支付前请确认费用已审批通过且金额无误</li>
+                                <li>支付操作将更新费用状态为"已支付"</li>
+                                <li>如选择自动生成会计凭证，凭证将立即生效</li>
+                                <li>支付后将无法撤销，请谨慎操作</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- Actions -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <a href="{% url 'finance:expense_detail' expense.pk %}"
+                   class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>取消
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>确认支付
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

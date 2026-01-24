@@ -1,0 +1,83 @@
+# Django 核心框架
+Django==5.0.9  # 升级到Django 5.0最新稳定版
+djangorestframework==3.15.2  # 更新DRF以兼容Django 5.0
+
+# 数据库和模型相关
+django-mptt==0.15.0  # 树形结构支持（部门、产品分类）
+
+# 表单和前端
+django-crispy-forms==2.1
+crispy-tailwind==0.5.0
+
+# 过滤和搜索
+django-filter==23.3
+
+# 图片处理
+Pillow==10.4.0
+
+# Excel 和 PDF 支持
+pandas==2.1.4  # 数据处理（Excel/CSV导入导出）
+openpyxl==3.1.2  # Excel 导入导出
+reportlab==4.0.7  # PDF 生成
+django-import-export==4.0.0  # Django 模型导入导出
+
+# 配置管理
+python-decouple==3.8
+
+# 静态文件服务
+whitenoise==6.6.0
+
+# CORS 支持（API 跨域）
+django-cors-headers==4.6.0  # 更新以兼容Django 5.0
+
+# JWT 认证
+PyJWT==2.8.0
+cryptography==41.0.7
+
+# AI 助手依赖
+openai==1.54.0  # OpenAI官方SDK
+anthropic==0.39.0  # Anthropic Claude官方SDK
+requests==2.31.0  # HTTP请求库（百度文心等使用）
+
+# ==========================================
+# 生产环境依赖
+# ==========================================
+
+# 数据库驱动（生产环境 MySQL）
+mysqlclient==2.2.0
+
+# 生产服务器
+gunicorn==21.2.0
+
+# Redis 客户端和缓存
+redis==5.0.1
+django-redis==5.4.0  # 兼容Django 5.0
+
+# 异步任务队列
+celery==5.3.4
+django-celery-beat==2.5.0
+
+# 错误监控（生产环境推荐）
+# sentry-sdk==1.38.0
+
+# 性能监控（可选）
+# django-silk==5.0.4
+
+# ==========================================
+# 开发工具（可选，生产环境无需安装）
+# ==========================================
+
+# 开发辅助工具
+# django-extensions==3.2.3
+# django-debug-toolbar==4.2.0
+
+# 代码质量检查
+# flake8==6.1.0
+# black==23.12.0
+# isort==5.13.0
+
+# 测试工具
+# pytest==7.4.3
+# pytest-django==4.7.0
+# coverage==7.3.3
+# factory-boy==3.3.0

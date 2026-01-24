@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打印报价单 - {{ quote.quote_number }}</title>
+
+    {% load static %}
+
+    <!-- 所有依赖库 - 本地文件 -->
+    <script src="{% static 'libs/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'libs/jsbarcode.min.js' %}"></script>
+    <script src="{% static 'libs/socket.io.min.js' %}"></script>
+
+    <!-- ✨ 关键！必须在 socket.io 加载后、HiPrint 加载前禁用连接 -->
+    <script>
+        console.log('🔧 配置 socket.io 为禁用模式（在 HiPrint 加载前）');
+        if (typeof io !== 'undefined') {
+            // 保存原始方法
+            var originalConnect = io.connect || io;
+            var originalManager = io.Manager;
+
+            // 创建空对象，避免连接
+            var dummySocket = {
+                on: function() { return this; },
+                once: function() { return this; },
+                off: function() { return this; },
+                emit: function() { return this; },
+                close: function() { return this; },
+                disconnect: function() { return this; },
+                connect: function() { return this; },
+                send: function() { return this; }
+            };
+
+            // 重写 io 方法
+            io.connect = function() {
+                console.log('⚠️ 已阻止 socket.io 连接尝试');
+                return dummySocket;
+            };
+
+            io.Manager = function() {
+                console.log('⚠️ 已阻止 socket.io Manager 初始化');
+                return dummySocket;
+            };
+
+            // 直接调用 io() 的情况
+            window.io = function() {
+                console.log('⚠️ 已阻止 socket.io 直接调用');
+                return dummySocket;
+            };
+            window.io.connect = io.connect;
+            window.io.Manager = io.Manager;
+
+            console.log('✅ socket.io 已完全禁用');
+        } else {
+            console.warn('⚠️ socket.io 未找到');
+        }
+    </script>
+
+    <script src="{% static 'libs/jspdf.umd.min.js' %}"></script>
+    <script src="{% static 'libs/html2canvas.min.js' %}"></script>
+    <script src="{% static 'libs/canvg.umd.min.js' %}"></script>
+
+    <!-- HiPrint CSS -->
+    <link rel="stylesheet" href="{% static 'libs/print-lock.css' %}">
+
+    <!-- ✨ 关键修复：使用 Object.defineProperty 锁定 autoConnect 为 false（不可被 HiPrint 覆盖） -->
+    <script>
+        console.log('🔧 [核心修复] 锁定 window.autoConnect = false（不可写、不可删除）');
+
+        // 使用 Object.defineProperty 强制锁定 autoConnect 属性
+        // HiPrint 加载时会尝试设置 window.autoConnect = true，但会被拦截
+        Object.defineProperty(window, 'autoConnect', {
+            get: function() {
+                // 始终返回 false
+                return false;
+            },
+            set: function(value) {
+                // 拦截所有设置尝试
+                console.warn('⚠️ 拦截设置 window.autoConnect =', value, '（强制保持 false）');
+            },
+            configurable: false,  // 不可删除
+            enumerable: true
+        });
+
+        console.log('✅ window.autoConnect 已锁定为 false，HiPrint 无法覆盖');
+
+        // ✨ 改进的 alert 拦截器：拦截客户端连接警告并触发浏览器打印
+        var originalAlert = window.alert;
+        var isPrintingTriggered = false;  // 防止重复触发
+
+        window.alert = function(message) {
+            console.log('🚨 [ALERT 拦截] 弹窗内容:', message);
+
+            // 如果是客户端连接相关的警告，拦截并触发浏览器打印
+            if (message && message.includes &&
+                (message.includes('连接') || message.includes('客户端') || message.includes('失败'))) {
+                console.warn('⚠️ 已拦截客户端连接警告弹窗');
+
+                // ✨ 关键：在拦截后，使用浏览器原生打印
+                if (!isPrintingTriggered) {
+                    isPrintingTriggered = true;
+                    console.log('🖨️ 触发浏览器原生打印...');
+
+                    setTimeout(function() {
+                        window.print();  // 使用浏览器原生打印
+                        isPrintingTriggered = false;  // 重置标志
+                    }, 100);
+                }
+
+                return;  // 不显示弹窗
+            }
+
+            // 其他警告正常显示
+            return originalAlert.call(window, message);
+        };
+        console.log('✅ alert 拦截器已启用（拦截后触发浏览器打印）');
+</script>
+
+    <!-- HiPrint JS -->
+    <script src="{% static 'libs/vue-plugin-hiprint.js' %}"></script>
+
+    <script>
+        // 验证 autoConnect 锁定是否生效
+        console.log('✅ HiPrint 已加载');
+        console.log('   window.autoConnect =', window.autoConnect, '（应该是 false）');
+        console.log('   typeof hiprint:', typeof hiprint);
+
+        // ✨✨✨ 关键：不替换 print2 方法，使用原始方法
+        // 因为原始方法支持明细项（table）的循环渲染
+        // 我们已经通过 autoConnect = false 和 alert 拦截器禁用了客户端连接
+        console.log('🔧 使用 HiPrint 原始 print2 方法（支持明细项循环渲染）');
+        console.log('   已通过 autoConnect=false 和 alert 拦截器禁用客户端连接');
+</script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            @page {
+                size: A4 portrait;
+                margin: 0;  /* 移除页面外部边距 */
+            }
+            body {
+                margin: 0;
+                padding: 1cm;  /* 在body内部添加边距 */
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                box-sizing: border-box;
+            }
+            #print-container {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                max-height: calc(297mm - 2cm);  /* A4高度减去上下内边距 */
+                overflow: hidden;
+            }
+        }
+
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toolbar button,
+        .toolbar a {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(107, 114, 128, 0.3);
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+        }
+
+        #print-container {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 400px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .template-info {
+            font-size: 12px;
+            color: #1e40af;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .template-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        /* ✨ 模板选择器样式 */
+        .template-selector {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #374151;
+            background: white;
+            cursor: pointer;
+            min-width: 200px;
+            transition: all 0.2s;
+        }
+
+        .template-selector:hover {
+            border-color: #3b82f6;
+        }
+
+        .template-selector:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* ✨ 设为默认按钮样式 */
+        .btn-set-default {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-set-default:hover {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #f59e0b;
+            transform: scale(1.05);
+        }
+
+        .btn-set-default.is-default {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .btn-set-default i {
+            transition: all 0.2s;
+        }
+
+        .btn-set-default.is-default i {
+            color: #f59e0b;
+        }
+
+        /* HiPrint画布样式 */
+        .hiprint-printPanel {
+            margin: 0 auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background: white !important;
+            position: relative;
+        }
+
+        /* ✨ 关键修复：打印样式优化 */
+        @media print {
+            /* 不覆盖 JavaScript 设置的高度，让内容决定高度 */
+            .hiprint-printPanel {
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+                box-shadow: none !important;
+                border: none !important;
+                /* 重要：不设置 height，保持 JavaScript 设置的值 */
+            }
+        }
+
+        /* HiPrint元素样式 */
+        .hiprint-printElement {
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            border-radius: 8px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-container {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            color: #ef4444;
+            margin-bottom: 20px;
+        }
+
+        .info-icon {
+            font-size: 48px;
+            color: #f59e0b;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print toolbar">
+        <div class="template-info">
+            <i class="fas fa-file-alt"></i>
+            <span>打印模板:</span>
+            <!-- ✨ 模板选择器下拉菜单 -->
+            <select id="template-selector" class="template-selector">
+                <option value="{{ template.id }}" selected>{{ template.name }}</option>
+            </select>
+            <!-- ✨ 设为默认按钮 -->
+            <button onclick="setAsDefaultTemplate()" class="btn-set-default" title="设为默认模板">
+                <i class="fas fa-star"></i>
+            </button>
+        </div>
+        <div>
+            <button onclick="printDoc()" class="btn-success">
+                <i class="fas fa-print"></i> 打印
+            </button>
+            <button onclick="exportPDF()" class="btn-warning">
+                <i class="fas fa-file-pdf"></i> 导出PDF
+            </button>
+            <button onclick="window.close()" class="btn-secondary">
+                <i class="fas fa-times"></i> 关闭
+            </button>
+        </div>
+    </div>
+
+    <div id="print-container">
+        <div class="loading-overlay" id="loadingOverlay">
+            <div style="text-align: center;">
+                <div class="loading-spinner" style="margin: 0 auto 20px;"></div>
+                <p style="color: #6b7280; font-size: 14px;">正在加载打印模板...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let hiprintTemplate;
+    let quoteData;
+
+    // 等待所有库加载完成
+    window.addEventListener('load', function() {
+        console.log('✅ [DEBUG 5/5] 页面加载完成，开始初始化');
+        console.log('   window.autoConnect =', window.autoConnect);
+        console.log('=== 页面加载完成，开始初始化 ===');
+
+        // ✨ 检查所有依赖库是否加载成功
+        console.log('=== 库加载状态检查 ===');
+        console.log('jQuery:', typeof jQuery !== 'undefined' ? '✅ ' + jQuery.fn.jquery : '❌');
+        console.log('JsBarcode:', typeof JsBarcode !== 'undefined' ? '✅' : '❌');
+        console.log('socket.io:', typeof io !== 'undefined' ? '✅' : '❌');
+        console.log('jsPDF:', typeof jspdf !== 'undefined' ? '✅' : '❌');
+        console.log('html2canvas:', typeof html2canvas !== 'undefined' ? '✅' : '❌');
+        console.log('canvg:', typeof canvg !== 'undefined' ? '✅' : '❌');
+        console.log('hiprint:', typeof hiprint !== 'undefined' ? '✅' : '❌');
+        console.log('========================');
+
+        // 检查 HiPrint 是否加载
+        if (typeof hiprint === 'undefined') {
+            console.error('❌ HiPrint 未加载！');
+            console.error('静态文件路径检查: {% static "libs/vue-plugin-hiprint.js" %}');
+
+            var loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+
+            showError('HiPrint 打印组件未加载，请检查网络连接或联系管理员');
+            return;
+        }
+
+        // 检查 jQuery
+        if (typeof $ === 'undefined' || typeof jQuery === 'undefined') {
+            console.error('❌ jQuery 未加载！');
+            var loadingOverlay2 = document.getElementById('loadingOverlay');
+            if (loadingOverlay2) {
+                loadingOverlay2.style.display = 'none';
+            }
+            alert('jQuery 未加载，页面无法正常工作');
+            return;
+        }
+
+        console.log('✅ 所有依赖库加载成功');
+
+        // 延迟初始化，确保 DOM 完全准备好
+        setTimeout(initPrintPage, 100);
+    });
+
+    function initPrintPage() {
+        console.log('=== 打印页面初始化 ===');
+
+        // 获取模板JSON
+        const templateJson = {{ layout_config_json|safe }};
+        console.log('模板JSON:', templateJson);
+
+        // 获取报价单数据
+        quoteData = {
+            quote_number: '{{ quote.quote_number }}',
+            quote_date: '{{ quote.quote_date }}',
+            valid_until: '{{ quote.valid_until }}',
+            quote_type: '{{ quote.get_quote_type_display }}',
+            customer_name: '{{ quote.customer.name }}',
+            customer_phone: '{{ quote.customer.phone|default:"" }}',
+            customer_address: '{{ quote.customer.address|default:"" }}',
+            contact_person: '{% if quote.contact_person %}{{ quote.contact_person.name }}{% endif %}',
+            contact_phone: '{% if quote.contact_person %}{{ quote.contact_person.phone|default:"" }}{% endif %}',
+            contact_email: '{% if quote.contact_person %}{{ quote.contact_person.email|default:"" }}{% endif %}',
+            sales_rep: '{{ quote.sales_rep.username|default:"" }}',
+            currency: '{{ quote.currency }}',
+            exchange_rate: '{{ quote.exchange_rate }}',
+            subtotal: '{{ quote.subtotal }}',
+            discount_amount: '{{ quote.discount_amount }}',
+            tax_amount: '{{ quote.tax_amount }}',
+            total_amount: '{{ quote.total_amount }}',
+            payment_terms: '{{ quote.payment_terms|default:"" }}',
+            delivery_terms: '{{ quote.delivery_terms|default:"" }}',
+            warranty_terms: '{{ quote.warranty_terms|default:"" }}',
+            notes: '{{ quote.notes|default:"" }}',
+            company_name: '{{ template.company_name }}',
+            company_address: '{{ template.company_address }}',
+            company_phone: '{{ template.company_phone }}',
+            company_email: '{{ template.company_email }}',
+            items: [
+                {% for item in items %}
+                {
+                    index: {{ forloop.counter }},
+                    product_code: '{{ item.product.code }}',
+                    product_name: '{{ item.product.name }}',
+                    specifications: '{{ item.specifications|default:"-" }}',
+                    quantity: '{{ item.quantity }}',
+                    unit: '{{ item.unit|default:"个" }}',
+                    unit_price: '{{ item.unit_price }}',
+                    discount_rate: '{{ item.discount_rate }}',
+                    discount_amount: '{{ item.discount_amount }}',
+                    tax_rate: '{% if item.tax_rate %}{{ item.tax_rate }}{% else %}0{% endif %}',
+                    line_total: '{{ item.line_total }}',
+                    lead_time: '{% if item.lead_time %}{{ item.lead_time }}天{% else %}-{% endif %}',
+                    notes: '{{ item.notes|default:"" }}'
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            print_date: '{{ print_date|date:"Y年m月d日 H:i" }}'
+        };
+
+        console.log('📊 [诊断] 报价单数据:', quoteData);
+        console.log('🔍 [诊断] 报价单号:', quoteData.quote_number);
+        console.log('🔍 [诊断] 客户名称:', quoteData.customer_name);
+        console.log('🔍 [诊断] 明细数量:', quoteData.items.length);
+        console.log('🔍 [诊断] 明细数据:', quoteData.items);
+
+        // ✨ 关键诊断：检查 Django 模板变量是否正确渲染
+        console.log('🔧 [Django模板] quote.quote_number = "{{ quote.quote_number }}"');
+        console.log('🔧 [Django模板] quote.customer.name = "{{ quote.customer.name }}"');
+
+        // ✨ 诊断明细项数据
+        if (quoteData.items && quoteData.items.length > 0) {
+            console.log('🔍 [明细诊断] 第一条明细数据:', quoteData.items[0]);
+            console.log('🔍 [明细诊断] 字段清单:', Object.keys(quoteData.items[0]));
+        }
+
+        // 初始化HiPrint模板（参考template_preview.html的成功方案）
+        if (templateJson && Object.keys(templateJson).length > 0) {
+            try {
+                console.log('创建 HiPrint 模板实例...');
+
+                // ✨ 从模板JSON获取画布尺寸配置
+                let canvasWidth = 210;  // 默认A4纸宽度(mm)
+                let canvasHeight = 297; // 默认A4纸高度(mm)
+
+                if (templateJson.panels && templateJson.panels.length > 0) {
+                    const panel = templateJson.panels[0];
+                    if (panel.width) canvasWidth = panel.width;
+                    if (panel.height) canvasHeight = panel.height;
+
+                    console.log('📐 画布尺寸配置:', {
+                        width: canvasWidth + 'mm',
+                        height: canvasHeight + 'mm',
+                        paperType: panel.paperType || 'A4',
+                        orientation: panel.orientation || 'portrait'
+                    });
+                }
+
+                // 转换mm到px (96 DPI: 1mm ≈ 3.7795px)
+                const MM_TO_PX = 3.7795275591;
+                const canvasWidthPx = canvasWidth * MM_TO_PX;
+                const canvasHeightPx = canvasHeight * MM_TO_PX;
+
+                console.log('📐 画布像素尺寸:', {
+                    width: canvasWidthPx.toFixed(2) + 'px',
+                    height: canvasHeightPx.toFixed(2) + 'px'
+                });
+
+                // ✨ 关键诊断：检查元素实际高度
+                console.log('🔍 [诊断] 模板配置高度:', canvasHeight + 'mm');
+
+                // 找出最低元素
+                if (templateJson.panels && templateJson.panels[0].printElements) {
+                    let maxBottom = 0;
+                    templateJson.panels[0].printElements.forEach(elem => {
+                        if (elem.options) {
+                            const bottom = (elem.options.top || 0) + (elem.options.height || 0);
+                            maxBottom = Math.max(maxBottom, bottom);
+                        }
+                    });
+                    const maxBottomMm = maxBottom * 0.3527;  // pt转mm
+                    console.log('🔍 [诊断] 内容实际高度:', maxBottomMm.toFixed(2) + 'mm (约' + maxBottom + 'pt)');
+                    console.log('🔍 [诊断] 剩余空白:', (canvasHeight - maxBottomMm).toFixed(2) + 'mm');
+                }
+
+                // 创建模板实例
+                hiprintTemplate = new hiprint.PrintTemplate({
+                    template: templateJson
+                });
+
+                // 先隐藏加载动画
+                $('#loadingOverlay').fadeOut(300);
+
+                // ✨ 页面预览策略：强制设置为模板设计的完整画布尺寸（297mm）
+                // 获取渲染后的HTML（包含真实数据）
+                var $renderedContent = hiprintTemplate.getHtml(quoteData);
+
+                // ✨ 强制设置画布高度为模板配置的高度
+                const $panel = $renderedContent.find('.hiprint-printPanel');
+                if ($panel.length > 0) {
+                    const originalHeight = $panel.outerHeight();
+                    const originalHeightMm = originalHeight / MM_TO_PX;
+
+                    console.log('📄 [页面预览] 原始画布高度:', originalHeight + 'px (约' + originalHeightMm.toFixed(2) + 'mm)');
+                    console.log('📄 [页面预览] 模板配置高度:', canvasHeightPx.toFixed(2) + 'px (' + canvasHeight + 'mm)');
+
+                    // ✨ 核心：强制设置为模板配置的高度
+                    $panel.css({
+                        'height': canvasHeightPx + 'px',
+                        'min-height': canvasHeightPx + 'px',
+                        'max-height': canvasHeightPx + 'px'
+                    });
+
+                    console.log('✅ [页面预览] 已设置画布高度为模板设计尺寸:', canvasHeight + 'mm');
+                    console.log('   （打印预览会自动优化为实际内容高度）');
+                }
+
+                // 将渲染内容插入容器（显示完整画布）
+                $('#print-container').html($renderedContent);
+
+                // 禁用编辑功能（只显示预览）
+                setTimeout(function() {
+                    $('.hiprint-printElement').css({
+                        'cursor': 'default',
+                        'pointer-events': 'none'
+                    });
+
+                    console.log('✅ 页面预览渲染完成 - 显示完整画布尺寸 (' + canvasHeight + 'mm)');
+                    console.log('   提示：点击"打印"按钮时，将自动优化为实际内容高度（1页）');
+                }, 200);
+
+            } catch (error) {
+                console.error('❌ HiPrint初始化失败:', error);
+                $('#loadingOverlay').hide();
+                showError('模板加载失败: ' + error.message);
+            }
+        } else {
+            $('#loadingOverlay').hide();
+            showWarning('模板尚未设计，请先设计模板');
+        }
+    }
+
+    // 打印文档
+    function printDoc() {
+        console.log('🖨️ printDoc() 被调用');
+        console.log('   hiprintTemplate 存在吗?', !!hiprintTemplate);
+        console.log('   quoteData 存在吗?', !!quoteData);
+
+        if (!hiprintTemplate) {
+            alert('模板未加载，无法打印');
+            return;
+        }
+        try {
+            console.log('=== 开始打印（使用真实数据）===');
+
+            // ✨✨✨ 新策略：从模板 JSON 中找到明细项元素
+            const templateJson = {{ layout_config_json|safe }};
+            const elements = templateJson.panels[0].printElements || [];
+
+            // 找出所有明细项字段
+            const itemFieldElements = elements.filter(elem => {
+                const field = elem.options && elem.options.field;
+                return field && field.includes('items.#');
+            });
+
+            console.log('📊 从模板 JSON 找到明细项元素:', itemFieldElements.length);
+            itemFieldElements.forEach(elem => {
+                const field = elem.options.field;
+                const title = elem.printElementType && elem.printElementType.title || '未知';
+                console.log(`   - ${title}: ${field}`);
+            });
+
+            // 1. 清空容器
+            $('#print-container').empty();
+
+            // 2. 使用 getHtml() 渲染真实数据（基本字段）
+            var $renderedContent = hiprintTemplate.getHtml(quoteData);
+
+            // 3. 手动处理明细项的循环渲染
+            console.log('🔄 开始手动渲染明细项:', quoteData.items.length, '条');
+
+            if (itemFieldElements.length > 0 && quoteData.items && quoteData.items.length > 0) {
+                // 按字段分组（避免重复克隆同一个元素）
+                const fieldMap = new Map();
+                itemFieldElements.forEach(elem => {
+                    const field = elem.options.field;
+                    const top = elem.options.top;
+                    const left = elem.options.left;
+
+                    if (!fieldMap.has(field)) {
+                        fieldMap.set(field, {
+                            field: field,
+                            fieldName: field.replace('items.#.', ''),
+                            top: top,
+                            left: left,
+                            elem: elem
+                        });
+                    }
+                });
+
+                console.log('   去重后的字段数:', fieldMap.size);
+
+                // 找到对应的 DOM 元素（根据位置匹配）
+                const $printPanel = $renderedContent.find('.hiprint-printPanel');
+                const $allElements = $printPanel.find('.hiprint-printElement');
+
+                console.log('   页面中的元素总数:', $allElements.length);
+
+                // 为每个数据行创建元素
+                quoteData.items.forEach((item, rowIndex) => {
+                    console.log(`   处理第 ${rowIndex + 1} 行数据`);
+
+                    fieldMap.forEach((info, field) => {
+                        // 根据 top 和 left 位置找到对应的 DOM 元素
+                        const targetTop = info.top + 'pt';
+                        const targetLeft = info.left + 'pt';
+
+                        let $targetElem = null;
+
+                        // 遍历查找匹配位置的元素
+                        $allElements.each(function() {
+                            const $elem = $(this);
+                            const elemTop = $elem.css('top');
+                            const elemLeft = $elem.css('left');
+
+                            if (elemTop === targetTop && elemLeft === targetLeft) {
+                                $targetElem = $elem;
+                                return false; // 跳出循环
+                            }
+                        });
+
+                        if ($targetElem) {
+                            if (rowIndex === 0) {
+                                // 第一行：直接更新内容
+                                const value = item[info.fieldName] || '';
+                                $targetElem.find('.hiprint-printElement-text-content').text(value);
+                                console.log(`     更新字段 ${info.fieldName}: ${value}`);
+                            } else {
+                                // 后续行：克隆元素
+                                const $clone = $targetElem.clone();
+                                const lineHeight = 20; // 行高 20pt
+                                const newTop = info.top + (lineHeight * rowIndex);
+                                $clone.css('top', newTop + 'pt');
+
+                                // 更新内容
+                                const value = item[info.fieldName] || '';
+                                $clone.find('.hiprint-printElement-text-content').text(value);
+
+                                // 插入到页面
+                                $targetElem.parent().append($clone);
+                                console.log(`     克隆字段 ${info.fieldName}: ${value} (top: ${newTop}pt)`);
+                            }
+                        } else {
+                            console.warn(`     未找到位置匹配的元素: top=${targetTop}, left=${targetLeft}`);
+                        }
+                    });
+                });
+            }
+
+            // 4. 将渲染后的内容插入容器
+            $('#print-container').html($renderedContent);
+
+            // ✨ 关键修复：调整画布高度为实际内容高度
+            setTimeout(function() {
+                const $panel = $('.hiprint-printPanel');
+                if ($panel.length > 0) {
+                    // 动态计算实际内容高度
+                    let maxBottom = 0;
+                    $panel.find('.hiprint-printElement').each(function() {
+                        const $elem = $(this);
+                        const top = parseFloat($elem.css('top')) || 0;
+                        const height = $elem.outerHeight() || 0;
+                        const bottom = top + height;
+                        maxBottom = Math.max(maxBottom, bottom);
+                    });
+
+                    const MM_TO_PX = 3.7795275591;
+                    const contentHeightPx = maxBottom + 40; // 加40px底部间距
+                    const contentHeightMm = contentHeightPx / MM_TO_PX;
+                    const originalHeightMm = $panel.outerHeight() / MM_TO_PX;
+
+                    console.log('🔍 [打印前调整] 画布原始高度:', originalHeightMm.toFixed(2) + 'mm');
+                    console.log('🔍 [打印前调整] 内容实际高度:', contentHeightMm.toFixed(2) + 'mm');
+                    console.log('🔍 [打印前调整] 画布原始样式:', $panel.attr('style'));
+
+                    // ✨ 核心修复：移除所有可能导致高度固定的样式
+                    // 1. 移除内联样式中的 height
+                    let inlineStyle = $panel.attr('style') || '';
+                    inlineStyle = inlineStyle
+                        .replace(/height:\s*[^;]+;?/gi, '')
+                        .replace(/min-height:\s*[^;]+;?/gi, '')
+                        .replace(/max-height:\s*[^;]+;?/gi, '');
+
+                    // 2. 添加新的高度样式
+                    inlineStyle += `height: ${contentHeightPx}px !important;`;
+
+                    $panel.attr('style', inlineStyle);
+
+                    // 3. 通过 CSS 再次强制
+                    $panel.css({
+                        'height': contentHeightPx + 'px',
+                        'min-height': contentHeightPx + 'px',
+                        'max-height': contentHeightPx + 'px'
+                    });
+
+                    console.log('✅ [打印前调整] 已优化画布高度:', originalHeightMm.toFixed(2) + 'mm → ' + contentHeightMm.toFixed(2) + 'mm');
+                    console.log('   节省空间:', (originalHeightMm - contentHeightMm).toFixed(2) + 'mm');
+                    console.log('🔍 [打印前调整] 画布新样式:', $panel.attr('style'));
+                }
+            }, 100);
+
+            console.log('✅ 真实数据渲染完成');
+
+            // 5. 延迟触发打印（确保高度调整完成）
+            setTimeout(function() {
+                console.log('🖨️ 触发打印对话框');
+                window.print();
+            }, 300);
+
+        } catch (error) {
+            console.error('❌ 打印失败:', error);
+            console.error('   错误详情:', error.stack);
+            alert('打印失败: ' + error.message);
+        }
+    }
+
+    // 导出PDF
+    function exportPDF() {
+        console.log('📄 exportPDF() 被调用');
+        console.log('   hiprintTemplate 存在吗?', !!hiprintTemplate);
+        console.log('   quoteData 存在吗?', !!quoteData);
+
+        if (!hiprintTemplate) {
+            alert('模板未加载，无法导出');
+            return;
+        }
+        try {
+            console.log('=== 开始导出 PDF（使用真实数据）===');
+
+            // ✨✨✨ 关键修复：手动实现明细项循环渲染后再导出 PDF
+            // 1. 获取渲染后的 HTML（包含真实数据和明细项）
+            var $renderedContent = hiprintTemplate.getHtml(quoteData);
+
+            // 2. 手动处理明细项的循环渲染（与 printDoc 相同的逻辑）
+            console.log('🔄 手动渲染明细项:', quoteData.items.length, '条');
+
+            var $itemElements = $renderedContent.find('[data-field*="items.#"]');
+            console.log('   找到明细项元素:', $itemElements.length);
+
+            if ($itemElements.length > 0 && quoteData.items && quoteData.items.length > 0) {
+                var $firstItem = $itemElements.first().closest('.hiprint-printElement');
+
+                quoteData.items.forEach(function(item, index) {
+                    if (index === 0) {
+                        $itemElements.each(function() {
+                            var $elem = $(this);
+                            var field = $elem.attr('data-field') || '';
+                            var fieldName = field.replace('items.#.', '');
+
+                            if (item[fieldName] !== undefined) {
+                                $elem.find('.hiprint-printElement-text-content').text(item[fieldName]);
+                            }
+                        });
+                    } else {
+                        $itemElements.each(function() {
+                            var $elem = $(this).closest('.hiprint-printElement');
+                            var $clone = $elem.clone();
+
+                            var currentTop = parseFloat($elem.css('top') || 0);
+                            var lineHeight = 20;
+                            $clone.css('top', (currentTop + lineHeight * index) + 'pt');
+
+                            var field = $elem.find('[data-field]').attr('data-field') || '';
+                            var fieldName = field.replace('items.#.', '');
+
+                            if (item[fieldName] !== undefined) {
+                                $clone.find('.hiprint-printElement-text-content').text(item[fieldName]);
+                            }
+
+                            $elem.parent().append($clone);
+                        });
+                    }
+                });
+            }
+
+            console.log('✅ 真实数据渲染完成，开始生成 PDF');
+
+            // 3. 使用 html2canvas + jsPDF 导出（HiPrint 内部使用的方法）
+            const filename = `{{ quote.quote_number }}_{{ quote.customer.name }}.pdf`;
+
+            // 临时将渲染内容显示在隐藏容器中
+            var $tempContainer = $('<div id="temp-pdf-container"></div>').appendTo('body').hide();
+            $tempContainer.html($renderedContent);
+
+            // 使用 html2canvas 截图并生成 PDF
+            html2canvas($tempContainer[0], {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                windowWidth: 794,  // A4宽度 (210mm * 3.7795px/mm)
+                windowHeight: 1123 // A4高度 (297mm * 3.7795px/mm)
+            }).then(function(canvas) {
+                var imgData = canvas.toDataURL('image/png');
+                var pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+
+                // A4纸尺寸 (mm)
+                var pdfWidth = 210;
+                var pdfHeight = 297;
+
+                // 计算图片尺寸
+                var imgWidth = pdfWidth;
+                var imgHeight = canvas.height * imgWidth / canvas.width;
+
+                // ✨ 关键修复：如果高度超过一页,等比例缩小以适应单页
+                if (imgHeight > pdfHeight) {
+                    console.warn('⚠️ 内容高度超出一页,自动缩放以适应');
+                    imgHeight = pdfHeight;
+                    imgWidth = canvas.width * imgHeight / canvas.height;
+
+                    // 居中显示
+                    var xOffset = (pdfWidth - imgWidth) / 2;
+                    pdf.addImage(imgData, 'PNG', xOffset, 0, imgWidth, imgHeight);
+                } else {
+                    // 内容未超出,正常显示
+                    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                }
+
+                pdf.save(filename);
+
+                // 清理临时容器
+                $tempContainer.remove();
+
+                console.log('✅ PDF 导出完成:', filename);
+            }).catch(function(error) {
+                console.error('❌ PDF 生成失败:', error);
+                $tempContainer.remove();
+                alert('PDF 生成失败: ' + error.message);
+            });
+
+        } catch (error) {
+            console.error('❌ 导出PDF失败:', error);
+            console.error('   错误详情:', error.stack);
+            alert('导出PDF失败: ' + error.message);
+        }
+    }
+
+    // 显示错误信息
+    function showError(message) {
+        var container = document.getElementById('print-container');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="error-container">
+                <i class="fas fa-exclamation-triangle error-icon"></i>
+                <h3 style="margin-bottom: 10px; color: #111827;">模板加载失败</h3>
+                <p style="color: #6b7280; margin-bottom: 20px;">${message}</p>
+                <p style="color: #9ca3af; font-size: 14px; margin-bottom: 20px;">
+                    可能的原因：<br>
+                    1. HiPrint 打印组件库文件加载失败<br>
+                    2. 网络连接问题<br>
+                    3. 静态文件配置错误<br><br>
+                    请检查浏览器控制台查看详细错误信息
+                </p>
+                <button onclick="location.reload()" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px;">
+                    <i class="fas fa-redo"></i> 重新加载
+                </button>
+                <a href="/sales/templates/" style="padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block;">
+                    <i class="fas fa-cog"></i> 模板管理
+                </a>
+            </div>
+        `;
+    }
+
+    // 显示警告信息
+    function showWarning(message) {
+        var container = document.getElementById('print-container');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="error-container">
+                <i class="fas fa-paint-brush info-icon"></i>
+                <h3 style="margin-bottom: 10px; color: #111827;">模板尚未设计</h3>
+                <p style="color: #6b7280; margin-bottom: 20px;">${message}</p>
+                <a href="/sales/templates/" style="padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block;">
+                    <i class="fas fa-paint-brush"></i> 模板管理
+                </a>
+            </div>
+        `;
+    }
+
+    // ============================================
+    // ✨ 模板选择器功能
+    // ============================================
+
+    // 当前单据信息（从Django模板传递）
+    const documentType = 'quote';  // 单据类型
+    const quoteType = '{{ quote.quote_type }}';  // 报价单类型（DOMESTIC/OVERSEAS）
+    const quoteId = {{ quote.id }};  // 报价单ID
+    const documentTypeFull = quoteType.toUpperCase() === 'DOMESTIC' ? 'quote_domestic' : 'quote_overseas';
+
+    // 页面加载时获取可用模板列表
+    window.addEventListener('DOMContentLoaded', function() {
+        console.log('🔄 加载可用模板列表...');
+        loadAvailableTemplates();
+    });
+
+    // 获取可用模板列表
+    function loadAvailableTemplates() {
+        $.ajax({
+            url: '/sales/api/templates/available/',
+            method: 'GET',
+            data: {
+                document_type: documentType,
+                quote_type: quoteType
+            },
+            success: function(response) {
+                if (response.success) {
+                    console.log('✅ 已加载', response.templates.length, '个可用模板');
+
+                    // 更新下拉选择器
+                    const $selector = $('#template-selector');
+                    $selector.empty();
+
+                    response.templates.forEach(function(template) {
+                        const isDefault = template.is_default ? ' ⭐' : '';
+                        const option = $('<option>')
+                            .val(template.id)
+                            .text(template.name + isDefault)
+                            .data('is-default', template.is_default);
+
+                        $selector.append(option);
+                    });
+
+                    // 设置当前选中的模板
+                    const currentTemplateId = {{ template.id }};
+                    $selector.val(currentTemplateId);
+
+                    // 更新"设为默认"按钮状态
+                    updateDefaultButtonState($selector.find(':selected').data('is-default'));
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ 加载模板列表失败:', error);
+            }
+        });
+    }
+
+    // 模板选择改变时重新加载页面
+    $('#template-selector').on('change', function() {
+        const selectedTemplateId = $(this).val();
+        const isDefault = $(this).find(':selected').data('is-default');
+
+        console.log('🔄 切换到模板:', selectedTemplateId);
+
+        // 更新"设为默认"按钮状态
+        updateDefaultButtonState(isDefault);
+
+        // 重新加载页面，使用新的模板ID
+        const newUrl = window.location.pathname + '?template_id=' + selectedTemplateId;
+        window.location.href = newUrl;
+    });
+
+    // 设为默认模板
+    function setAsDefaultTemplate() {
+        const selectedTemplateId = $('#template-selector').val();
+        const selectedTemplateName = $('#template-selector option:selected').text().replace(' ⭐', '');
+
+        console.log('⭐ 设置默认模板:', selectedTemplateId, selectedTemplateName);
+
+        // 显示确认对话框
+        if (!confirm(`确定要将"${selectedTemplateName}"设为默认打印模板吗？`)) {
+            return;
+        }
+
+        // 发送AJAX请求
+        $.ajax({
+            url: '/sales/api/templates/set-default/',
+            method: 'POST',
+            data: {
+                template_id: selectedTemplateId,
+                document_type: documentTypeFull,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    console.log('✅ 已设为默认模板');
+                    alert('✅ ' + response.message);
+
+                    // 重新加载模板列表（更新星标）
+                    loadAvailableTemplates();
+                } else {
+                    alert('❌ 设置失败: ' + response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ 设置默认模板失败:', error);
+                alert('❌ 设置失败: ' + error);
+            }
+        });
+    }
+
+    // 更新"设为默认"按钮状态
+    function updateDefaultButtonState(isDefault) {
+        const $btn = $('.btn-set-default');
+
+        if (isDefault) {
+            $btn.addClass('is-default');
+            $btn.attr('title', '当前为默认模板');
+        } else {
+            $btn.removeClass('is-default');
+            $btn.attr('title', '设为默认模板');
+        }
+    }
+    </script>
+</body>
+</html>

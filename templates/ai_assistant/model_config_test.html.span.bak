@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block title %}测试AI模型配置 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">系统设置</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'ai_assistant:model_config_list' %}" class="text-gray-500 hover:text-gray-700">AI模型配置</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">测试连接</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-plug text-theme-600 mr-2"></i>测试AI模型配置
+            </h3>
+            <p class="text-sm text-gray-600 mt-1">验证配置是否正确，发送测试消息到AI模型</p>
+        </div>
+        <a href="{% url 'ai_assistant:model_config_list' %}"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <svg x-data="heroicon('arrow-left')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>返回列表
+        </a>
+    </div> <!-- Config Info -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4">
+            <svg x-data="heroicon('information-circle')" class="text-theme-600 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>配置信息
+        </h4>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <span class="text-gray-600">配置名称：</span>
+                <span class="font-medium text-gray-900">{{ config.name }}</span>
+            </div>
+            <div>
+                <span class="text-gray-600">提供商：</span>
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-theme-100 text-theme-800">
+                    {{ config.get_provider_display }}
+                </span>
+            </div>
+            <div>
+                <span class="text-gray-600">模型名称：</span>
+                <span class="font-medium text-gray-900">{{ config.model_name }}</span>
+            </div>
+            <div>
+                <span class="text-gray-600">状态：</span>
+                {% if config.is_active %}
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                    <svg x-data="heroicon('check-circle')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>启用
+                </span>
+                {% else %}
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                    <svg x-data="heroicon('x-circle')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>禁用
+                </span>
+                {% endif %}
+            </div>
+            {% if config.api_base %}
+            <div class="col-span-2">
+                <span class="text-gray-600">自定义端点：</span>
+                <span class="font-mono text-xs text-gray-900">{{ config.api_base }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div> <!-- Test Section -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4">
+            <i class="fas fa-flask text-purple-600 mr-2"></i>连接测试
+        </h4> <!-- Test Button -->
+        <div class="flex items-center justify-center py-8">
+            <button class="btn btn-primary" id="testButton">
+                <i class="fas fa-play-circle mr-2"></i>
+                <span id="buttonText">开始测试</span>
+            </button>
+        </div> <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="hidden text-center py-4">
+            <div class="inline-flex items-center">
+                <svg class="animate-spin h-5 w-5 text-theme-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-gray-600">正在测试连接...</span>
+            </div>
+        </div> <!-- Result Container -->
+        <div id="resultContainer" class="hidden mt-6">
+            <!-- Success Result -->
+            <div id="successResult" class="hidden p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg x-data="heroicon('check-circle')" class="text-green-600 text-2xl" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h5 class="text-sm font-semibold text-green-800 mb-1">
+                            <i class="fas fa-thumbs-up mr-1"></i>连接测试成功！
+                        </h5>
+                        <p class="text-sm text-green-700" id="successMessage"></p>
+                        <div class="mt-3 text-xs text-green-600">
+                            <svg x-data="heroicon('information-circle')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                            配置正常，可以正常使用此AI模型
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- Error Result -->
+            <div id="errorResult" class="hidden p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg x-data="heroicon('exclamation-triangle')" class="text-red-600 text-2xl" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h5 class="text-sm font-semibold text-red-800 mb-1">
+                            <svg x-data="heroicon('x-circle')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>连接测试失败
+                        </h5>
+                        <p class="text-sm text-red-700" id="errorMessage"></p>
+                        <div class="mt-3 text-xs text-red-600">
+                            <i class="fas fa-lightbulb mr-1"></i>
+                            <strong>可能的原因：</strong>
+                        </div>
+                        <ul class="mt-2 text-xs text-red-600 list-disc list-inside space-y-1">
+                            <li>API Key 不正确或已过期</li>
+                            <li>网络连接问题或防火墙限制</li>
+                            <li>API Base URL 配置错误</li>
+                            <li>模型名称不存在或无权限访问</li>
+                            <li>账户余额不足或已达配额限制</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- Usage History (if available) -->
+        {% if config.total_requests > 0 %}
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <h5 class="text-sm font-semibold text-gray-900 mb-3">
+                <svg x-data="heroicon('chart-bar')" class="text-gray-600 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>使用统计
+            </h5>
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-900">{{ config.total_requests }}</div>
+                    <div class="text-xs text-gray-600 mt-1">总请求次数</div>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-900">{{ config.total_tokens|default:0 }}</div>
+                    <div class="text-xs text-gray-600 mt-1">总Token消耗</div>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-lg">
+                    <div class="text-sm font-medium text-gray-900">
+                        {% if config.last_used_at %}
+                        {{ config.last_used_at|date:"Y-m-d H:i" }}
+                        {% else %}
+                        从未使用
+                        {% endif %}
+                    </div>
+                    <div class="text-xs text-gray-600 mt-1">最后使用时间</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div> <!-- Help Section -->
+    <div class="bg-theme-50 border border-theme-200 rounded-lg p-4">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg x-data="heroicon('question-mark-circle')" class="text-theme-600 text-xl" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+            </div>
+            <div class="ml-3">
+                <h5 class="text-sm font-semibold text-theme-800 mb-2">测试说明</h5>
+                <ul class="text-xs text-theme-700 space-y-1">
+                    <li><svg x-data="heroicon('check')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>测试将发送一条简单的消息到AI模型</li>
+                    <li><svg x-data="heroicon('check')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>验证API连接、认证和模型访问权限</li>
+                    <li><svg x-data="heroicon('check')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>不会消耗大量Token，仅用于验证配置</li>
+                    <li><svg x-data="heroicon('check')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>测试失败请检查配置信息是否正确</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('testButton').addEventListener('click', async function() {
+    const button = this;
+    const buttonText = document.getElementById('buttonText');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const resultContainer = document.getElementById('resultContainer');
+    const successResult = document.getElementById('successResult');
+    const errorResult = document.getElementById('errorResult');
+    const successMessage = document.getElementById('successMessage');
+    const errorMessage = document.getElementById('errorMessage'); // Reset UI
+    button.disabled = true;
+    buttonText.textContent = '测试中...';
+    loadingIndicator.classList.remove('hidden');
+    resultContainer.classList.add('hidden');
+    successResult.classList.add('hidden');
+    errorResult.classList.add('hidden'); try {
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                         document.cookie.match(/csrftoken=([^;]+)/)?.[1]; // Send test request
+        const response = await fetch('{% url "ai_assistant:model_config_test" config.pk %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+        }); const data = await response.json(); // Hide loading
+        loadingIndicator.classList.add('hidden'); // Show result
+        resultContainer.classList.remove('hidden'); if (data.success) {
+            successMessage.textContent = data.message;
+            successResult.classList.remove('hidden');
+        } else {
+            errorMessage.textContent = data.message;
+            errorResult.classList.remove('hidden');
+        } } catch (error) {
+        loadingIndicator.classList.add('hidden');
+        resultContainer.classList.remove('hidden');
+        errorMessage.textContent = '测试请求失败: ' + error.message;
+        errorResult.classList.remove('hidden');
+    } finally {
+        button.disabled = false;
+        buttonText.textContent = '重新测试';
+    }
+});
+</script>
+
+<!-- CSRF Token for AJAX -->
+{% csrf_token %}
+{% endblock %}

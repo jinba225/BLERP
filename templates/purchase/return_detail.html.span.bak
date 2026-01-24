@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block title %}退货单详情 - {{ return.return_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:order_list' %}" class="text-gray-500 hover:text-gray-700">采购管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:return_list' %}" class="text-gray-500 hover:text-gray-700">采购退货</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ return.return_number }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">采购退货单详情</h3>
+            <p class="text-sm text-gray-600">{{ return.return_number }}</p>
+        </div>
+        <div class="flex space-x-3">
+            {% if can_approve %}
+            <form method="post" action="{% url 'purchase:return_approve' return.pk %}" class="inline">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit" onclick="return confirm('确认审核通过此退货单？')">
+                    <svg x-data="heroicon('check')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>审核通过
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'purchase:order_detail' return.purchase_order.pk %}" class="btn btn-outline">
+                <svg x-data="heroicon('document')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>查看采购订单
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Badge -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 mb-1">当前状态</p>
+                {% if return.status == 'draft' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                    <svg x-data="heroicon('document')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>草稿
+                </span>
+                {% elif return.status == 'pending' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                    <svg x-data="heroicon('clock')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>待审核
+                </span>
+                {% elif return.status == 'approved' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    <svg x-data="heroicon('check-circle')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>已审核
+                </span>
+                {% elif return.status == 'returned' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-theme-100 text-theme-800">
+                    <i class="fas fa-undo-alt mr-2"></i>已退货
+                </span>
+                {% elif return.status == 'completed' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-check-double mr-2"></i>已完成
+                </span>
+                {% elif return.status == 'cancelled' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                    <svg x-data="heroicon('x-circle')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>已取消
+                </span>
+                {% endif %}
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-gray-600 mb-1">退货总金额</p>
+                <p class="text-2xl font-bold text-theme-600">¥{{ return.refund_amount|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Basic Information -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-base font-semibold text-gray-900">基本信息</h4>
+        </div>
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">采购订单</p>
+                    <a href="{% url 'purchase:order_detail' return.purchase_order.pk %}" class="text-theme-600 hover:text-theme-700 font-medium">
+                        {{ return.purchase_order.order_number }}
+                    </a>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">供应商</p>
+                    <p class="text-sm font-medium text-gray-900">{{ return.purchase_order.supplier.name }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">退货日期</p>
+                    <p class="text-sm font-medium text-gray-900">{{ return.return_date|date:"Y-m-d" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">退货原因</p>
+                    <p class="text-sm font-medium text-gray-900">{{ return.get_reason_display }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">创建时间</p>
+                    <p class="text-sm font-medium text-gray-900">{{ return.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">创建人</p>
+                    <p class="text-sm font-medium text-gray-900">{{ return.created_by.get_full_name|default:return.created_by.username }}</p>
+                </div>
+                {% if return.approved_by %}
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">审核人</p>
+                    <p class="text-sm font-medium text-gray-900">{{ return.approved_by.get_full_name|default:return.approved_by.username }}</p>
+                </div>
+                {% endif %}
+                {% if return.approved_at %}
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">审核时间</p>
+                    <p class="text-sm font-medium text-gray-900">{{ return.approved_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                {% endif %}
+                {% if return.notes %}
+                <div class="md:col-span-3">
+                    <p class="text-sm text-gray-600 mb-1">备注</p>
+                    <p class="text-sm font-medium text-gray-900">{{ return.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Items Detail -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-base font-semibold text-gray-900">退货明细</h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">订单数量</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">退货数量</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">批次号</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">单价</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">小计</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item in items %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            <div class="font-medium">{{ item.order_item.product.name }}</div>
+                            <div class="text-gray-500">{{ item.order_item.product.code }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right text-gray-700">
+                            {{ item.order_item.quantity }} {{ item.order_item.product.unit }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right text-theme-600 font-semibold">
+                            {{ item.quantity }} {{ item.order_item.product.unit }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {% if item.batch_number %}{{ item.batch_number }}{% else %}<span class="text-gray-400">-</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right text-gray-700">
+                            ¥{{ item.unit_price|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right text-gray-900 font-medium">
+                            ¥{{ item.line_total|floatformat:2 }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+                            <svg x-data="heroicon('inbox')" class="text-3xl mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                            <p class="text-sm">暂无退货明细</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="bg-gray-50">
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                            退货总金额：
+                        </td>
+                        <td class="px-6 py-4 text-right text-base font-bold text-theme-600">
+                            ¥{{ return.refund_amount|floatformat:2 }}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

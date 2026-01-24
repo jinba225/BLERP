@@ -1,0 +1,650 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if action == 'create' %}新建报价单{% else %}编辑报价单{% endif %} - BetterLaser ERP{% endblock %}
+{% block page_title %}{% if action == 'create' %}新建报价单{% else %}编辑报价单{% endif %}{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">销售管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:quote_list' %}" class="text-gray-500 hover:text-gray-700">销售报价</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{% if action == 'create' %}新建报价{% else %}编辑报价{% endif %}</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto" x-data="quoteFormData()">
+    <form method="post" @submit.prevent="handleSubmit">
+        {% csrf_token %} <!-- Header with Actions -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">
+                    {% if action == 'create' %}新建报价单{% else %}编辑报价单 - {{ quote.quote_number }}{% endif %}
+                </h3>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{% url 'sales:quote_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>取消
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>保存
+                </button>
+            </div>
+        </div> {% if form.errors or formset.errors %}
+        <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <p class="font-bold">表单存在错误，请检查：</p>
+            <ul class="mt-2 list-disc list-inside">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% if formset.non_form_errors %}
+                    {% for error in formset.non_form_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %} <!-- Basic Information -->
+        <div class="bg-white rounded-lg shadow mb-6 p-6">
+            <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">基本信息</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">报价类型 *</label>
+                    {{ form.quote_type }}
+                    {% if form.quote_type.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.quote_type.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户 *</label>
+                    <select name="customer" x-ref="customerSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors" required @change="onCustomerChange($event)">
+                        <option value="">请选择客户</option>
+                        {% for choice in form.customer.field.queryset %}
+                        <option value="{{ choice.pk }}" {% if form.customer.value == choice.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ choice.code }} - {{ choice.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.customer.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.customer.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">联系人</label>
+                    <select name="contact_person" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors" x-ref="contactSelect">
+                        <option value="">请先选择客户</option>
+                        {% if form.contact_person.field.queryset %}
+                            {% for contact in form.contact_person.field.queryset %}
+                            <option value="{{ contact.pk }}" {% if form.contact_person.value == contact.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ contact.name }}{% if contact.phone %} - {{ contact.phone }}{% elif contact.mobile %} - {{ contact.mobile }}{% endif %}
+                            </option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                    {% if form.contact_person.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.contact_person.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">报价日期 *</label>
+                    {{ form.quote_date }}
+                    {% if form.quote_date.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.quote_date.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">有效期至 *</label>
+                    {{ form.valid_until }}
+                    {% if form.valid_until.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.valid_until.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">销售代表</label>
+                    {{ form.sales_rep }}
+                    {% if form.sales_rep.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.sales_rep.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">币种</label>
+                    {{ form.currency }}
+                    {% if form.currency.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.currency.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">汇率</label>
+                    {{ form.exchange_rate }}
+                    {% if form.exchange_rate.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.exchange_rate.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">税率 (%)</label>
+                    {{ form.tax_rate }}
+                    {% if form.tax_rate.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.tax_rate.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">付款方式</label>
+                    {{ form.payment_terms }}
+                    {% if form.payment_terms.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.payment_terms.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">交货条件</label>
+                    {{ form.delivery_terms }}
+                    {% if form.delivery_terms.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.delivery_terms.errors.0 }}</p>
+                    {% endif %}
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户询价号</label>
+                    {{ form.reference_number }}
+                    {% if form.reference_number.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.reference_number.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div> <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">保修条款</label>
+                {{ form.warranty_terms }}
+                {% if form.warranty_terms.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.warranty_terms.errors.0 }}</p>
+                {% endif %}
+            </div> <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div> <!-- Quote Items -->
+        <div class="bg-white rounded-lg shadow mb-6 p-6">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b">
+                <h4 class="text-md font-semibold text-gray-900">产品明细</h4>
+                <button class="btn btn-primary" type="button">
+                    <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+</svg>添加产品行
+                </button>
+            </div> {{ formset.management_form }} <!-- Hidden template row for cloning -->
+            <template id="item-row-template">
+                <tr class="item-row">
+                    <td class="px-3 py-2">
+                        <select name="items-__prefix__-product" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm" @change="onProductChange($event, __prefix__)">
+                            <option value="">请选择产品</option>
+                            {% for product in products %}
+                            <option value="{{ product.pk }}">{{ product.code }} - {{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="px-3 py-2">
+                        <input type="text" name="items-__prefix__-specifications"
+                               class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm" placeholder="规格型号">
+                    </td>
+                    <td class="px-3 py-2">
+                        <input type="text" name="items-__prefix__-unit"
+                               class="w-full px-2 py-1.5 border border-gray-300 rounded-lg bg-gray-100 transition-colors text-sm text-center" readonly placeholder="单位">
+                    </td>
+                    <td class="px-3 py-2">
+                        <input type="number" name="items-__prefix__-quantity"
+                               class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm text-right" step="1" min="0" value="1"
+                               @input="calculateFromQtyPrice(__prefix__)">
+                    </td>
+                    <td class="px-3 py-2">
+                        <input type="number" name="items-__prefix__-unit_price"
+                               class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm text-right" step="0.01" min="0" value="0"
+                               @input="calculateFromQtyPrice(__prefix__)">
+                    </td>
+                    <td class="px-3 py-2">
+                        <input type="number" name="items-__prefix__-line_total"
+                               class="line-total-input-__prefix__ w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm text-right font-medium" step="0.01" min="0" value="0"
+                               @input="calculateFromLineTotal(__prefix__)">
+                    </td>
+                    <td class="px-3 py-2">
+                        <input type="number" name="items-__prefix__-lead_time"
+                               class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm text-right" min="0" value="15">
+                    </td>
+                    <td class="px-3 py-2">
+                        <input type="text" name="items-__prefix__-notes"
+                               class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm" placeholder="备注">
+                    </td>
+                    <td class="px-3 py-2 text-center">
+                        <button type="button" @click="deleteRow($event)" class="text-red-600 hover:text-red-900">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>
+                        </button>
+                        <input type="checkbox" name="items-__prefix__-DELETE" class="hidden delete-checkbox">
+                    </td>
+                    <input type="hidden" name="items-__prefix__-discount_rate" class="discount-rate-__prefix__" value="0">
+                    <input type="hidden" name="items-__prefix__-id" value="">
+                </tr>
+            </template> <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品 *</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">规格型号</th>
+                            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase">单位</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">数量 *</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">含税单价 *</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">含税小计 *</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">交期(天)</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">备注</th>
+                            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="items-tbody">
+                        {% for item_form in formset %}
+                        <tr class="item-row">
+                            <td class="px-3 py-2">
+                                <select name="{{ item_form.product.html_name }}" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm"
+                                        @change="onProductChange($event, {{ forloop.counter0 }})">
+                                    <option value="">请选择产品</option>
+                                    {% for choice in item_form.product.field.queryset %}
+                                    <option value="{{ choice.pk }}" {% if item_form.product.value == choice.pk %}selected{% endif %}>{{ choice.code }} - {{ choice.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td class="px-3 py-2">
+                                <input type="text" name="{{ item_form.specifications.html_name }}"
+                                       value="{{ item_form.specifications.value|default:'' }}"
+                                       class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm" placeholder="规格型号">
+                            </td>
+                            <td class="px-3 py-2">
+                                <input type="text" name="{{ item_form.unit.html_name }}"
+                                       value="{{ item_form.unit.value|default:'' }}"
+                                       class="w-full px-2 py-1.5 border border-gray-300 rounded-lg bg-gray-100 transition-colors text-sm text-center" readonly placeholder="单位">
+                            </td>
+                            <td class="px-3 py-2">
+                                <input type="number" name="{{ item_form.quantity.html_name }}"
+                                       value="{{ item_form.quantity.value|default:'1' }}"
+                                       class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm text-right" step="1" min="0"
+                                       @input="calculateFromQtyPrice({{ forloop.counter0 }})">
+                            </td>
+                            <td class="px-3 py-2">
+                                <input type="number" name="{{ item_form.unit_price.html_name }}"
+                                       value="{{ item_form.unit_price.value|default:'0' }}"
+                                       class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm text-right" step="0.01" min="0"
+                                       @input="calculateFromQtyPrice({{ forloop.counter0 }})">
+                            </td>
+                            <td class="px-3 py-2">
+                                <input type="number" name="{{ item_form.line_total.html_name }}"
+                                       value="{{ item_form.line_total.value|default:'0' }}"
+                                       class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm text-right font-medium" step="0.01" min="0"
+                                       @input="calculateFromLineTotal({{ forloop.counter0 }})">
+                            </td>
+                            <td class="px-3 py-2">
+                                <input type="number" name="{{ item_form.lead_time.html_name }}"
+                                       value="{{ item_form.lead_time.value|default:'15' }}"
+                                       class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm text-right" min="0">
+                            </td>
+                            <td class="px-3 py-2">
+                                <input type="text" name="{{ item_form.notes.html_name }}"
+                                       value="{{ item_form.notes.value|default:'' }}"
+                                       class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm" placeholder="备注">
+                            </td>
+                            <td class="px-3 py-2 text-center">
+                                {% if formset.can_delete %}
+                                    <button type="button" @click="deleteRow($event)" class="text-red-600 hover:text-red-900">
+                                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>
+                                    </button>
+                                    <input type="checkbox" name="{{ item_form.DELETE.html_name }}" class="hidden delete-checkbox">
+                                {% endif %}
+                            </td>
+                            <input type="hidden" name="{{ item_form.discount_rate.html_name }}" class="discount-rate-{{ forloop.counter0 }}" value="{{ item_form.discount_rate.value|default:'0' }}">
+                            {{ item_form.id }}
+                        </tr>
+                        {% empty %}
+                        <tr id="empty-row" class="hidden">
+                            <td colspan="9" class="px-3 py-8 text-center text-gray-500">
+                                点击上方"添加产品行"按钮开始添加产品
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div> <!-- Summary -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">金额汇总</h4> <!-- Hidden discount_amount field that syncs with Alpine.js -->
+            {{ form.discount_amount }} <div class="max-w-md ml-auto space-y-2">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">含税小计：</span>
+                    <span class="font-medium" x-text="'¥' + subtotal.toFixed(2)">¥0.00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">折扣金额：</span>
+                    <div class="flex items-center">
+                        <span class="mr-2">¥</span>
+                        <input type="number"
+                               x-model.number="discountAmount"
+                               @input="updateTotal()"
+                               class="w-32 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 text-right font-medium text-red-600"
+                               step="0.01"
+                               min="0"
+                               :max="subtotal"
+                               placeholder="0.00">
+                    </div>
+                </div>
+                <div class="flex justify-between text-lg font-bold pt-2 border-t">
+                    <span>含税总计：</span>
+                    <span class="text-theme-600" x-text="'¥' + total.toFixed(2)">¥0.00</span>
+                </div>
+            </div>
+        </div> <div class="flex justify-end space-x-3 mt-6">
+            <a href="{% url 'sales:quote_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>取消
+            </a>
+            <button class="btn btn-primary" type="submit">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>保存
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 设置默认日期为当天
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const quoteDateInput = document.querySelector('input[name="quote_date"]');
+    if (quoteDateInput && !quoteDateInput.value) {
+        quoteDateInput.value = today;
+    } // 设置有效期至为30天后
+    const validUntilInput = document.querySelector('input[name="valid_until"]');
+    if (validUntilInput && !validUntilInput.value) {
+        const nextMonth = new Date();
+        nextMonth.setDate(nextMonth.getDate() + 30); // 30天后
+        const nextMonthStr = nextMonth.toISOString().split('T')[0];
+        validUntilInput.value = nextMonthStr;
+    }
+});
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('quoteFormData', () => ({
+        subtotal: 0,
+        discountAmount: 0,
+        taxAmount: 0,
+        total: 0, init() {
+            console.log('Quote form initialized'); // Initialize discount amount from hidden field (for edit mode) or 0 (for create mode)
+            const discountHiddenField = document.getElementById('discount_amount_hidden');
+            if (discountHiddenField && discountHiddenField.value) {
+                this.discountAmount = parseFloat(discountHiddenField.value) || 0;
+            } else {
+                this.discountAmount = 0;
+            } // Initialize line_total for all existing rows
+            const rows = document.querySelectorAll('tbody tr.item-row');
+            rows.forEach((row, index) => {
+                const quantityInput = row.querySelector(`[name="items-${index}-quantity"]`);
+                const unitPriceInput = row.querySelector(`[name="items-${index}-unit_price"]`);
+                const lineTotalInput = row.querySelector(`[name="items-${index}-line_total"]`);
+                const discountRateInput = row.querySelector(`[name="items-${index}-discount_rate"]`); if (quantityInput && unitPriceInput && lineTotalInput) {
+                    const quantity = parseFloat(quantityInput.value) || 0;
+                    const unitPrice = parseFloat(unitPriceInput.value) || 0;
+                    let lineTotal = parseFloat(lineTotalInput.value) || 0; // If line_total is 0 or not set, calculate it from qty * price
+                    if (lineTotal === 0 && (quantity > 0 || unitPrice > 0)) {
+                        const discountRate = parseFloat(discountRateInput?.value) || 0;
+                        const subtotal = quantity * unitPrice;
+                        lineTotal = subtotal - (subtotal * discountRate / 100);
+                        lineTotalInput.value = lineTotal.toFixed(2);
+                    }
+                }
+            }); this.calculateAllTotals();
+        }, onCustomerChange(event) {
+            const customerId = event.target.value;
+            const contactSelect = this.$refs.contactSelect;
+            console.log('Customer changed:', customerId);
+            console.log('Contact select element:', contactSelect);
+
+            if (!customerId) {
+                // 清空联系人选项
+                contactSelect.innerHTML = '<option value="">请先选择客户</option>';
+
+                // Clear payment terms
+                const paymentTermsInput = document.querySelector('[name="payment_terms"]');
+                if (paymentTermsInput) {
+                    paymentTermsInput.value = '';
+                }
+                return;
+            }
+
+            const url = `/sales/api/customers/${customerId}/info/`;
+            console.log('Fetching:', url);
+
+            fetch(url)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+
+                    if (data.success) {
+                        // Update contacts dropdown
+                        if (data.contacts && data.contacts.length > 0) {
+                            // 清空现有选项
+                            contactSelect.innerHTML = '';
+
+                            // 添加默认选项
+                            const defaultOption = document.createElement('option');
+                            defaultOption.value = '';
+                            defaultOption.textContent = '-- 请选择 --';
+                            contactSelect.appendChild(defaultOption);
+
+                            // 添加联系人选项并查找主联系人
+                            let primaryContactId = null;
+                            data.contacts.forEach(contact => {
+                                const option = document.createElement('option');
+                                option.value = contact.id;
+                                const phone = contact.phone || contact.mobile || '';
+                                option.textContent = `${contact.name}${phone ? ' - ' + phone : ''}`;
+
+                                // 记录主联系人ID
+                                if (contact.is_primary === true) {
+                                    primaryContactId = contact.id;
+                                    console.log('Found primary contact:', contact.name, 'ID:', contact.id);
+                                }
+
+                                contactSelect.appendChild(option);
+                            });
+
+                            // 设置主联系人为选中状态
+                            if (primaryContactId !== null) {
+                                contactSelect.value = primaryContactId;
+                                console.log('Set primary contact as selected:', primaryContactId);
+                            }
+
+                            console.log('Contacts updated successfully. Count:', data.contacts.length);
+                        } else {
+                            console.log('No contacts found');
+                            contactSelect.innerHTML = '<option value="">该客户暂无联系人</option>';
+                        }
+
+                        // Update payment terms
+                        if (data.customer && data.customer.payment_terms) {
+                            const paymentTermsInput = document.querySelector('[name="payment_terms"]');
+                            if (paymentTermsInput) {
+                                paymentTermsInput.value = data.customer.payment_terms;
+                                console.log('Payment terms updated:', data.customer.payment_terms);
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('获取客户信息失败: ' + error.message);
+                    contactSelect.innerHTML = '<option value="">加载失败</option>';
+                });
+        }, onProductChange(event, rowIndex) {
+            const productId = event.target.value;
+            console.log('Product changed:', productId, 'row:', rowIndex);
+            if (!productId) return; const url = `/sales/api/products/${productId}/info/`;
+            console.log('Fetching product:', url); fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Product data:', data); if (data.success && data.product) {
+                        // Set unit price
+                        const unitPriceInput = document.querySelector(`[name="items-${rowIndex}-unit_price"]`);
+                        if (unitPriceInput) {
+                            unitPriceInput.value = data.product.unit_price.toFixed(2);
+                            console.log('Price set to:', data.product.unit_price);
+                        } // Set specifications
+                        const specificationsInput = document.querySelector(`[name="items-${rowIndex}-specifications"]`);
+                        if (specificationsInput && data.product.specifications) {
+                            specificationsInput.value = data.product.specifications;
+                            console.log('Specifications set to:', data.product.specifications);
+                        } // Set unit
+                        const unitInput = document.querySelector(`[name="items-${rowIndex}-unit"]`);
+                        if (unitInput) {
+                            unitInput.value = data.product.unit || '';
+                            console.log('Unit set to:', data.product.unit || '(empty)');
+                        } this.calculateFromQtyPrice(rowIndex);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('获取产品信息失败: ' + error.message);
+                });
+        }, calculateFromQtyPrice(rowIndex) {
+            // When quantity or unit_price changes, calculate line_total directly
+            // Set discount_rate to 0
+            const quantityInput = document.querySelector(`[name="items-${rowIndex}-quantity"]`);
+            const unitPriceInput = document.querySelector(`[name="items-${rowIndex}-unit_price"]`);
+            const lineTotalInput = document.querySelector(`[name="items-${rowIndex}-line_total"]`);
+            const discountRateInput = document.querySelector(`[name="items-${rowIndex}-discount_rate"]`); if (!quantityInput || !unitPriceInput || !lineTotalInput) return; const quantity = parseFloat(quantityInput.value) || 0;
+            const unitPrice = parseFloat(unitPriceInput.value) || 0; // Calculate line total without discount
+            const lineTotal = quantity * unitPrice; // Update line total input
+            lineTotalInput.value = lineTotal.toFixed(2); // Set discount rate to 0
+            if (discountRateInput) {
+                discountRateInput.value = '0';
+            } // Recalculate all totals
+            setTimeout(() => this.calculateAllTotals(), 50);
+        }, calculateFromLineTotal(rowIndex) {
+            // When line_total is manually changed, reverse-calculate discount_rate
+            const quantityInput = document.querySelector(`[name="items-${rowIndex}-quantity"]`);
+            const unitPriceInput = document.querySelector(`[name="items-${rowIndex}-unit_price"]`);
+            const lineTotalInput = document.querySelector(`[name="items-${rowIndex}-line_total"]`);
+            const discountRateInput = document.querySelector(`[name="items-${rowIndex}-discount_rate"]`); if (!quantityInput || !unitPriceInput || !lineTotalInput || !discountRateInput) return; const quantity = parseFloat(quantityInput.value) || 0;
+            const unitPrice = parseFloat(unitPriceInput.value) || 0;
+            const lineTotal = parseFloat(lineTotalInput.value) || 0; // Calculate original amount (without discount)
+            const originalAmount = quantity * unitPrice; // Reverse-calculate discount rate
+            // discount_rate = ((original - lineTotal) / original) × 100
+            let discountRate = 0;
+            if (originalAmount > 0) {
+                const discountAmount = originalAmount - lineTotal;
+                discountRate = (discountAmount / originalAmount) * 100;
+                // Ensure discount rate is not negative
+                if (discountRate < 0) {
+                    discountRate = 0;
+                    lineTotalInput.value = originalAmount.toFixed(2);
+                }
+            } // Update hidden discount rate field
+            discountRateInput.value = discountRate.toFixed(2); console.log(`Row ${rowIndex}: Original=${originalAmount}, LineTotal=${lineTotal}, DiscountRate=${discountRate.toFixed(2)}%`); // Recalculate all totals
+            setTimeout(() => this.calculateAllTotals(), 50);
+        }, calculateAllTotals() {
+            // Calculate subtotal from all items by reading line_total input values
+            this.subtotal = 0;
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach((row, index) => {
+                const quantityInput = row.querySelector(`[name="items-${index}-quantity"]`);
+                const unitPriceInput = row.querySelector(`[name="items-${index}-unit_price"]`);
+                const lineTotalInput = row.querySelector(`[name="items-${index}-line_total"]`);
+                const deleteCheckbox = row.querySelector(`[name="items-${index}-DELETE"]`); // Skip deleted items
+                if (deleteCheckbox && deleteCheckbox.checked) return; if (quantityInput && unitPriceInput && lineTotalInput) {
+                    const lineTotal = parseFloat(lineTotalInput.value) || 0;
+                    this.subtotal += lineTotal;
+                }
+            }); // Update total = subtotal - discount
+            this.updateTotal();
+        }, updateTotal() {
+            // Ensure discount doesn't exceed subtotal
+            if (this.discountAmount > this.subtotal) {
+                this.discountAmount = this.subtotal;
+            }
+            if (this.discountAmount < 0) {
+                this.discountAmount = 0;
+            } // Sync to hidden field
+            const discountHiddenField = document.getElementById('discount_amount_hidden');
+            if (discountHiddenField) {
+                discountHiddenField.value = this.discountAmount.toFixed(2);
+            } // Total = Subtotal - Discount
+            this.total = this.subtotal - this.discountAmount; // Tax amount is no longer displayed, but we can still calculate it for backend if needed
+            const taxRateInput = document.querySelector('[name="tax_rate"]');
+            const taxRate = parseFloat(taxRateInput?.value) || 0;
+            if (taxRate > 0) {
+                this.taxAmount = this.total / (1 + taxRate / 100) * (taxRate / 100);
+            } else {
+                this.taxAmount = 0;
+            }
+        }, addRow() {
+            const tbody = document.getElementById('items-tbody');
+            const totalFormsInput = document.querySelector('[name="items-TOTAL_FORMS"]');
+            const currentFormCount = parseInt(totalFormsInput.value); // Hide empty row message if exists
+            const emptyRow = document.getElementById('empty-row');
+            if (emptyRow) {
+                emptyRow.remove();
+            } // Get template
+            const template = document.getElementById('item-row-template');
+            if (!template) {
+                console.error('Template not found');
+                return;
+            } // Clone the template content
+            const newRow = template.content.cloneNode(true).querySelector('tr'); // Replace __prefix__ with actual form count
+            newRow.innerHTML = newRow.innerHTML.replace(/__prefix__/g, currentFormCount); // Append the new row
+            tbody.appendChild(newRow); // Update TOTAL_FORMS count
+            totalFormsInput.value = currentFormCount + 1; console.log(`Added new row. Total forms: ${currentFormCount + 1}`);
+        }, deleteRow(event) {
+            const row = event.target.closest('tr');
+            const tbody = document.getElementById('items-tbody');
+            const totalFormsInput = document.querySelector('[name="items-TOTAL_FORMS"]');
+            const currentFormCount = parseInt(totalFormsInput.value); // Count visible rows (excluding hidden/marked for deletion)
+            const visibleRows = Array.from(tbody.querySelectorAll('.item-row')).filter(r => {
+                const deleteCheckbox = r.querySelector('.delete-checkbox');
+                return r.style.display !== 'none' && (!deleteCheckbox || !deleteCheckbox.checked);
+            }); // Don't allow deleting if only one visible row left
+            if (visibleRows.length <= 1) {
+                alert('至少需要保留一个产品行');
+                return;
+            } // Check if this is an existing item (has an id field with value)
+            const idInput = row.querySelector('input[name$="-id"]');
+            if (idInput && idInput.value) {
+                // Mark for deletion instead of removing
+                const deleteCheckbox = row.querySelector('.delete-checkbox');
+                if (deleteCheckbox) {
+                    deleteCheckbox.checked = true;
+                }
+                row.style.display = 'none';
+            } else {
+                // Remove new row completely
+                row.remove();
+                totalFormsInput.value = currentFormCount - 1;
+            } // Recalculate totals
+            this.calculateAllTotals(); console.log('Row deleted');
+        }, handleSubmit(event) {
+            // Sync discount amount to hidden field before submit
+            const discountHiddenField = document.getElementById('discount_amount_hidden');
+            if (discountHiddenField) {
+                discountHiddenField.value = this.discountAmount.toFixed(2);
+            } // Recalculate before submit
+            this.calculateAllTotals(); // Submit the form
+            event.target.submit();
+        }
+    }));
+});
+</script>
+{% endblock %}

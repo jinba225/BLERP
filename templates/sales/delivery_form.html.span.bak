@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}创建发货单 - {{ order.order_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">销售管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:order_list' %}" class="text-gray-500 hover:text-gray-700">销售订单</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:order_detail' order.pk %}" class="text-gray-500 hover:text-gray-700">{{ order.order_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">创建发货单</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto" x-data="deliveryForm()">
+    <!-- Header -->
+    <div class="mb-6">
+        <h3 class="text-2xl font-bold text-gray-900">创建发货单</h3>
+        <p class="text-sm text-gray-600 mt-1">从订单 {{ order.order_number }} 创建发货单 (支持分批发货)</p>
+    </div> <form method="post" @submit="prepareSubmit" class="space-y-6">
+        {% csrf_token %}
+        <input type="hidden" name="items_json" x-model="itemsJSON"> <!-- Order Information Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4">订单信息</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">订单号</label>
+                    <p class="mt-1 text-sm text-gray-900">{{ order.order_number }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">客户</label>
+                    <p class="mt-1 text-sm text-gray-900">{{ order.customer.name }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">订单金额</label>
+                    <p class="mt-1 text-sm text-gray-900">¥{{ order.total_amount }}</p>
+                </div>
+            </div>
+        </div> <!-- Delivery Information Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4">发货信息</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">仓库 *</label>
+                    <select name="warehouse" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500">
+                        <option value="">请选择仓库</option>
+                        {% for warehouse in warehouses %}
+                        <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">计划发货日期</label>
+                    <input type="date" name="planned_date" value="{{ order.required_date|date:'Y-m-d' }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">收货地址</label>
+                    <input type="text" name="shipping_address" value="{{ order.shipping_address }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">收货联系人</label>
+                    <input type="text" name="shipping_contact" value="{{ order.shipping_contact }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">联系电话</label>
+                    <input type="text" name="shipping_phone" value="{{ order.shipping_phone }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">配送方式</label>
+                    <input type="text" name="shipping_method" value="{{ order.shipping_method }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500">
+                </div>
+            </div>
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                <textarea name="notes" rows="2"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500"
+                          placeholder="发货备注信息..."></textarea>
+            </div>
+        </div> <!-- Delivery Items Card -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b">
+                <h4 class="text-lg font-semibold text-gray-900">发货明细</h4>
+                <p class="text-sm text-gray-600">选择要发货的产品和数量（可部分发货）</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">订单数量</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">已发货</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">剩余待发</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">本次发货数量</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <template x-for="(item, index) in items" :key="index">
+                            <tr>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-medium text-gray-900" x-text="item.product_name"></div>
+                                    <div class="text-xs text-gray-500" x-text="item.product_code"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                                    <span x-text="item.order_quantity"></span>
+                                    <span class="text-gray-500 ml-1" x-text="item.unit"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-600">
+                                    <span x-text="item.delivered_quantity"></span>
+                                    <span class="text-gray-500 ml-1" x-text="item.unit"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-theme-600">
+                                    <span x-text="item.remaining_quantity"></span>
+                                    <span class="text-gray-500 ml-1" x-text="item.unit"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right">
+                                    <input type="number" x-model="item.quantity" @input="calculateTotal"
+                                           :max="item.remaining_quantity" min="0" step="1"
+                                           class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500 text-right">
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div> <!-- Summary Section -->
+        <div class="bg-theme-50 border border-theme-200 rounded-lg p-4">
+            <div class="flex items-center">
+                <svg x-data="heroicon('information-circle')" class="text-theme-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                <div class="text-sm text-theme-800">
+                    <p class="font-medium">本次发货统计</p>
+                    <p class="mt-1">共发货 <span class="font-bold" x-text="totalItems"></span> 种产品</p>
+                </div>
+            </div>
+        </div> <!-- Action Buttons -->
+        <div class="flex space-x-3">
+            <a href="{% url 'sales:order_detail' order.pk %}"
+               class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-center font-medium transition-colors">
+                <svg x-data="heroicon('x-mark')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>取消
+            </a>
+            <button class="btn btn-primary" type="submit">
+                <svg x-data="heroicon('check')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>创建发货单
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// 设置默认日期为当天
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const plannedDateInput = document.querySelector('input[name="planned_date"]');
+    if (plannedDateInput && !plannedDateInput.value) {
+        plannedDateInput.value = today;
+    }
+});
+
+function deliveryForm() {
+    return {
+        items: [
+            {% for item in items %}
+            {
+                order_item_id: {{ item.id }},
+                product_code: '{{ item.product.code }}',
+                product_name: '{{ item.product.name }}',
+                unit: '{{ item.product.unit.symbol|default:"" }}',
+                order_quantity: {{ item.quantity }},
+                delivered_quantity: {{ item.delivered_quantity }},
+                remaining_quantity: {{ item.remaining_quantity }},
+                quantity: {{ item.remaining_quantity }}  // Default to all remaining
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        itemsJSON: '[]', get totalItems() {
+            return this.items.filter(item => parseFloat(item.quantity) > 0).length;
+        }, calculateTotal() {
+            // Just to trigger reactivity
+        }, prepareSubmit(e) {
+            const validItems = this.items.filter(item => parseFloat(item.quantity) > 0);
+            if (validItems.length === 0) {
+                e.preventDefault();
+                alert('请至少选择一项产品发货');
+                return false;
+            } // Check if any quantity exceeds remaining
+            for (let item of validItems) {
+                if (parseFloat(item.quantity) > parseFloat(item.remaining_quantity)) {
+                    e.preventDefault();
+                    alert(`产品 ${item.product_name} 的发货数量超过剩余数量`);
+                    return false;
+                }
+            } this.itemsJSON = JSON.stringify(validItems);
+        }
+    }
+}
+</script>
+{% endblock %}

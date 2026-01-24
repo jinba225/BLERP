@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ position.name }} - 职位详情 - BetterLaser ERP{% endblock %}
+{% block page_title %}职位详情{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">系统管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'departments:position_list' %}" class="text-gray-500 hover:text-gray-700">职位管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ position.name }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 职位基本信息 -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-user-tie mr-2 text-theme-600"></i>基本信息
+            </h3>
+            <a class="btn btn-primary" href="/admin/departments/position/{{ position.pk }}/change/">
+                <i class="fas fa-edit mr-2"></i>编辑
+            </a>
+        </div>
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">职位名称</label>
+                    <p class="mt-1 text-lg text-gray-900">{{ position.name }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">职位代码</label>
+                    <p class="mt-1 text-lg text-gray-900">{{ position.code }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">所属部门</label>
+                    <p class="mt-1 text-lg text-gray-900">
+                        <a href="{% url 'departments:department_detail' position.department.pk %}"
+                           class="text-theme-600 hover:text-theme-900">
+                            {{ position.department.name }}
+                        </a>
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">职位级别</label>
+                    <p class="mt-1">
+                        <span class="px-3 py-1 text-sm font-semibold rounded-full bg-theme-100 text-theme-800">
+                            {{ position.get_level_display }}
+                        </span>
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">薪资范围</label>
+                    <p class="mt-1 text-lg text-gray-900">
+                        {% if position.min_salary and position.max_salary %}
+                            ¥{{ position.min_salary|floatformat:0 }} - ¥{{ position.max_salary|floatformat:0 }}
+                        {% else %}
+                            <span class="text-gray-400">未设置</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">在职人数</label>
+                    <p class="mt-1 text-lg text-gray-900">
+                        <i class="fas fa-users text-gray-400 mr-1"></i>{{ employee_count }} 人
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">状态</label>
+                    <p class="mt-1">
+                        {% if position.is_active %}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                启用
+                            </span>
+                        {% else %}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                停用
+                            </span>
+                        {% endif %}
+                    </p>
+                </div>
+                {% if position.description %}
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-500">职位描述</label>
+                    <p class="mt-1 text-gray-900">{{ position.description }}</p>
+                </div>
+                {% endif %}
+                {% if position.requirements %}
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-500">任职要求</label>
+                    <p class="mt-1 text-gray-900 whitespace-pre-wrap">{{ position.requirements }}</p>
+                </div>
+                {% endif %}
+                {% if position.responsibilities %}
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-500">工作职责</label>
+                    <p class="mt-1 text-gray-900 whitespace-pre-wrap">{{ position.responsibilities }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div> <!-- 在职员工 -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-users mr-2 text-theme-600"></i>在职员工 ({{ employees.count }})
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">姓名</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">用户名</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">邮箱</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">部门</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for employee in employees %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {{ employee.get_full_name|default:"-" }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ employee.username }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ employee.email|default:"-" }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {% if employee.department %}
+                                {{ employee.department.name }}
+                            {% else %}
+                                <span class="text-gray-400">未分配</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-user-slash text-3xl mb-2 text-gray-300"></i>
+                            <p>暂无在职员工</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div> <!-- 返回按钮 -->
+    <div class="flex justify-end">
+        <a href="{% url 'departments:position_list' %}"
+           class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+            <i class="fas fa-arrow-left mr-2"></i>返回列表
+        </a>
+    </div>
+</div>
+{% endblock %}

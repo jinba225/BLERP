@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+
+{% block title %}导入与初始化 - BetterLaser ERP{% endblock %}
+{% block page_title %}导入与初始化{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">基础设置</span>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">导入与初始化</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="importExportApp">
+    <!-- 页面标题和说明 -->
+    <div class="bg-theme-50 border-l-4 border-theme-400 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="icon text-theme-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-theme-800">导入导出说明</h3>
+                <div class="mt-2 text-sm text-theme-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>支持批量导入和导出系统基础数据</li>
+                        <li>支持的数据类型：产品、库位、计量单位、税率、客户、供应商</li>
+                        <li>导出功能可用于数据备份和迁移</li>
+                        <li>导入功能支持 Excel 文件（.xlsx、.xls）和 CSV 文件</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div> <!-- 数据类型选择卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+        <!-- 产品 -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow flex flex-col" style="height: 220px;">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center" style="gap: 1.5rem;">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="icon text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+</svg>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900">产品</h4>
+                        <p class="text-sm text-gray-500">Products</p>
+                    </div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2" style="min-height: 40px;">导入导出产品信息，包括编码、名称、规格、单位、品牌等</p>
+            <div class="flex space-x-2 items-start mt-auto">
+                <a href="{% url 'inventory:data_export' %}?type=products" class="flex-1 px-3 py-2 bg-theme-50 text-theme-700 rounded-lg hover:bg-theme-100 text-center text-sm">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+</svg>导出
+                </a>
+                <button class="flex-1 btn btn-primary text-center">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+</svg>导入
+                </button>
+            </div>
+        </div> <!-- 库位 -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow flex flex-col" style="height: 220px;">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center" style="gap: 1.5rem;">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="icon text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-9a2 2 0 012-2h4a2 2 0 012 2v9" />
+</svg>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900">库位</h4>
+                        <p class="text-sm text-gray-500">Locations</p>
+                    </div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2" style="min-height: 40px;">导入导出仓库和库位信息，支持多级库位结构</p>
+            <div class="flex space-x-2 items-start mt-auto">
+                <a href="{% url 'inventory:data_export' %}?type=locations" class="flex-1 px-3 py-2 bg-theme-50 text-theme-700 rounded-lg hover:bg-theme-100 text-center text-sm">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+</svg>导出
+                </a>
+                <button class="flex-1 btn btn-primary text-center">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+</svg>导入
+                </button>
+            </div>
+        </div> <!-- 计量单位 -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow flex flex-col" style="height: 220px;">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center" style="gap: 1.5rem;">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="icon text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+</svg>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900">计量单位</h4>
+                        <p class="text-sm text-gray-500">Units</p>
+                    </div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2" style="min-height: 40px;">导入导出计量单位信息，包括名称、符号、换算关系</p>
+            <div class="flex space-x-2 items-start mt-auto">
+                <a href="{% url 'inventory:data_export' %}?type=units" class="flex-1 px-3 py-2 bg-theme-50 text-theme-700 rounded-lg hover:bg-theme-100 text-center text-sm">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+</svg>导出
+                </a>
+                <button class="flex-1 btn btn-primary text-center">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+</svg>导入
+                </button>
+            </div>
+        </div> <!-- 税率 -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow flex flex-col" style="height: 220px;">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center" style="gap: 1.5rem;">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <svg class="icon text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M7 7h10v10" />
+</svg>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900">税率</h4>
+                        <p class="text-sm text-gray-500">Tax Rates</p>
+                    </div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2" style="min-height: 40px;">导入导出税率配置信息，包括税率名称、百分比</p>
+            <div class="flex space-x-2 items-start mt-auto">
+                <a href="{% url 'inventory:data_export' %}?type=tax_rates" class="flex-1 px-3 py-2 bg-theme-50 text-theme-700 rounded-lg hover:bg-theme-100 text-center text-sm">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+</svg>导出
+                </a>
+                <button class="flex-1 btn btn-primary text-center">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+</svg>导入
+                </button>
+            </div>
+        </div> <!-- 客户 -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow flex flex-col" style="height: 220px;">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center" style="gap: 1.5rem;">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <svg class="icon text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900">客户</h4>
+                        <p class="text-sm text-gray-500">Customers</p>
+                    </div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2" style="min-height: 40px;">导入导出客户信息，包括名称、联系人、地址等</p>
+            <div class="flex space-x-2 items-start mt-auto">
+                <a href="{% url 'inventory:data_export' %}?type=customers" class="flex-1 px-3 py-2 bg-theme-50 text-theme-700 rounded-lg hover:bg-theme-100 text-center text-sm">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+</svg>导出
+                </a>
+                <button class="flex-1 btn btn-primary text-center">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+</svg>导入
+                </button>
+            </div>
+        </div> <!-- 供应商 -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow flex flex-col" style="height: 220px;">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center" style="gap: 1.5rem;">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <svg class="icon text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+</svg>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-900">供应商</h4>
+                        <p class="text-sm text-gray-500">Suppliers</p>
+                    </div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2" style="min-height: 40px;">导入导出供应商信息，包括名称、联系人、地址等</p>
+            <div class="flex space-x-2 items-start mt-auto">
+                <a href="{% url 'inventory:data_export' %}?type=suppliers" class="flex-1 px-3 py-2 bg-theme-50 text-theme-700 rounded-lg hover:bg-theme-100 text-center text-sm">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+</svg>导出
+                </a>
+                <button class="flex-1 btn btn-primary text-center">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+</svg>导入
+                </button>
+            </div>
+        </div>
+    </div> <!-- 库存导入（原功能） -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <svg class="icon mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+</svg>库存手动导入
+        </h3> <form method="post" action="{% url 'inventory:stock_import_submit' %}" class="space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="import_type" value="manual"> <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="warehouse" class="block text-sm font-medium text-gray-700 mb-2">
+                        选择仓库 <span class="text-red-500">*</span>
+                    </label>
+                    <select id="warehouse" name="warehouse" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                        <option value="">请选择仓库</option>
+                        {% for warehouse in warehouses %}
+                        <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div> <div>
+                    <label for="product" class="block text-sm font-medium text-gray-700 mb-2">
+                        选择产品 <span class="text-red-500">*</span>
+                    </label>
+                    <select id="product" name="product" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                        <option value="">请选择产品</option>
+                        {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.code }} - {{ product.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">仅显示前100个产品，更多产品请使用搜索</p>
+                </div> <div>
+                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">
+                        数量 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="quantity" name="quantity" required min="1" step="1"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500"
+                           placeholder="请输入数量">
+                </div>
+            </div> <div class="flex justify-end pt-4">
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+</svg>添加库存
+                </button>
+            </div>
+        </form>
+    </div> <!-- 导入模态框 -->
+    <div x-show="importModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="importModalOpen" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="importModalOpen = false"></div> <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span> <div x-show="importModalOpen" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                导出数据
+                            </h3>
+                            <div class="mt-4">
+                                <p class="text-sm text-gray-500 mb-4">选择要导入的数据类型，然后上传文件。</p> <!-- 数据类型信息 -->
+                                <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+                                    <p class="text-sm font-medium text-gray-700 mb-2">
+                                        <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                                        <span x-text="getDataTypeInfo(importDataType).label"></span>
+                                    </p>
+                                    <p class="text-xs text-gray-600" x-text="getDataTypeInfo(importDataType).description"></p>
+                                </div> <!-- 文件上传 -->
+                                <form method="post" action="{% url 'inventory:data_import' %}" enctype="multipart/form-data" class="space-y-4">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="data_type" x-model="importDataType"> <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            选择文件 <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="file" name="file" required accept=".xlsx,.xls,.csv"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                                        <p class="mt-1 text-xs text-gray-500">支持格式：Excel (.xlsx, .xls) 和 CSV</p>
+                                    </div> <div class="flex items-center mb-4">
+                                        <input type="checkbox" id="skip_first_row" name="skip_first_row" value="1" checked
+                                               class="rounded border-gray-300 text-theme-600 focus:ring-theme-500">
+                                        <label for="skip_first_row" class="ml-2 text-sm text-gray-700">
+                                            跳过第一行（如果是表头）
+                                        </label>
+                                    </div> <div class="flex justify-end space-x-3 pt-4">
+                                        <button type="button" @click="importModalOpen = false"
+                                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                                            取消
+                                        </button>
+                                        <button class="btn btn-primary" type="submit">
+                                            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+</svg>导入
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute top-0 right-0 pt-4 pr-4">
+                        <button type="button" @click="importModalOpen = false" class="bg-white rounded-md text-gray-400 hover:text-gray-500">
+                            <span class="sr-only">关闭</span>
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function importExportApp() {
+    return {
+        importModalOpen: false,
+        importDataType: 'products', showImportModal(dataType) {
+            this.importDataType = dataType;
+            this.importModalOpen = true;
+        }, getDataTypeInfo(dataType) {
+            const info = {
+                products: {
+                    label: '产品',
+                    description: '包含产品编码、名称、规格、单位、品牌、分类、价格等信息'
+                },
+                locations: {
+                    label: '库位',
+                    description: '包含仓库名称、库位编码、库位名称、上级库位等信息'
+                },
+                units: {
+                    label: '计量单位',
+                    description: '包含单位名称、单位符号、换算关系等信息'
+                },
+                tax_rates: {
+                    label: '税率',
+                    description: '包含税率名称、税率百分比、描述等信息'
+                },
+                customers: {
+                    label: '客户',
+                    description: '包含客户名称、联系人、电话、邮箱、地址等信息'
+                },
+                suppliers: {
+                    label: '供应商',
+                    description: '包含供应商名称、联系人、电话、邮箱、地址等信息'
+                }
+            };
+            return info[dataType] || { label: '', description: '' };
+        }
+    }
+}
+</script>
+{% endblock %}

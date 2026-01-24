@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% block title %}报价单详情 - {{ quotation.quotation_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:quotation_list' %}" class="text-gray-500 hover:text-gray-700">供应商报价</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">报价单详情</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">报价单 {{ quotation.quotation_number }}</h3>
+            <p class="text-sm text-gray-600 mt-1">来自 {{ quotation.supplier.name }}</p>
+        </div>
+        <div class="flex gap-2">
+            {% if quotation.status == 'submitted' and quotation.inquiry.status != 'selected' %}
+            <a class="btn btn-primary" href="{% url 'purchase:quotation_select' quotation.pk %}">
+                <svg x-data="heroicon('check-circle')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>选定此报价
+            </a>
+            {% endif %}
+            <a href="{% url 'purchase:inquiry_detail' quotation.inquiry.pk %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <svg x-data="heroicon('arrow-left')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>返回询价单
+            </a>
+        </div>
+    </div> <!-- Basic Information -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4">基本信息</h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <span class="text-sm text-gray-600">报价单号</span>
+                <p class="text-sm font-medium text-gray-900 mt-1">{{ quotation.quotation_number }}</p>
+            </div>
+            <div>
+                <span class="text-sm text-gray-600">供应商</span>
+                <p class="text-sm font-medium text-gray-900 mt-1">{{ quotation.supplier.name }}</p>
+            </div>
+            <div>
+                <span class="text-sm text-gray-600">报价日期</span>
+                <p class="text-sm font-medium text-gray-900 mt-1">{{ quotation.quotation_date }}</p>
+            </div>
+            <div>
+                <span class="text-sm text-gray-600">有效期至</span>
+                <p class="text-sm font-medium text-gray-900 mt-1">{{ quotation.valid_until }}</p>
+            </div>
+            <div>
+                <span class="text-sm text-gray-600">状态</span>
+                <p class="text-sm font-medium mt-1">
+                    <span class="px-2 py-1 text-xs font-semibold rounded
+                        {% if quotation.status == 'pending' %}bg-gray-100 text-gray-800
+                        {% elif quotation.status == 'submitted' %}bg-theme-100 text-theme-800
+                        {% elif quotation.status == 'selected' %}bg-green-100 text-green-800
+                        {% elif quotation.status == 'rejected' %}bg-red-100 text-red-800
+                        {% elif quotation.status == 'expired' %}bg-gray-100 text-gray-600
+                        {% endif %}">
+                        {{ quotation.get_status_display }}
+                    </span>
+                </p>
+            </div>
+            <div>
+                <span class="text-sm text-gray-600">询价单号</span>
+                <p class="text-sm font-medium mt-1">
+                    <a href="{% url 'purchase:inquiry_detail' quotation.inquiry.pk %}" class="text-theme-600 hover:text-theme-700">
+                        {{ quotation.inquiry.inquiry_number }}
+                    </a>
+                </p>
+            </div>
+            {% if quotation.contact_person %}
+            <div>
+                <span class="text-sm text-gray-600">联系人</span>
+                <p class="text-sm font-medium text-gray-900 mt-1">{{ quotation.contact_person }}</p>
+            </div>
+            {% endif %}
+            {% if quotation.contact_phone %}
+            <div>
+                <span class="text-sm text-gray-600">联系电话</span>
+                <p class="text-sm font-medium text-gray-900 mt-1">{{ quotation.contact_phone }}</p>
+            </div>
+            {% endif %}
+            {% if quotation.contact_email %}
+            <div>
+                <span class="text-sm text-gray-600">联系邮箱</span>
+                <p class="text-sm font-medium text-gray-900 mt-1">{{ quotation.contact_email }}</p>
+            </div>
+            {% endif %}
+            {% if quotation.delivery_period %}
+            <div>
+                <span class="text-sm text-gray-600">交货期</span>
+                <p class="text-sm font-medium text-gray-900 mt-1">{{ quotation.delivery_period }} 天</p>
+            </div>
+            {% endif %}
+            {% if quotation.warranty_period %}
+            <div>
+                <span class="text-sm text-gray-600">质保期</span>
+                <p class="text-sm font-medium text-gray-900 mt-1">{{ quotation.warranty_period }} 个月</p>
+            </div>
+            {% endif %}
+            {% if quotation.payment_terms %}
+            <div>
+                <span class="text-sm text-gray-600">付款条款</span>
+                <p class="text-sm font-medium text-gray-900 mt-1">{{ quotation.get_payment_terms_display }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% if quotation.notes %}
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <span class="text-sm text-gray-600">备注</span>
+            <p class="text-sm text-gray-900 mt-1">{{ quotation.notes }}</p>
+        </div>
+        {% endif %}
+    </div> <!-- Quotation Items -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">报价明细</h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">产品名称</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">品牌/型号</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">数量</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">单价</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">折扣</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">小计</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">交货期</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item in items %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            <div class="font-medium">{{ item.product.name }}</div>
+                            <div class="text-xs text-gray-500">{{ item.product.code }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {% if item.brand %}{{ item.brand }}{% endif %}
+                            {% if item.model %} / {{ item.model }}{% endif %}
+                            {% if not item.brand and not item.model %}<span class="text-gray-400">-</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right font-medium text-gray-900">
+                            {{ item.quantity }} {{ item.product.unit }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right text-gray-900">
+                            ¥{{ item.unit_price|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right text-gray-500">
+                            {% if item.discount_rate %}{{ item.discount_rate }}%{% else %}-{% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right font-medium text-gray-900">
+                            ¥{{ item.line_total|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {% if item.delivery_period %}{{ item.delivery_period }} 天{% else %}<span class="text-gray-400">-</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="bg-gray-50 font-semibold">
+                        <td colspan="5" class="px-6 py-4 text-sm text-right text-gray-900">小计：</td>
+                        <td class="px-6 py-4 text-sm text-right text-gray-900">¥{{ quotation.subtotal|floatformat:2 }}</td>
+                        <td></td>
+                    </tr>
+                    {% if quotation.tax_amount %}
+                    <tr class="bg-gray-50">
+                        <td colspan="5" class="px-6 py-4 text-sm text-right text-gray-600">税额 ({{ quotation.tax_rate }}%)：</td>
+                        <td class="px-6 py-4 text-sm text-right text-gray-900">¥{{ quotation.tax_amount|floatformat:2 }}</td>
+                        <td></td>
+                    </tr>
+                    {% endif %}
+                    {% if quotation.shipping_cost %}
+                    <tr class="bg-gray-50">
+                        <td colspan="5" class="px-6 py-4 text-sm text-right text-gray-600">运费：</td>
+                        <td class="px-6 py-4 text-sm text-right text-gray-900">¥{{ quotation.shipping_cost|floatformat:2 }}</td>
+                        <td></td>
+                    </tr>
+                    {% endif %}
+                    <tr class="bg-gray-50 font-bold">
+                        <td colspan="5" class="px-6 py-4 text-sm text-right text-gray-900">总计：</td>
+                        <td class="px-6 py-4 text-sm text-right text-green-600">¥{{ quotation.total_amount|floatformat:2 }}</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div> {% if quotation.evaluation_score or quotation.evaluation_notes %}
+    <!-- Evaluation -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4">评估信息</h4>
+        {% if quotation.evaluation_score %}
+        <div class="mb-3">
+            <span class="text-sm text-gray-600">综合评分</span>
+            <p class="text-sm font-medium text-gray-900 mt-1">{{ quotation.evaluation_score }} / 10</p>
+        </div>
+        {% endif %}
+        {% if quotation.evaluation_notes %}
+        <div>
+            <span class="text-sm text-gray-600">评估备注</span>
+            <p class="text-sm text-gray-900 mt-1">{{ quotation.evaluation_notes }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

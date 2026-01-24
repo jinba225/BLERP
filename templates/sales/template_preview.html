@@ -1,0 +1,563 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模板预览 - {{ template.name }}</title>
+
+    <!-- 所有依赖库 - 本地文件 -->
+    <script src="{% static 'libs/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'libs/jsbarcode.min.js' %}"></script>
+    <script src="{% static 'libs/socket.io.min.js' %}"></script>
+
+    <!-- ✨ 关键！必须在 socket.io 加载后、HiPrint 加载前禁用连接 -->
+    <script>
+        console.log('🔧 配置 socket.io 为禁用模式（在 HiPrint 加载前）');
+        if (typeof io !== 'undefined') {
+            // 创建空对象，避免连接
+            var dummySocket = {
+                on: function() { return this; },
+                once: function() { return this; },
+                off: function() { return this; },
+                emit: function() { return this; },
+                close: function() { return this; },
+                disconnect: function() { return this; },
+                connect: function() { return this; },
+                send: function() { return this; }
+            };
+
+            // 重写 io 方法
+            io.connect = function() {
+                console.log('⚠️ 已阻止 socket.io 连接尝试');
+                return dummySocket;
+            };
+
+            io.Manager = function() {
+                console.log('⚠️ 已阻止 socket.io Manager 初始化');
+                return dummySocket;
+            };
+
+            // 直接调用 io() 的情况
+            window.io = function() {
+                console.log('⚠️ 已阻止 socket.io 直接调用');
+                return dummySocket;
+            };
+            window.io.connect = io.connect;
+            window.io.Manager = io.Manager;
+
+            console.log('✅ socket.io 已完全禁用');
+        } else {
+            console.warn('⚠️ socket.io 未找到');
+        }
+    </script>
+
+    <script src="{% static 'libs/jspdf.umd.min.js' %}"></script>
+    <script src="{% static 'libs/html2canvas.min.js' %}"></script>
+    <script src="{% static 'libs/canvg.umd.min.js' %}"></script>
+
+    <!-- HiPrint CSS -->
+    <link rel="stylesheet" href="{% static 'libs/print-lock.css' %}">
+
+    <!-- ✨ 关键修复：使用 Object.defineProperty 锁定 autoConnect 为 false（不可被 HiPrint 覆盖） -->
+    <script>
+        console.log('🔧 [核心修复] 锁定 window.autoConnect = false（不可写、不可删除）');
+
+        // 使用 Object.defineProperty 强制锁定 autoConnect 属性
+        Object.defineProperty(window, 'autoConnect', {
+            get: function() {
+                return false;  // 始终返回 false
+            },
+            set: function(value) {
+                console.warn('⚠️ 拦截设置 window.autoConnect =', value, '（强制保持 false）');
+            },
+            configurable: false,
+            enumerable: true
+        });
+
+        console.log('✅ window.autoConnect 已锁定为 false');
+    </script>
+
+    <!-- HiPrint JS -->
+    <script src="{% static 'libs/vue-plugin-hiprint.js' %}"></script>
+
+    <script>
+        console.log('✅ HiPrint 已加载，window.autoConnect =', window.autoConnect);
+
+        // ✨✨✨ 终极方案：完全替换 print2 方法，使用隐藏 iframe 打印
+        if (typeof hiprint !== 'undefined' && hiprint.PrintTemplate) {
+            console.log('🔧 [终极修复] 替换 print2 方法为 iframe 打印版本');
+
+            hiprint.PrintTemplate.prototype.print2 = function(data, options, printOptions) {
+                console.log('🖨️ [自定义 print2] 使用隐藏 iframe 打印');
+
+                try {
+                    var htmlContent = this.getHtml(data);
+                    console.log('   获取 HTML 内容成功');
+
+                    var printIframe = document.getElementById('hiprint-print-iframe');
+                    if (!printIframe) {
+                        printIframe = document.createElement('iframe');
+                        printIframe.id = 'hiprint-print-iframe';
+                        printIframe.style.position = 'fixed';
+                        printIframe.style.top = '0';
+                        printIframe.style.left = '0';
+                        printIframe.style.width = '0';
+                        printIframe.style.height = '0';
+                        printIframe.style.border = 'none';
+                        printIframe.style.opacity = '0';
+                        printIframe.style.pointerEvents = 'none';
+                        document.body.appendChild(printIframe);
+                    }
+
+                    var iframeDoc = printIframe.contentDocument || printIframe.contentWindow.document;
+                    iframeDoc.open();
+                    iframeDoc.write('<!DOCTYPE html>');
+                    iframeDoc.write('<html><head>');
+                    iframeDoc.write('<meta charset="UTF-8">');
+                    iframeDoc.write('<title>打印预览</title>');
+                    iframeDoc.write('<link rel="stylesheet" href="/static/libs/print-lock.css">');
+                    iframeDoc.write('<style>');
+                    iframeDoc.write('body { margin: 0; padding: 0; }');
+                    iframeDoc.write('@page { margin: 0; }');
+                    iframeDoc.write('</style>');
+                    iframeDoc.write('</head><body>');
+                    iframeDoc.write(htmlContent);
+                    iframeDoc.write('</body></html>');
+                    iframeDoc.close();
+
+                    setTimeout(function() {
+                        try {
+                            printIframe.contentWindow.focus();
+                            printIframe.contentWindow.print();
+                            console.log('✅ 打印对话框已弹出');
+                            if (printOptions && printOptions.callback) {
+                                printOptions.callback();
+                            }
+                        } catch (error) {
+                            console.error('❌ 打印失败:', error);
+                            alert('打印失败: ' + error.message);
+                        }
+                    }, 500);
+
+                } catch (error) {
+                    console.error('❌ 渲染失败:', error);
+                    alert('打印失败: ' + error.message);
+                }
+            };
+
+            console.log('✅ print2 方法已替换');
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toolbar button,
+        .toolbar a {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(107, 114, 128, 0.3);
+        }
+
+        .template-info {
+            font-size: 12px;
+            color: #1e40af;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .template-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .data-badge {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        #preview-container {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 400px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* HiPrint画布样式 - 确保与编辑器一致 */
+        .hiprint-printPanel {
+            margin: 0 auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background: white !important;
+            position: relative;
+        }
+
+        /* HiPrint元素样式 */
+        .hiprint-printElement {
+            user-select: none;
+            pointer-events: none; /* 禁止交互 */
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            border-radius: 8px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-container {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            color: #ef4444;
+            margin-bottom: 20px;
+        }
+
+        .info-icon {
+            font-size: 48px;
+            color: #f59e0b;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <div class="template-info">
+            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+</svg>
+            <span>模板预览：</span>
+            <span class="template-badge">{{ template.name }}</span>
+            <span class="data-badge"><svg w-5 h-5 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg> 测试数据</span>
+        </div>
+        <div>
+            <button onclick="window.close()" class="btn-secondary">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg> 关闭
+            </button>
+        </div>
+    </div>
+
+    <div id="preview-container">
+        <div class="loading-overlay" id="loadingOverlay">
+            <div style="text-align: center;">
+                <div class="loading-spinner" style="margin: 0 auto 20px;"></div>
+                <p style="color: #6b7280; font-size: 14px;">正在加载预览...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let hiprintTemplate;
+
+    $(document).ready(function() {
+        console.log('=== 预览页面初始化 ===');
+
+        // 获取模板JSON
+        const templateJson = {{ layout_config_json|safe }};
+        console.log('模板JSON:', templateJson);
+
+        // 生成测试数据
+        const previewData = generateSampleData();
+        console.log('测试数据:', previewData);
+
+        // 初始化HiPrint模板
+        if (templateJson && Object.keys(templateJson).length > 0) {
+            try {
+                console.log('创建 HiPrint 模板实例...');
+
+                // ✨ 从模板JSON获取画布尺寸配置
+                let canvasWidth = 210;  // 默认A4纸宽度(mm)
+                let canvasHeight = 297; // 默认A4纸高度(mm)
+
+                if (templateJson.panels && templateJson.panels.length > 0) {
+                    const panel = templateJson.panels[0];
+                    if (panel.width) canvasWidth = panel.width;
+                    if (panel.height) canvasHeight = panel.height;
+
+                    console.log('📐 画布尺寸配置:', {
+                        width: canvasWidth + 'mm',
+                        height: canvasHeight + 'mm',
+                        paperType: panel.paperType || 'A4',
+                        orientation: panel.orientation || 'portrait'
+                    });
+                }
+
+                // 转换mm到px (96 DPI: 1mm ≈ 3.7795px)
+                const MM_TO_PX = 3.7795275591;
+                const canvasWidthPx = canvasWidth * MM_TO_PX;
+                const canvasHeightPx = canvasHeight * MM_TO_PX;
+
+                console.log('📐 画布像素尺寸:', {
+                    width: canvasWidthPx.toFixed(2) + 'px',
+                    height: canvasHeightPx.toFixed(2) + 'px'
+                });
+
+                hiprintTemplate = new hiprint.PrintTemplate({
+                    template: templateJson
+                });
+
+                // 先隐藏加载动画
+                $('#loadingOverlay').fadeOut(300);
+
+                // ✨ 使用design方法渲染模板（保留完整样式和画布尺寸）
+                hiprintTemplate.design('#preview-container');
+
+                // 应用画布尺寸并禁用编辑功能
+                setTimeout(function() {
+                    // 获取画布面板
+                    const $panel = $('.hiprint-printPanel');
+
+                    if ($panel.length > 0) {
+                        // ✨ 设置画布尺寸为设计时的尺寸
+                        $panel.css({
+                            'width': canvasWidthPx + 'px',
+                            'height': canvasHeightPx + 'px',
+                            'min-width': canvasWidthPx + 'px',
+                            'min-height': canvasHeightPx + 'px',
+                            'max-width': canvasWidthPx + 'px',
+                            'max-height': canvasHeightPx + 'px'
+                        });
+
+                        console.log('✅ 画布尺寸已应用:', canvasWidthPx + 'px × ' + canvasHeightPx + 'px');
+                    }
+
+                    // 禁用所有编辑功能
+                    $('.hiprint-printElement').each(function() {
+                        $(this).css({
+                            'pointer-events': 'none',
+                            'user-select': 'none'
+                        });
+
+                        // 移除可拖拽类
+                        $(this).removeClass('ui-draggable ui-resizable');
+                    });
+
+                    // 移除工具栏和调整手柄
+                    $('.hiprint-printElement-operating, .ui-resizable-handle').remove();
+
+                    // 移除右键菜单
+                    $('.hiprint-contextMenu').remove();
+
+                    // 禁用添加元素功能
+                    $('.hiprint-printTemplate-design').css('pointer-events', 'none');
+
+                    console.log('✅ 预览渲染完成');
+                }, 500);
+
+            } catch (error) {
+                console.error('❌ HiPrint初始化失败:', error);
+                $('#loadingOverlay').hide();
+                showError('模板加载失败: ' + error.message);
+            }
+        } else {
+            $('#loadingOverlay').hide();
+            showWarning('模板尚未设计，请先设计模板');
+        }
+    });
+
+    // 生成测试数据
+    function generateSampleData() {
+        return {
+            // 基本信息
+            quote_number: 'BL-Q-20250109-DEMO',
+            quote_date: '2025-01-09',
+            valid_until: '2025-02-09',
+            quote_type: '国内报价',
+            reference_number: 'REF-DEMO-001',
+            sales_rep: '张三（销售代表）',
+            print_date: '2025-01-09 15:30',
+
+            // 客户信息
+            customer_name: '【预览】示例客户有限公司',
+            customer_phone: '0755-88888888',
+            customer_address: '广东省深圳市南山区科技园北区示例路100号',
+            contact_person: '李经理',
+            contact_phone: '13900000000',
+            contact_email: 'li@example.com',
+
+            // 金额信息
+            currency: 'CNY',
+            exchange_rate: '1.00',
+            subtotal: '385000.00',
+            discount_amount: '15000.00',
+            tax_amount: '48100.00',
+            total_amount: '418100.00',
+
+            // 条款信息
+            payment_terms: '预付30%，发货前付清余款',
+            delivery_terms: '发货后5-7个工作日送达',
+            warranty_terms: '质保期12个月，免费上门服务',
+            notes: '此为模板预览，使用测试数据展示',
+
+            // 公司信息
+            company_name: '{{ template.company_name }}',
+            company_address: '{{ template.company_address }}',
+            company_phone: '{{ template.company_phone }}',
+            company_email: '{{ template.company_email }}',
+
+            // 明细项数据（测试用，包含4条）
+            items: [
+                {
+                    index: 1,
+                    product_code: 'BL-LS-1000',
+                    product_name: '光纤激光器 1000W',
+                    specifications: 'IPG YLR-1000',
+                    quantity: '2',
+                    unit: '台',
+                    unit_price: '35000.00',
+                    discount_rate: '5%',
+                    discount_amount: '3500.00',
+                    tax_rate: '13%',
+                    line_total: '70000.00',
+                    lead_time: '30天',
+                    notes: '含配件'
+                },
+                {
+                    index: 2,
+                    product_code: 'BL-CUT-3015',
+                    product_name: '激光切割机 3015',
+                    specifications: '工作台 3000×1500mm',
+                    quantity: '1',
+                    unit: '台',
+                    unit_price: '280000.00',
+                    discount_rate: '8%',
+                    discount_amount: '22400.00',
+                    tax_rate: '13%',
+                    line_total: '280000.00',
+                    lead_time: '45天',
+                    notes: '含培训'
+                },
+                {
+                    index: 3,
+                    product_code: 'BL-ACC-001',
+                    product_name: '激光防护眼镜',
+                    specifications: 'OD5+ 防护级别',
+                    quantity: '10',
+                    unit: '副',
+                    unit_price: '150.00',
+                    discount_rate: '0%',
+                    discount_amount: '0.00',
+                    tax_rate: '13%',
+                    line_total: '1500.00',
+                    lead_time: '7天',
+                    notes: '标配'
+                },
+                {
+                    index: 4,
+                    product_code: 'BL-SRV-001',
+                    product_name: '安装调试服务',
+                    specifications: '现场安装、调试及验收',
+                    quantity: '1',
+                    unit: '项',
+                    unit_price: '8000.00',
+                    discount_rate: '0%',
+                    discount_amount: '0.00',
+                    tax_rate: '6%',
+                    line_total: '8000.00',
+                    lead_time: '随机发货',
+                    notes: '含差旅费'
+                }
+            ]
+        };
+    }
+
+    function showError(message) {
+        $('#preview-container').html(`
+            <div class="error-container">
+                <svg class="icon error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+</svg>
+                <h3 style="margin-bottom: 10px; color: #111827;">模板加载失败</h3>
+                <p style="color: #6b7280; margin-bottom: 20px;">${message}</p>
+            </div>
+        `);
+    }
+
+    function showWarning(message) {
+        $('#preview-container').html(`
+            <div class="error-container">
+                <svg info-icon fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>
+                <h3 style="margin-bottom: 10px; color: #111827;">模板尚未设计</h3>
+                <p style="color: #6b7280; margin-bottom: 20px;">${message}</p>
+            </div>
+        `);
+    }
+    </script>
+</body>
+</html>

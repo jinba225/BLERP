@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}采购订单详情 - {{ order.order_number }} - BetterLaser ERP{% endblock %}
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:order_list' %}" class="text-gray-500 hover:text-gray-700">采购管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">订单详情</span>
+{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-900">采购订单 {{ order.order_number }}</h3>
+        <div class="flex space-x-2">
+            {% if can_edit %}
+            <a class="btn btn-primary" href="{% url 'purchase:order_update' order.pk %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+</svg>编辑
+            </a>
+            {% endif %}
+            {% if can_approve %}
+            <form method="post" action="{% url 'purchase:order_approve' order.pk %}" class="inline" onsubmit="return checkPricesBeforeApprove(event);">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>审核通过
+                </button>
+            </form>
+            {% endif %}
+            {% if order.status == 'approved' or order.status == 'partial_received' %}
+                {% if pending_receipt %}
+                <a class="btn btn-primary" href="{% url 'purchase:receipt_detail' pending_receipt.pk %}">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+</svg>查看收货单 ({{ pending_receipt.receipt_number }})
+                </a>
+                {% else %}
+                <a class="btn btn-primary" href="{% url 'purchase:receipt_create' order.pk %}">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>创建收货单
+                </a>
+                {% endif %}
+            {% endif %}
+            {% if order.status == 'approved' or order.status == 'partial_received' or order.status == 'fully_received' %}
+            <a class="btn btn-primary" href="{% url 'purchase:return_create' order.pk %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>创建退货单
+            </a>
+            {% endif %}
+            {% if can_request_payment %}
+            <a href="{% url 'purchase:order_request_payment' order.pk %}" class="btn btn-primary" onclick="return confirm('确认要为该订单申请付款吗？将生成应付账款记录。');">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>申请付款
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6 space-y-4">
+        <h4 class="text-md font-semibold">基本信息</h4>
+        <div class="grid grid-cols-3 gap-4">
+            <div><span class="text-gray-600">供应商:</span> <span class="font-medium">{{ order.supplier.name }}</span></div>
+            <div><span class="text-gray-600">订单日期:</span> <span class="font-medium">{{ order.order_date|date:"Y-m-d" }}</span></div>
+            <div><span class="text-gray-600">状态:</span> <span class="font-medium">{{ order.get_status_display }}</span></div>
+            <div><span class="text-gray-600">总金额:</span> <span class="font-medium">{{ order.currency }} {{ order.total_amount|floatformat:2 }}</span></div>
+            <div><span class="text-gray-600">采购员:</span> <span class="font-medium">{{ order.buyer.get_full_name|default:order.buyer.username }}</span></div>
+            {% if order.approved_by %}
+            <div><span class="text-gray-600">审核人:</span> <span class="font-medium">{{ order.approved_by.get_full_name|default:order.approved_by.username }}</span></div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品名称</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">订单数量</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">已收货数量</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">剩余数量</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">单价</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">小计</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for item_data in items_with_remaining %}
+                {% with item=item_data.item remaining=item_data.remaining_quantity %}
+                <tr>
+                    <td class="px-6 py-4 text-sm text-gray-900">{{ item.product.name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 text-right">{{ item.quantity }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 text-right">
+                        {% if item.received_quantity > 0 %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                {{ item.received_quantity }}
+                            </span>
+                        {% else %}
+                            <span class="text-gray-400">0</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900 text-right">
+                        {% if remaining > 0 %}
+                            <span class="font-medium text-theme-600">{{ remaining }}</span>
+                        {% else %}
+                            <span class="text-green-600 font-medium flex items-center gap-1">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                                已完成
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900 text-right">{{ item.unit_price|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 text-right">{{ item.line_total|floatformat:2 }}</td>
+                </tr>
+                {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// 检查产品价格并提示用户
+function checkPricesBeforeApprove(event) {
+    // 收集所有没有单价的产品
+    const itemsWithoutPrice = [];
+    const table = event.target.form.closest('table');
+    if (!table) return true; // 如果没找到表格，直接通过
+
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach((row, index) => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 7) {
+            const productName = cells[0].textContent.trim();
+            const unitPrice = cells[6].textContent.trim();
+
+            // 检查单价是否为0或"0.00"或空字符串
+            if (!unitPrice || unitPrice === '0' || unit_price === '0.00' || unitPrice === '-' || unitPrice === '') {
+                itemsWithoutPrice.push(productName);
+            }
+        }
+    });
+
+    // 如果没有价格的产品，弹出提示
+    if (itemsWithoutPrice.length > 0) {
+        const message = '以下产品未确认单价，无法审核：\n\n' + itemsWithoutPrice.join('\n') + '\n\n请先编辑订单，确认所有产品的单价后再审核。';
+        alert(message);
+        return false;
+    }
+
+    // 都有价格，显示审核确认
+    return confirm('确认要审核此订单吗？');
+}
+</script>
+
+{% endblock %}

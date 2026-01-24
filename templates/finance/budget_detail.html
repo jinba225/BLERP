@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block title %}{{ budget.name }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:dashboard' %}" class="text-gray-500 hover:text-gray-700">财务管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:budget_list' %}" class="text-gray-500 hover:text-gray-700">预算管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ budget.budget_code }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">{{ budget.name }}</h3>
+            <p class="text-sm text-gray-600 mt-1">{{ budget.budget_code }}</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'finance:budget_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg>返回列表
+            </a>
+        </div>
+    </div> <!-- Budget Summary -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+                <p class="text-sm text-gray-600 mb-1">预算编号</p>
+                <p class="text-lg font-mono font-semibold text-gray-900">{{ budget.budget_code }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">财政年度</p>
+                <p class="text-lg font-semibold text-gray-900">{{ budget.fiscal_year }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">部门</p>
+                <p class="text-lg font-semibold text-gray-900">
+                    {% if budget.department %}
+                    {{ budget.department.name }}
+                    {% else %}
+                    <span class="text-gray-400">全公司</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">状态</p>
+                <div class="mt-1">
+                    {% if budget.status == 'draft' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800">草稿</span>
+                    {% elif budget.status == 'active' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">执行中</span>
+                    {% elif budget.status == 'closed' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-theme-100 text-theme-800">已关闭</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div> {% if budget.description %}
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-600 mb-2">预算说明</p>
+            <p class="text-sm text-gray-700">{{ budget.description }}</p>
+        </div>
+        {% endif %} <div class="mt-6 pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">预算总额</p>
+                    <p class="text-3xl font-bold text-theme-600">¥{{ budget.total_amount|floatformat:2 }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">实际支出</p>
+                    <p class="text-3xl font-bold text-red-600">¥{{ budget.actual_amount|floatformat:2 }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">剩余预算</p>
+                    <p class="text-3xl font-bold {% if budget.total_amount|add:budget.actual_amount >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        ¥{{ budget.total_amount|add:budget.actual_amount|floatformat:2 }}
+                    </p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600 mb-1">执行率</p>
+                    {% widthratio budget.actual_amount budget.total_amount 100 as execution_rate %}
+                    <p class="text-3xl font-bold {% if execution_rate > 100 %}text-red-600{% elif execution_rate > 90 %}text-yellow-600{% else %}text-green-600{% endif %}">
+                        {{ execution_rate|default:0 }}%
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div> <!-- Budget Lines -->
+    {% if budget.lines.all %}
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">
+                <svg class="icon text-theme-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zm8 0h-2a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zM5 3h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
+</svg>预算明细
+            </h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">会计科目</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">说明</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">预算金额</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">实际金额</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">差异</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">执行率</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for line in budget.lines.all %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm">
+                            <a href="{% url 'finance:account_detail' line.account.pk %}" class="font-medium text-theme-600 hover:text-theme-700">
+                                {{ line.account.code }} {{ line.account.name }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            {{ line.description|default:"-" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-theme-600">
+                            ¥{{ line.budgeted_amount|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-red-600">
+                            ¥{{ line.actual_amount|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold {% if line.variance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                            ¥{{ line.variance|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                            {% widthratio line.actual_amount line.budgeted_amount 100 as line_rate %}
+                            <div class="flex items-center justify-end space-x-2">
+                                <div class="w-20 bg-gray-200 rounded-full h-2">
+                                    <div class="{% if line_rate > 100 %}bg-red-600{% elif line_rate > 90 %}bg-yellow-600{% else %}bg-green-600{% endif %} h-2 rounded-full"
+                                         style="width: {{ line_rate|default:0 }}%"></div>
+                                </div>
+                                <span class="font-semibold text-gray-900">{{ line_rate|default:0 }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Totals Row -->
+                    <tr class="bg-gray-100 font-bold">
+                        <td colspan="2" class="px-6 py-4 text-right text-sm text-gray-900">
+                            合计
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-theme-600">
+                            ¥{{ budget.total_amount|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-red-600">
+                            ¥{{ budget.actual_amount|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm {% if budget.total_amount|add:budget.actual_amount >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                            ¥{{ budget.total_amount|add:budget.actual_amount|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                            {{ execution_rate|default:0 }}%
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %} <!-- Timeline -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4">
+            <svg class="icon text-theme-600 mr-2 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>操作记录
+        </h4>
+        <div class="space-y-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-24 text-sm text-gray-600">创建</div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ budget.created_by.username }}</p>
+                    <p class="text-xs text-gray-500">{{ budget.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+            </div>
+            {% if budget.updated_by and budget.updated_at != budget.created_at %}
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-24 text-sm text-gray-600">最后更新</div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ budget.updated_by.username }}</p>
+                    <p class="text-xs text-gray-500">{{ budget.updated_at|date:"Y-m-d H:i" }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div> {% if budget.notes %}
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-600 mb-2">备注</p>
+            <p class="text-sm text-gray-700">{{ budget.notes }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

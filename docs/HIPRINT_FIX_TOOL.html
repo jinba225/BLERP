@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HiPrint 明细数据修复工具</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #3b82f6;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9fafb;
+            border-left: 4px solid #3b82f6;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #2563eb;
+        }
+        .btn-success {
+            background: #10b981;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .error {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        ol, ul {
+            line-height: 2;
+        }
+        code {
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "Courier New", monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 HiPrint 明细数据快速修复</h1>
+        <p style="color: #6b7280;">解决模板编辑器中明细数据不显示的问题</p>
+
+        <div class="warning">
+            <strong>⚠️ 重要提示：</strong>
+            <ol>
+                <li>请先 <strong>清除浏览器缓存</strong>（Ctrl+Shift+R 或 Cmd+Shift+R）</li>
+                <li>打开模板编辑器页面：<code>http://127.0.0.1:8000/sales/templates/1/edit/</code></li>
+                <li>按 <strong>F12</strong> 打开开发者工具，切换到 <strong>Console</strong> 标签</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>📋 步骤 1：运行诊断脚本</h2>
+            <p>复制以下代码，粘贴到浏览器 Console 中，按回车运行：</p>
+            <div class="code-block">
+(function() {
+    console.clear();
+    console.log('%c=== HiPrint 明细数据诊断 ===', 'color: #3b82f6; font-size: 16px; font-weight: bold');
+
+    // 1. 检查依赖
+    console.log('\n%c1. 依赖检查', 'color: #10b981; font-weight: bold');
+    var checks = {
+        'jQuery': typeof $ !== 'undefined',
+        'HiPrint': typeof hiprint !== 'undefined',
+        'QuoteElementProvider': typeof QuoteElementProvider !== 'undefined',
+        'hiprintTemplate': typeof hiprintTemplate !== 'undefined',
+        'getSampleData': typeof getSampleData === 'function'
+    };
+
+    Object.keys(checks).forEach(function(key) {
+        console.log('  ' + (checks[key] ? '✅' : '❌') + ' ' + key);
+    });
+
+    if (!checks['hiprintTemplate']) {
+        console.error('❌ 模板未初始化！请等待页面完全加载后再运行此脚本。');
+        return;
+    }
+
+    // 2. 检查画布元素
+    console.log('\n%c2. 画布元素检查', 'color: #10b981; font-weight: bold');
+    var json = hiprintTemplate.getJson();
+    console.log('  画布数量:', json.panels ? json.panels.length : 0);
+
+    if (json.panels && json.panels[0]) {
+        var elements = json.panels[0].printElements || [];
+        console.log('  总元素数量:', elements.length);
+
+        // 找出明细项字段
+        var itemFields = elements.filter(function(elem) {
+            return elem.options && elem.options.field &&
+                   elem.options.field.indexOf('items.#.') === 0;
+        });
+
+        console.log('  明细项字段数量:', itemFields.length);
+
+        if (itemFields.length > 0) {
+            console.log('\n  明细项字段详情:');
+            itemFields.forEach(function(field, i) {
+                var opts = field.options;
+                console.log('    ' + (i+1) + '. 字段:', opts.field);
+                console.log('       标题:', opts.title);
+                console.log('       testData:', opts.testData);
+                console.log('       位置: (' + opts.left + ', ' + opts.top + ')');
+                console.log('       尺寸: ' + opts.width + 'x' + opts.height);
+            });
+        } else {
+            console.warn('  ⚠️ 画布中没有明细项字段！请从左侧"📦 明细项字段"分组中拖拽字段到画布。');
+        }
+    }
+
+    // 3. 检查测试数据
+    console.log('\n%c3. 测试数据检查', 'color: #10b981; font-weight: bold');
+    if (checks['getSampleData']) {
+        var testData = getSampleData();
+        console.log('  items 是数组:', Array.isArray(testData.items));
+        console.log('  items 数量:', testData.items ? testData.items.length : 0);
+
+        if (testData.items && testData.items.length > 0) {
+            console.log('\n  第一条明细数据:');
+            var item = testData.items[0];
+            console.table(item);
+
+            // 检查字段完整性
+            var requiredFields = ['index', 'product_code', 'product_name', 'specification',
+                                 'quantity', 'unit', 'unit_price', 'subtotal'];
+            var missingFields = requiredFields.filter(function(f) {
+                return !(f in item);
+            });
+
+            if (missingFields.length > 0) {
+                console.warn('  ⚠️ 缺少字段:', missingFields.join(', '));
+            } else {
+                console.log('  ✅ 所有必需字段都存在');
+            }
+        }
+    }
+
+    // 4. 测试预览功能
+    console.log('\n%c4. 预览功能测试', 'color: #10b981; font-weight: bold');
+    console.log('  提示: 点击工具栏的"预览"按钮，然后查看下方的测试结果');
+
+    // 5. 给出建议
+    console.log('\n%c5. 诊断结果', 'color: #f59e0b; font-weight: bold');
+
+    var hasItemFields = json.panels && json.panels[0] &&
+                       json.panels[0].printElements.some(function(e) {
+                           return e.options && e.options.field &&
+                                  e.options.field.indexOf('items.#.') === 0;
+                       });
+
+    if (!hasItemFields) {
+        console.log('  ❌ 问题: 画布中没有明细项字段');
+        console.log('  💡 解决: 从左侧元素库拖拽"📦 明细项字段"到画布');
+    } else if (!checks['getSampleData']) {
+        console.log('  ❌ 问题: 测试数据函数不存在');
+        console.log('  💡 解决: 检查页面是否完全加载');
+    } else {
+        console.log('  ✅ 基础检查通过！');
+        console.log('  💡 如果预览仍无数据，请运行步骤 2 的修复脚本');
+    }
+
+    console.log('\n%c=== 诊断完成 ===', 'color: #3b82f6; font-size: 16px; font-weight: bold');
+})();
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 步骤 2：运行修复脚本（如果需要）</h2>
+            <p>如果诊断发现问题，复制以下修复脚本到 Console 运行：</p>
+            <div class="code-block">
+(function() {
+    console.clear();
+    console.log('%c=== 开始修复 ===', 'color: #10b981; font-size: 16px; font-weight: bold');
+
+    // 修复 1: 确保测试数据完整
+    if (typeof getSampleData !== 'function') {
+        console.log('创建测试数据函数...');
+        window.getSampleData = function() {
+            return {
+                quote_number: 'BL-Q-20250107-001',
+                quote_date: '2025-01-07',
+                customer_name: '示例客户有限公司',
+                items: [
+                    {
+                        index: 1,
+                        product_code: 'BL-LS-1000',
+                        product_name: '光纤激光器 1000W',
+                        specification: 'IPG YLR-1000',
+                        quantity: '2',
+                        unit: '台',
+                        unit_price: '35000.00',
+                        discount_rate: '5%',
+                        tax_rate: '13%',
+                        subtotal: '70000.00',
+                        lead_time: '30天',
+                        notes: '含配件'
+                    },
+                    {
+                        index: 2,
+                        product_code: 'BL-CUT-3015',
+                        product_name: '激光切割机 3015',
+                        specification: '工作台 3000×1500mm',
+                        quantity: '1',
+                        unit: '台',
+                        unit_price: '280000.00',
+                        subtotal: '280000.00',
+                        lead_time: '45天'
+                    }
+                ]
+            };
+        };
+        console.log('✅ 测试数据函数已创建');
+    }
+
+    // 修复 2: 增强预览函数
+    console.log('\n增强预览函数...');
+    window.previewPrintFixed = function() {
+        console.log('=== 开始预览（修复版）===');
+
+        if (!hiprintTemplate) {
+            alert('模板未初始化');
+            return;
+        }
+
+        var data = getSampleData();
+        console.log('预览数据:', data);
+        console.log('明细项数量:', data.items ? data.items.length : 0);
+
+        try {
+            // 使用 print 方法（打开预览窗口）
+            hiprintTemplate.print(data, {
+                styleHandler: function() {
+                    // 确保样式正确
+                    return '<style>@page { size: A4; margin: 10mm; }</style>';
+                }
+            });
+            console.log('✅ 预览窗口已打开');
+        } catch (e) {
+            console.error('❌ 预览失败:', e);
+            alert('预览失败: ' + e.message);
+        }
+    };
+
+    console.log('✅ 预览函数已增强');
+
+    // 修复 3: 添加快捷测试按钮
+    console.log('\n添加测试按钮...');
+    if (!document.getElementById('quick-test-btn')) {
+        var btn = document.createElement('button');
+        btn.id = 'quick-test-btn';
+        btn.textContent = '🧪 快速预览测试';
+        btn.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 9999; ' +
+                           'padding: 10px 20px; background: #10b981; color: white; ' +
+                           'border: none; border-radius: 6px; cursor: pointer; ' +
+                           'box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+        btn.onclick = window.previewPrintFixed;
+        document.body.appendChild(btn);
+        console.log('✅ 测试按钮已添加到页面右上角');
+    }
+
+    console.log('\n%c=== 修复完成 ===', 'color: #10b981; font-size: 16px; font-weight: bold');
+    console.log('💡 现在可以：');
+    console.log('   1. 点击页面右上角的"🧪 快速预览测试"按钮');
+    console.log('   2. 或在 Console 中输入: previewPrintFixed()');
+})();
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>✅ 步骤 3：手动添加测试元素</h2>
+            <p>如果画布中没有明细项字段，运行此脚本自动添加：</p>
+            <div class="code-block">
+(function() {
+    console.log('添加测试明细字段...');
+
+    if (!hiprintTemplate || !hiprintTemplate.printPanels || !hiprintTemplate.printPanels[0]) {
+        alert('模板未初始化！');
+        return;
+    }
+
+    var panel = hiprintTemplate.printPanels[0];
+
+    // 添加标题
+    panel.addPrintText({
+        left: 250,
+        top: 30,
+        width: 200,
+        height: 30,
+        text: '报价单',
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'center'
+    });
+
+    // 添加明细项表头提示
+    panel.addPrintText({
+        left: 50,
+        top: 120,
+        width: 700,
+        height: 20,
+        text: '产品明细：',
+        fontSize: 12,
+        fontWeight: 'bold'
+    });
+
+    // 添加明细项字段（标准 6 列）
+    var fields = [
+        { field: 'index', title: '序号', left: 50, width: 40, align: 'center' },
+        { field: 'product_name', title: '产品名称', left: 100, width: 200, align: 'left' },
+        { field: 'specification', title: '规格', left: 310, width: 150, align: 'left' },
+        { field: 'quantity', title: '数量', left: 470, width: 60, align: 'right' },
+        { field: 'unit_price', title: '单价', left: 540, width: 80, align: 'right' },
+        { field: 'subtotal', title: '小计', left: 630, width: 90, align: 'right' }
+    ];
+
+    fields.forEach(function(f) {
+        panel.addPrintText({
+            left: f.left,
+            top: 150,
+            width: f.width,
+            height: 20,
+            field: 'items.#.' + f.field,
+            testData: f.field === 'index' ? '1' :
+                     f.field === 'product_name' ? '测试产品' :
+                     f.field === 'quantity' ? '10' :
+                     f.field === 'unit_price' ? '1000.00' :
+                     f.field === 'subtotal' ? '10000.00' : '示例',
+            title: f.title,
+            hideTitle: true,
+            fontSize: 11,
+            textAlign: f.align,
+            borderWidth: 1,
+            borderColor: '#d1d5db',
+            borderStyle: 'solid'
+        });
+    });
+
+    console.log('✅ 已添加 6 个明细字段到画布');
+    alert('✅ 测试字段已添加！\n\n现在点击"预览"按钮查看效果。');
+})();
+            </div>
+        </div>
+
+        <div class="success">
+            <h3>✅ 完成后的验证</h3>
+            <ol>
+                <li>画布上应该能看到明细项字段（显示测试数据，如"测试产品"、"1000.00"等）</li>
+                <li>点击"预览"按钮，应该能看到完整的 4 条明细数据</li>
+                <li>数据应该包含：光纤激光器、激光切割机等产品</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>📞 仍然有问题？</h2>
+            <p>如果以上步骤都无法解决，请提供：</p>
+            <ul>
+                <li>步骤 1 诊断脚本的完整输出（截图）</li>
+                <li>浏览器 Console 中的错误信息（如果有）</li>
+                <li>模板编辑器的截图</li>
+                <li>预览窗口的截图</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 40px; text-align: center; color: #6b7280; font-size: 14px;">
+            <p>HiPrint 明细数据修复工具 v1.0</p>
+            <p>如需帮助，请查看详细文档：<code>docs/HIPRINT_DEBUG_GUIDE.md</code></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}组织结构图 - BetterLaser ERP{% endblock %}
+{% block page_title %}组织结构图{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">系统管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'departments:department_list' %}" class="text-gray-500 hover:text-gray-700">部门管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">组织结构图</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 顶部操作栏 -->
+    <div class="flex justify-between items-center">
+        <div class="flex space-x-3">
+            <a href="{% url 'departments:department_list' %}"
+               class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zm8 0h-2a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zM5 3h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
+</svg>列表视图
+            </a>
+            <a href="{% url 'departments:department_tree' %}"
+               class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+</svg>树形视图
+            </a>
+        </div>
+    </div> <!-- 组织结构图 -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">
+            <svg class="icon mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+</svg>组织结构图
+        </h3> <div class="bg-theme-50 border-l-4 border-theme-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="icon text-theme-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-theme-700">
+                        组织结构图功能正在开发中。您可以使用树形视图查看组织架构，或使用列表视图管理部门信息。
+                    </p>
+                </div>
+            </div>
+        </div> {% if root_departments %}
+            <div class="overflow-x-auto">
+                <div class="inline-block min-w-full align-middle">
+                    <div class="space-y-8">
+                        {% for department in root_departments %}
+                        <div class="border-2 border-gray-300 rounded-lg p-6 bg-gray-50">
+                            <div class="text-center mb-4">
+                                <div class="inline-block bg-theme-600 text-white px-6 py-3 rounded-lg">
+                                    <div class="font-bold text-lg">{{ department.name }}</div>
+                                    <div class="text-sm opacity-90">{{ department.manager.get_full_name|default:"无负责人" }}</div>
+                                </div>
+                            </div> {% if department.children.all %}
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                                {% for child in department.children.all %}
+                                <div class="border border-gray-300 rounded-lg p-4 bg-white hover:shadow-lg transition-shadow">
+                                    <div class="text-center">
+                                        <div class="font-semibold text-gray-900">{{ child.name }}</div>
+                                        <div class="text-sm text-gray-500 mt-1">
+                                            {{ child.manager.get_full_name|default:"无负责人" }}
+                                        </div>
+                                        <div class="text-xs text-gray-400 mt-2">
+                                            <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>{{ child.get_employee_count }} 人
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-12 text-gray-500">
+                <svg class="icon mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+</svg>
+                <p>暂无部门数据</p>
+                <a class="btn btn-primary" href="/admin/departments/department/add/">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+</svg>创建第一个部门
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

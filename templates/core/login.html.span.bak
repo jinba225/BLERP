@@ -1,0 +1,370 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - BetterLaser ERP 系统</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%233b82f6' width='100' height='100' rx='15'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='white' font-size='50' font-weight='bold' font-family='sans-serif'%3EBL%3C/text%3E%3C/svg%3E">
+
+    <!-- 立即应用主题（防止闪烁） -->
+    <script>
+        (function() {
+            try {
+                const validThemes = ['blue', 'yellow', 'red'];
+                const defaultTheme = 'blue';
+
+                // 优先使用内存中保存的主题
+                let themeToApply = window.__validTheme;
+
+                // 如果内存中没有，再读取 localStorage（使用 erp_theme 避免与 Django admin 冲突）
+                if (!themeToApply) {
+                    const savedTheme = localStorage.getItem('erp_theme');
+                    themeToApply = (savedTheme && validThemes.includes(savedTheme)) ? savedTheme : defaultTheme;
+                }
+
+                // 只在主题无效时才写入默认主题
+                const currentSaved = localStorage.getItem('erp_theme');
+                if (!currentSaved || !validThemes.includes(currentSaved)) {
+                    localStorage.setItem('erp_theme', themeToApply);
+                }
+
+                // 立即应用主题
+                document.documentElement.setAttribute('data-theme', themeToApply);
+                window.__validTheme = themeToApply;
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'blue');
+            }
+        })();
+    </script>
+
+    <!-- Tailwind CSS（编译后的版本） -->
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+
+    <!-- 主题色样式 -->
+    <style>
+        :root {
+            --theme-50: 239, 246, 255;
+            --theme-100: 219, 234, 254;
+            --theme-200: 191, 219, 254;
+            --theme-300: 147, 197, 253;
+            --theme-400: 96, 165, 250;
+            --theme-500: 59, 130, 246;
+            --theme-600: 37, 99, 235;
+            --theme-700: 29, 78, 216;
+            --theme-800: 30, 64, 175;
+            --theme-900: 30, 58, 138;
+        }
+
+        [data-theme="blue"] {
+            --theme-50: 239, 246, 255;
+            --theme-100: 219, 234, 254;
+            --theme-200: 191, 219, 254;
+            --theme-300: 147, 197, 253;
+            --theme-400: 96, 165, 250;
+            --theme-500: 59, 130, 246;
+            --theme-600: 37, 99, 235;
+            --theme-700: 29, 78, 216;
+            --theme-800: 30, 64, 175;
+            --theme-900: 30, 58, 138;
+        }
+
+        [data-theme="yellow"] {
+            --theme-50: 254, 252, 232;
+            --theme-100: 254, 249, 195;
+            --theme-200: 254, 240, 138;
+            --theme-300: 253, 224, 71;
+            --theme-400: 250, 204, 21;
+            --theme-500: 234, 179, 8;
+            --theme-600: 202, 138, 4;
+            --theme-700: 161, 98, 7;
+            --theme-800: 133, 77, 14;
+            --theme-900: 113, 63, 18;
+        }
+
+        [data-theme="red"] {
+            --theme-50: 254, 242, 242;
+            --theme-100: 254, 226, 226;
+            --theme-200: 254, 202, 202;
+            --theme-300: 252, 165, 165;
+            --theme-400: 248, 113, 113;
+            --theme-500: 239, 68, 68;
+            --theme-600: 220, 38, 38;
+            --theme-700: 185, 28, 28;
+            --theme-800: 153, 27, 27;
+            --theme-900: 127, 29, 29;
+        }
+
+        /* 使用主题色的类 - Background */
+        .bg-theme-50 { background-color: rgb(var(--theme-50)); }
+        .bg-theme-100 { background-color: rgb(var(--theme-100)); }
+        .bg-theme-200 { background-color: rgb(var(--theme-200)); }
+        .bg-theme-300 { background-color: rgb(var(--theme-300)); }
+        .bg-theme-400 { background-color: rgb(var(--theme-400)); }
+        .bg-theme-500 { background-color: rgb(var(--theme-500)); }
+        .bg-theme-600 { background-color: rgb(var(--theme-600)); }
+        .bg-theme-700 { background-color: rgb(var(--theme-700)); }
+        .bg-theme-800 { background-color: rgb(var(--theme-800)); }
+        .bg-theme-900 { background-color: rgb(var(--theme-900)); }
+
+        /* Hover Background */
+        .hover\:bg-theme-50:hover { background-color: rgb(var(--theme-50)); }
+        .hover\:bg-theme-100:hover { background-color: rgb(var(--theme-100)); }
+        .hover\:bg-theme-200:hover { background-color: rgb(var(--theme-200)); }
+        .hover\:bg-theme-300:hover { background-color: rgb(var(--theme-300)); }
+        .hover\:bg-theme-400:hover { background-color: rgb(var(--theme-400)); }
+        .hover\:bg-theme-500:hover { background-color: rgb(var(--theme-500)); }
+        .hover\:bg-theme-600:hover { background-color: rgb(var(--theme-600)); }
+        .hover\:bg-theme-700:hover { background-color: rgb(var(--theme-700)); }
+        .hover\:bg-theme-800:hover { background-color: rgb(var(--theme-800)); }
+        .hover\:bg-theme-900:hover { background-color: rgb(var(--theme-900)); }
+
+        /* Text Color */
+        .text-theme-50 { color: rgb(var(--theme-50)); }
+        .text-theme-100 { color: rgb(var(--theme-100)); }
+        .text-theme-200 { color: rgb(var(--theme-200)); }
+        .text-theme-300 { color: rgb(var(--theme-300)); }
+        .text-theme-400 { color: rgb(var(--theme-400)); }
+        .text-theme-500 { color: rgb(var(--theme-500)); }
+        .text-theme-600 { color: rgb(var(--theme-600)); }
+        .text-theme-700 { color: rgb(var(--theme-700)); }
+        .text-theme-800 { color: rgb(var(--theme-800)); }
+        .text-theme-900 { color: rgb(var(--theme-900)); }
+
+        /* Hover Text */
+        .hover\:text-theme-50:hover { color: rgb(var(--theme-50)); }
+        .hover\:text-theme-100:hover { color: rgb(var(--theme-100)); }
+        .hover\:text-theme-200:hover { color: rgb(var(--theme-200)); }
+        .hover\:text-theme-300:hover { color: rgb(var(--theme-300)); }
+        .hover\:text-theme-400:hover { color: rgb(var(--theme-400)); }
+        .hover\:text-theme-500:hover { color: rgb(var(--theme-500)); }
+        .hover\:text-theme-600:hover { color: rgb(var(--theme-600)); }
+        .hover\:text-theme-700:hover { color: rgb(var(--theme-700)); }
+        .hover\:text-theme-800:hover { color: rgb(var(--theme-800)); }
+        .hover\:text-theme-900:hover { color: rgb(var(--theme-900)); }
+
+        /* Border Color */
+        .border-theme-50 { border-color: rgb(var(--theme-50)); }
+        .border-theme-100 { border-color: rgb(var(--theme-100)); }
+        .border-theme-200 { border-color: rgb(var(--theme-200)); }
+        .border-theme-300 { border-color: rgb(var(--theme-300)); }
+        .border-theme-400 { border-color: rgb(var(--theme-400)); }
+        .border-theme-500 { border-color: rgb(var(--theme-500)); }
+        .border-theme-600 { border-color: rgb(var(--theme-600)); }
+        .border-theme-700 { border-color: rgb(var(--theme-700)); }
+        .border-theme-800 { border-color: rgb(var(--theme-800)); }
+        .border-theme-900 { border-color: rgb(var(--theme-900)); }
+
+        /* Ring/Shadow */
+        .ring-theme-50 { --tw-ring-color: rgb(var(--theme-50)); }
+        .ring-theme-100 { --tw-ring-color: rgb(var(--theme-100)); }
+        .ring-theme-200 { --tw-ring-color: rgb(var(--theme-200)); }
+        .ring-theme-300 { --tw-ring-color: rgb(var(--theme-300)); }
+        .ring-theme-400 { --tw-ring-color: rgb(var(--theme-400)); }
+        .ring-theme-500 { --tw-ring-color: rgb(var(--theme-500)); }
+        .ring-theme-600 { --tw-ring-color: rgb(var(--theme-600)); }
+        .ring-theme-700 { --tw-ring-color: rgb(var(--theme-700)); }
+        .ring-theme-800 { --tw-ring-color: rgb(var(--theme-800)); }
+        .ring-theme-900 { --tw-ring-color: rgb(var(--theme-900)); }
+
+        /* Focus Ring */
+        .focus\:ring-theme-50:focus { --tw-ring-color: rgb(var(--theme-50)); }
+        .focus\:ring-theme-100:focus { --tw-ring-color: rgb(var(--theme-100)); }
+        .focus\:ring-theme-200:focus { --tw-ring-color: rgb(var(--theme-200)); }
+        .focus\:ring-theme-300:focus { --tw-ring-color: rgb(var(--theme-300)); }
+        .focus\:ring-theme-400:focus { --tw-ring-color: rgb(var(--theme-400)); }
+        .focus\:ring-theme-500:focus { --tw-ring-color: rgb(var(--theme-500)); }
+        .focus\:ring-theme-600:focus { --tw-ring-color: rgb(var(--theme-600)); }
+        .focus\:ring-theme-700:focus { --tw-ring-color: rgb(var(--theme-700)); }
+        .focus\:ring-theme-800:focus { --tw-ring-color: rgb(var(--theme-800)); }
+        .focus\:ring-theme-900:focus { --tw-ring-color: rgb(var(--theme-900)); }
+
+        /* Focus Border */
+        .focus\:border-theme-50:focus { border-color: rgb(var(--theme-50)); }
+        .focus\:border-theme-100:focus { border-color: rgb(var(--theme-100)); }
+        .focus\:border-theme-200:focus { border-color: rgb(var(--theme-200)); }
+        .focus\:border-theme-300:focus { border-color: rgb(var(--theme-300)); }
+        .focus\:border-theme-400:focus { border-color: rgb(var(--theme-400)); }
+        .focus\:border-theme-500:focus { border-color: rgb(var(--theme-500)); }
+        .focus\:border-theme-600:focus { border-color: rgb(var(--theme-600)); }
+        .focus\:border-theme-700:focus { border-color: rgb(var(--theme-700)); }
+        .focus\:border-theme-800:focus { border-color: rgb(var(--theme-800)); }
+        .focus\:border-theme-900:focus { border-color: rgb(var(--theme-900)); }
+
+        .bg-gradient-custom {
+            background: linear-gradient(135deg, rgb(var(--theme-500)) 0%, rgb(var(--theme-700)) 100%);
+        }
+
+        .logo-icon {
+            color: rgb(var(--theme-600));
+        }
+    </style>
+
+    <!-- Heroicons -->
+    <script src="{% static 'js/heroicons.js' %}"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gradient-custom min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full">
+        <!-- Theme Switcher -->
+        <div class="flex justify-end mb-4" x-data="{
+            init() {
+                // 从 localStorage 读取主题，如果没有则使用默认的 blue
+                this.theme = localStorage.getItem('erp_theme') || 'blue';
+                // 确保页面显示的主题与 localStorage 一致
+                document.documentElement.setAttribute('data-theme', this.theme);
+            },
+            setTheme(t) {
+                this.theme = t;
+                localStorage.setItem('erp_theme', t);
+                document.documentElement.setAttribute('data-theme', t);
+                window.__validTheme = t;
+            }
+        }">
+            <div class="bg-white/20 backdrop-blur-sm rounded-lg p-2 flex space-x-2">
+                <button @click="setTheme('red')" :class="theme === 'red' ? 'bg-white shadow-lg' : 'hover:bg-white/30'" class="w-8 h-8 rounded flex items-center justify-center transition-all" title="红色主题">
+                    <div class="w-4 h-4 rounded-full bg-red-600"></div>
+                </button>
+                <button @click="setTheme('yellow')" :class="theme === 'yellow' ? 'bg-white shadow-lg' : 'hover:bg-white/30'" class="w-8 h-8 rounded flex items-center justify-center transition-all" title="黄色主题">
+                    <div class="w-4 h-4 rounded-full bg-yellow-600"></div>
+                </button>
+                <button @click="setTheme('blue')" :class="theme === 'blue' ? 'bg-white shadow-lg' : 'hover:bg-white/30'" class="w-8 h-8 rounded flex items-center justify-center transition-all" title="蓝色主题">
+                    <div class="w-4 h-4 rounded-full bg-blue-600"></div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Logo and Title -->
+        <div class="text-center mb-8">
+            <div class="bg-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <svg x-data="heroicon('building')" class="text-3xl logo-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">BetterLaser ERP</h1>
+            <p class="text-white/80">企业资源规划管理系统</p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="bg-white rounded-lg shadow-xl p-8">
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+
+                <!-- Error Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <p class="text-sm text-red-600">{{ message }}</p>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Username -->
+                <div class="mb-6">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                        <svg x-data="heroicon('user')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>用户名
+                    </label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500 transition-colors"
+                        placeholder="请输入用户名"
+                        required
+                        autofocus
+                    >
+                </div>
+
+                <!-- Password -->
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        <svg x-data="heroicon('lock-closed')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>密码
+                    </label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500 transition-colors"
+                        placeholder="请输入密码"
+                        required
+                    >
+                </div>
+
+                <!-- Remember Me -->
+                <div class="flex items-center justify-between mb-6">
+                    <label class="flex items-center">
+                        <input
+                            type="checkbox"
+                            name="remember_me"
+                            value="true"
+                            class="rounded border-gray-300 text-theme-600 shadow-sm focus:border-theme-500 focus:ring focus:ring-theme-500 focus:ring-opacity-50"
+                        >
+                        <span class="ml-2 text-sm text-gray-600">记住我</span>
+                    </label>
+                    <a href="{% url 'admin:index' %}" class="text-sm text-theme-600 hover:text-theme-700">进入后台管理</a>
+                </div>
+
+                <!-- Login Button -->
+                <button
+                    type="submit"
+                    class="w-full bg-theme-600 text-white py-3 px-4 rounded-lg hover:bg-theme-700 focus:ring-2 focus:ring-theme-500 focus:ring-offset-2 transition-colors font-medium"
+                >
+                    <svg x-data="heroicon('arrow-right-on-rectangle')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>登录
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <p class="text-center text-sm text-gray-600">
+                    默认管理员账号：<strong>admin</strong> / 密码请联系系统管理员
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8">
+            <p class="text-white/70 text-sm">
+                © 2024 BetterLaser ERP. All rights reserved.
+            </p>
+        </div>
+    </div>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+
+    <!-- 注册 Heroicons 组件 -->
+    <script>
+        document.addEventListener('alpine:init', function() {
+            Alpine.data('heroicon', (name, strokeWidth = 1.5) => ({
+                svgData: null,
+                iconName: name,
+
+                init() {
+                    // 延迟获取数据，确保 window.HeroiconsPaths 已加载
+                    this.$nextTick(() => {
+                        if (window.HeroiconsPaths && window.HeroiconsPaths[this.iconName]) {
+                            this.svgData = window.HeroiconsPaths[this.iconName];
+                        } else {
+                            console.error(`❌ Heroicon "${this.iconName}" not found`);
+                        }
+                    });
+                },
+
+                get svg() {
+                    if (!this.svgData || !this.svgData.outline) {
+                        return '';
+                    }
+                    return `<path stroke-linecap="round" stroke-linejoin="round" d="${this.svgData.outline}" />`;
+                },
+
+                get viewBox() {
+                    return this.svgData && this.svgData.viewBox ? this.svgData.viewBox : '0 0 24 24';
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

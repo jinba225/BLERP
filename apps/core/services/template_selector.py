@@ -1,0 +1,131 @@
+"""
+模板选择服务
+
+提供模板选择和默认模板获取功能，支持基于大类和适用性的智能排序。
+"""
+from apps.core.models import PrintTemplate, DefaultTemplateMapping
+
+
+class TemplateSelector:
+    """模板选择服务"""
+
+    # 单据类型到模板类别的映射
+    DOCUMENT_CATEGORY_MAP = {
+        # 销售类
+        'quote': 'sales',
+        'sales_order': 'sales',
+        'delivery': 'sales',
+        'sales_return': 'sales',
+
+        # 采购类
+        'purchase_order': 'purchase',
+        'purchase_receipt': 'purchase',
+        'purchase_return': 'purchase',
+
+        # 库存类
+        'stock_in': 'inventory',
+        'stock_out': 'inventory',
+        'stock_transfer': 'inventory',
+        'stock_check': 'inventory',
+
+        # 财务类
+        'invoice': 'finance',
+        'payment': 'finance',
+        'receipt': 'finance',
+    }
+
+    @classmethod
+    def get_available_templates(cls, document_type, category=None):
+        """
+        获取可用模板列表
+
+        Args:
+            document_type: 单据类型（如 'quote', 'sales_order'）
+            category: 模板类别（如 'sales'），不传则自动判断
+
+        Returns:
+            list[PrintTemplate]: 按相关度排序的模板列表
+        """
+        # 1. 确定模板类别
+        if not category:
+            category = cls._get_category_by_document_type(document_type)
+
+        # 2. 获取该类别的所有可用模板
+        templates = list(
+            PrintTemplate.objects.filter(
+                template_category=category,
+                is_active=True,
+                is_deleted=False
+            )
+        )
+
+        # 3. 按相关度排序（包含当前单据类型的优先）
+        def get_priority(template):
+            """计算模板优先级"""
+            if document_type in template.suitable_for:
+                return 2  # 高优先级：明确适用
+            elif not template.suitable_for:
+                return 1  # 中优先级：通用模板（空列表表示通用）
+            else:
+                return 0  # 低优先级：不太适用
+
+        templates.sort(key=get_priority, reverse=True)
+        return templates
+
+    @classmethod
+    def get_default_template(cls, document_type_full):
+        """
+        获取默认模板
+
+        Args:
+            document_type_full: 完整单据类型（如 'quote_domestic', 'quote_overseas'）
+                              用于查找精确的默认映射
+
+        Returns:
+            PrintTemplate or None: 默认模板，找不到则返回 None
+        """
+        try:
+            # 1. 尝试从默认映射表获取
+            mapping = DefaultTemplateMapping.objects.filter(
+                document_type=document_type_full,
+                is_deleted=False
+            ).select_related('template').first()
+
+            if mapping and mapping.template and mapping.template.is_active:
+                return mapping.template
+
+        except DefaultTemplateMapping.DoesNotExist:
+            pass
+
+        # 2. 降级方案：返回该类别第一个可用模板
+        # 提取基础单据类型（如 'quote_domestic' → 'quote'）
+        document_type = document_type_full.split('_')[0]
+        templates = cls.get_available_templates(document_type)
+        return templates[0] if templates else None
+
+    @classmethod
+    def _get_category_by_document_type(cls, document_type):
+        """
+        根据单据类型推断模板类别
+
+        Args:
+            document_type: 单据类型（如 'quote', 'sales_order'）
+
+        Returns:
+            str: 模板类别（'sales', 'purchase', 'inventory', 'finance', 'other'）
+        """
+        return cls.DOCUMENT_CATEGORY_MAP.get(document_type, 'other')
+
+    @classmethod
+    def get_category_display_name(cls, category):
+        """
+        获取模板类别的显示名称
+
+        Args:
+            category: 类别代码（如 'sales'）
+
+        Returns:
+            str: 显示名称（如 '📊 销售类'）
+        """
+        category_map = dict(PrintTemplate.CATEGORY_CHOICES)
+        return category_map.get(category, category)

@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% block title %}退货单详情 - {{ return.return_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">销售管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:return_list' %}" class="text-gray-500 hover:text-gray-700">销售退货</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ return.return_number }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h3 class="text-2xl font-bold text-gray-900">{{ return.return_number }}</h3>
+            <p class="text-sm text-gray-600 mt-1">
+                <span class="px-2 py-1 text-xs font-semibold rounded
+                    {% if return.status == 'pending' %}bg-yellow-100 text-yellow-800
+                    {% elif return.status == 'approved' %}bg-theme-100 text-theme-800
+                    {% elif return.status == 'received' %}bg-indigo-100 text-indigo-800
+                    {% elif return.status == 'processed' %}bg-green-100 text-green-800
+                    {% elif return.status == 'rejected' %}bg-red-100 text-red-800
+                    {% endif %}">
+                    {{ return.get_status_display }}
+                </span>
+            </p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'sales:return_list' %}"
+               class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg>返回
+            </a>
+            {% if return.status == 'pending' %}
+            <a class="btn btn-primary" href="{% url 'sales:return_update' return.pk %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+</svg>编辑
+            </a>
+            {% endif %}
+            {% if return.status == 'pending' or return.status == 'rejected' %}
+            <form method="post" action="{% url 'sales:return_delete' return.pk %}" class="inline">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit" onclick="return confirm('确认删除该退货单？')">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>删除
+                </button>
+            </form>
+            {% endif %}
+            {% if can_approve %}
+            <a class="btn btn-primary" href="{% url 'sales:return_approve' return.pk %}" onclick="return confirm('确认退货并生成退款应付？')">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>确认退货
+            </a>
+            {% endif %}
+            {% if can_receive %}
+            <a class="btn btn-primary" href="{% url 'sales:return_receive' return.pk %}" onclick="return confirm('确认收货并完成退货流程？')"> <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+</svg>确认收货（完成退货）
+            </a>
+            {% endif %}
+            {% if can_process %}
+            <a class="btn btn-primary" href="{% url 'sales:return_process' return.pk %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+</svg>处理退货
+            </a>
+            {% endif %}
+            {% if return.status in 'pending,approved' %}
+            <a class="btn btn-primary" href="{% url 'sales:return_reject' return.pk %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>拒绝退货
+            </a>
+            {% endif %}
+        </div>
+    </div> <!-- Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">订单信息</h4>
+            <dl class="space-y-2">
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">销售订单：</dt>
+                    <dd class="text-sm text-gray-900">
+                        <a href="{% url 'sales:order_detail' return.sales_order.pk %}" class="text-theme-600 hover:text-theme-700">
+                            {{ return.sales_order.order_number }}
+                        </a>
+                    </dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">客户名称：</dt>
+                    <dd class="text-sm text-gray-900">{{ return.sales_order.customer.name }}</dd>
+                </div>
+                {% if return.delivery %}
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">发货单：</dt>
+                    <dd class="text-sm text-gray-900">
+                        <a href="{% url 'sales:delivery_detail' return.delivery.pk %}" class="text-theme-600 hover:text-theme-700">
+                            {{ return.delivery.delivery_number }}
+                        </a>
+                    </dd>
+                </div>
+                {% endif %}
+            </dl>
+        </div> <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">退货信息</h4>
+            <dl class="space-y-2">
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">退货原因：</dt>
+                    <dd class="text-sm text-gray-900">{{ return.get_reason_display }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">退货日期：</dt>
+                    <dd class="text-sm text-gray-900">{{ return.return_date }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">收货日期：</dt>
+                    <dd class="text-sm text-gray-900">{{ return.received_date|default:"-" }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">退款金额：</dt>
+                    <dd class="text-sm text-gray-900 font-medium">¥{{ return.refund_amount }}</dd>
+                </div>
+                {% if return.restocking_fee > 0 %}
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">重新入库费：</dt>
+                    <dd class="text-sm text-gray-900">¥{{ return.restocking_fee }}</dd>
+                </div>
+                {% endif %}
+                {% if return.approved_by %}
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">审核人：</dt>
+                    <dd class="text-sm text-gray-900">{{ return.approved_by.username }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">审核时间：</dt>
+                    <dd class="text-sm text-gray-900">{{ return.approved_at|date:"Y-m-d H:i" }}</dd>
+                </div>
+                {% endif %}
+            </dl>
+            {% if refund_payment %}
+            <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-yellow-800">
+                        {% if refund_payment.status == 'pending' %}
+                        已生成退款应付（待付款）：
+                        {% else %}
+                        退款付款：
+                        {% endif %}
+                        <span class="font-semibold">¥{{ refund_payment.amount }}</span>
+                    </div>
+                    <a href="{% url 'finance:payment_detail' refund_payment.pk %}"
+                       class="text-sm text-theme-600 hover:text-theme-700">查看付款单</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div> <!-- Items -->
+    <div class="bg-white rounded-lg shadow mb-6">
+        <div class="px-6 py-4 border-b">
+            <h4 class="text-lg font-semibold text-gray-900">退货明细</h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品编码</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品名称</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">退货数量</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">退货单价</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">行总计</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">货物状态</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item in items %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ forloop.counter }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ item.order_item.product.code }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ item.order_item.product.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                            {{ item.quantity }} {{ item.order_item.product.unit.symbol|default:"" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                            ¥{{ item.unit_price }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 font-medium">
+                            ¥{{ item.line_total }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ item.condition|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">暂无退货明细</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div> <!-- Notes -->
+    {% if return.notes %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">备注</h4>
+        <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ return.notes }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+
+{% block title %}客户应收账款 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">往来款项</span>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">应收账款</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">客户应收账款</h3>
+            <p class="text-sm text-gray-600">共 {{ total_count }} 条记录</p>
+        </div>
+    </div> <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">应收总额</p>
+                    <p class="mt-2 text-2xl font-bold text-theme-600">¥{{ totals.total_invoice|default:"0.00" }}</p>
+                </div>
+                <div class="p-3 bg-theme-100 rounded-lg">
+                    <svg class="icon text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+</svg>
+                </div>
+            </div>
+        </div> <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">已收金额</p>
+                    <p class="mt-2 text-2xl font-bold text-green-600">¥{{ totals.total_paid|default:"0.00" }}</p>
+                </div>
+                <div class="p-3 bg-green-100 rounded-lg">
+                    <svg class="icon text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                </div>
+            </div>
+        </div> <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">未收余额</p>
+                    <p class="mt-2 text-2xl font-bold text-red-600">¥{{ totals.total_balance|default:"0.00" }}</p>
+                </div>
+                <div class="p-3 bg-red-100 rounded-lg">
+                    <svg class="icon text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                </div>
+            </div>
+        </div>
+    </div> <!-- Filters -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">搜索</label>
+                <input type="text"
+                       name="search"
+                       value="{{ search }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent"
+                       placeholder="客户名称、发票号...">
+            </div> <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">客户</label>
+                <select name="customer"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                    <option value="">全部客户</option>
+                    {% for c in customers %}
+                    <option value="{{ c.id }}" {% if customer_id|stringformat:"s" == c.id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div> <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">逾期状态</label>
+                <select name="is_overdue"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                    <option value="">全部</option>
+                    <option value="true" {% if is_overdue == 'true' %}selected{% endif %}>已逾期</option>
+                    <option value="false" {% if is_overdue == 'false' %}selected{% endif %}>未逾期</option>
+                </select>
+            </div> <div class="flex items-end">
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+</svg>搜索
+                </button>
+            </div>
+        </form>
+    </div> <!-- Table -->
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发票号</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发票日期</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">到期日期</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">发票金额</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">已付金额</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">余额</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for account in page_obj %}
+                {% load tz %}
+                {% now "Y-m-d" as today %}
+                {% if account.due_date %}
+                    {% if account.due_date|date:"Y-m-d" < today and account.balance > 0 %}
+                        {% with is_overdue=True %}
+                <tr class="hover:bg-gray-50 transition-colors {% if is_overdue %}bg-red-50{% endif %}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {% if account.customer %}
+                            <a href="{% url 'customers:customer_detail' account.customer.pk %}"
+                               class="text-theme-600 hover:text-theme-700">
+                                {{ account.customer.name }}
+                            </a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ account.invoice_number|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ account.invoice_date|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span class="{% if is_overdue %}text-red-600 font-semibold{% endif %}">
+                            {{ account.due_date|default:"-" }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                        ¥{{ account.invoice_amount }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-green-600">
+                        ¥{{ account.paid_amount }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold {% if account.balance > 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                        ¥{{ account.balance }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if account.balance == 0 %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">
+                                已结清
+                            </span>
+                        {% elif is_overdue %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800">
+                                已逾期
+                            </span>
+                        {% else %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-800">
+                                未结清
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                        {% if account.balance > 0 %}
+                        <a class="btn btn-primary" href="{% url 'finance:customer_account_writeoff' account.pk %}">
+                            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" /></svg>手动核销
+                        </a>
+                        {% else %}
+                        <span class="text-gray-400 text-xs">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                        {% endwith %}
+                    {% else %}
+                        {% with is_overdue=False %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {% if account.customer %}
+                            <a href="{% url 'customers:customer_detail' account.customer.pk %}"
+                               class="text-theme-600 hover:text-theme-700">
+                                {{ account.customer.name }}
+                            </a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ account.invoice_number|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ account.invoice_date|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ account.due_date|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                        ¥{{ account.invoice_amount }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-green-600">
+                        ¥{{ account.paid_amount }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold {% if account.balance > 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                        ¥{{ account.balance }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if account.balance == 0 %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">
+                                已结清
+                            </span>
+                        {% else %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-800">
+                                未结清
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                        {% if account.balance > 0 %}
+                        <a class="btn btn-primary" href="{% url 'finance:customer_account_writeoff' account.pk %}">
+                            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" /></svg>手动核销
+                        </a>
+                        {% else %}
+                        <span class="text-gray-400 text-xs">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                        {% endwith %}
+                    {% endif %}
+                {% else %}
+                    {% with is_overdue=False %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {% if account.customer %}
+                            <a href="{% url 'customers:customer_detail' account.customer.pk %}"
+                               class="text-theme-600 hover:text-theme-700">
+                                {{ account.customer.name }}
+                            </a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ account.invoice_number|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ account.invoice_date|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        -
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                        ¥{{ account.invoice_amount }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-green-600">
+                        ¥{{ account.paid_amount }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold {% if account.balance > 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                        ¥{{ account.balance }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if account.balance == 0 %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">
+                                已结清
+                            </span>
+                        {% else %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-800">
+                                未结清
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                        {% if account.balance > 0 %}
+                        <a class="btn btn-primary" href="{% url 'finance:customer_account_writeoff' account.pk %}">
+                            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" /></svg>手动核销
+                        </a>
+                        {% else %}
+                        <span class="text-gray-400 text-xs">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                    {% endwith %}
+                {% endif %}
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                        <svg class="icon mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+</svg>
+                        <p>暂无应收账款数据</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table> <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        显示第 <span class="font-medium">{{ page_obj.start_index }}</span> 到
+                        <span class="font-medium">{{ page_obj.end_index }}</span> 条，
+                        共 <span class="font-medium">{{ page_obj.paginator.count }}</span> 条
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

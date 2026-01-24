@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% block title %}创建退货单 - {{ order.order_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">采购管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:order_list' %}" class="text-gray-500 hover:text-gray-700">采购订单</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:order_detail' order.pk %}" class="text-gray-500 hover:text-gray-700">{{ order.order_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">创建退货单</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">创建采购退货单</h3>
+            <p class="text-sm text-gray-600">采购订单：{{ order.order_number }}</p>
+        </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="icon text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">退货说明</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>全收货退货：</strong>订单数量=已收货数量时，退货从已收货中扣除，并自动生成供应商应收退款</li>
+                        <li><strong>部分收货退货（退货量≤未收货）：</strong>只减少订单数量，不扣库存，不生成应收</li>
+                        <li><strong>部分收货退货（退货量>未收货）：</strong>先清零未收货部分，超额部分扣已收货并生成应收</li>
+                        <li>退货总量不能超过订单数量，创建后需要审核才能正式处理</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Form -->
+    <form method="post" id="returnForm" class="bg-white rounded-lg shadow">
+        {% csrf_token %}
+
+        <!-- Basic Information -->
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-base font-semibold text-gray-900">基本信息</h4>
+        </div>
+
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">退货日期 <span class="text-red-500">*</span></label>
+                    <input type="date" name="return_date" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500"
+                           value="{% now 'Y-m-d' %}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">退货原因 <span class="text-red-500">*</span></label>
+                    <select name="reason" required ="true"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                        <option value="">请选择退货原因</option>
+                        <option value="quality">质量问题</option>
+                        <option value="quantity">数量不符</option>
+                        <option value="damage">货物损坏</option>
+                        <option value="specification">规格不符</option>
+                        <option value="other">其他原因</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">供应商</label>
+                    <input type="text" value="{{ order.supplier.name }}" readonly
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50">
+                </div>
+            </div>
+        </div>
+
+        <!-- Return Items -->
+        <div class="px-6 py-4 border-t border-gray-200">
+            <h4 class="text-base font-semibold text-gray-900 mb-4">退货明细</h4>
+        </div>
+
+        <div class="overflow-x-auto px-6">
+            {% if order_items %}
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">订单数量</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">已收货数量</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">未收货数量</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">退货数量 <span class="text-red-500">*</span></th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">批次号</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">单价</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">小计</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="itemsTableBody">
+                    {% for item in order_items %}
+                    <tr data-order-item-id="{{ item.pk }}"
+                        data-unit-price="{{ item.unit_price }}"
+                        data-order-qty="{{ item.quantity }}"
+                        data-received-qty="{{ item.received_quantity }}"
+                        data-unreceived-qty="{{ item.unreceived_quantity }}">
+                        <td class="px-4 py-3 text-sm text-gray-900">
+                            <div class="font-medium">{{ item.product.name }}</div>
+                            <div class="text-gray-500">{{ item.product.code }}</div>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-right text-gray-700">
+                            {{ item.quantity }}
+                        </td>
+                        <td class="px-4 py-3 text-sm text-right text-green-600">
+                            {{ item.received_quantity }}
+                        </td>
+                        <td class="px-4 py-3 text-sm text-right font-medium text-orange-600">
+                            {{ item.unreceived_quantity }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <input type="number"
+                                   name="return_qty_{{ item.pk }}"
+                                   class="return-qty w-24 px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:border-theme-500"
+                                   min="0"
+                                   max="{{ item.quantity }}"
+                                   step="1"
+                                   value="0"
+                                   data-order-item-id="{{ item.pk }}"
+                                   data-order-qty="{{ item.quantity }}"
+                                   onchange="validateReturnQuantity(this)">
+                        </td>
+                        <td class="px-4 py-3">
+                            <input type="text"
+                                   name="batch_{{ item.pk }}"
+                                   class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-theme-500"
+                                   placeholder="选填">
+                        </td>
+                        <td class="px-4 py-3 text-sm text-right text-gray-700">
+                            ¥{{ item.unit_price|floatformat:2 }}
+                        </td>
+                        <td class="px-4 py-3 text-sm text-right font-medium text-gray-900">
+                            ¥<span class="subtotal" data-order-item-id="{{ item.pk }}">0.00</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="bg-gray-50">
+                    <tr>
+                        <td colspan="7" class="px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                            退货总金额：
+                        </td>
+                        <td class="px-4 py-3 text-right text-base font-bold text-theme-600">
+                            ¥<span id="totalAmount">0.00</span>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+            {% else %}
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
+                <svg class="icon text-yellow-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                <h3 class="text-lg font-medium text-yellow-800 mb-2">该订单没有产品明细</h3>
+                <p class="text-sm text-yellow-700 mb-4">无法创建退货单。</p>
+                <a href="{% url 'purchase:order_detail' order.pk %}" class="btn btn-outline">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg>返回订单详情
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Notes -->
+        {% if order_items %}
+        <div class="px-6 py-4 border-t border-gray-200">
+            <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+            <textarea name="notes" rows="3"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500"
+                      placeholder="请输入退货的详细说明或其他备注信息..."></textarea>
+        </div>
+
+        <!-- Hidden Input for Items JSON -->
+        <input type="hidden" name="items_json" id="items_json" value="[]">
+
+        <!-- Actions -->
+        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center rounded-b-lg">
+            <a href="{% url 'purchase:order_detail' order.pk %}"
+               class="btn btn-outline">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg>返回
+            </a>
+            <button type="submit" class="btn btn-primary" onclick="return validateForm()">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>创建退货单
+            </button>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<script>
+// 验证退货数量
+function validateReturnQuantity(input) {
+    const maxQty = parseInt(input.dataset.orderQty); // 订单数量
+    const qty = parseInt(input.value);
+    const row = input.closest('tr');
+    const receivedQty = parseInt(row.dataset.receivedQty);
+    const unreceivedQty = parseInt(row.dataset.unreceivedQty);
+
+    // 验证退货数量不能超过订单数量
+    if (qty > maxQty) {
+        alert(`退货数量不能超过订单数量 ${maxQty}`);
+        input.value = 0;
+    }
+
+    // 显示退货提示
+    if (qty > 0) {
+        let message = '';
+        if (qty <= unreceivedQty) {
+            message = `将减少订单数量 ${qty}，不扣库存，不生成应收`;
+        } else {
+            const fromUnreceived = unreceivedQty;
+            const fromReceived = qty - unreceivedQty;
+            message = `将减少订单数量 ${fromUnreceived}，扣已收货 ${fromReceived}，并生成应收`;
+        }
+        // 可以在界面上显示这个提示，这里暂时用 console
+        console.log(message);
+    }
+
+    updateSubtotal(input);
+}
+
+// 更新小计
+function updateSubtotal(input) {
+    const row = input.closest('tr');
+    const orderItemId = input.dataset.orderItemId;
+    const qty = parseInt(input.value) || 0;
+    const unitPrice = parseFloat(row.dataset.unitPrice);
+    const subtotal = qty * unitPrice;
+
+    row.querySelector('.subtotal[data-order-item-id="' + orderItemId + '"]').textContent = subtotal.toFixed(2);
+    updateTotal();
+}
+
+// 更新总计
+function updateTotal() {
+    const subtotals = document.querySelectorAll('.subtotal');
+    let total = 0;
+    subtotals.forEach(span => {
+        total += parseFloat(span.textContent) || 0;
+    });
+    document.getElementById('totalAmount').textContent = total.toFixed(2);
+}
+
+// 表单验证
+function validateForm() {
+    const qtyInputs = document.querySelectorAll('.return-qty');
+    let hasReturn = false;
+
+    for (let input of qtyInputs) {
+        const qty = parseInt(input.value);
+        if (qty && qty > 0) {
+            hasReturn = true;
+        }
+    }
+
+    if (!hasReturn) {
+        alert('请至少选择一个产品进行退货');
+        return false;
+    }
+
+    // 构建 items_json
+    const items = [];
+    for (let input of qtyInputs) {
+        const qty = parseInt(input.value);
+        if (qty && qty > 0) {
+            const row = input.closest('tr');
+            const orderItemId = input.dataset.orderItemId;
+            const batchInput = row.querySelector('input[name^="batch_"]');
+
+            items.push({
+                order_item_id: parseInt(orderItemId),
+                return_quantity: qty,
+                batch_number: batchInput.value
+            });
+        }
+    }
+
+    document.getElementById('items_json').value = JSON.stringify(items);
+
+    return confirm('确认创建退货单？');
+}
+
+// 监听所有退货数量输入框
+document.addEventListener('DOMContentLoaded', function() {
+    const qtyInputs = document.querySelectorAll('.return-qty');
+    qtyInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            updateSubtotal(this);
+        });
+    });
+});
+</script>
+{% endblock %}

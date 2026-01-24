@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}审核确认 - {{ adjustment.adjustment_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">库存管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'inventory:adjustment_list' %}" class="text-gray-500 hover:text-gray-700">库存调整单</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'inventory:adjustment_detail' adjustment.pk %}" class="text-gray-500 hover:text-gray-700">{{ adjustment.adjustment_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">审核确认</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+    <!-- Approval Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 bg-theme-50 border-b border-theme-200">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="icon text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-semibold text-theme-900">审核库存调整单</h3>
+                    <p class="text-sm text-theme-700 mt-1">请仔细核对以下信息，审核后将自动更新库存</p>
+                </div>
+            </div>
+        </div> <div class="p-6">
+            <!-- Adjustment Summary -->
+            <div class="grid grid-cols-2 gap-6 mb-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 uppercase">调整单号</label>
+                        <p class="mt-1 text-sm font-semibold text-gray-900">{{ adjustment.adjustment_number }}</p>
+                    </div> <div>
+                        <label class="text-xs font-medium text-gray-500 uppercase">产品</label>
+                        <p class="mt-1 text-sm font-semibold text-gray-900">{{ adjustment.product.name }}</p>
+                        <p class="text-xs text-gray-500">{{ adjustment.product.code }}</p>
+                    </div> <div>
+                        <label class="text-xs font-medium text-gray-500 uppercase">仓库</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ adjustment.warehouse.name }}</p>
+                        {% if adjustment.location %}
+                        <p class="text-xs text-gray-500">库位：{{ adjustment.location.name }}</p>
+                        {% endif %}
+                    </div> <div>
+                        <label class="text-xs font-medium text-gray-500 uppercase">调整类型</label>
+                        <p class="mt-1">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                {% if adjustment.adjustment_type == 'increase' %}bg-green-100 text-green-800
+                                {% elif adjustment.adjustment_type == 'decrease' %}bg-red-100 text-red-800
+                                {% else %}bg-theme-100 text-theme-800{% endif %}">
+                                {{ adjustment.get_adjustment_type_display }}
+                            </span>
+                        </p>
+                    </div> <div>
+                        <label class="text-xs font-medium text-gray-500 uppercase">调整原因</label>
+                        <p class="mt-1 text-sm text-gray-900">{{ adjustment.get_reason_display }}</p>
+                    </div>
+                </div> <div class="space-y-4">
+                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <label class="text-xs font-medium text-gray-500 uppercase">原数量</label>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">
+                            {{ adjustment.original_quantity }}
+                            <span class="text-sm text-gray-600">{{ adjustment.product.unit.name }}</span>
+                        </p>
+                    </div> <div class="p-4 bg-theme-50 rounded-lg border border-theme-200">
+                        <label class="text-xs font-medium text-theme-700 uppercase">调整后数量</label>
+                        <p class="mt-1 text-2xl font-bold text-theme-900">
+                            {{ adjustment.adjusted_quantity }}
+                            <span class="text-sm text-theme-700">{{ adjustment.product.unit.name }}</span>
+                        </p>
+                    </div> <div class="p-4 rounded-lg border-2
+                        {% if adjustment.difference > 0 %}bg-green-50 border-green-300
+                        {% elif adjustment.difference < 0 %}bg-red-50 border-red-300
+                        {% else %}bg-gray-50 border-gray-300{% endif %}">
+                        <label class="text-xs font-medium uppercase
+                            {% if adjustment.difference > 0 %}text-green-700
+                            {% elif adjustment.difference < 0 %}text-red-700
+                            {% else %}text-gray-700{% endif %}">差异数量</label>
+                        <p class="mt-1 text-3xl font-bold
+                            {% if adjustment.difference > 0 %}text-green-600
+                            {% elif adjustment.difference < 0 %}text-red-600
+                            {% else %}text-gray-900{% endif %}">
+                            {% if adjustment.difference > 0 %}+{% endif %}{{ adjustment.difference }}
+                            <span class="text-base {% if adjustment.difference > 0 %}text-green-700{% elif adjustment.difference < 0 %}text-red-700{% else %}text-gray-600{% endif %}">
+                                {{ adjustment.product.unit.name }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div> {% if adjustment.notes %}
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <label class="text-xs font-medium text-gray-500 uppercase">备注</label>
+                <p class="mt-2 text-sm text-gray-900 whitespace-pre-wrap">{{ adjustment.notes }}</p>
+            </div>
+            {% endif %} <!-- Impact Info -->
+            <div class="mb-6 p-4 bg-theme-50 border-l-4 border-theme-400 rounded">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="icon text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-theme-800">
+                            <strong>审核后将执行：</strong>
+                        </p>
+                        <ul class="mt-2 text-sm text-theme-800 list-disc list-inside space-y-1">
+                            <li>库存数量将更新为：<strong>{{ adjustment.adjusted_quantity }} {{ adjustment.product.unit.name }}</strong></li>
+                            <li>生成库存事务记录</li>
+                            <li>调整单状态变更为"已审核"</li>
+                            <li>后续不可再编辑或删除</li>
+                        </ul>
+                    </div>
+                </div>
+            </div> <!-- System Info -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 uppercase">创建人</label>
+                        <p class="mt-1 text-gray-900">{{ adjustment.created_by.username }}</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 uppercase">创建时间</label>
+                        <p class="mt-1 text-gray-900">{{ adjustment.created_at|date:"Y-m-d H:i:s" }}</p>
+                    </div>
+                </div>
+            </div> <!-- Confirmation Form -->
+            <form method="post">
+                {% csrf_token %}
+                <div class="flex justify-end space-x-3">
+                    <a href="{% url 'inventory:adjustment_detail' adjustment.pk %}"
+                       class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                        <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>取消
+                    </a>
+                    <button class="btn btn-primary" type="submit">
+                        <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>确认审核
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

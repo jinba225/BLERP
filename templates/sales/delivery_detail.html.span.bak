@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}发货单详情 - {{ delivery.delivery_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">销售管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:delivery_list' %}" class="text-gray-500 hover:text-gray-700">发货管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ delivery.delivery_number }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h3 class="text-2xl font-bold text-gray-900">{{ delivery.delivery_number }}</h3>
+            <p class="text-sm text-gray-600 mt-1">
+                <span class="px-2 py-1 text-xs font-semibold rounded
+                    {% if delivery.status == 'preparing' %}bg-yellow-100 text-yellow-800
+                    {% elif delivery.status == 'ready' %}bg-theme-100 text-theme-800
+                    {% elif delivery.status == 'shipped' %}bg-purple-100 text-purple-800
+                    {% elif delivery.status == 'delivered' %}bg-green-100 text-green-800
+                    {% endif %}">
+                    {{ delivery.get_status_display }}
+                </span>
+            </p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'sales:delivery_list' %}"
+               class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <svg x-data="heroicon('arrow-left')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>返回
+            </a>
+            {% if can_ship %}
+            <a class="btn btn-primary" href="{% url 'sales:delivery_ship' delivery.pk %}">
+                <i class="fas fa-truck mr-2"></i>确认发货
+            </a>
+            {% endif %}
+        </div>
+    </div> <!-- Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">订单信息</h4>
+            <dl class="space-y-2">
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">销售订单：</dt>
+                    <dd class="text-sm text-gray-900">
+                        <a href="{% url 'sales:order_detail' delivery.sales_order.pk %}" class="text-theme-600 hover:text-theme-700">
+                            {{ delivery.sales_order.order_number }}
+                        </a>
+                    </dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">客户名称：</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.sales_order.customer.name }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">发货仓库：</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.warehouse.name }}</dd>
+                </div>
+            </dl>
+        </div> <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">发货信息</h4>
+            <dl class="space-y-2">
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">计划发货日期：</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.planned_date }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">实际发货日期：</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.actual_date|default:"-" }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">收货联系人：</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.shipping_contact }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">联系电话：</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.shipping_phone }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">收货地址：</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.shipping_address }}</dd>
+                </div>
+                {% if delivery.tracking_number %}
+                <div class="flex">
+                    <dt class="w-32 text-sm font-medium text-gray-500">快递单号：</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.tracking_number }}</dd>
+                </div>
+                {% endif %}
+            </dl>
+        </div>
+    </div> <!-- Items -->
+    <div class="bg-white rounded-lg shadow mb-6">
+        <div class="px-6 py-4 border-b">
+            <h4 class="text-lg font-semibold text-gray-900">发货明细</h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品编码</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品名称</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">发货数量</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item in items %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ forloop.counter }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ item.order_item.product.code }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">{{ item.order_item.product.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
+                            {{ item.quantity }} {{ item.order_item.product.unit.symbol|default:"" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-8 text-center text-gray-500">暂无发货明细</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

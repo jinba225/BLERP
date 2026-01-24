@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% block title %}{{ journal.journal_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:dashboard' %}" class="text-gray-500 hover:text-gray-700">财务管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:journal_list' %}" class="text-gray-500 hover:text-gray-700">日记账</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ journal.journal_number }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">{{ journal.journal_number }}</h3>
+            <p class="text-sm text-gray-600 mt-1">记账凭证详情</p>
+        </div>
+        <div class="flex space-x-2">
+            <button onclick="window.print()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                <svg x-data="heroicon('printer')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>打印凭证
+            </button>
+            <a href="{% url 'finance:journal_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                <svg x-data="heroicon('arrow-left')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>返回列表
+            </a>
+        </div>
+    </div>
+
+    <!-- Voucher Header -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+                <p class="text-sm text-gray-600 mb-1">凭证号</p>
+                <p class="text-lg font-semibold text-gray-900">{{ journal.journal_number }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">凭证日期</p>
+                <p class="text-lg font-semibold text-gray-900">{{ journal.journal_date }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">凭证类型</p>
+                <div class="mt-1">
+                    {% if journal.voucher_type == 'receipt' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">收款凭证</span>
+                    {% elif journal.voucher_type == 'payment' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-theme-100 text-theme-800">付款凭证</span>
+                    {% elif journal.voucher_type == 'transfer' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800">转账凭证</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">状态</p>
+                <div class="mt-1">
+                    {% if journal.status == 'draft' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800">草稿</span>
+                    {% elif journal.status == 'submitted' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">待审核</span>
+                    {% elif journal.status == 'approved' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-theme-100 text-theme-800">已审核</span>
+                    {% elif journal.status == 'posted' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">已过账</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if journal.description %}
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-600 mb-2">摘要</p>
+            <p class="text-sm text-gray-700">{{ journal.description }}</p>
+        </div>
+        {% endif %}
+
+        {% if journal.reference_type and journal.reference_number %}
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-600 mb-2">关联单据</p>
+            <p class="text-sm text-gray-900">
+                <span class="font-medium">{{ journal.get_reference_type_display }}</span>: {{ journal.reference_number }}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Journal Entries Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">
+                <svg x-data="heroicon('queue-list')" class="text-theme-600 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>分录明细
+            </h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">科目编号</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">科目名称</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">摘要</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-32">借方金额</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-32">贷方金额</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for entry in entries %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-semibold text-gray-900">
+                            {{ entry.account.code }}
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            <a href="{% url 'finance:account_detail' entry.account.pk %}" class="font-medium text-theme-600 hover:text-theme-700">
+                                {{ entry.account.name }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            {{ entry.description }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                            {% if entry.debit_amount > 0 %}
+                            <span class="font-semibold text-theme-600">¥{{ entry.debit_amount|floatformat:2 }}</span>
+                            {% else %}
+                            <span class="text-gray-300">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                            {% if entry.credit_amount > 0 %}
+                            <span class="font-semibold text-red-600">¥{{ entry.credit_amount|floatformat:2 }}</span>
+                            {% else %}
+                            <span class="text-gray-300">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Totals Row -->
+                    <tr class="bg-gray-100 font-bold">
+                        <td colspan="3" class="px-6 py-4 text-right text-sm text-gray-900">
+                            合计
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-theme-600">
+                            ¥{{ journal.total_debit|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-red-600">
+                            ¥{{ journal.total_credit|floatformat:2 }}
+                        </td>
+                    </tr>
+                    {% if journal.total_debit != journal.total_credit %}
+                    <tr class="bg-red-50">
+                        <td colspan="5" class="px-6 py-3 text-center text-sm text-red-600">
+                            <svg x-data="heroicon('exclamation-triangle')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                            借贷不平衡！差额: ¥{{ journal.total_debit|add:journal.total_credit|floatformat:2 }}
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Audit Trail -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4">
+            <i class="fas fa-history text-theme-600 mr-2"></i>审核流程
+        </h4>
+        <div class="space-y-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-24 text-sm text-gray-600">制单</div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ journal.prepared_by.username }}</p>
+                    <p class="text-xs text-gray-500">{{ journal.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        <svg x-data="heroicon('check')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>已完成
+                    </span>
+                </div>
+            </div>
+
+            {% if journal.reviewed_by %}
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-24 text-sm text-gray-600">复核</div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ journal.reviewed_by.username }}</p>
+                    <p class="text-xs text-gray-500">{{ journal.reviewed_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        <svg x-data="heroicon('check')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>已完成
+                    </span>
+                </div>
+            </div>
+            {% else %}
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-24 text-sm text-gray-600">复核</div>
+                <div class="flex-1">
+                    <p class="text-sm text-gray-500">待复核</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                        <svg x-data="heroicon('clock')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>待处理
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if journal.posted_by %}
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-24 text-sm text-gray-600">过账</div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ journal.posted_by.username }}</p>
+                    <p class="text-xs text-gray-500">{{ journal.posted_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        <svg x-data="heroicon('check')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>已完成
+                    </span>
+                </div>
+            </div>
+            {% else %}
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-24 text-sm text-gray-600">过账</div>
+                <div class="flex-1">
+                    <p class="text-sm text-gray-500">待过账</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                        <svg x-data="heroicon('clock')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>待处理
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if journal.notes %}
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-600 mb-2">备注</p>
+            <p class="text-sm text-gray-700">{{ journal.notes }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

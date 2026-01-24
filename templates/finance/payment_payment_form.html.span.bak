@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if action == 'create' %}新建付款记录{% else %}编辑付款记录{% endif %} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">财务管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:payment_payment_list' %}" class="text-gray-500 hover:text-gray-700">付款记录</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{% if action == 'create' %}新建{% else %}编辑{% endif %}</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">{% if action == 'create' %}新建付款记录{% else %}编辑付款记录{% endif %}</h3>
+            {% if payment %}
+            <p class="text-sm text-gray-600">{{ payment.payment_number }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <form method="post" class="bg-white rounded-lg shadow overflow-hidden">
+        {% csrf_token %}
+
+        <!-- Basic Information -->
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">基本信息</h4>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        供应商 <span class="text-red-500">*</span>
+                    </label>
+                    <select name="supplier"
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                        <option value="">请选择供应商</option>
+                        {% for s in suppliers %}
+                        <option value="{{ s.id }}" {% if payment and payment.supplier_id == s.id %}selected{% endif %}>
+                            {{ s.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        付款日期 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date"
+                           name="payment_date"
+                           required
+                           value="{% if payment %}{{ payment.payment_date|date:'Y-m-d' }}{% endif %}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        付款金额 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number"
+                           name="amount"
+                           required
+                           step="0.01"
+                           min="0.01"
+                           value="{% if payment %}{{ payment.amount }}{% endif %}"
+                           placeholder="0.00"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        币种 <span class="text-red-500">*</span>
+                    </label>
+                    <select name="currency"
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                        <option value="CNY" {% if not payment or payment.currency == 'CNY' %}selected{% endif %}>人民币 (CNY)</option>
+                        <option value="USD" {% if payment and payment.currency == 'USD' %}selected{% endif %}>美元 (USD)</option>
+                        <option value="EUR" {% if payment and payment.currency == 'EUR' %}selected{% endif %}>欧元 (EUR)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        付款方式 <span class="text-red-500">*</span>
+                    </label>
+                    <select name="payment_method"
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                        <option value="">请选择付款方式</option>
+                        {% for method_code, method_name in payment_methods %}
+                        <option value="{{ method_code }}" {% if payment and payment.payment_method == method_code %}selected{% endif %}>
+                            {{ method_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        状态 <span class="text-red-500">*</span>
+                    </label>
+                    <select name="status"
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                        {% for status_code, status_name in payment_statuses %}
+                        <option value="{{ status_code }}" {% if payment and payment.status == status_code %}selected{% elif not payment and status_code == 'pending' %}selected{% endif %}>
+                            {{ status_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">银行账户</label>
+                    <input type="text"
+                           name="bank_account"
+                           value="{% if payment %}{{ payment.bank_account }}{% endif %}"
+                           placeholder="付款银行账号"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">开户行</label>
+                    <input type="text"
+                           name="bank_name"
+                           value="{% if payment %}{{ payment.bank_name }}{% endif %}"
+                           placeholder="开户银行名称"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">交易流水号</label>
+                    <input type="text"
+                           name="transaction_reference"
+                           value="{% if payment %}{{ payment.transaction_reference }}{% endif %}"
+                           placeholder="银行交易流水号"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">参考单号</label>
+                    <input type="text"
+                           name="reference_number"
+                           value="{% if payment %}{{ payment.reference_number }}{% endif %}"
+                           placeholder="关联的采购订单号等"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">说明</label>
+                    <input type="text"
+                           name="description"
+                           value="{% if payment %}{{ payment.description }}{% endif %}"
+                           placeholder="付款说明"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                    <textarea name="notes"
+                              rows="3"
+                              placeholder="备注信息"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent">{% if payment %}{{ payment.notes }}{% endif %}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+            <a href="{% if payment %}{% url 'finance:payment_payment_detail' payment.pk %}{% else %}{% url 'finance:payment_payment_list' %}{% endif %}"
+               class="btn btn-outline">
+                <svg x-data="heroicon('x-mark')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>取消
+            </a>
+            <button type="submit"
+                    class="btn btn-primary">
+                <svg x-data="heroicon('check')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>保存
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

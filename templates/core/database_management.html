@@ -1,0 +1,422 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - BetterLaser ERP系统{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'dashboard' %}" class="text-gray-600 hover:text-gray-900">首页</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-600">基础设置</span>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ page_title }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="databaseManagement()">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">
+                <svg class="icon text-theme-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+</svg>
+                {{ page_title }}
+            </h1>
+            <p class="text-gray-600 mt-1">数据库维护和测试数据管理</p>
+        </div>
+    </div>
+
+    <!-- Database Info Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <svg class="icon text-theme-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+            数据库信息
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="text-sm text-gray-600 mb-1">数据库类型</div>
+                <div class="text-xl font-bold text-gray-900">{{ db_info.engine|upper }}</div>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="text-sm text-gray-600 mb-1">数据表数量</div>
+                <div class="text-xl font-bold text-gray-900">{{ db_info.table_count }}</div>
+            </div>
+            {% if db_info.size_mb %}
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="text-sm text-gray-600 mb-1">数据库大小</div>
+                <div class="text-xl font-bold text-gray-900">{{ db_info.size_mb }} MB</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Operations Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <svg class="icon text-theme-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+</svg>
+            数据库操作
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- 添加测试数据 -->
+            <button @click="confirmAddTestData()"
+                    :disabled="loading"
+                    class="group p-6 bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-lg border-2 border-green-200 hover:border-green-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <svg class="icon text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-1">添加测试数据</h4>
+                    <p class="text-sm text-gray-600">创建示例客户、产品等数据</p>
+                </div>
+            </button>
+
+            <!-- 清除所有单据 -->
+            <button @click="confirmClearAllDocuments()"
+                    :disabled="loading"
+                    class="group p-6 bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 rounded-lg border-2 border-red-300 hover:border-red-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <svg class="icon text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+</svg>
+                    </div>
+                    <h4 class="font-semibold text-red-900 mb-1">清除所有单据</h4>
+                    <p class="text-sm text-red-700">清空所有业务单据并重置ID</p>
+                </div>
+            </button>
+
+            <!-- 备份数据库 -->
+            <button @click="confirmBackupDatabase()"
+                    :disabled="loading"
+                    class="group p-6 bg-gradient-to-br from-theme-50 to-theme-100 hover:from-theme-100 hover:to-theme-200 rounded-lg border-2 border-theme-200 hover:border-theme-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-theme-500 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <svg class="icon text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+</svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-1">备份数据库</h4>
+                    <p class="text-sm text-gray-600">创建数据库备份文件</p>
+                </div>
+            </button>
+
+            <!-- 还原数据库 -->
+            <button @click="showRestoreModal = true"
+                    :disabled="loading || !hasBackups"
+                    class="group p-6 bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 rounded-lg border-2 border-red-200 hover:border-red-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <svg class="icon text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4 4m0 0l-4-4m4 4v12" />
+</svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-1">还原数据库</h4>
+                    <p class="text-sm text-gray-600">从备份文件恢复数据</p>
+                </div>
+            </button>
+        </div>
+
+        <!-- Loading indicator -->
+        <div x-show="loading" class="mt-4 text-center">
+            <div class="inline-flex items-center px-4 py-2 bg-theme-100 text-theme-700 rounded-lg">
+                <svg class="animate-spin h-5 w-5 mr-3" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span x-text="loadingMessage">处理中...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup List Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <svg class="icon text-theme-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+            备份文件列表
+        </h3>
+
+        {% if backups %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">文件名</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">大小</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for backup in backups %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <svg class="icon text-theme-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+</svg>
+                                <span class="text-sm font-medium text-gray-900">{{ backup.name }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ backup.created_at|date:"Y-m-d H:i:s" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ backup.size_mb }} MB
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{% url 'core:database_download_backup' backup.name %}"
+                               class="text-theme-600 hover:text-theme-900 mr-3">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+</svg>下载
+                            </a>
+                            <button @click="selectBackupForRestore('{{ backup.name }}')"
+                                    class="text-green-600 hover:text-green-900">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+</svg>还原
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <svg class="icon text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+</svg>
+            <p class="text-gray-500">暂无备份文件</p>
+            <p class="text-sm text-gray-400 mt-2">点击"备份数据库"按钮创建备份</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Restore Modal -->
+    <div x-show="showRestoreModal"
+         x-cloak
+         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+         @click.self="showRestoreModal = false">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" @click.stop>
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <svg class="icon text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+</svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">确认还原数据库</h3>
+                        <p class="text-sm text-gray-600">此操作将替换当前数据库</p>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <p class="text-sm text-gray-700">
+                        <svg class="icon text-yellow-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                        还原前会自动备份当前数据库，确保数据安全
+                    </p>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">选择备份文件：</label>
+                    <p class="text-sm font-semibold text-gray-900" x-text="selectedBackup || '未选择'"></p>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button @click="showRestoreModal = false"
+                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                        取消
+                    </button>
+                    <button @click="restoreDatabase()"
+                            :disabled="!selectedBackup"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>确认还原
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function databaseManagement() {
+    return {
+        loading: false,
+        loadingMessage: '处理中...',
+        showRestoreModal: false,
+        selectedBackup: null,
+        hasBackups: {{ backups|length }} > 0,
+
+        confirmAddTestData() {
+            if (confirm('确定要添加测试数据吗？\n\n这将创建示例客户、供应商、产品等数据。')) {
+                this.addTestData();
+            }
+        },
+
+        async addTestData() {
+            this.loading = true;
+            this.loadingMessage = '正在添加测试数据...';
+
+            try {
+                const response = await fetch('{% url "core:database_add_test_data" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('成功：' + data.message);
+                    location.reload();
+                } else {
+                    alert('错误：' + data.message);
+                }
+            } catch (error) {
+                alert('错误：操作失败 - ' + error.message);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        confirmClearAllDocuments() {
+            // 第一次确认：警告级别
+            if (!confirm('警告：危险操作！\n\n此操作将清除系统中所有业务单据！\n\n包括但不限于：\n• 销售类：报价单、订单、发货单、销售退货\n• 采购类：采购申请、采购订单、收货单、采购退货\n• 客户/供应商：所有客户和供应商数据\n• 产品数据：所有产品信息\n• 财务数据：应收账款、应付账款\n• 库存数据：所有库存记录\n• 基础数据：单位、品牌、分类、仓库、库位、税率\n\n重置内容：\n• 所有数据库自增ID将重置为1\n• 所有单据号序列将重置，下次创建从001开始\n\n确定要继续吗？')) {
+                return;
+            }
+
+            // 第二次确认：要求用户输入 "CLEAR" 确认
+            const confirmation = prompt('最终确认：\n\n这是一个不可恢复的危险操作！\n所有单据将被清除，数据库ID和单据号都将重置！\n\n请输入 "CLEAR" 来确认此操作：');
+
+            if (confirmation === 'CLEAR') {
+                this.clearAllDocuments();
+            } else if (confirmation !== null) {
+                alert('错误：确认文字错误，操作已取消');
+            }
+        },
+
+        async clearAllDocuments() {
+            this.loading = true;
+            this.loadingMessage = '正在清除所有单据并重置ID...';
+
+            try {
+                const response = await fetch('{% url "core:database_clear_test_data" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('成功：' + data.message);
+                    location.reload();
+                } else {
+                    alert('错误：' + data.message);
+                }
+            } catch (error) {
+                alert('错误：操作失败 - ' + error.message);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        confirmBackupDatabase() {
+            if (confirm('确定要备份当前数据库吗？\n\n备份文件将保存到 backups 目录。')) {
+                this.backupDatabase();
+            }
+        },
+
+        async backupDatabase() {
+            this.loading = true;
+            this.loadingMessage = '正在备份数据库...';
+
+            try {
+                const response = await fetch('{% url "core:database_backup" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('成功：' + data.message);
+                    location.reload();
+                } else {
+                    alert('错误：' + data.message);
+                }
+            } catch (error) {
+                alert('错误：操作失败 - ' + error.message);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        selectBackupForRestore(filename) {
+            this.selectedBackup = filename;
+            this.showRestoreModal = true;
+        },
+
+        async restoreDatabase() {
+            if (!this.selectedBackup) {
+                alert('请选择备份文件');
+                return;
+            }
+
+            this.showRestoreModal = false;
+            this.loading = true;
+            this.loadingMessage = '正在还原数据库...';
+
+            try {
+                const formData = new FormData();
+                formData.append('backup_file', this.selectedBackup);
+
+                const response = await fetch('{% url "core:database_restore_database" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('成功：' + data.message + '\n\n页面将自动刷新...');
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    alert('错误：' + data.message);
+                }
+            } catch (error) {
+                alert('错误：操作失败 - ' + error.message);
+            } finally {
+                this.loading = false;
+                this.selectedBackup = null;
+            }
+        }
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if invoice.invoice_type == 'purchase' %}认证发票{% else %}确认开具{% endif %} - {{ invoice.invoice_number }} - BetterLaser ERP
+{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">财务管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:invoice_list' %}" class="text-gray-500 hover:text-gray-700">发票管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:invoice_detail' invoice.pk %}" class="text-gray-500 hover:text-gray-700">{{ invoice.invoice_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">
+    {% if invoice.invoice_type == 'purchase' %}认证确认{% else %}确认开具{% endif %}
+</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow p-8">
+        <div class="flex items-center justify-center mb-6">
+            <div class="flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 text-yellow-600">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+</svg>
+            </div>
+        </div> <h3 class="text-xl font-bold text-gray-900 text-center mb-4">
+            {% if invoice.invoice_type == 'purchase' %}
+            确认认证采购发票
+            {% else %}
+            确认发票开具
+            {% endif %}
+        </h3> <div class="bg-gray-50 rounded-lg p-6 mb-6">
+            <dl class="space-y-3">
+                <div class="flex justify-between">
+                    <dt class="text-sm font-medium text-gray-500">发票号码：</dt>
+                    <dd class="text-sm font-semibold text-gray-900">{{ invoice.invoice_number }}</dd>
+                </div>
+                {% if invoice.invoice_code %}
+                <div class="flex justify-between">
+                    <dt class="text-sm font-medium text-gray-500">发票代码：</dt>
+                    <dd class="text-sm text-gray-900">{{ invoice.invoice_code }}</dd>
+                </div>
+                {% endif %}
+                <div class="flex justify-between">
+                    <dt class="text-sm font-medium text-gray-500">发票类型：</dt>
+                    <dd class="text-sm text-gray-900">{{ invoice.get_invoice_type_display }}</dd>
+                </div>
+                {% if invoice.invoice_type == 'purchase' and invoice.supplier %}
+                <div class="flex justify-between">
+                    <dt class="text-sm font-medium text-gray-500">供应商：</dt>
+                    <dd class="text-sm text-gray-900">{{ invoice.supplier.name }}</dd>
+                </div>
+                {% elif invoice.invoice_type == 'sales' and invoice.customer %}
+                <div class="flex justify-between">
+                    <dt class="text-sm font-medium text-gray-500">客户：</dt>
+                    <dd class="text-sm text-gray-900">{{ invoice.customer.name }}</dd>
+                </div>
+                {% endif %}
+                <div class="flex justify-between">
+                    <dt class="text-sm font-medium text-gray-500">开票日期：</dt>
+                    <dd class="text-sm text-gray-900">{{ invoice.invoice_date|date:"Y-m-d" }}</dd>
+                </div>
+                <div class="flex justify-between border-t pt-3">
+                    <dt class="text-sm font-medium text-gray-500">价税合计：</dt>
+                    <dd class="text-lg font-bold text-theme-600">¥{{ invoice.total_amount|floatformat:2 }}</dd>
+                </div>
+            </dl>
+        </div> {% if invoice.invoice_type == 'purchase' %}
+        <div class="bg-theme-50 border border-theme-200 rounded-lg p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="icon text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-theme-800">
+                        <strong>提示：</strong>认证此采购发票后，系统将自动生成应付账款记录。
+                    </p>
+                    <ul class="mt-2 text-sm text-theme-700 list-disc list-inside space-y-1">
+                        <li>应付金额：¥{{ invoice.total_amount|floatformat:2 }}</li>
+                        <li>账期计算：根据供应商设置的付款账期自动计算到期日期</li>
+                        <li>状态：待付款</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="icon text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-green-800">
+                        <strong>提示：</strong>确认开具此销售发票后，发票状态将更新为"已认证"。
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %} <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div class="flex space-x-3">
+                <a href="{% url 'finance:invoice_detail' invoice.pk %}"
+                   class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>取消
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>
+                    {% if invoice.invoice_type == 'purchase' %}确认认证{% else %}确认开具{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

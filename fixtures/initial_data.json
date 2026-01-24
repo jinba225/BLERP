@@ -1,0 +1,375 @@
+[
+  {
+    "model": "core.company",
+    "pk": 1,
+    "fields": {
+      "name": "BetterLaser科技有限公司",
+      "code": "BETTERLASER",
+      "legal_representative": "张总",
+      "registration_number": "91310000123456789X",
+      "tax_number": "91310000123456789X",
+      "address": "上海市浦东新区张江高科技园区",
+      "phone": "021-12345678",
+      "fax": "021-12345679",
+      "email": "info@betterlaser.com",
+      "website": "https://www.betterlaser.com",
+      "description": "专业激光设备制造商",
+      "is_active": true
+    }
+  },
+  {
+    "model": "core.systemconfig",
+    "pk": 1,
+    "fields": {
+      "key": "company_name",
+      "value": "BetterLaser科技有限公司",
+      "config_type": "system",
+      "description": "公司名称",
+      "is_active": true
+    }
+  },
+  {
+    "model": "core.systemconfig",
+    "pk": 2,
+    "fields": {
+      "key": "default_currency",
+      "value": "CNY",
+      "config_type": "business",
+      "description": "默认货币",
+      "is_active": true
+    }
+  },
+  {
+    "model": "core.systemconfig",
+    "pk": 3,
+    "fields": {
+      "key": "tax_rate",
+      "value": "13",
+      "config_type": "business",
+      "description": "默认税率(%)",
+      "is_active": true
+    }
+  },
+  {
+    "model": "departments.department",
+    "pk": 1,
+    "fields": {
+      "name": "销售部",
+      "code": "SALES",
+      "description": "负责产品销售和客户关系管理",
+      "phone": "021-12345678-801",
+      "email": "sales@betterlaser.com",
+      "is_active": true,
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 1,
+      "level": 0
+    }
+  },
+  {
+    "model": "departments.department",
+    "pk": 2,
+    "fields": {
+      "name": "采购部",
+      "code": "PURCHASE",
+      "description": "负责原材料采购和供应商管理",
+      "phone": "021-12345678-802",
+      "email": "purchase@betterlaser.com",
+      "is_active": true,
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 2,
+      "level": 0
+    }
+  },
+  {
+    "model": "departments.department",
+    "pk": 3,
+    "fields": {
+      "name": "生产部",
+      "code": "PRODUCTION",
+      "description": "负责产品生产和质量控制",
+      "phone": "021-12345678-803",
+      "email": "production@betterlaser.com",
+      "is_active": true,
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 3,
+      "level": 0
+    }
+  },
+  {
+    "model": "departments.department",
+    "pk": 4,
+    "fields": {
+      "name": "财务部",
+      "code": "FINANCE",
+      "description": "负责财务管理和会计核算",
+      "phone": "021-12345678-804",
+      "email": "finance@betterlaser.com",
+      "is_active": true,
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 4,
+      "level": 0
+    }
+  },
+  {
+    "model": "products.unit",
+    "pk": 1,
+    "fields": {
+      "name": "台",
+      "symbol": "台",
+      "unit_type": "quantity",
+      "conversion_factor": "1.0000",
+      "description": "设备计量单位",
+      "is_active": true
+    }
+  },
+  {
+    "model": "products.unit",
+    "pk": 2,
+    "fields": {
+      "name": "个",
+      "symbol": "个",
+      "unit_type": "quantity",
+      "conversion_factor": "1.0000",
+      "description": "通用计量单位",
+      "is_active": true
+    }
+  },
+  {
+    "model": "products.unit",
+    "pk": 3,
+    "fields": {
+      "name": "千克",
+      "symbol": "kg",
+      "unit_type": "weight",
+      "conversion_factor": "1.0000",
+      "description": "重量单位",
+      "is_active": true
+    }
+  },
+  {
+    "model": "products.brand",
+    "pk": 1,
+    "fields": {
+      "name": "BetterLaser",
+      "code": "BETTERLASER",
+      "description": "BetterLaser自主品牌",
+      "country": "中国",
+      "is_active": true
+    }
+  },
+  {
+    "model": "products.productcategory",
+    "pk": 1,
+    "fields": {
+      "name": "激光切割设备",
+      "code": "LASER_CUTTING",
+      "description": "各类激光切割设备",
+      "sort_order": 1,
+      "is_active": true,
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 1,
+      "level": 0
+    }
+  },
+  {
+    "model": "products.productcategory",
+    "pk": 2,
+    "fields": {
+      "name": "激光焊接设备",
+      "code": "LASER_WELDING",
+      "description": "各类激光焊接设备",
+      "sort_order": 2,
+      "is_active": true,
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 2,
+      "level": 0
+    }
+  },
+  {
+    "model": "products.productcategory",
+    "pk": 3,
+    "fields": {
+      "name": "激光打标设备",
+      "code": "LASER_MARKING",
+      "description": "各类激光打标设备",
+      "sort_order": 3,
+      "is_active": true,
+      "lft": 1,
+      "rght": 2,
+      "tree_id": 3,
+      "level": 0
+    }
+  },
+  {
+    "model": "customers.customercategory",
+    "pk": 1,
+    "fields": {
+      "name": "制造业客户",
+      "code": "MANUFACTURING",
+      "description": "制造业企业客户",
+      "discount_rate": "5.00",
+      "is_active": true
+    }
+  },
+  {
+    "model": "customers.customercategory",
+    "pk": 2,
+    "fields": {
+      "name": "贸易公司",
+      "code": "TRADING",
+      "description": "贸易公司客户",
+      "discount_rate": "3.00",
+      "is_active": true
+    }
+  },
+  {
+    "model": "suppliers.suppliercategory",
+    "pk": 1,
+    "fields": {
+      "name": "原材料供应商",
+      "code": "MATERIAL",
+      "description": "提供原材料的供应商",
+      "is_active": true
+    }
+  },
+  {
+    "model": "suppliers.suppliercategory",
+    "pk": 2,
+    "fields": {
+      "name": "设备供应商",
+      "code": "EQUIPMENT",
+      "description": "提供设备的供应商",
+      "is_active": true
+    }
+  },
+  {
+    "model": "inventory.warehouse",
+    "pk": 1,
+    "fields": {
+      "name": "主仓库",
+      "code": "MAIN",
+      "warehouse_type": "main",
+      "address": "上海市浦东新区张江高科技园区主仓库",
+      "phone": "021-12345678-901",
+      "capacity": "10000.00",
+      "is_active": true
+    }
+  },
+  {
+    "model": "inventory.warehouse",
+    "pk": 2,
+    "fields": {
+      "name": "成品仓库",
+      "code": "FINISHED",
+      "warehouse_type": "main",
+      "address": "上海市浦东新区张江高科技园区成品仓库",
+      "phone": "021-12345678-902",
+      "capacity": "5000.00",
+      "is_active": true
+    }
+  },
+  {
+    "model": "inventory.warehouse",
+    "pk": 3,
+    "fields": {
+      "name": "借用仓",
+      "code": "BORROW",
+      "warehouse_type": "borrow",
+      "address": "上海市浦东新区张江高科技园区借用仓",
+      "phone": "021-12345678-903",
+      "capacity": "2000.00",
+      "is_active": true
+    }
+  },
+  {
+    "model": "finance.account",
+    "pk": 1,
+    "fields": {
+      "code": "1001",
+      "name": "库存现金",
+      "account_type": "asset",
+      "category": "current_asset",
+      "level": 1,
+      "is_leaf": true,
+      "is_active": true,
+      "allow_manual_entry": true,
+      "opening_balance": "0.00",
+      "current_balance": "0.00",
+      "description": "库存现金科目"
+    }
+  },
+  {
+    "model": "finance.account",
+    "pk": 2,
+    "fields": {
+      "code": "1002",
+      "name": "银行存款",
+      "account_type": "asset",
+      "category": "current_asset",
+      "level": 1,
+      "is_leaf": true,
+      "is_active": true,
+      "allow_manual_entry": true,
+      "opening_balance": "0.00",
+      "current_balance": "0.00",
+      "description": "银行存款科目"
+    }
+  },
+  {
+    "model": "finance.account",
+    "pk": 3,
+    "fields": {
+      "code": "1122",
+      "name": "应收账款",
+      "account_type": "asset",
+      "category": "current_asset",
+      "level": 1,
+      "is_leaf": true,
+      "is_active": true,
+      "allow_manual_entry": true,
+      "opening_balance": "0.00",
+      "current_balance": "0.00",
+      "description": "应收账款科目"
+    }
+  },
+  {
+    "model": "finance.account",
+    "pk": 4,
+    "fields": {
+      "code": "2202",
+      "name": "应付账款",
+      "account_type": "liability",
+      "category": "current_liability",
+      "level": 1,
+      "is_leaf": true,
+      "is_active": true,
+      "allow_manual_entry": true,
+      "opening_balance": "0.00",
+      "current_balance": "0.00",
+      "description": "应付账款科目"
+    }
+  },
+  {
+    "model": "finance.account",
+    "pk": 5,
+    "fields": {
+      "code": "6001",
+      "name": "主营业务收入",
+      "account_type": "revenue",
+      "category": "operating_revenue",
+      "level": 1,
+      "is_leaf": true,
+      "is_active": true,
+      "allow_manual_entry": true,
+      "opening_balance": "0.00",
+      "current_balance": "0.00",
+      "description": "主营业务收入科目"
+    }
+  }
+]

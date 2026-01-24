@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}创建收货单{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <h3 class="text-lg font-semibold">创建收货单</h3>
+    <form method="post" class="bg-white rounded-lg shadow p-6 space-y-4">
+        {% csrf_token %}
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">收货日期 <span class="text-red-500">*</span></label>
+                <input type="date" name="receipt_date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">收货仓库 <span class="text-red-500">*</span></label>
+                <select name="warehouse" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    {% for warehouse in warehouses %}
+                    <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <input type="hidden" name="items_json" value="[]">
+        <div class="flex gap-2">
+            <button type="submit" class="px-4 py-2 bg-theme-600 text-white rounded-lg hover:bg-theme-700">保存</button>
+            <a href="{% url 'purchase:order_detail' order.pk %}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">取消</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

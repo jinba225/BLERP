@@ -1,0 +1,420 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user.username }} - 用户详情 - BetterLaser ERP{% endblock %}
+{% block page_title %}用户详情{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'users:user_list' %}" class="text-gray-500 hover:text-gray-700">用户管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ user.username }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 用户基本信息卡片 -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-900">
+                <svg x-data="heroicon('user')" class="mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>基本信息
+            </h2>
+            <div class="flex space-x-2">
+                {% if user.is_active %}
+                <a href="{% url 'users:user_toggle_status' user.pk %}"
+                   onclick="return confirm('确定要停用此用户吗？');"
+                   class="px-4 py-2 border border-orange-600 text-orange-600 rounded-lg hover:bg-orange-50">
+                    <i class="fas fa-ban mr-2"></i>停用用户
+                </a>
+                {% else %}
+                <a href="{% url 'users:user_toggle_status' user.pk %}"
+                   onclick="return confirm('确定要启用此用户吗？');"
+                   class="px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50">
+                    <svg x-data="heroicon('check')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>启用用户
+                </a>
+                {% endif %}
+                <a href="{% url 'users:user_update' user.pk %}"
+                   class="px-4 py-2 border border-theme-600 text-theme-600 rounded-lg hover:bg-theme-50">
+                    <svg x-data="heroicon('pencil')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>编辑
+                </a>
+                <a href="{% url 'users:user_delete' user.pk %}"
+                   class="px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50">
+                    <svg x-data="heroicon('trash')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>删除
+                </a>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <div class="flex items-start space-x-6">
+                <!-- 头像 -->
+                <div class="flex-shrink-0">
+                    {% if user.avatar %}
+                    <img class="h-32 w-32 rounded-full border-4 border-gray-200"
+                         src="{{ user.avatar.url }}"
+                         alt="{{ user.username }}">
+                    {% else %}
+                    <div class="h-32 w-32 rounded-full bg-theme-100 flex items-center justify-center border-4 border-gray-200">
+                        <span class="text-theme-600 font-bold text-5xl">
+                            {{ user.username|first|upper }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- 基本信息 -->
+                <div class="flex-1">
+                    <div class="mb-4">
+                        <h3 class="text-2xl font-bold text-gray-900">
+                            {{ user.get_full_name|default:user.username }}
+                            {% if user.is_superuser %}
+                            <span class="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                <i class="fas fa-crown mr-1"></i>超级管理员
+                            </span>
+                            {% elif user.is_staff %}
+                            <span class="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                <svg x-data="heroicon('user-shield')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>管理员
+                            </span>
+                            {% endif %}
+                        </h3>
+                        <p class="text-gray-500 mt-1">@{{ user.username }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center">
+                            <div class="bg-theme-100 rounded-lg p-3 mr-3">
+                                <svg x-data="heroicon('envelope')" class="text-theme-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">邮箱</p>
+                                <p class="text-sm font-medium text-gray-900">{{ user.email }}</p>
+                            </div>
+                        </div>
+
+                        {% if user.phone %}
+                        <div class="flex items-center">
+                            <div class="bg-green-100 rounded-lg p-3 mr-3">
+                                <i class="fas fa-phone text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">手机号</p>
+                                <p class="text-sm font-medium text-gray-900">{{ user.phone }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="flex items-center">
+                            <div class="bg-purple-100 rounded-lg p-3 mr-3">
+                                <i class="fas fa-id-badge text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">员工编号</p>
+                                <p class="text-sm font-medium text-gray-900">{{ user.employee_id|default:"未设置" }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center">
+                            <div class="bg-{% if user.is_active %}green{% else %}red{% endif %}-100 rounded-lg p-3 mr-3">
+                                <i class="fas fa-{% if user.is_active %}check-circle{% else %}times-circle{% endif %} text-{% if user.is_active %}green{% else %}red{% endif %}-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">账户状态</p>
+                                <p class="text-sm font-medium {% if user.is_active %}text-green-600{% else %}text-red-600{% endif %}">
+                                    {% if user.is_active %}活跃{% else %}已停用{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 组织信息 -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <svg x-data="heroicon('building')" class="mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>组织信息
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="text-sm font-medium text-gray-500">所属部门</label>
+                    <p class="mt-1 text-gray-900">
+                        {% if user.department %}
+                        <svg x-data="heroicon('building')" class="mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                        {{ user.department.name }}
+                        {% else %}
+                        <span class="text-gray-400">未分配部门</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">职位</label>
+                    <p class="mt-1 text-gray-900">
+                        {% if user.position %}
+                        <i class="fas fa-briefcase mr-2 text-gray-400"></i>
+                        {{ user.position }}
+                        {% else %}
+                        <span class="text-gray-400">未设置职位</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">直属上级</label>
+                    <p class="mt-1 text-gray-900">
+                        {% if user.manager %}
+                        <svg x-data="heroicon('user')" class="mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                        <a href="{% url 'users:user_detail' user.manager.pk %}"
+                           class="text-theme-600 hover:text-theme-800">
+                            {{ user.manager.get_full_name|default:user.manager.username }}
+                        </a>
+                        {% else %}
+                        <span class="text-gray-400">无直属上级</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if user.hire_date %}
+                <div>
+                    <label class="text-sm font-medium text-gray-500">入职日期</label>
+                    <p class="mt-1 text-gray-900">
+                        <svg x-data="heroicon('calendar-days')" class="mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                        {{ user.hire_date|date:"Y年m月d日" }}
+                    </p>
+                </div>
+                {% endif %}
+
+                {% if user.birth_date %}
+                <div>
+                    <label class="text-sm font-medium text-gray-500">出生日期</label>
+                    <p class="mt-1 text-gray-900">
+                        <i class="fas fa-birthday-cake mr-2 text-gray-400"></i>
+                        {{ user.birth_date|date:"Y年m月d日" }}
+                    </p>
+                </div>
+                {% endif %}
+
+                {% if user.gender %}
+                <div>
+                    <label class="text-sm font-medium text-gray-500">性别</label>
+                    <p class="mt-1 text-gray-900">
+                        <i class="fas fa-{% if user.gender == 'M' %}mars{% elif user.gender == 'F' %}venus{% else %}genderless{% endif %} mr-2 text-gray-400"></i>
+                        {{ user.get_gender_display }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 账户信息 -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <svg x-data="heroicon('key')" class="mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>账户信息
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="text-sm font-medium text-gray-500">注册时间</label>
+                    <p class="mt-1 text-gray-900">
+                        <svg x-data="heroicon('clock')" class="mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                        {{ user.date_joined|date:"Y-m-d H:i:s" }}
+                    </p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">最后登录</label>
+                    <p class="mt-1 text-gray-900">
+                        {% if user.last_login %}
+                        <svg x-data="heroicon('arrow-right-on-rectangle')" class="mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                        {{ user.last_login|date:"Y-m-d H:i:s" }}
+                        {% else %}
+                        <span class="text-gray-400">从未登录</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">账户权限</label>
+                    <div class="mt-2 space-y-2">
+                        <div class="flex items-center">
+                            <i class="fas fa-{% if user.is_superuser %}check-circle text-green-500{% else %}times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span class="text-sm {% if user.is_superuser %}text-green-600 font-medium{% else %}text-gray-500{% endif %}">
+                                超级管理员
+                            </span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-{% if user.is_staff %}check-circle text-green-500{% else %}times-circle text-gray-300{% endif %} mr-2"></i>
+                            <span class="text-sm {% if user.is_staff %}text-green-600 font-medium{% else %}text-gray-500{% endif %}">
+                                管理员
+                            </span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-{% if user.is_active %}check-circle text-green-500{% else %}times-circle text-red-500{% endif %} mr-2"></i>
+                            <span class="text-sm {% if user.is_active %}text-green-600 font-medium{% else %}text-red-600 font-medium{% endif %}">
+                                活跃状态
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">创建人</label>
+                    <p class="mt-1 text-gray-900">
+                        {% if user.created_by %}
+                        <svg x-data="heroicon('user')" class="mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                        {{ user.created_by.get_full_name|default:user.created_by.username }}
+                        {% else %}
+                        <span class="text-gray-400">系统创建</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if user.updated_by %}
+                <div>
+                    <label class="text-sm font-medium text-gray-500">最后更新人</label>
+                    <p class="mt-1 text-gray-900">
+                        <svg x-data="heroicon('user')" class="mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                        {{ user.updated_by.get_full_name|default:user.updated_by.username }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户角色 -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <svg x-data="heroicon('user-shield')" class="mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>用户角色
+            </h3>
+            <span class="text-sm text-gray-500">共 {{ user_roles|length }} 个角色</span>
+        </div>
+        <div class="p-6">
+            {% if user_roles %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for user_role in user_roles %}
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-theme-300 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-medium text-gray-900">{{ user_role.role.name }}</h4>
+                        {% if user_role.role.is_active %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            <svg x-data="heroicon('check')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>启用
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                            <svg x-data="heroicon('x-mark')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>停用
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">{{ user_role.role.description|default:"暂无描述" }}</p>
+                    <div class="text-xs text-gray-500">
+                        <div><i class="fas fa-code mr-1"></i>代码：{{ user_role.role.code }}</div>
+                        <div class="mt-1"><svg x-data="heroicon('calendar-days')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>分配时间：{{ user_role.created_at|date:"Y-m-d" }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-400">
+                <svg x-data="heroicon('user-shield')" class="text-4xl mb-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                <p>该用户暂未分配角色</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 最近登录记录 -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-history mr-2 text-theme-600"></i>最近登录记录
+            </h3>
+            <a href="{% url 'users:login_log_list' %}?user={{ user.id }}"
+               class="text-sm text-theme-600 hover:text-theme-800">
+                查看全部 <svg x-data="heroicon('arrow-right')" class="ml-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            {% if recent_logins %}
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            登录时间
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            IP地址
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            登录方式
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            状态
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            会话时长
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for log in recent_logins %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <svg x-data="heroicon('clock')" class="mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                            {{ log.login_time|date:"Y-m-d H:i:s" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <i class="fas fa-map-marker-alt mr-1 text-gray-400"></i>
+                            {{ log.ip_address|default:"未知" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <i class="fas fa-desktop mr-1 text-gray-400"></i>
+                            {{ log.login_method|default:"Web" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if log.is_successful %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                <svg x-data="heroicon('check-circle')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>成功
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                <svg x-data="heroicon('x-circle')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>失败
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {% if log.logout_time %}
+                            <i class="fas fa-hourglass mr-1 text-gray-400"></i>
+                            {{ log.session_duration|default:"计算中..." }}
+                            {% else %}
+                            <span class="text-green-600">
+                                <svg x-data="heroicon('circle')" class="mr-1 text-xs" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>活跃中
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="text-center py-12 text-gray-400">
+                <i class="fas fa-history text-4xl mb-3"></i>
+                <p>暂无登录记录</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 返回按钮 -->
+    <div class="flex justify-between">
+        <a href="{% url 'users:user_list' %}"
+           class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+            <svg x-data="heroicon('arrow-left')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>返回列表
+        </a>
+    </div>
+</div>
+{% endblock %}

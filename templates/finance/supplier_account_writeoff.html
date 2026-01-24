@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}应付核销 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:dashboard' %}" class="text-gray-500 hover:text-gray-700">往来款项</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:supplier_account_list' %}" class="text-gray-500 hover:text-gray-700">应付账款</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">核销</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Account Summary -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">账款信息</h4>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <p class="text-sm text-gray-600">{% if account.supplier %}供应商{% else %}客户（退款）{% endif %}</p>
+                    <p class="text-lg font-semibold text-gray-900">
+                        {% if account.supplier %}
+                        {{ account.supplier.name }}
+                        {% elif account.customer %}
+                        {{ account.customer.name }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">应付余额</p>
+                    <p class="text-lg font-semibold text-red-600">¥{{ account.balance|floatformat:2 }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">单据号</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ account.invoice_number|default:"-" }}</p>
+                </div>
+            </div>
+        </div>
+    </div> <!-- Write-off Form -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">核销信息</h4>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">付款金额</label>
+                        <input type="number" name="amount" step="0.01" min="0.01" max="{{ account.balance }}"
+                            placeholder="0.00"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">如选择预付款，最终抵扣=预付款 + 付款金额</p>
+                    </div> <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">付款日期 <span
+                                class="text-red-500">*</span></label>
+                        <input type="date" name="payment_date" required value="{% now 'Y-m-d' %}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                    </div> <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">付款方式</label>
+                        <select name="payment_method"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                            <option value="bank_transfer" selected>电汇</option>
+                            <option value="acceptance_draft">承兑汇票</option>
+                            <option value="cash">现金</option>
+                            <option value="other">其它</option>
+                        </select>
+                    </div> <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">发票号</label>
+                        <input type="text" name="invoice_number"
+                            {% if account.invoice_number and account.invoice_number|slice:":3" == "INV" %}value="{{ account.invoice_number }}"{% endif %}
+                            placeholder="请输入发票号（可选）"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">填写发票号后，对应的订单状态将更新为"已开票"</p>
+                    </div> <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">使用预付款（可选）</label>
+                        <select name="prepayment"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                            <option value="">不使用预付款</option>
+                            {% for p in prepays %}
+                            <option value="{{ p.id }}">{{ p.paid_date }} - 余额 ¥{{ p.balance|floatformat:2 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                    <textarea name="notes" rows="3" placeholder="可选填写核销备注信息"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent"></textarea>
+                </div>
+            </div> <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <a href="{% url 'finance:supplier_account_detail' account.pk %}"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    取消
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    确认核销
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

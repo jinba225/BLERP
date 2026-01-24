@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% block title %}转采购订单 - {{ borrow.borrow_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">采购管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:borrow_list' %}" class="text-gray-500 hover:text-gray-700">借用单</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:borrow_detail' borrow.pk %}" class="text-gray-500 hover:text-gray-700">{{ borrow.borrow_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">转采购订单</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">转采购订单请求</h3>
+            <p class="text-sm text-gray-600">{{ borrow.borrow_number }} - {{ borrow.supplier.name }}</p>
+        </div>
+    </div> <!-- Info Card -->
+    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-orange-400 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-orange-800">转采购说明</h3>
+                <div class="mt-2 text-sm text-orange-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>手动输入价格：</strong>转采购时需要手动输入每个产品的含税单价</li>
+                        <li><strong>需要审核：</strong>提交后需要管理员审核通过才会生成采购订单</li>
+                        <li><strong>自动流程：</strong>审核通过后将自动生成采购订单、入库单和应付账款</li>
+                        <li><strong>部分转换：</strong>可以只转换部分数量，剩余部分可继续借用或归还</li>
+                        <li><strong>已转数量：</strong>已转采购的数量不能再归还</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div> <!-- Conversion Form -->
+    <form method="post" id="conversionForm" class="bg-white rounded-lg shadow">
+        {% csrf_token %} <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-base font-semibold text-gray-900">转采购明细</h4>
+        </div> <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">借用数量</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">已归还</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">可转采购数量</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">转采购数量 <span class="text-red-500">*</span></th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">含税单价 <span class="text-red-500">*</span></th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">含税小计</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item in items %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            <div class="font-medium">{{ item.product.name }}</div>
+                            <div class="text-gray-500">{{ item.product.code }}</div>
+                            {% if item.batch_number %}
+                            <div class="text-xs text-gray-400 mt-1">批次号：{{ item.batch_number }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right text-gray-700">
+                            {{ item.quantity }} {{ item.product.unit }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right text-green-600">
+                            {{ item.returned_quantity }} {{ item.product.unit }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right font-semibold text-theme-600">
+                            {{ item.remaining_quantity }} {{ item.product.unit }}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center space-x-2">
+                                <input type="number"
+                                       name="convert_qty_{{ item.pk }}"
+                                       class="convert-qty w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 text-center"
+                                       data-item-id="{{ item.pk }}"
+                                       step="1"
+                                       min="0"
+                                       max="{{ item.remaining_quantity }}"
+                                       placeholder="0">
+                                <span class="text-sm text-gray-500">{{ item.product.unit }}</span>
+                            </div>
+                            <button type="button"
+                                    onclick="document.querySelector('input[name=convert_qty_{{ item.pk }}]').value='{{ item.remaining_quantity }}'; updateSubtotal({{ item.pk }})"
+                                    class="mt-2 text-xs text-theme-600 hover:text-theme-700">
+                                全部转换
+                            </button>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center space-x-2">
+                                <span class="text-sm text-gray-500">¥</span>
+                                <input type="number"
+                                       name="unit_price_{{ item.pk }}"
+                                       class="unit-price w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 text-right"
+                                       data-item-id="{{ item.pk }}"
+                                       step="0.01"
+                                       min="0.01"
+                                       placeholder="0.00">
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-right">
+                            <div class="font-semibold text-gray-900">
+                                ¥<span id="subtotal_{{ item.pk }}" class="subtotal">0.00</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="bg-gray-50">
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                            总计（含税）：
+                        </td>
+                        <td class="px-6 py-4 text-right text-base font-bold text-theme-600">
+                            ¥<span id="totalAmount">0.00</span>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div> <!-- Conversion Notes -->
+        <div class="px-6 py-4 border-t border-gray-200">
+            <label class="block text-sm font-medium text-gray-700 mb-2">转采购备注</label>
+            <textarea name="conversion_notes" rows="3"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500"
+                      placeholder="请输入转采购的原因或说明..."></textarea>
+        </div> <!-- Actions -->
+        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+            <a href="{% url 'purchase:borrow_detail' borrow.pk %}"
+               class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>返回
+            </a>
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-paper-plane mr-2"></i>提交审核
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// 更新小计
+function updateSubtotal(itemId) {
+    const qtyInput = document.querySelector(`input[name="convert_qty_${itemId}"]`);
+    const priceInput = document.querySelector(`input[name="unit_price_${itemId}"]`);
+    const subtotalSpan = document.getElementById(`subtotal_${itemId}`); const qty = parseFloat(qtyInput.value) || 0;
+    const price = parseFloat(priceInput.value) || 0;
+    const subtotal = qty * price; subtotalSpan.textContent = subtotal.toFixed(2);
+    updateTotal();
+}
+
+// 更新总计
+function updateTotal() {
+    const subtotalSpans = document.querySelectorAll('.subtotal');
+    let total = 0; subtotalSpans.forEach(span => {
+        total += parseFloat(span.textContent) || 0;
+    }); document.getElementById('totalAmount').textContent = total.toFixed(2);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 监听数量和价格变化
+    document.querySelectorAll('.convert-qty, .unit-price').forEach(input => {
+        input.addEventListener('input', function() {
+            const itemId = this.dataset.itemId;
+            updateSubtotal(itemId);
+        });
+    }); // 表单提交前验证
+    const form = document.getElementById('conversionForm');
+    form.addEventListener('submit', function(e) {
+        const qtyInputs = document.querySelectorAll('.convert-qty');
+        const priceInputs = document.querySelectorAll('.unit-price');
+        let hasConversion = false;
+        let errors = []; qtyInputs.forEach((qtyInput, index) => {
+            const qty = parseFloat(qtyInput.value);
+            const priceInput = priceInputs[index];
+            const price = parseFloat(priceInput.value); if (qty && qty > 0) {
+                hasConversion = true; // 验证价格
+                if (!price || price <= 0) {
+                    const row = qtyInput.closest('tr');
+                    const productName = row.querySelector('.font-medium').textContent.trim();
+                    errors.push(`产品 "${productName}" 需要输入单价`);
+                } // 验证数量范围
+                const max = parseFloat(qtyInput.max);
+                if (qty > max) {
+                    const row = qtyInput.closest('tr');
+                    const productName = row.querySelector('.font-medium').textContent.trim();
+                    errors.push(`产品 "${productName}" 的转采购数量不能超过可转采购数量 ${max}`);
+                }
+            }
+        }); if (!hasConversion) {
+            e.preventDefault();
+            alert('请至少选择一个产品转采购，并输入数量和单价');
+            return false;
+        } if (errors.length > 0) {
+            e.preventDefault();
+            alert('请修正以下错误：\n\n' + errors.join('\n'));
+            return false;
+        } return confirm('确认提交转采购请求？提交后需要管理员审核。');
+    });
+});
+</script>
+{% endblock %}

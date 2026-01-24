@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}{% if action == 'create' %}新建产品{% else %}编辑产品{% endif %} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">基础设置</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'products:product_list' %}" class="text-gray-500 hover:text-gray-700">产品管理</a>
+{% if action == 'update' %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'products:product_detail' product.pk %}" class="text-gray-500 hover:text-gray-700">{{ product.name }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">编辑产品</span>
+{% else %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">新建产品</span>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+<form method="post">{% csrf_token %}
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-lg font-semibold text-gray-900">{% if action == 'create' %}新建产品{% else %}编辑产品{% endif %}</h3>
+<div class="flex space-x-3">
+<a href="{% if action == 'update' %}{% url 'products:product_detail' product.pk %}{% else %}{% url 'products:product_list' %}{% endif %}" class="btn btn-outline"><i class="fas fa-times mr-2"></i>取消</a>
+<button type="submit" class="btn btn-primary"><i class="fas fa-save mr-2"></i>保存</button>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow mb-6 p-6">
+<h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">基本信息</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<div><label class="block text-sm font-medium text-gray-700 mb-2">产品名称 *</label><input type="text" name="name" value="{{ product.name|default:'' }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">产品编码 *</label><input type="text" name="code" value="{{ product.code|default:'' }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg" {% if action == 'update' %}readonly{% endif %}></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">条形码</label><input type="text" name="barcode" value="{{ product.barcode|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">产品类型 *</label><select name="product_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="material" {% if product.product_type == 'material' %}selected{% endif %}>原材料</option><option value="semi_finished" {% if product.product_type == 'semi_finished' %}selected{% endif %}>半成品</option><option value="finished" {% if product.product_type == 'finished' or not product %}selected{% endif %}>成品</option><option value="service" {% if product.product_type == 'service' %}selected{% endif %}>服务</option></select></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">状态</label><select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="active" {% if product.status == 'active' or not product %}selected{% endif %}>正常</option><option value="inactive" {% if product.status == 'inactive' %}selected{% endif %}>停用</option><option value="discontinued" {% if product.status == 'discontinued' %}selected{% endif %}>停产</option></select></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">产品分类</label><select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="">未分类</option>{% for cat in categories %}<option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>{% endfor %}</select></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">品牌</label><select name="brand" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="">未选择</option>{% for b in brands %}<option value="{{ b.id }}" {% if product.brand_id == b.id %}selected{% endif %}>{{ b.name }}</option>{% endfor %}</select></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">计量单位</label><select name="unit" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="">未选择</option>{% for u in units %}<option value="{{ u.id }}" {% if product.unit_id == u.id %}selected{% endif %}>{{ u.name }}</option>{% endfor %}</select></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">型号</label><input type="text" name="model" value="{{ product.model|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+</div>
+<div class="mt-4"><label class="block text-sm font-medium text-gray-700 mb-2">产品描述</label><textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg">{{ product.description|default:'' }}</textarea></div>
+<div class="mt-4"><label class="block text-sm font-medium text-gray-700 mb-2">产品规格</label><textarea name="specifications" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg">{{ product.specifications|default:'' }}</textarea></div>
+</div>
+<div class="bg-white rounded-lg shadow mb-6 p-6">
+<h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">价格信息</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div><label class="block text-sm font-medium text-gray-700 mb-2">成本价</label><input type="number" name="cost_price" value="{{ product.cost_price|default:0 }}" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">销售价</label><input type="number" name="selling_price" value="{{ product.selling_price|default:0 }}" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow mb-6 p-6">
+<h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">规格参数</h4>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div><label class="block text-sm font-medium text-gray-700 mb-2">重量(kg)</label><input type="number" name="weight" value="{{ product.weight|default:'' }}" step="0.001" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">长度(cm)</label><input type="number" name="length" value="{{ product.length|default:'' }}" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">宽度(cm)</label><input type="number" name="width" value="{{ product.width|default:'' }}" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">高度(cm)</label><input type="number" name="height" value="{{ product.height|default:'' }}" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow mb-6 p-6">
+<h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">附加信息</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+<div><label class="block text-sm font-medium text-gray-700 mb-2">保修期(月)</label><input type="number" name="warranty_period" value="{{ product.warranty_period|default:0 }}" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">保质期(天)</label><input type="number" name="shelf_life" value="{{ product.shelf_life|default:'' }}" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+</div>
+<div class="mb-4">
+<label class="block text-sm font-medium text-gray-700 mb-2">产品图片</label>
+<input type="file" name="main_image" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+{% if product.main_image %}
+<p class="mt-2 text-sm text-gray-500">当前图片: <a href="{{ product.main_image.url }}" target="_blank" class="text-theme-600 hover:underline">查看</a></p>
+{% endif %}
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+<textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg">{{ product.notes|default:'' }}</textarea>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow mb-6 p-6">
+<h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">库存设置</h4>
+<div class="mb-4">
+<label class="flex items-center">
+<input type="checkbox" name="track_inventory" {% if product.track_inventory or product.track_inventory == None %}checked{% endif %} class="rounded border-gray-300 text-theme-600 focus:ring-theme-500 h-4 w-4">
+<span class="ml-2 text-sm text-gray-700">是否进行库存管理 <span class="text-gray-500">(服务类产品通常不需要库存管理)</span></span>
+</label>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div><label class="block text-sm font-medium text-gray-700 mb-2">最小库存</label><input type="number" name="min_stock" value="{{ product.min_stock|default:0 }}" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">最大库存</label><input type="number" name="max_stock" value="{{ product.max_stock|default:0 }}" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">再订货点</label><input type="number" name="reorder_point" value="{{ product.reorder_point|default:0 }}" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+</div>
+</div>
+</form>
+</div>
+{% endblock %}

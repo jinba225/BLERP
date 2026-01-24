@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}转销售订单 - {{ loan.loan_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">销售管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:loan_list' %}" class="text-gray-500 hover:text-gray-700">销售借用</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:loan_detail' loan.pk %}" class="text-gray-500 hover:text-gray-700">{{ loan.loan_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">转销售订单</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">转销售订单 - {{ loan.loan_number }}</h3> <form method="post" id="conversionForm" class="space-y-6">
+            {% csrf_token %} <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+                <div class="flex items-start">
+                    <i class="fas fa-info-circle text-purple-600 mt-1 mr-3"></i>
+                    <div class="text-sm text-purple-900">
+                        <p class="font-medium mb-1">转销售订单说明</p>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>将借用单中的部分或全部产品转换为正式销售订单</li>
+                            <li>需要手动输入每个产品的含税单价</li>
+                            <li>提交后需要等待管理员审核</li>
+                            <li>审核通过后将自动生成销售订单</li>
+                        </ul>
+                    </div>
+                </div>
+            </div> <!-- Items Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 border">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">借出数量</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">已归还</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">剩余可转</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">转销售数量</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">含税单价 (¥)</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">小计 (¥)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for item in loan.items.all %}
+                        {% if item.remaining_quantity > 0 %}
+                        <tr id="item-{{ item.id }}">
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                <div class="font-medium">{{ item.product.name }}</div>
+                                {% if item.specifications %}
+                                <div class="text-gray-500 text-xs">{{ item.specifications }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-right text-gray-700">{{ item.quantity }}</td>
+                            <td class="px-6 py-4 text-sm text-right text-gray-700">{{ item.returned_quantity }}</td>
+                            <td class="px-6 py-4 text-sm text-right font-medium text-theme-600">
+                                {{ item.remaining_quantity }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <input type="number"
+                                       class="w-24 px-2 py-1 border border-gray-300 rounded text-right convert-qty-input"
+                                       min="0"
+                                       max="{{ item.remaining_quantity }}"
+                                       step="1"
+                                       value="0"
+                                       data-item-id="{{ item.id }}"
+                                       data-max="{{ item.remaining_quantity }}"
+                                       onchange="calculateSubtotal(this)">
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <input type="number"
+                                       class="w-28 px-2 py-1 border border-gray-300 rounded text-right unit-price-input"
+                                       min="0"
+                                       step="0.01"
+                                       value="0.00"
+                                       data-item-id="{{ item.id }}"
+                                       onchange="calculateSubtotal(this)">
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <span class="subtotal-display font-medium text-gray-900" data-item-id="{{ item.id }}">
+                                    0.00
+                                </span>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="bg-gray-50 border-t-2 border-gray-300">
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-right text-sm font-bold text-gray-900">
+                                总金额:
+                            </td>
+                            <td class="px-6 py-4 text-right text-lg font-bold text-theme-600">
+                                <span id="totalAmount">0.00</span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div> <div>
+                <label for="conversion_notes" class="block text-sm font-medium text-gray-700 mb-2">转换备注</label>
+                <textarea id="conversion_notes" name="conversion_notes" rows="3"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500"
+                          placeholder="说明转销售的原因或特殊要求..."></textarea>
+            </div> <input type="hidden" name="items_json" id="items_json" value="[]"> <!-- Submit Buttons -->
+            <div class="flex justify-end gap-3 pt-6 border-t">
+                <a href="{% url 'sales:loan_detail' loan.pk %}"
+                   class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    取消
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-paper-plane mr-2"></i>提交审核
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function calculateSubtotal(elem) {
+    const row = elem.closest('tr');
+    const itemId = elem.dataset.itemId;
+    const qtyInput = row.querySelector('.convert-qty-input[data-item-id="' + itemId + '"]');
+    const priceInput = row.querySelector('.unit-price-input[data-item-id="' + itemId + '"]');
+    const subtotalDisplay = row.querySelector('.subtotal-display[data-item-id="' + itemId + '"]'); const qty = parseFloat(qtyInput.value) || 0;
+    const price = parseFloat(priceInput.value) || 0;
+    const subtotal = qty * price; subtotalDisplay.textContent = subtotal.toFixed(2);
+    updateTotalAmount();
+}
+
+function updateTotalAmount() {
+    let total = 0;
+    document.querySelectorAll('.subtotal-display').forEach(display => {
+        total += parseFloat(display.textContent) || 0;
+    });
+    document.getElementById('totalAmount').textContent = total.toFixed(2);
+}
+
+document.getElementById('conversionForm').addEventListener('submit', function(e) {
+    const qtyInputs = document.querySelectorAll('.convert-qty-input');
+    const items = []; qtyInputs.forEach(input => {
+        const qty = parseFloat(input.value) || 0;
+        if (qty > 0) {
+            const itemId = input.dataset.itemId;
+            const row = input.closest('tr');
+            const priceInput = row.querySelector('.unit-price-input[data-item-id="' + itemId + '"]');
+            const price = parseFloat(priceInput.value) || 0; if (price <= 0) {
+                e.preventDefault();
+                alert('请为所有转换产品输入有效的单价');
+                priceInput.focus();
+                return false;
+            } items.push({
+                item_id: itemId,
+                convert_quantity: qty,
+                unit_price: price
+            });
+        }
+    }); if (items.length === 0) {
+        e.preventDefault();
+        alert('请至少选择一个产品进行转换');
+        return false;
+    } document.getElementById('items_json').value = JSON.stringify(items);
+});
+
+// 验证输入
+document.querySelectorAll('.convert-qty-input').forEach(input => {
+    input.addEventListener('change', function() {
+        const max = parseFloat(this.dataset.max);
+        const val = parseFloat(this.value) || 0; if (val > max) {
+            alert('转换数量不能超过剩余数量 ' + max);
+            this.value = max;
+        }
+        if (val < 0) {
+            this.value = 0;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,403 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if action == 'create' %}新建客户{% else %}编辑客户{% endif %} - BetterLaser ERP{% endblock %}
+{% block page_title %}{% if action == 'create' %}新建客户{% else %}编辑客户{% endif %}{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:order_list' %}" class="text-gray-500 hover:text-gray-700">销售管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'customers:customer_list' %}" class="text-gray-500 hover:text-gray-700">客户管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{% if action == 'create' %}新建客户{% else %}编辑客户{% endif %}</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <form method="post">
+        {% csrf_token %} <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">
+                {% if action == 'create' %}新建客户{% else %}编辑客户 - {{ customer.code }}{% endif %}
+            </h3>
+            <div class="flex space-x-3">
+                <a href="{% if action == 'update' %}{% url 'customers:customer_detail' customer.pk %}{% else %}{% url 'customers:customer_list' %}{% endif %}"
+                    class="btn btn-outline">
+                    <svg x-data="heroicon('x-mark')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>取消
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <svg x-data="heroicon('check')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>保存
+                </button>
+            </div>
+        </div> <!-- Basic Information -->
+        <div class="bg-white rounded-lg shadow mb-6 p-6">
+            <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">基本信息</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户名称 *</label>
+                    <input type="text" name="name" value="{{ customer.name|default:'' }}" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> {% if action == 'update' %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户编码</label>
+                    <input type="text" value="{{ customer.code|default:'' }}" readonly
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed">
+                </div>
+                {% else %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户编码</label>
+                    <div class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+                        系统将自动生成（格式：C0001）
+                    </div>
+                </div>
+                {% endif %} <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户等级</label>
+                    <select name="customer_level"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        {% for code, label in customer_levels %}
+                        <option value="{{ code }}" {% if customer.customer_level == code or code == 'C' and not customer %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                    <select name="status"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        {% for code, label in customer_statuses %}
+                        <option value="{{ code }}" {% if customer.status == code or code == 'active' and not customer %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户分类</label>
+                    <select name="category"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        <option value="">未分类</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if customer.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div> <!-- Contact Information -->
+        <div class="bg-white rounded-lg shadow mb-6 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-md font-semibold text-gray-900 pb-2 border-b flex-1">联系人信息</h4>
+                <button class="btn btn-primary" type="button" id="add-contact-btn">
+                    <svg x-data="heroicon('plus')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>添加联系人
+                </button>
+            </div>
+            <div id="contacts-container">
+                {% if action == 'update' and contacts %}
+                {% for contact in contacts %}
+                <div class="contact-item border border-gray-200 rounded-lg p-4 mb-4"
+                    data-index="{{ forloop.counter0 }}">
+                    <div class="flex justify-between items-center mb-3">
+                        <h5 class="text-sm font-medium text-gray-700">联系人</h5>
+                        <button type="button" class="remove-contact-btn text-red-600 hover:text-red-800 text-sm" {% if forloop.first %}style="display: none;"{% endif %}>
+                            <svg x-data="heroicon('trash')" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">姓名 *</label>
+                            <input type="text" name="contacts[{{ forloop.counter0 }}][name]" value="{{ contact.name }}"
+                                required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">职位</label>
+                            <input type="text" name="contacts[{{ forloop.counter0 }}][position]"
+                                value="{{ contact.position }}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">部门</label>
+                            <input type="text" name="contacts[{{ forloop.counter0 }}][department]"
+                                value="{{ contact.department }}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">电话</label>
+                            <input type="text" name="contacts[{{ forloop.counter0 }}][phone]"
+                                value="{{ contact.phone }}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">手机</label>
+                            <input type="text" name="contacts[{{ forloop.counter0 }}][mobile]"
+                                value="{{ contact.mobile }}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">邮箱</label>
+                            <input type="email" name="contacts[{{ forloop.counter0 }}][email]"
+                                value="{{ contact.email }}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div class="lg:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                            <textarea name="contacts[{{ forloop.counter0 }}][notes]" rows="2"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">{{ contact.notes }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="contact-item border border-gray-200 rounded-lg p-4 mb-4" data-index="0">
+                    <div class="flex justify-between items-center mb-3">
+                        <h5 class="text-sm font-medium text-gray-700">联系人</h5>
+                        <button type="button" class="remove-contact-btn text-red-600 hover:text-red-800 text-sm"
+                            style="display: none;">
+                            <svg x-data="heroicon('trash')" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">姓名 *</label>
+                            <input type="text" name="contacts[0][name]" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">职位</label>
+                            <input type="text" name="contacts[0][position]"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">部门</label>
+                            <input type="text" name="contacts[0][department]"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">电话</label>
+                            <input type="text" name="contacts[0][phone]"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">手机</label>
+                            <input type="text" name="contacts[0][mobile]"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">邮箱</label>
+                            <input type="email" name="contacts[0][email]"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div class="lg:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                            <textarea name="contacts[0][notes]" rows="2"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% if action == 'update' %}
+            <div class="flex justify-end space-x-2 mt-2">
+                <button type="button" id="contacts-cancel-btn"
+                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">取消</button>
+                <button class="btn btn-primary" type="submit">保存联系人</button>
+            </div>
+            {% endif %}
+        </div> <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const container = document.getElementById('contacts-container');
+                const addBtn = document.getElementById('add-contact-btn');
+                let contactIndex = 1; addBtn.addEventListener('click', function () {
+                    const newContact = document.createElement('div');
+                    newContact.className = 'contact-item border border-gray-200 rounded-lg p-4 mb-4';
+                    newContact.dataset.index = contactIndex;
+                    newContact.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <h5 class="text-sm font-medium text-gray-700">联系人</h5>
+                        <button type="button" class="remove-contact-btn text-red-600 hover:text-red-800 text-sm">
+                            <svg x-data="heroicon('trash')" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">姓名 *</label>
+                            <input type="text" name="contacts[${contactIndex}][name]" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">职位</label>
+                            <input type="text" name="contacts[${contactIndex}][position]"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">部门</label>
+                            <input type="text" name="contacts[${contactIndex}][department]"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">电话</label>
+                            <input type="text" name="contacts[${contactIndex}][phone]"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">手机</label>
+                            <input type="text" name="contacts[${contactIndex}][mobile]"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">邮箱</label>
+                            <input type="text" name="contacts[${contactIndex}][email]"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        </div>
+                        <div class="lg:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                            <textarea name="contacts[${contactIndex}][notes]" rows="2"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500"></textarea>
+                        </div>
+                    </div>
+                `;
+                    container.appendChild(newContact);
+                    contactIndex++; // Add remove functionality to the new contact
+                    const removeBtn = newContact.querySelector('.remove-contact-btn');
+                    removeBtn.addEventListener('click', function () {
+                        newContact.remove();
+                        updateContactNumbers();
+                    });
+                }); const cancelBtn = document.getElementById('contacts-cancel-btn');
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function () {
+                        const items = container.querySelectorAll('.contact-item');
+                        items.forEach((item, idx) => {
+                            if (idx > 0) item.remove();
+                        });
+                        const first = container.querySelector('.contact-item');
+                        if (first) {
+                            first.querySelectorAll('input, textarea').forEach(el => {
+                                if (el.type === 'checkbox') {
+                                    el.checked = false;
+                                } else {
+                                    el.value = '';
+                                }
+                            });
+                            const removeBtn = first.querySelector('.remove-contact-btn');
+                            if (removeBtn) removeBtn.style.display = 'none';
+                        }
+                        updateContactNumbers();
+                    });
+                } // Add remove functionality to existing contacts (except the first one)
+                document.querySelectorAll('.remove-contact-btn').forEach((btn, index) => {
+                    if (index > 0) {
+                        btn.style.display = 'inline-block';
+                        btn.addEventListener('click', function () {
+                            btn.closest('.contact-item').remove();
+                            updateContactNumbers();
+                        });
+                    }
+                }); function updateContactNumbers() {
+                    // 已移除联系人编号显示功能
+                    const contacts = container.querySelectorAll('.contact-item');
+                    contactIndex = contacts.length;
+                }
+            });
+        </script> <!-- Address Information -->
+        <div class="bg-white rounded-lg shadow mb-6 p-6">
+            <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">地址信息</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">详细地址</label>
+                    <input type="text" name="address" value="{{ customer.address|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">城市</label>
+                    <input type="text" name="city" value="{{ customer.city|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">省份</label>
+                    <input type="text" name="province" value="{{ customer.province|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">国家</label>
+                    <input type="text" name="country" value="{{ customer.country|default:'中国' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">邮政编码</label>
+                    <input type="text" name="postal_code" value="{{ customer.postal_code|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div>
+            </div>
+        </div> <!-- Business Information -->
+        <div class="bg-white rounded-lg shadow mb-6 p-6">
+            <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">业务信息</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">行业</label>
+                    <input type="text" name="industry" value="{{ customer.industry|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">营业执照号</label>
+                    <input type="text" name="business_license" value="{{ customer.business_license|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">税号</label>
+                    <input type="text" name="tax_number" value="{{ customer.tax_number|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">网站</label>
+                    <input type="url" name="website" value="{{ customer.website|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500"
+                        placeholder="https://www.example.com">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">开户银行</label>
+                    <input type="text" name="bank_name" value="{{ customer.bank_name|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">银行账号</label>
+                    <input type="text" name="bank_account" value="{{ customer.bank_account|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div>
+            </div>
+        </div> <!-- Sales Information -->
+        <div class="bg-white rounded-lg shadow mb-6 p-6">
+            <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">销售信息</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">销售代表</label>
+                    <select name="sales_rep"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        <option value="">未指定</option>
+                        {% for rep in sales_reps %}
+                        <option value="{{ rep.id }}" {% if customer.sales_rep_id == rep.id %}selected{% endif %}>{{ rep.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">信用额度</label>
+                    <input type="number" name="credit_limit" value="{{ customer.credit_limit|default:0 }}" step="0.01"
+                        min="0"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">折扣率 (%)</label>
+                    <input type="number" name="discount_rate" value="{{ customer.discount_rate|default:0 }}" step="0.01"
+                        min="0" max="100"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">客户来源</label>
+                    <input type="text" name="source" value="{{ customer.source|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div> <div class="col-span-full">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">付款方式</label>
+                    <select name="payment_terms"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        <option value="">请选择付款方式</option>
+                        {% for code, label in payment_terms %}
+                        <option value="{{ code }}" {% if customer.payment_terms == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div> <div class="col-span-full">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标签</label>
+                    <input type="text" name="tags" value="{{ customer.tags|default:'' }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500"
+                        placeholder="用逗号分隔多个标签">
+                </div> <div class="col-span-full">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                    <textarea name="notes" rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">{{ customer.notes|default:'' }}</textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

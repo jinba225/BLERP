@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}收货单详情{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold">收货单 {{ receipt.receipt_number }}</h3>
+        {% if receipt.status == 'draft' %}
+        <form method="post" action="{% url 'purchase:receipt_receive' receipt.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">确认收货</button>
+        </form>
+        {% endif %}
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="grid grid-cols-3 gap-4">
+            <div><span class="text-gray-600">采购订单:</span> <a href="{% url 'purchase:order_detail' receipt.purchase_order.pk %}" class="text-theme-600">{{ receipt.purchase_order.order_number }}</a></div>
+            <div><span class="text-gray-600">收货日期:</span> {{ receipt.receipt_date|date:"Y-m-d" }}</div>
+            <div><span class="text-gray-600">状态:</span> {{ receipt.get_status_display }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

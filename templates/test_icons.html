@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}图标测试页面 - BetterLaser ERP{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-6">🔍 Heroicons 图标测试页面</h1>
+
+    <!-- 调试信息 -->
+    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+        <h3 class="font-bold text-blue-700 mb-2">调试信息</h3>
+        <div id="debug-info" class="text-sm text-blue-600 space-y-1">
+            <p>正在检测...</p>
+        </div>
+    </div>
+
+    <!-- 图标测试区域 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 测试1：基础图标 -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-700 mb-2">测试1: check 图标</h3>
+            <div class="text-theme-600">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">应该显示一个勾选标记</p>
+        </div>
+
+        <!-- 测试2：x-mark 图标 -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-700 mb-2">测试2: x-mark 图标</h3>
+            <div class="text-theme-600">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">应该显示一个 X 标记</p>
+        </div>
+
+        <!-- 测试3：plus 图标 -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-700 mb-2">测试3: plus 图标</h3>
+            <div class="text-theme-600">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+</svg>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">应该显示一个加号</p>
+        </div>
+
+        <!-- 测试4：eye 图标 -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-700 mb-2">测试4: eye 图标</h3>
+            <div class="text-theme-600">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+</svg>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">应该显示一只眼睛</p>
+        </div>
+
+        <!-- 测试5：user 图标 -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-700 mb-2">测试5: user 图标</h3>
+            <div class="text-theme-600">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">应该显示一个用户图标</p>
+        </div>
+
+        <!-- 测试6：trash 图标 -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-700 mb-2">测试6: trash 图标</h3>
+            <div class="text-red-600">
+                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">应该显示一个垃圾桶</p>
+        </div>
+    </div>
+
+    <!-- 原始数据测试 -->
+    <div class="mt-8 bg-white rounded-lg shadow p-6">
+        <h3 class="font-bold text-gray-700 mb-4">原始数据测试</h3>
+        <div id="raw-data-test" class="space-y-2">
+            <p>正在检测...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('alpine:init', function() {
+    // 等待 Alpine.js 完全初始化后再执行检测
+    setTimeout(function() {
+        const debugInfo = document.getElementById('debug-info');
+        const rawDataTest = document.getElementById('raw-data-test');
+
+        // 检测 window.HeroiconsPaths 是否存在
+        const hasHeroiconsPaths = typeof window.HeroiconsPaths !== 'undefined';
+        const heroiconsKeys = hasHeroiconsPaths ? Object.keys(window.HeroiconsPaths).length : 0;
+
+        debugInfo.innerHTML = `
+            <p><strong>HeroiconsPaths:</strong> ${hasHeroiconsPaths ? '✅ 已加载' : '❌ 未加载'}</p>
+            <p><strong>图标数量:</strong> ${heroiconsKeys}</p>
+            <p><strong>Alpine.js:</strong> ${typeof Alpine !== 'undefined' ? '✅ 已加载' : '❌ 未加载'}</p>
+        `;
+
+        // 测试几个图标的原始数据
+        const testIcons = ['check', 'x-mark', 'plus', 'eye', 'user', 'trash'];
+        let rawDataHTML = '';
+
+        testIcons.forEach(iconName => {
+            const iconData = hasHeroiconsPaths ? window.HeroiconsPaths[iconName] : null;
+            const hasOutline = iconData && typeof iconData.outline !== 'undefined';
+            const hasViewBox = iconData && typeof iconData.viewBox !== 'undefined';
+            const outlinePreview = hasOutline ? (iconData.outline.substring(0, 50) + '...') : 'undefined';
+
+            rawDataHTML += `
+                <div class="border rounded p-3 ${hasOutline ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}">
+                    <p class="font-bold">${iconName}:</p>
+                    <p class="text-sm">outline: ${hasOutline ? '✅ 存在' : '❌ undefined'}</p>
+                    <p class="text-sm">viewBox: ${hasViewBox ? '✅ ' + iconData.viewBox : '❌ undefined'}</p>
+                    <p class="text-xs text-gray-500 mt-1">${outlinePreview}</p>
+                </div>
+            `;
+        });
+
+        rawDataTest.innerHTML = rawDataHTML;
+
+        // 在控制台输出详细信息
+        console.log('=== Heroicons 调试信息 ===');
+        console.log('HeroiconsPaths:', window.HeroiconsPaths);
+        console.log('测试图标数据:', testIcons.map(name => ({
+            name,
+            data: window.HeroiconsPaths ? window.HeroiconsPaths[name] : null
+        })));
+
+    }, 500);
+});
+</script>
+{% endblock %}

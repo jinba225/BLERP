@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+
+{% block title %}登录日志 - BetterLaser ERP{% endblock %}
+{% block page_title %}登录日志{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">系统管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">登录日志</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 统计卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">总记录数</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ total_count }}</p>
+                </div>
+                <div class="bg-theme-100 rounded-full p-3">
+                    <svg class="icon text-theme-600 text-xl fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+            </div>
+        </div> <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">成功登录</p>
+                    <p class="text-2xl font-bold text-green-600 mt-1">{{ successful_count }}</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <svg class="icon text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                </div>
+            </div>
+        </div> <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">失败登录</p>
+                    <p class="text-2xl font-bold text-red-600 mt-1">{{ failed_count }}</p>
+                </div>
+                <div class="bg-red-100 rounded-full p-3">
+                    <svg class="icon text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                </div>
+            </div>
+        </div> <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">当前页记录</p>
+                    <p class="text-2xl font-bold text-purple-600 mt-1">{{ current_page_count }}</p>
+                </div>
+                <div class="bg-purple-100 rounded-full p-3">
+                    <svg class="icon text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zm8 0h-2a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zM5 3h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
+</svg>
+                </div>
+            </div>
+        </div>
+    </div> <!-- 搜索和过滤 -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="get" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- 用户筛选 -->
+                <div>
+                    <label for="user" class="block text-sm font-medium text-gray-700 mb-2">
+                        <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>用户
+                    </label>
+                    <select id="user" name="user"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                        <option value="">全部用户</option>
+                        {% for u in users %}
+                        <option value="{{ u.id }}" {% if user_id == u.id|stringformat:"s" %}selected{% endif %}>
+                            {{ u.username }} - {{ u.email }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div> <!-- 状态筛选 -->
+                <div>
+                    <label for="is_successful" class="block text-sm font-medium text-gray-700 mb-2">
+                        <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>登录状态
+                    </label>
+                    <select id="is_successful" name="is_successful"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                        <option value="">全部状态</option>
+                        <option value="true" {% if is_successful == 'true' %}selected{% endif %}>成功</option>
+                        <option value="false" {% if is_successful == 'false' %}selected{% endif %}>失败</option>
+                    </select>
+                </div> <!-- 起始日期 -->
+                <div>
+                    <label for="date_from" class="block text-sm font-medium text-gray-700 mb-2">
+                        <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m-7.664-16.664l1.414 1.414m0 0L5.336 5.336m11.314 0l1.414-1.414M5.336 18.664l1.414-1.414M12 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 6a1.5 1.5 0 110 3 1.5 1.5 0 010-3z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>起始日期
+                    </label>
+                    <input type="date" id="date_from" name="date_from" value="{{ date_from }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                </div> <!-- 结束日期 -->
+                <div>
+                    <label for="date_to" class="block text-sm font-medium text-gray-700 mb-2">
+                        <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m-7.664-16.664l1.414 1.414m0 0L5.336 5.336m11.314 0l1.414-1.414M5.336 18.664l1.414-1.414M12 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 6a1.5 1.5 0 110 3 1.5 1.5 0 010-3z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>结束日期
+                    </label>
+                    <input type="date" id="date_to" name="date_to" value="{{ date_to }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                </div>
+            </div> <div class="flex justify-end space-x-3">
+                <a href="{% url 'users:login_log_list' %}"
+                   class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+</svg>重置
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+</svg>查询
+                </button>
+            </div>
+        </form>
+    </div> <!-- 登录日志列表 -->
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">
+                <svg class="icon mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zm8 0h-2a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zM5 3h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
+</svg>登录日志
+            </h2>
+        </div> <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            用户信息
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            登录时间
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            IP地址
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            登录方式
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            状态
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            登出时间
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            会话时长
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for log in page_obj %}
+                    <tr class="hover:bg-gray-50 {% if not log.is_successful %}bg-red-50{% endif %}">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    {% if log.user.avatar %}
+                                    <img class="h-10 w-10 rounded-full" src="{{ log.user.avatar.url }}" alt="{{ log.user.username }}">
+                                    {% else %}
+                                    <div class="h-10 w-10 rounded-full bg-theme-100 flex items-center justify-center">
+                                        <span class="text-theme-600 font-semibold text-lg">
+                                            {{ log.user.username|first|upper }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        <a href="{% url 'users:user_detail' log.user.pk %}"
+                                           class="text-theme-600 hover:text-theme-800">
+                                            {{ log.user.username }}
+                                        </a>
+                                        {% if log.user.is_staff %}
+                                        <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                            <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zm-1.476 3.488a8.987 8.987 0 00-6.03-2.326c-2.043 0-3.926.678-5.446 1.826M14 6a4 4 0 11-8 0 4 4 0 018 0zM2.21 20.89a9 9 0 0112.66-2.08c.31.24.59.51.84.79M12 12V9.5m0 2.5h.01" />
+</svg>管理员
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+</svg>{{ log.user.email }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                <svg class="icon mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                                {{ log.login_time|date:"Y-m-d" }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ log.login_time|date:"H:i:s" }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                <svg class="icon mr-1" text-gray-400 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                {{ log.ip_address|default:"未知" }}
+                            </div>
+                            {% if log.user_agent %}
+                            <div class="text-xs text-gray-500 max-w-xs truncate" title="{{ log.user_agent }}">
+                                {{ log.user_agent|truncatewords:5 }}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <svg class="icon mr-1" text-gray-400 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                            {{ log.login_method|default:"Web" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if log.is_successful %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>成功
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>失败
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {% if log.logout_time %}
+                            <div>{{ log.logout_time|date:"Y-m-d" }}</div>
+                            <div class="text-xs">{{ log.logout_time|date:"H:i:s" }}</div>
+                            {% else %}
+                            {% if log.is_successful %}
+                            <span class="text-green-600">
+                                <svg class="icon mr-1 text-xs" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+</svg>活跃中
+                            </span>
+                            {% else %}
+                            <span class="text-gray-400">-</span>
+                            {% endif %}
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {% if log.is_successful %}
+                                {% if log.logout_time %}
+                                <svg class="icon mr-1" text-gray-400 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                {{ log.session_duration|default:"计算中..." }}
+                                {% else %}
+                                <span class="text-green-600">
+                                    <svg class="icon mr-1 text-xs" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+</svg>进行中
+                                </span>
+                                {% endif %}
+                            {% else %}
+                            <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="text-gray-400">
+                                <svg class="icon mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+</svg>
+                                <p class="text-lg">暂无登录日志</p>
+                                {% if user_id or is_successful or date_from or date_to %}
+                                <p class="text-sm mt-2">试试调整查询条件</p>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div> <!-- 分页 -->
+        {% if page_obj.has_other_pages %}
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if user_id %}&user={{ user_id }}{% endif %}{% if is_successful %}&is_successful={{ is_successful }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        上一页
+                    </a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if user_id %}&user={{ user_id }}{% endif %}{% if is_successful %}&is_successful={{ is_successful }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                       class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        下一页
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            显示第
+                            <span class="font-medium">{{ page_obj.start_index }}</span>
+                            到
+                            <span class="font-medium">{{ page_obj.end_index }}</span>
+                            条，共
+                            <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                            条记录
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            {% if page_obj.has_previous %}
+                            <a href="?page=1{% if user_id %}&user={{ user_id }}{% endif %}{% if is_successful %}&is_successful={{ is_successful }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                首页
+                            </a>
+                            <a href="?page={{ page_obj.previous_page_number }}{% if user_id %}&user={{ user_id }}{% endif %}{% if is_successful %}&is_successful={{ is_successful }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                               class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+</svg>
+                            </a>
+                            {% endif %} <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                            </span> {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if user_id %}&user={{ user_id }}{% endif %}{% if is_successful %}&is_successful={{ is_successful }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                               class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+</svg>
+                            </a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}{% if user_id %}&user={{ user_id }}{% endif %}{% if is_successful %}&is_successful={{ is_successful }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                末页
+                            </a>
+                            {% endif %}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div> <!-- 快速提示 -->
+    <div class="bg-theme-50 border-l-4 border-theme-400 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="icon text-theme-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-theme-800">关于登录日志</h3>
+                <div class="mt-2 text-sm text-theme-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>登录日志记录所有用户的登录尝试，包括成功和失败的记录</li>
+                        <li>失败的登录记录会以红色背景高亮显示，便于识别异常登录</li>
+                        <li>会话时长仅对成功登录且已登出的记录显示</li>
+                        <li>可以通过用户、状态、日期范围等条件快速查询特定记录</li>
+                        <li>建议定期查看失败登录记录，及时发现安全风险</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

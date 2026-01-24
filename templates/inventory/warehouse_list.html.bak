@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}仓库列表 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'inventory:stock_list' %}" class="text-gray-500 hover:text-gray-700">库存管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">仓库管理</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+<div class="flex justify-between items-center">
+    <div>
+        <h3 class="text-lg font-semibold text-gray-900">仓库列表</h3>
+        <p class="text-sm text-gray-600">共 {{ total_count }} 个仓库</p>
+    </div>
+    <a href="{% url 'inventory:warehouse_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus mr-2"></i>新建仓库
+    </a>
+</div>
+<div class="bg-white rounded-lg shadow p-6"><form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-2">搜索</label><input type="text" name="search" value="{{ search }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="仓库名称、编码..."></div><div><label class="block text-sm font-medium text-gray-700 mb-2">仓库类型</label><select name="warehouse_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="">全部类型</option>{% for type_code, type_name in warehouse_types %}<option value="{{ type_code }}" {% if warehouse_type == type_code %}selected{% endif %}>{{ type_name }}</option>{% endfor %}</select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">状态</label><select name="is_active" class="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="">全部</option><option value="true" {% if is_active == 'true' %}selected{% endif %}>启用</option><option value="false" {% if is_active == 'false' %}selected{% endif %}>停用</option></select></div><div class="flex items-end"><button type="submit" class="btn btn-primary w-full"><i class="fas fa-search mr-2"></i>搜索</button></div></form></div>
+<div class="bg-white rounded-lg shadow overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">仓库编码</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">仓库名称</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">类型</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">管理员</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">联系电话</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">地址</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th><th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">{% for warehouse in page_obj %}<tr class="hover:bg-gray-50"><td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ warehouse.code }}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ warehouse.name }}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ warehouse.get_warehouse_type_display }}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ warehouse.manager.username|default:"-" }}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ warehouse.phone|default:"-" }}</td><td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ warehouse.address|default:"-" }}</td><td class="px-6 py-4 whitespace-nowrap">{% if warehouse.is_active %}<span class="px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">启用</span>{% else %}<span class="px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-800">停用</span>{% endif %}</td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2"><a href="{% url 'inventory:warehouse_detail' warehouse.pk %}" class="text-theme-600 hover:text-theme-700" title="查看详情"><i class="fas fa-eye"></i></a><a href="{% url 'inventory:warehouse_update' warehouse.pk %}" class="text-blue-600 hover:text-blue-700" title="编辑"><i class="fas fa-edit"></i></a></td></tr>{% empty %}<tr><td colspan="8" class="px-6 py-12 text-center text-gray-500"><i class="fas fa-inbox text-4xl mb-3"></i><p>暂无仓库数据</p></td></tr>{% endfor %}</tbody></table>{% if page_obj.has_other_pages %}<div class="bg-white px-4 py-3 flex items-center justify-between border-t"><p class="text-sm text-gray-700">显示第 {{ page_obj.start_index }} 到 {{ page_obj.end_index }} 条，共 {{ page_obj.paginator.count }} 条</p></div>{% endif %}</div>
+</div>
+{% endblock %}

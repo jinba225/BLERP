@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}删除产品分类 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">基础设置</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'products:category_list' %}" class="text-gray-500 hover:text-gray-700">产品分类</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">删除确认</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center mb-6">
+            <div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-900">确认删除产品分类</h3>
+                <p class="text-sm text-gray-600">此操作不可恢复，请谨慎操作</p>
+            </div>
+        </div> <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <dl class="space-y-2">
+                <div class="flex justify-between">
+                    <dt class="text-sm font-medium text-gray-500">分类代码：</dt>
+                    <dd class="text-sm text-gray-900">{{ category.code }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-sm font-medium text-gray-500">分类名称：</dt>
+                    <dd class="text-sm text-gray-900">{{ category.name }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-sm font-medium text-gray-500">完整路径：</dt>
+                    <dd class="text-sm text-gray-900">{{ category.full_name }}</dd>
+                </div>
+                {% if category.parent %}
+                <div class="flex justify-between">
+                    <dt class="text-sm font-medium text-gray-500">上级分类：</dt>
+                    <dd class="text-sm text-gray-900">{{ category.parent.name }}</dd>
+                </div>
+                {% endif %}
+            </dl>
+        </div> {% if has_children %}
+        <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-ban text-red-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-700 font-semibold">
+                        无法删除：此分类包含 {{ children_count }} 个子分类
+                    </p>
+                    <p class="text-sm text-red-700 mt-1">
+                        请先删除或移动所有子分类后再删除此分类。
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-end">
+            <a href="{% url 'products:category_detail' category.pk %}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                返回
+            </a>
+        </div>
+        {% else %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle text-yellow-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        删除此分类后，使用此分类的产品将无法正常显示分类信息。
+                    </p>
+                    {% if product_count > 0 %}
+                    <p class="text-sm text-yellow-700 mt-1">
+                        当前有 <strong>{{ product_count }}</strong> 个产品使用此分类。
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div> <form method="post">
+            {% csrf_token %}
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'products:category_detail' category.pk %}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    取消
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-trash mr-2"></i>确认删除
+                </button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

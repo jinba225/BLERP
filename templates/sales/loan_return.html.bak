@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}处理归还 - {{ loan.loan_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">销售管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:loan_list' %}" class="text-gray-500 hover:text-gray-700">销售借用</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:loan_detail' loan.pk %}" class="text-gray-500 hover:text-gray-700">{{ loan.loan_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">处理归还</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">处理归还 - {{ loan.loan_number }}</h3> <form method="post" id="returnForm" class="space-y-6">
+            {% csrf_token %} <div class="bg-theme-50 border border-theme-200 rounded-lg p-4 mb-6">
+                <div class="flex items-start">
+                    <i class="fas fa-info-circle text-theme-600 mt-1 mr-3"></i>
+                    <div class="text-sm text-theme-900">
+                        <p class="font-medium mb-1">归还说明</p>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>支持部分归还，可以分多次归还不同的产品</li>
+                            <li>归还数量不能超过剩余未归还数量</li>
+                            <li>全部产品归还后，借用单状态将自动更新为"全部归还"</li>
+                        </ul>
+                    </div>
+                </div>
+            </div> <!-- Items Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 border">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">借出数量</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">已归还</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">转销售</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">剩余可归还</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">本次归还</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for item in loan.items.all %}
+                        <tr id="item-{{ item.id }}">
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                <div class="font-medium">{{ item.product.name }}</div>
+                                {% if item.batch_number %}
+                                <div class="text-gray-500 text-xs">批次号: {{ item.batch_number }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-right text-gray-700">{{ item.quantity }}</td>
+                            <td class="px-6 py-4 text-sm text-right text-gray-700">{{ item.returned_quantity }}</td>
+                            <td class="px-6 py-4 text-sm text-right text-gray-700">{{ item.conversion_quantity }}</td>
+                            <td class="px-6 py-4 text-sm text-right font-medium text-theme-600">
+                                {{ item.remaining_quantity }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                {% if item.remaining_quantity > 0 %}
+                                <input type="number"
+                                       class="w-24 px-2 py-1 border border-gray-300 rounded text-right return-qty-input"
+                                       min="0"
+                                       max="{{ item.remaining_quantity }}"
+                                       step="1"
+                                       value="0"
+                                       data-item-id="{{ item.id }}"
+                                       data-max="{{ item.remaining_quantity }}">
+                                {% else %}
+                                <span class="text-gray-400">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div> <input type="hidden" name="items_json" id="items_json" value="[]"> <!-- Submit Buttons -->
+            <div class="flex justify-end gap-3 pt-6 border-t">
+                <a href="{% url 'sales:loan_detail' loan.pk %}"
+                   class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    取消
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-check mr-2"></i>确认归还
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('returnForm').addEventListener('submit', function(e) {
+    const inputs = document.querySelectorAll('.return-qty-input');
+    const items = []; inputs.forEach(input => {
+        const qty = parseFloat(input.value) || 0;
+        if (qty > 0) {
+            items.push({
+                item_id: input.dataset.itemId,
+                return_quantity: qty
+            });
+        }
+    }); if (items.length === 0) {
+        e.preventDefault();
+        alert('请至少归还一个产品');
+        return false;
+    } document.getElementById('items_json').value = JSON.stringify(items);
+});
+
+// 验证输入
+document.querySelectorAll('.return-qty-input').forEach(input => {
+    input.addEventListener('change', function() {
+        const max = parseFloat(this.dataset.max);
+        const val = parseFloat(this.value) || 0; if (val > max) {
+            alert('归还数量不能超过剩余数量 ' + max);
+            this.value = max;
+        }
+        if (val < 0) {
+            this.value = 0;
+        }
+    });
+});
+</script>
+{% endblock %}

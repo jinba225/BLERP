@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if action == 'create' %}新建{% else %}编辑{% endif %}库存调拨单 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">库存管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'inventory:transfer_list' %}" class="text-gray-500 hover:text-gray-700">库存调拨单</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{% if action == 'create' %}新建{% else %}编辑{% endif %}</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+    <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-900">
+            {% if action == 'create' %}新建库存调拨单{% else %}编辑库存调拨单{% endif %}
+        </h3>
+        <a href="{% if action == 'update' %}{% url 'inventory:transfer_detail' transfer.pk %}{% else %}{% url 'inventory:transfer_list' %}{% endif %}"
+           class="btn btn-outline">
+            <i class="fas fa-times mr-2"></i>取消
+        </a>
+    </div>
+
+    <form method="post" id="transferForm" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Basic Information -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-base font-semibold text-gray-900 mb-4">基本信息</h4>
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        源仓库 <span class="text-red-500">*</span>
+                    </label>
+                    <select name="from_warehouse" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        <option value="">请选择源仓库</option>
+                        {% for wh in warehouses %}
+                        <option value="{{ wh.id }}" {% if action == 'update' and transfer.from_warehouse.id == wh.id %}selected{% endif %}>
+                            {{ wh.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        目标仓库 <span class="text-red-500">*</span>
+                    </label>
+                    <select name="to_warehouse" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                        <option value="">请选择目标仓库</option>
+                        {% for wh in warehouses %}
+                        <option value="{{ wh.id }}" {% if action == 'update' and transfer.to_warehouse.id == wh.id %}selected{% endif %}>
+                            {{ wh.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        调拨日期 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date"
+                           name="transfer_date"
+                           value="{% if action == 'update' %}{{ transfer.transfer_date|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}"
+                           required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        预计到达日期
+                    </label>
+                    <input type="date"
+                           name="expected_arrival_date"
+                           value="{% if action == 'update' and transfer.expected_arrival_date %}{{ transfer.expected_arrival_date|date:'Y-m-d' }}{% endif %}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500">
+                </div>
+
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                    <textarea name="notes"
+                              rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500"
+                              placeholder="请输入备注信息（可选）">{% if action == 'update' %}{{ transfer.notes }}{% endif %}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transfer Items -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-base font-semibold text-gray-900">调拨明细</h4>
+                <button type="button"
+                        onclick="addItem()"
+                        class="btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i>添加明细
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200" id="itemsTable">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">申请数量</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">单位成本</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">批次号</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">备注</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="itemsBody">
+                        {% if action == 'update' %}
+                        {% for item in items %}
+                        <tr class="item-row">
+                            <td class="px-4 py-3">
+                                <select class="item-product w-full px-2 py-1 border border-gray-300 rounded" required>
+                                    {% for p in products %}
+                                    <option value="{{ p.id }}" data-unit="{{ p.unit.name }}" {% if item.product.id == p.id %}selected{% endif %}>
+                                        {{ p.code }} - {{ p.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td class="px-4 py-3">
+                                <input type="number" step="0.01" min="0" value="{{ item.requested_quantity }}"
+                                       class="item-quantity w-full px-2 py-1 border border-gray-300 rounded text-right"
+                                       required>
+                            </td>
+                            <td class="px-4 py-3">
+                                <input type="number" step="0.01" min="0" value="{{ item.unit_cost }}"
+                                       class="item-cost w-full px-2 py-1 border border-gray-300 rounded text-right">
+                            </td>
+                            <td class="px-4 py-3">
+                                <input type="text" value="{{ item.batch_number }}"
+                                       class="item-batch w-full px-2 py-1 border border-gray-300 rounded"
+                                       placeholder="可选">
+                            </td>
+                            <td class="px-4 py-3">
+                                <input type="text" value="{{ item.notes }}"
+                                       class="item-notes w-full px-2 py-1 border border-gray-300 rounded"
+                                       placeholder="可选">
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <button type="button" onclick="removeItem(this)"
+                                        class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="noItemsMessage" class="{% if action == 'update' and items %}hidden{% endif %} py-8 text-center text-gray-500">
+                <i class="fas fa-inbox text-4xl mb-3"></i>
+                <p>暂无明细，请点击"添加明细"按钮添加产品</p>
+            </div>
+        </div>
+
+        <!-- Hidden input for items JSON -->
+        <input type="hidden" name="items_json" id="items_json">
+
+        <!-- Submit Buttons -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% if action == 'update' %}{% url 'inventory:transfer_detail' transfer.pk %}{% else %}{% url 'inventory:transfer_list' %}{% endif %}"
+               class="btn btn-outline">
+                取消
+            </a>
+            <button type="submit"
+                    class="btn btn-primary">
+                <i class="fas fa-save mr-2"></i>{% if action == 'create' %}创建{% else %}更新{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// 设置预计到达日期默认为当天
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const expectedArrivalDateInput = document.querySelector('input[name="expected_arrival_date"]');
+    if (expectedArrivalDateInput && !expectedArrivalDateInput.value) {
+        expectedArrivalDateInput.value = today;
+    }
+});
+
+// Product data for quick lookup
+const products = [
+    {% for p in products %}
+    {
+        id: {{ p.id }},
+        code: '{{ p.code }}',
+        name: '{{ p.name }}',
+        unit: '{{ p.unit.name }}'
+    },
+    {% endfor %}
+];
+
+// Add new item row
+function addItem() {
+    const tbody = document.getElementById('itemsBody');
+    const row = document.createElement('tr');
+    row.className = 'item-row';
+    row.innerHTML = `
+        <td class="px-4 py-3">
+            <select class="item-product w-full px-2 py-1 border border-gray-300 rounded" required>
+                <option value="">请选择产品</option>
+                {% for p in products %}
+                <option value="{{ p.id }}" data-unit="{{ p.unit.name }}">{{ p.code }} - {{ p.name }}</option>
+                {% endfor %}
+            </select>
+        </td>
+        <td class="px-4 py-3">
+            <input type="number" step="0.01" min="0" value="1"
+                   class="item-quantity w-full px-2 py-1 border border-gray-300 rounded text-right" required>
+        </td>
+        <td class="px-4 py-3">
+            <input type="number" step="0.01" min="0" value="0"
+                   class="item-cost w-full px-2 py-1 border border-gray-300 rounded text-right">
+        </td>
+        <td class="px-4 py-3">
+            <input type="text" class="item-batch w-full px-2 py-1 border border-gray-300 rounded" placeholder="可选">
+        </td>
+        <td class="px-4 py-3">
+            <input type="text" class="item-notes w-full px-2 py-1 border border-gray-300 rounded" placeholder="可选">
+        </td>
+        <td class="px-4 py-3 text-center">
+            <button type="button" onclick="removeItem(this)" class="text-red-600 hover:text-red-900">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(row);
+    updateNoItemsMessage();
+}
+
+// Remove item row
+function removeItem(btn) {
+    btn.closest('tr').remove();
+    updateNoItemsMessage();
+}
+
+// Update no items message visibility
+function updateNoItemsMessage() {
+    const rows = document.querySelectorAll('.item-row');
+    const message = document.getElementById('noItemsMessage');
+    message.classList.toggle('hidden', rows.length > 0);
+}
+
+// Collect items data and submit form
+document.getElementById('transferForm').addEventListener('submit', function(e) {
+    const rows = document.querySelectorAll('.item-row');
+    const items = [];
+
+    rows.forEach(row => {
+        const productSelect = row.querySelector('.item-product');
+        const quantity = row.querySelector('.item-quantity').value;
+        const cost = row.querySelector('.item-cost').value;
+        const batch = row.querySelector('.item-batch').value;
+        const notes = row.querySelector('.item-notes').value;
+
+        if (productSelect.value) {
+            items.push({
+                product_id: productSelect.value,
+                requested_quantity: parseFloat(quantity) || 0,
+                unit_cost: parseFloat(cost) || 0,
+                batch_number: batch,
+                notes: notes
+            });
+        }
+    });
+
+    document.getElementById('items_json').value = JSON.stringify(items);
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateNoItemsMessage();
+});
+</script>
+{% endblock %}

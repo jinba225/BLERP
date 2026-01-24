@@ -1,0 +1,119 @@
+/**
+ * BetterLaser ERP - Tailwind CSS 入口文件
+ *
+ * 这是 Tailwind CSS 的源文件，包含：
+ * - @tailwind base: 基础样式重置
+ * - @tailwind components: 可复用组件样式
+ * - @tailwind utilities: 工具类样式
+ *
+ * 构建命令：
+ * - 开发模式（监听文件变化）: npm run dev
+ * - 生产构建（压缩）: npm run build
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 自定义全局样式 */
+@layer base {
+    body {
+        @apply bg-gray-50 text-gray-900 antialiased;
+    }
+}
+
+/* 自定义组件样式 */
+@layer components {
+    /* 按钮样式 */
+    .btn {
+        @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+    }
+
+    .btn-primary {
+        @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    }
+
+    .btn-secondary {
+        @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+    }
+
+    .btn-success {
+        @apply bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
+    }
+
+    .btn-danger {
+        @apply bg-red-600 text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+    }
+
+    /* 卡片样式 */
+    .card {
+        @apply bg-white rounded-lg shadow-md p-6;
+    }
+
+    /* 输入框样式 */
+    .input {
+        @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500;
+    }
+
+    /* 表格样式 */
+    .table {
+        @apply w-full border-collapse;
+    }
+
+    .table th {
+        @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50;
+    }
+
+    .table td {
+        @apply px-4 py-3 text-sm text-gray-900 border-t border-gray-200;
+    }
+
+    /* 徽章样式 */
+    .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+
+    .badge-primary {
+        @apply bg-blue-100 text-blue-800;
+    }
+
+    .badge-success {
+        @apply bg-green-100 text-green-800;
+    }
+
+    .badge-warning {
+        @apply bg-yellow-100 text-yellow-800;
+    }
+
+    .badge-danger {
+        @apply bg-red-100 text-red-800;
+    }
+}
+
+/* 自定义工具类 */
+@layer utilities {
+    /* 文本截断 */
+    .text-truncate {
+        @apply overflow-hidden text-ellipsis whitespace-nowrap;
+    }
+
+    /* 滚动条样式 */
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 #f1f5f9;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 3px;
+    }
+}

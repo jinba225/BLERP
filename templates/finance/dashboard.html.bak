@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% block title %}往来款项 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">往来款项</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">往来款项</h3>
+            <p class="text-sm text-gray-600 mt-1">财务数据总览和关键指标</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'finance:invoice_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <i class="fas fa-file-invoice mr-2"></i>发票管理
+            </a>
+            <a class="btn btn-primary" href="{% url 'finance:account_report' %}">
+                <i class="fas fa-chart-bar mr-2"></i>往来账款报表
+            </a>
+        </div>
+    </div> <!-- Key Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Total Receivables -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">应收账款总额</p>
+                    <p class="text-3xl font-bold text-theme-600 mt-2">¥{{ total_receivables|floatformat:2 }}</p>
+                    {% if overdue_receivables > 0 %}
+                    <p class="text-xs text-red-500 mt-1">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ overdue_receivables }} 笔逾期
+                    </p>
+                    {% else %}
+                    <p class="text-xs text-green-500 mt-1">
+                        <i class="fas fa-check-circle mr-1"></i>无逾期账款
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="w-16 h-16 bg-theme-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-hand-holding-usd text-theme-600 text-2xl"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'finance:customer_account_list' %}" class="text-sm text-theme-600 hover:text-theme-700">
+                    查看明细 <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div> <!-- Total Payables -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">应付账款总额</p>
+                    <p class="text-3xl font-bold text-red-600 mt-2">¥{{ total_payables|floatformat:2 }}</p>
+                    {% if overdue_payables > 0 %}
+                    <p class="text-xs text-red-500 mt-1">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>{{ overdue_payables }} 笔逾期
+                    </p>
+                    {% else %}
+                    <p class="text-xs text-green-500 mt-1">
+                        <i class="fas fa-check-circle mr-1"></i>无逾期账款
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-money-bill-wave text-red-600 text-2xl"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'finance:supplier_account_list' %}" class="text-sm text-theme-600 hover:text-theme-700">
+                    查看明细 <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div> <!-- Net Position -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">净头寸</p>
+                    {% if total_receivables|add:total_payables|floatformat:"-2"|floatformat:"0" >= 0 %}
+                    <p class="text-3xl font-bold text-green-600 mt-2">¥{{ total_receivables|add:total_payables|floatformat:2 }}</p>
+                    <p class="text-xs text-gray-500 mt-1">应收 > 应付</p>
+                    {% else %}
+                    <p class="text-3xl font-bold text-yellow-600 mt-2">¥{{ total_receivables|add:total_payables|floatformat:2 }}</p>
+                    <p class="text-xs text-gray-500 mt-1">应付 > 应收</p>
+                    {% endif %}
+                </div>
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-balance-scale text-green-600 text-2xl"></i>
+                </div>
+            </div>
+        </div> <!-- Quick Actions -->
+        <div class="bg-gradient-to-br from-theme-500 to-theme-600 rounded-lg shadow p-6 text-white">
+            <p class="text-sm opacity-90">快速操作</p>
+            <div class="mt-4 space-y-2">
+                <a href="{% url 'finance:payment_receipt_create' %}" class="block px-3 py-2 bg-white bg-opacity-20 rounded hover:bg-opacity-30 transition-all">
+                    <i class="fas fa-plus-circle mr-2"></i>新建收款单
+                </a>
+                <a href="{% url 'finance:payment_payment_create' %}" class="block px-3 py-2 bg-white bg-opacity-20 rounded hover:bg-opacity-30 transition-all">
+                    <i class="fas fa-plus-circle mr-2"></i>新建付款单
+                </a>
+                <a href="{% url 'finance:invoice_create' %}" class="block px-3 py-2 bg-white bg-opacity-20 rounded hover:bg-opacity-30 transition-all">
+                    <i class="fas fa-plus-circle mr-2"></i>新建发票
+                </a>
+            </div>
+        </div>
+    </div> <!-- Recent Transactions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Recent Journals -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h4 class="text-md font-semibold text-gray-900">
+                    <i class="fas fa-book text-theme-600 mr-2"></i>最近日记账
+                </h4>
+                <a href="{% url 'finance:journal_list' %}" class="text-sm text-theme-600 hover:text-theme-700">
+                    查看全部 <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+            <div class="p-6">
+                {% if recent_journals %}
+                <div class="space-y-3">
+                    {% for journal in recent_journals %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex-1">
+                            <a href="{% url 'finance:journal_detail' journal.pk %}" class="text-sm font-medium text-gray-900 hover:text-theme-600">
+                                {{ journal.journal_number }}
+                            </a>
+                            <p class="text-xs text-gray-500 mt-1">{{ journal.description|truncatewords:8 }}</p>
+                        </div>
+                        <div class="text-right ml-4">
+                            <p class="text-sm font-semibold text-gray-900">¥{{ journal.total_debit|floatformat:2 }}</p>
+                            <p class="text-xs text-gray-500">{{ journal.journal_date }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-gray-400">
+                    <i class="fas fa-inbox text-4xl mb-2"></i>
+                    <p class="text-sm">暂无日记账记录</p>
+                </div>
+                {% endif %}
+            </div>
+        </div> <!-- Recent Payments -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h4 class="text-md font-semibold text-gray-900">
+                    <i class="fas fa-credit-card text-theme-600 mr-2"></i>最近收付款
+                </h4>
+                <a href="{% url 'finance:payment_list' %}" class="text-sm text-theme-600 hover:text-theme-700">
+                    查看全部 <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+            <div class="p-6">
+                {% if recent_payments %}
+                <div class="space-y-3">
+                    {% for payment in recent_payments %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex-1">
+                            <a href="{% url 'finance:payment_detail' payment.pk %}" class="text-sm font-medium text-gray-900 hover:text-theme-600">
+                                {{ payment.payment_number }}
+                            </a>
+                            <div class="flex items-center mt-1 space-x-2">
+                                {% if payment.payment_type == 'receipt' %}
+                                <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    <i class="fas fa-arrow-down mr-1"></i>收款
+                                </span>
+                                {% else %}
+                                <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-theme-100 text-theme-800">
+                                    <i class="fas fa-arrow-up mr-1"></i>付款
+                                </span>
+                                {% endif %}
+                                <span class="text-xs text-gray-500">{{ payment.payment_method_display }}</span>
+                            </div>
+                        </div>
+                        <div class="text-right ml-4">
+                            {% if payment.payment_type == 'receipt' %}
+                            <p class="text-sm font-semibold text-green-600">+¥{{ payment.amount|floatformat:2 }}</p>
+                            {% else %}
+                            <p class="text-sm font-semibold text-red-600">-¥{{ payment.amount|floatformat:2 }}</p>
+                            {% endif %}
+                            <p class="text-xs text-gray-500">{{ payment.payment_date }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-gray-400">
+                    <i class="fas fa-inbox text-4xl mb-2"></i>
+                    <p class="text-sm">暂无收付款记录</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div> <!-- Additional Info Section -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4">
+            <i class="fas fa-info-circle text-theme-600 mr-2"></i>功能模块导航
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <a href="{% url 'finance:account_list' %}" class="p-4 border border-gray-200 rounded-lg hover:border-theme-500 hover:shadow-md transition-all group">
+                <i class="fas fa-sitemap text-2xl text-gray-400 group-hover:text-theme-600 mb-2"></i>
+                <p class="font-medium text-gray-900 group-hover:text-theme-600">会计科目</p>
+                <p class="text-xs text-gray-500 mt-1">科目体系管理</p>
+            </a>
+            <a href="{% url 'finance:budget_list' %}" class="p-4 border border-gray-200 rounded-lg hover:border-theme-500 hover:shadow-md transition-all group">
+                <i class="fas fa-calculator text-2xl text-gray-400 group-hover:text-theme-600 mb-2"></i>
+                <p class="font-medium text-gray-900 group-hover:text-theme-600">预算管理</p>
+                <p class="text-xs text-gray-500 mt-1">预算规划和执行</p>
+            </a>
+            <a href="{% url 'finance:payment_receipt_list' %}" class="p-4 border border-gray-200 rounded-lg hover:border-theme-500 hover:shadow-md transition-all group">
+                <i class="fas fa-receipt text-2xl text-gray-400 group-hover:text-theme-600 mb-2"></i>
+                <p class="font-medium text-gray-900 group-hover:text-theme-600">收款管理</p>
+                <p class="text-xs text-gray-500 mt-1">客户收款记录</p>
+            </a>
+            <a href="{% url 'finance:payment_payment_list' %}" class="p-4 border border-gray-200 rounded-lg hover:border-theme-500 hover:shadow-md transition-all group">
+                <i class="fas fa-file-invoice-dollar text-2xl text-gray-400 group-hover:text-theme-600 mb-2"></i>
+                <p class="font-medium text-gray-900 group-hover:text-theme-600">付款管理</p>
+                <p class="text-xs text-gray-500 mt-1">供应商付款记录</p>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

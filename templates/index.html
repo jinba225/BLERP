@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block title %}仪表盘 - BetterLaser ERP{% endblock %}
+{% block page_title %}仪表盘{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Sales Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-theme-100 text-theme-600">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+</svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-500">本月销售额</h3>
+                    <p class="text-2xl font-semibold text-gray-900">¥1,234,567</p>
+                    <p class="text-sm text-green-600">+12.5% 较上月</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Orders Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+</svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-500">待处理订单</h3>
+                    <p class="text-2xl font-semibold text-gray-900">156</p>
+                    <p class="text-sm text-red-600">+5 较昨日</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Inventory Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+</svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-500">库存预警</h3>
+                    <p class="text-2xl font-semibold text-gray-900">23</p>
+                    <p class="text-sm text-yellow-600">需要补货</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Customers Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-sm font-medium text-gray-500">活跃客户</h3>
+                    <p class="text-2xl font-semibold text-gray-900">1,847</p>
+                    <p class="text-sm text-green-600">+8.2% 较上月</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts and Tables Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Sales Chart -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">销售趋势</h3>
+            <div class="h-64 flex items-center justify-center bg-gray-50 rounded">
+                <p class="text-gray-500">销售趋势图表</p>
+            </div>
+        </div>
+        
+        <!-- Top Products -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">热销产品</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded bg-gradient-to-br from-theme-100 to-theme-200 flex items-center justify-center">
+                            <svg class="icon text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+</svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">激光切割机 LX-2000</p>
+                            <p class="text-sm text-gray-500">销量: 45台</p>
+                        </div>
+                    </div>
+                    <span class="text-sm font-medium text-green-600">¥2,340,000</span>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+                            <svg class="icon text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+</svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">激光雕刻机 LX-1500</p>
+                            <p class="text-sm text-gray-500">销量: 32台</p>
+                        </div>
+                    </div>
+                    <span class="text-sm font-medium text-green-600">¥1,280,000</span>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center">
+                            <svg class="icon text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+</svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">激光焊接机 LX-3000</p>
+                            <p class="text-sm text-gray-500">销量: 28台</p>
+                        </div>
+                    </div>
+                    <span class="text-sm font-medium text-green-600">¥1,680,000</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activities and Alerts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent Orders -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">最新订单</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">SO-2024-001234</p>
+                            <p class="text-sm text-gray-500">北京科技有限公司</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900">¥156,800</p>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">待确认</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">SO-2024-001235</p>
+                            <p class="text-sm text-gray-500">上海制造集团</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900">¥298,500</p>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">已确认</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">SO-2024-001236</p>
+                            <p class="text-sm text-gray-500">深圳精密工业</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900">¥425,600</p>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-theme-100 text-theme-800">生产中</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="/sales/orders/" class="text-sm text-primary-600 hover:text-primary-700 font-medium">查看全部订单 →</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Alerts -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">系统提醒</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="p-2 bg-red-100 rounded-full">
+                            <svg class="icon text-red-600 text-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+</svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">库存预警</p>
+                            <p class="text-sm text-gray-500">23个产品库存不足，需要及时补货</p>
+                            <p class="text-xs text-gray-400">2小时前</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="p-2 bg-yellow-100 rounded-full">
+                            <svg class="icon text-yellow-600 text-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">订单逾期</p>
+                            <p class="text-sm text-gray-500">5个订单超过预定交期，请及时处理</p>
+                            <p class="text-xs text-gray-400">4小时前</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="p-2 bg-theme-100 rounded-full">
+                            <svg class="icon text-theme-600 text-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">系统更新</p>
+                            <p class="text-sm text-gray-500">系统将于今晚23:00进行维护更新</p>
+                            <p class="text-xs text-gray-400">1天前</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="/notifications/" class="text-sm text-primary-600 hover:text-primary-700 font-medium">查看全部提醒 →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

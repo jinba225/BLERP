@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+
+{% block title %}添加用户 - {{ role.name }} - BetterLaser ERP{% endblock %}
+{% block page_title %}添加用户到角色{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'users:role_list' %}" class="text-gray-500 hover:text-gray-700">角色管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'users:role_detail' role.pk %}" class="text-gray-500 hover:text-gray-700">{{ role.name }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">添加用户</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- 角色信息卡片 -->
+    <div class="bg-white rounded-lg shadow mb-6 p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="h-16 w-16 rounded-lg bg-purple-100 flex items-center justify-center">
+                    <svg class="icon text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zm-1.476 3.488a8.987 8.987 0 00-6.03-2.326c-2.043 0-3.926.678-5.446 1.826M14 6a4 4 0 11-8 0 4 4 0 018 0zM2.21 20.89a9 9 0 0112.66-2.08c.31.24.59.51.84.79M12 12V9.5m0 2.5h.01" />
+</svg>
+                </div>
+            </div>
+            <div class="ml-4 flex-1">
+                <h3 class="text-lg font-semibold text-gray-900">{{ role.name }}</h3>
+                <p class="text-sm text-gray-500">{{ role.code }}</p>
+                {% if role.description %}
+                <p class="text-sm text-gray-600 mt-1">{{ role.description }}</p>
+                {% endif %}
+            </div>
+            <div class="text-right">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {% if role.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                    <svg class="icon text-xs mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+</svg>
+                    {% if role.is_active %}启用中{% else %}已停用{% endif %}
+                </span>
+            </div>
+        </div>
+    </div> <!-- 用户选择表单 -->
+    <form method="post" id="assignUsersForm">
+        {% csrf_token %} <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <svg class="icon mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>选择要添加的用户
+                    </h3>
+                    <div class="flex items-center space-x-3">
+                        <!-- 搜索框 -->
+                        <div class="relative">
+                            <input type="text" id="searchInput"
+                                   value="{{ search }}"
+                                   class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 w-64"
+                                   placeholder="搜索用户...">
+                            <svg class="icon absolute left-3 top-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+</svg>
+                        </div>
+                        <!-- 全选按钮 -->
+                        <button type="button" id="selectAll"
+                                class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
+                            <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>全选
+                        </button>
+                        <button type="button" id="deselectAll"
+                                class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
+                            <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>清空
+                        </button>
+                    </div>
+                </div>
+            </div> <div class="p-6">
+                {% if available_users %}
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    {% for user in available_users %}
+                    <label class="flex items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-200">
+                        <input type="checkbox" name="users" value="{{ user.id }}"
+                               class="user-checkbox rounded border-gray-300 text-theme-600 focus:ring-theme-500 h-4 w-4">
+                        <div class="ml-4 flex-1 flex items-center">
+                            <!-- 用户头像 -->
+                            <div class="flex-shrink-0">
+                                {% if user.avatar %}
+                                <img class="h-10 w-10 rounded-full" src="{{ user.avatar.url }}" alt="{{ user.username }}">
+                                {% else %}
+                                <div class="h-10 w-10 rounded-full bg-theme-100 flex items-center justify-center">
+                                    <span class="text-theme-600 font-semibold">{{ user.username|first|upper }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <!-- 用户信息 -->
+                            <div class="ml-4 flex-1">
+                                <div class="flex items-center">
+                                    <span class="text-sm font-medium text-gray-900">{{ user.username }}</span>
+                                    {% if user.is_staff %}
+                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                        <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zm-1.476 3.488a8.987 8.987 0 00-6.03-2.326c-2.043 0-3.926.678-5.446 1.826M14 6a4 4 0 11-8 0 4 4 0 018 0zM2.21 20.89a9 9 0 0112.66-2.08c.31.24.59.51.84.79M12 12V9.5m0 2.5h.01" />
+</svg>管理员
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+</svg>{{ user.email }}
+                                </div>
+                            </div>
+                            <!-- 员工信息 -->
+                            <div class="text-right">
+                                {% if user.employee_id %}
+                                <div class="text-sm text-gray-900">{{ user.employee_id }}</div>
+                                {% endif %}
+                                {% if user.department %}
+                                <div class="text-xs text-gray-500">
+                                    <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-9a2 2 0 012-2h4a2 2 0 012 2v9" />
+</svg>{{ user.department.name }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div> <!-- 已选择计数 -->
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-sm text-gray-600">
+                        已选择 <span id="selectedCount" class="font-semibold text-theme-600">0</span> 个用户
+                        / 共 {{ available_users.count }} 个可用用户
+                    </p>
+                </div> {% else %}
+                <div class="text-center py-12">
+                    <svg class="icon text-gray-300 text-6xl mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+</svg>
+                    <p class="text-gray-500 text-lg">没有可添加的用户</p>
+                    <p class="text-gray-400 text-sm mt-2">所有活跃用户都已拥有此角色</p>
+                </div>
+                {% endif %}
+            </div>
+        </div> <!-- 操作按钮 -->
+        <div class="flex justify-between items-center mt-6">
+            <a href="{% url 'users:role_detail' role.pk %}"
+               class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg>返回
+            </a>
+            {% if available_users %}
+            <button class="btn btn-primary" type="submit" disabled id="submitBtn">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>添加选中的用户
+            </button>
+            {% endif %}
+        </div>
+    </form> <!-- 提示信息 -->
+    <div class="bg-theme-50 border-l-4 border-theme-400 p-4 mt-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="icon text-theme-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-theme-800 mb-2">温馨提示</h3>
+                <ul class="text-sm text-theme-700 space-y-1 list-disc list-inside">
+                    <li>只显示尚未拥有此角色的活跃用户</li>
+                    <li>添加用户后，系统会自动为其分配角色对应的权限</li>
+                    <li>可以使用搜索功能快速查找用户</li>
+                    <li>支持批量选择多个用户进行添加</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllBtn = document.getElementById('selectAll');
+    const deselectAllBtn = document.getElementById('deselectAll');
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    const submitBtn = document.getElementById('submitBtn');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const searchInput = document.getElementById('searchInput'); // 更新选中计数和提交按钮状态
+    function updateCount() {
+        const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
+        selectedCountSpan.textContent = checkedCount;
+        submitBtn.disabled = checkedCount === 0;
+    } // 全选
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function() {
+            checkboxes.forEach(cb => cb.checked = true);
+            updateCount();
+        });
+    } // 清空
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener('click', function() {
+            checkboxes.forEach(cb => cb.checked = false);
+            updateCount();
+        });
+    } // 监听checkbox变化
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateCount);
+    }); // 搜索功能
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                const searchValue = searchInput.value.trim();
+                if (searchValue) {
+                    window.location.href = `?search=${encodeURIComponent(searchValue)}`;
+                } else {
+                    window.location.href = window.location.pathname;
+                }
+            }, 500);
+        });
+    } // 初始化计数
+    updateCount();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}生成现金流量表 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">财务管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:report_list' %}" class="text-gray-500 hover:text-gray-700">财务报表</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:report_generator' %}" class="text-gray-500 hover:text-gray-700">生成报表</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">现金流量表</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center space-x-4">
+        <div class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg">
+            <svg class="icon text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+        </div>
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">生成现金流量表</h3>
+            <p class="text-sm text-gray-600">现金净增加额 = 流入 - 流出</p>
+        </div>
+    </div> <!-- Form -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="post">
+            {% csrf_token %} <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
+                            开始日期<span class="text-red-500">*</span>
+                        </label>
+                        <input type="date"
+                               id="start_date"
+                               name="start_date"
+                               value="{{ default_start_date|date:'Y-m-d' }}"
+                               required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors">
+                    </div> <div>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">
+                            结束日期<span class="text-red-500">*</span>
+                        </label>
+                        <input type="date"
+                               id="end_date"
+                               name="end_date"
+                               value="{{ default_end_date|date:'Y-m-d' }}"
+                               required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors">
+                    </div>
+                </div> <p class="text-xs text-gray-500">
+                    系统将统计该期间现金类科目的流入和流出
+                </p> <!-- Info Box -->
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <div class="flex">
+                        <svg class="icon text-purple-400 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                        <div class="text-sm text-purple-700">
+                            <p class="font-semibold mb-2">现金流量表说明（简化版）：</p>
+                            <ul class="space-y-1 list-disc list-inside">
+                                <li><strong>现金流入</strong>：库存现金、银行存款科目的借方发生额</li>
+                                <li><strong>现金流出</strong>：库存现金、银行存款科目的贷方发生额</li>
+                                <li><strong>现金净增加额</strong> = 现金流入 - 现金流出</li>
+                            </ul>
+                            <p class="mt-2 text-xs text-blue-600">注意：当前为简化版,仅统计现金类科目（1001库存现金、1002银行存款）</p>
+                            <p class="text-xs text-yellow-600">注意：只有已过账的凭证会计入统计</p>
+                        </div>
+                    </div>
+                </div>
+            </div> <div class="mt-6 flex justify-end space-x-3">
+                <a href="{% url 'finance:report_generator' %}"
+                   class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>取消
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+</svg>生成报表
+                </button>
+            </div>
+        </form>
+    </div> <!-- Recent Reports -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-sm font-semibold text-gray-900 mb-4">历史记录</h4>
+        <p class="text-sm text-gray-500">
+            <a href="{% url 'finance:report_list' %}?report_type=cash_flow"
+               class="text-theme-600 hover:text-theme-700">
+                查看所有现金流量表记录 <svg class="icon ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+</svg>
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}

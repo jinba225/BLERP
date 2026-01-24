@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}发送询价单 - {{ inquiry.inquiry_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:inquiry_list' %}" class="text-gray-500 hover:text-gray-700">询价管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:inquiry_detail' inquiry.pk %}" class="text-gray-500 hover:text-gray-700">{{ inquiry.inquiry_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">发送询价</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">发送询价单给供应商</h3> <!-- Inquiry Info -->
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <span class="text-sm text-gray-600">询价单号</span>
+                    <p class="text-sm font-medium text-gray-900 mt-1">{{ inquiry.inquiry_number }}</p>
+                </div>
+                <div>
+                    <span class="text-sm text-gray-600">标题</span>
+                    <p class="text-sm font-medium text-gray-900 mt-1">{{ inquiry.title }}</p>
+                </div>
+                <div>
+                    <span class="text-sm text-gray-600">截止日期</span>
+                    <p class="text-sm font-medium text-gray-900 mt-1">{{ inquiry.deadline }}</p>
+                </div>
+                <div>
+                    <span class="text-sm text-gray-600">产品数量</span>
+                    <p class="text-sm font-medium text-gray-900 mt-1">{{ items.count }} 种</p>
+                </div>
+            </div>
+        </div> <!-- Supplier Selection -->
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-md font-semibold text-gray-900">选择供应商</h4>
+                    <div class="text-sm text-gray-600">
+                        已选择 <span id="selected-count" class="font-medium text-theme-600">0</span> 个供应商
+                    </div>
+                </div> {% if preferred_suppliers %}
+                <div class="mb-4 p-4 bg-theme-50 border-l-4 border-theme-400 rounded">
+                    <div class="flex items-center">
+                        <svg x-data="heroicon('star')" class="text-theme-400 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                        <span class="text-sm font-medium text-theme-800">首选供应商推荐</span>
+                    </div>
+                </div>
+                {% endif %} <div class="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
+                    {% for supplier in suppliers %}
+                    <label class="flex items-center p-3 rounded hover:bg-gray-50 cursor-pointer transition-colors {% if supplier in preferred_suppliers %}bg-theme-50 border border-theme-200{% endif %}">
+                        <input type="checkbox" name="suppliers" value="{{ supplier.id }}" class="supplier-checkbox h-4 w-4 text-theme-600 focus:ring-theme-500 border-gray-300 rounded" {% if supplier in preferred_suppliers %}checked{% endif %}>
+                        <div class="ml-3 flex-1">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-900">{{ supplier.name }}</span>
+                                {% if supplier in preferred_suppliers %}
+                                <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-theme-100 text-theme-800">
+                                    <svg x-data="heroicon('star')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>首选
+                                </span>
+                                {% endif %}
+                                {% if supplier.is_active %}
+                                <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded bg-green-100 text-green-800">
+                                    活跃
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% if supplier.contact_person %}
+                            <div class="text-xs text-gray-500 mt-1">
+                                <svg x-data="heroicon('user')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>{{ supplier.contact_person }}
+                                {% if supplier.contact_phone %} | <i class="fas fa-phone mr-1"></i>{{ supplier.contact_phone }}{% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div> <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg x-data="heroicon('information-circle')" class="text-yellow-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            发送后，系统将自动为每个供应商创建待报价单，供应商可以在截止日期前提交报价
+                        </p>
+                    </div>
+                </div>
+            </div> <div class="flex justify-end space-x-3">
+                <a href="{% url 'purchase:inquiry_detail' inquiry.pk %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    <svg x-data="heroicon('x-mark')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>取消
+                </a>
+                <button class="btn btn-primary" type="submit" disabled id="submit-btn">
+                    <i class="fas fa-paper-plane mr-2"></i>发送询价单
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.supplier-checkbox');
+    const selectedCount = document.getElementById('selected-count');
+    const submitBtn = document.getElementById('submit-btn'); function updateCount() {
+        const checked = document.querySelectorAll('.supplier-checkbox:checked').length;
+        selectedCount.textContent = checked;
+        submitBtn.disabled = checked === 0;
+    } checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateCount);
+    }); updateCount();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tax_rate.name }} - 税率详情{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">基础设置</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:tax_rate_list' %}" class="text-gray-500 hover:text-gray-700">税率设置</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ tax_rate.name }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-900">税率详情</h3>
+        <div class="space-x-2">
+            <a class="btn btn-primary" href="{% url 'finance:tax_rate_update' tax_rate.pk %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+</svg>编辑
+            </a>
+            <a class="btn btn-primary" href="{% url 'finance:tax_rate_delete' tax_rate.pk %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>删除
+            </a>
+        </div>
+    </div> <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">基本信息</h4>
+        </div>
+        <div class="p-6">
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">税率代码</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ tax_rate.code }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">税率名称</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ tax_rate.name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">税种</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ tax_rate.get_tax_type_display }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">税率</dt>
+                    <dd class="mt-1 text-sm font-bold text-theme-600 text-xl">{{ tax_rate.rate_percent }}%</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">排序</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ tax_rate.sort_order }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">是否默认</dt>
+                    <dd class="mt-1">
+                        {% if tax_rate.is_default %}
+                        <span class="px-2 py-1 text-xs font-semibold rounded bg-theme-100 text-theme-800">
+                            <svg class="icon mr-1" fill="currentColor" viewBox="0 0 24 24"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>默认税率
+                        </span>
+                        {% else %}
+                        <span class="text-gray-400">否</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">状态</dt>
+                    <dd class="mt-1">
+                        <span class="px-2 py-1 text-xs font-semibold rounded
+                            {% if tax_rate.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if tax_rate.is_active %}启用{% else %}停用{% endif %}
+                        </span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">生效日期</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ tax_rate.effective_date|date:"Y-m-d"|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">失效日期</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ tax_rate.expiry_date|date:"Y-m-d"|default:"-" }}</dd>
+                </div>
+                <div class="md:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500">适用说明</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ tax_rate.description|default:"-" }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div> <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">系统信息</h4>
+        </div>
+        <div class="p-6">
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">创建时间</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ tax_rate.created_at|date:"Y-m-d H:i:s" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">创建人</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ tax_rate.created_by.username|default:"-" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">最后更新</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ tax_rate.updated_at|date:"Y-m-d H:i:s" }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">更新人</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ tax_rate.updated_by.username|default:"-" }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

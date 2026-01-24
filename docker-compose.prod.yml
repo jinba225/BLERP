@@ -1,0 +1,265 @@
+version: '3.8'
+
+# ============================================
+# 生产环境 Docker Compose 配置
+# 使用方式: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ============================================
+
+services:
+  # ============================================
+  # MySQL 数据库 (生产配置)
+  # ============================================
+  db:
+    container_name: django_erp_db_prod
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max_connections=2000
+      - --innodb_buffer_pool_size=2G
+      - --innodb_log_file_size=512M
+      - --slow_query_log=1
+      - --slow_query_log_file=/var/lib/mysql/mysql-slow.log
+      - --long_query_time=2
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+      - ./docker/mysql/prod/conf.d:/etc/mysql/conf.d:ro
+      - ./logs/mysql:/var/lib/mysql:rw
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================
+  # Redis 缓存 (生产配置)
+  # ============================================
+  redis:
+    container_name: django_erp_redis_prod
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data_prod:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1536M
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================
+  # Django Web 应用 (生产模式 - Gunicorn)
+  # ============================================
+  web:
+    container_name: django_erp_web_prod
+    command: >
+      sh -c "
+        echo '⏳ Waiting for database...' &&
+        while ! nc -z db 3306; do sleep 1; done &&
+        echo '✅ Database is ready!' &&
+        echo '🔄 Running migrations...' &&
+        python manage.py migrate --noinput &&
+        echo '📦 Collecting static files...' &&
+        python manage.py collectstatic --noinput --clear &&
+        echo '🚀 Starting Gunicorn...' &&
+        gunicorn --config gunicorn_config.py better_laser_erp.wsgi:application
+      "
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - DB_ENGINE=django.db.backends.mysql
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - GUNICORN_WORKERS=${GUNICORN_WORKERS:-4}
+      - GUNICORN_ACCESS_LOG=/app/logs/gunicorn_access.log
+      - GUNICORN_ERROR_LOG=/app/logs/gunicorn_error.log
+      - GUNICORN_LOG_LEVEL=info
+    ports:
+      - "127.0.0.1:8000:8000"  # 仅本地访问，通过 Nginx 代理
+    volumes:
+      - static_volume_prod:/app/staticfiles:ro
+      - media_volume_prod:/app/media
+      - ./logs:/app/logs
+      # 生产环境不挂载源代码
+    deploy:
+      replicas: 2  # 运行2个副本
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # Celery Worker (生产配置)
+  # ============================================
+  celery:
+    container_name: django_erp_celery_prod
+    command: celery -A better_laser_erp worker -l info --concurrency=4 --max-tasks-per-child=1000
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY}
+      - DB_ENGINE=django.db.backends.mysql
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+    volumes:
+      - media_volume_prod:/app/media
+      - ./logs:/app/logs
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ============================================
+  # Celery Beat (生产配置)
+  # ============================================
+  celery-beat:
+    container_name: django_erp_celery_beat_prod
+    command: celery -A better_laser_erp beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY}
+      - DB_ENGINE=django.db.backends.mysql
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+    volumes:
+      - ./logs:/app/logs
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================
+  # Nginx (生产环境强制启用)
+  # ============================================
+  nginx:
+    container_name: django_erp_nginx_prod
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - static_volume_prod:/var/www/static:ro
+      - media_volume_prod:/var/www/media:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    profiles: []  # 总是启动，移除 profile
+
+# ============================================
+# Volumes (生产环境数据持久化)
+# ============================================
+volumes:
+  mysql_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/django_erp/mysql  # 自定义数据目录
+  redis_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/django_erp/redis
+  static_volume_prod:
+    driver: local
+  media_volume_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/django_erp/media

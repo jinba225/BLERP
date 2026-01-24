@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if action == 'create' %}新建{% else %}编辑{% endif %}品牌 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">基础设置</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'products:brand_list' %}" class="text-gray-500 hover:text-gray-700">品牌管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{% if action == 'create' %}新建{% else %}编辑{% endif %}</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">
+            {% if action == 'create' %}新建品牌{% else %}编辑品牌{% endif %}
+        </h3> <form method="post" class="space-y-6">
+            {% csrf_token %} <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        品牌名称 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="name" name="name" required
+                           value="{% if brand %}{{ brand.name }}{% endif %}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500"
+                           placeholder="例如：Apple、华为">
+                </div> <div>
+                    <label for="code" class="block text-sm font-medium text-gray-700 mb-2">
+                        品牌代码 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="code" name="code" required
+                           value="{% if brand %}{{ brand.code }}{% endif %}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500"
+                           placeholder="例如：APPLE、HUAWEI">
+                </div> <div>
+                    <label for="country" class="block text-sm font-medium text-gray-700 mb-2">
+                        国家/地区
+                    </label>
+                    <input type="text" id="country" name="country"
+                           value="{% if brand %}{{ brand.country }}{% endif %}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500"
+                           placeholder="例如：中国、美国">
+                </div> <div>
+                    <label for="website" class="block text-sm font-medium text-gray-700 mb-2">
+                        官方网站
+                    </label>
+                    <input type="url" id="website" name="website"
+                           value="{% if brand %}{{ brand.website }}{% endif %}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500"
+                           placeholder="https://www.example.com">
+                </div> <div class="flex items-center md:col-span-2">
+                    <input type="checkbox" id="is_active" name="is_active"
+                           {% if not brand or brand.is_active %}checked{% endif %}
+                           class="w-4 h-4 text-theme-600 border-gray-300 rounded focus:ring-theme-500">
+                    <label for="is_active" class="ml-2 block text-sm text-gray-900">
+                        启用此品牌
+                    </label>
+                </div> <div class="md:col-span-2">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        品牌描述
+                    </label>
+                    <textarea id="description" name="description" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500"
+                              placeholder="品牌的详细描述...">{% if brand %}{{ brand.description }}{% endif %}</textarea>
+                </div>
+            </div> <div class="flex justify-end space-x-3 pt-6 border-t">
+                <a href="{% url 'products:brand_list' %}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    取消
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+</svg>保存
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

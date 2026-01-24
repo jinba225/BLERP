@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if action == 'create' %}新建{% else %}编辑{% endif %}库存调整单 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">库存管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'inventory:adjustment_list' %}" class="text-gray-500 hover:text-gray-700">库存调整单</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{% if action == 'create' %}新建{% else %}编辑{% endif %}</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">
+                {% if action == 'create' %}新建库存调整单{% else %}编辑库存调整单{% endif %}
+            </h3>
+            {% if action == 'update' %}
+            <p class="text-sm text-gray-600 mt-1">调整单号：{{ adjustment.adjustment_number }}</p>
+            {% endif %}
+        </div>
+        <a href="{% if action == 'update' %}{% url 'inventory:adjustment_detail' adjustment.pk %}{% else %}{% url 'inventory:adjustment_list' %}{% endif %}"
+           class="btn btn-outline">
+            <i class="fas fa-times mr-2"></i>取消
+        </a>
+    </div>
+
+    <!-- Form -->
+    <form method="post" class="space-y-6" id="adjustmentForm">
+        {% csrf_token %}
+
+        <!-- Product and Warehouse Selection -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-base font-semibold text-gray-900 mb-4">基本信息</h4>
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label for="product" class="block text-sm font-medium text-gray-700 mb-2">
+                        产品 <span class="text-red-500">*</span>
+                    </label>
+                    <select name="product"
+                            id="product"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent"
+                            required
+                            {% if action == 'update' %}disabled{% endif %}
+                            onchange="loadCurrentStock()">
+                        <option value="">请选择产品</option>
+                        {% for p in products %}
+                        <option value="{{ p.id }}"
+                                data-unit="{{ p.unit.name }}"
+                                {% if action == 'update' and adjustment.product.id == p.id %}selected{% endif %}>
+                            {{ p.code }} - {{ p.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if action == 'update' %}
+                    <input type="hidden" name="product" value="{{ adjustment.product.id }}">
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="warehouse" class="block text-sm font-medium text-gray-700 mb-2">
+                        仓库 <span class="text-red-500">*</span>
+                    </label>
+                    <select name="warehouse"
+                            id="warehouse"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent"
+                            required
+                            {% if action == 'update' %}disabled{% endif %}
+                            onchange="loadCurrentStock()">
+                        <option value="">请选择仓库</option>
+                        {% for w in warehouses %}
+                        <option value="{{ w.id }}" {% if action == 'update' and adjustment.warehouse.id == w.id %}selected{% endif %}>
+                            {{ w.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if action == 'update' %}
+                    <input type="hidden" name="warehouse" value="{{ adjustment.warehouse.id }}">
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+                        库位
+                    </label>
+                    <input type="text"
+                           name="location"
+                           id="location"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent"
+                           placeholder="可选"
+                           {% if action == 'update' %}disabled{% endif %}
+                           value="{% if action == 'update' and adjustment.location %}{{ adjustment.location.id }}{% endif %}">
+                </div>
+
+                <div id="currentStockDisplay" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        当前库存
+                    </label>
+                    <div class="px-3 py-2 bg-theme-50 border border-theme-200 rounded-lg">
+                        <p class="text-lg font-semibold text-theme-900">
+                            <span id="currentStockValue">-</span>
+                            <span id="currentStockUnit" class="text-sm text-theme-700"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adjustment Details -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-base font-semibold text-gray-900 mb-4">调整详情</h4>
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label for="adjustment_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        调整类型 <span class="text-red-500">*</span>
+                    </label>
+                    <select name="adjustment_type"
+                            id="adjustment_type"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent"
+                            required>
+                        <option value="">请选择类型</option>
+                        {% for type_code, type_name in adjustment_types %}
+                        <option value="{{ type_code }}" {% if action == 'update' and adjustment.adjustment_type == type_code %}selected{% endif %}>
+                            {{ type_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">
+                        调整原因 <span class="text-red-500">*</span>
+                    </label>
+                    <select name="reason"
+                            id="reason"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent"
+                            required>
+                        <option value="">请选择原因</option>
+                        {% for reason_code, reason_name in adjustment_reasons %}
+                        <option value="{{ reason_code }}" {% if action == 'update' and adjustment.reason == reason_code %}selected{% endif %}>
+                            {{ reason_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% if action == 'update' %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        原数量
+                    </label>
+                    <div class="px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg">
+                        <p class="text-lg font-semibold text-gray-900">
+                            {{ adjustment.original_quantity }} {{ adjustment.product.unit.name }}
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div>
+                    <label for="adjusted_quantity" class="block text-sm font-medium text-gray-700 mb-2">
+                        调整后数量 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number"
+                           name="adjusted_quantity"
+                           id="adjusted_quantity"
+                           step="1"
+                           min="0"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent"
+                           placeholder="请输入调整后数量"
+                           value="{% if action == 'update' %}{{ adjustment.adjusted_quantity }}{% endif %}"
+                           required
+                           oninput="calculateDifference()">
+                </div>
+
+                <div id="differenceDisplay" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        差异数量
+                    </label>
+                    <div class="px-3 py-2 border rounded-lg" id="differenceBox">
+                        <p class="text-2xl font-bold" id="differenceValue">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                    备注
+                </label>
+                <textarea name="notes"
+                          id="notes"
+                          rows="4"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-transparent"
+                          placeholder="请输入备注信息（可选）">{% if action == 'update' %}{{ adjustment.notes }}{% endif %}</textarea>
+            </div>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% if action == 'update' %}{% url 'inventory:adjustment_detail' adjustment.pk %}{% else %}{% url 'inventory:adjustment_list' %}{% endif %}"
+               class="btn btn-outline">
+                取消
+            </a>
+            <button type="submit"
+                    class="btn btn-primary">
+                <i class="fas fa-save mr-2"></i>{% if action == 'create' %}创建{% else %}更新{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Store original quantity for calculation
+let originalQuantity = {% if action == 'update' %}{{ adjustment.original_quantity }}{% else %}0{% endif %};
+
+// Load current stock when product and warehouse are selected
+function loadCurrentStock() {
+    const productId = document.getElementById('product').value;
+    const warehouseId = document.getElementById('warehouse').value;
+
+    if (!productId || !warehouseId) {
+        document.getElementById('currentStockDisplay').classList.add('hidden');
+        return;
+    }
+
+    // In a real implementation, this would make an AJAX call to get the current stock
+    // For now, we'll show the display and use the existing value if in edit mode
+    {% if action == 'update' and current_stock %}
+    originalQuantity = {{ current_stock.quantity }};
+    document.getElementById('currentStockValue').textContent = originalQuantity;
+    const unit = document.getElementById('product').selectedOptions[0].dataset.unit;
+    document.getElementById('currentStockUnit').textContent = unit;
+    document.getElementById('currentStockDisplay').classList.remove('hidden');
+    calculateDifference();
+    {% else %}
+    // TODO: Implement AJAX call to fetch current stock
+    // For now, assume 0 if creating new
+    originalQuantity = 0;
+    document.getElementById('currentStockValue').textContent = '0';
+    const unit = document.getElementById('product').selectedOptions[0]?.dataset.unit || '';
+    document.getElementById('currentStockUnit').textContent = unit;
+    document.getElementById('currentStockDisplay').classList.remove('hidden');
+    calculateDifference();
+    {% endif %}
+}
+
+// Calculate difference when adjusted quantity changes
+function calculateDifference() {
+    const adjustedQty = parseFloat(document.getElementById('adjusted_quantity').value) || 0;
+    const difference = adjustedQty - originalQuantity;
+
+    const differenceDisplay = document.getElementById('differenceDisplay');
+    const differenceValue = document.getElementById('differenceValue');
+    const differenceBox = document.getElementById('differenceBox');
+
+    if (adjustedQty > 0) {
+        differenceDisplay.classList.remove('hidden');
+        differenceValue.textContent = (difference >= 0 ? '+' : '') + difference.toFixed(4);
+
+        // Update color based on difference
+        differenceBox.classList.remove('bg-green-50', 'border-green-200', 'bg-red-50', 'border-red-200', 'bg-gray-50', 'border-gray-300');
+        differenceValue.classList.remove('text-green-600', 'text-red-600', 'text-gray-900');
+
+        if (difference > 0) {
+            differenceBox.classList.add('bg-green-50', 'border-green-200');
+            differenceValue.classList.add('text-green-600');
+        } else if (difference < 0) {
+            differenceBox.classList.add('bg-red-50', 'border-red-200');
+            differenceValue.classList.add('text-red-600');
+        } else {
+            differenceBox.classList.add('bg-gray-50', 'border-gray-300');
+            differenceValue.classList.add('text-gray-900');
+        }
+    } else {
+        differenceDisplay.classList.add('hidden');
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    {% if action == 'update' %}
+    loadCurrentStock();
+    calculateDifference();
+    {% endif %}
+});
+</script>
+{% endblock %}

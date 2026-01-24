@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+
+{% block title %}费用详情 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">财务管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:expense_list' %}" class="text-gray-500 hover:text-gray-700">费用管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ expense.expense_number }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">费用详情</h3>
+            <p class="text-sm text-gray-600">费用单号：{{ expense.expense_number }}</p>
+        </div>
+        <div class="flex space-x-2">
+            {% if expense.status == 'draft' %}
+            <a class="btn btn-primary" href="{% url 'finance:expense_edit' expense.pk %}">
+                <i class="fas fa-edit mr-2"></i>编辑
+            </a>
+            <a class="btn btn-primary" href="{% url 'finance:expense_submit' expense.pk %}">
+                <i class="fas fa-paper-plane mr-2"></i>提交审批
+            </a>
+            <a class="btn btn-primary" href="{% url 'finance:expense_delete' expense.pk %}">
+                <i class="fas fa-trash mr-2"></i>删除
+            </a>
+            {% elif expense.status == 'submitted' %}
+            <a class="btn btn-primary" href="{% url 'finance:expense_approve' expense.pk %}">
+                <i class="fas fa-check mr-2"></i>审批通过
+            </a>
+            <a class="btn btn-primary" href="{% url 'finance:expense_reject' expense.pk %}">
+                <i class="fas fa-times mr-2"></i>审批拒绝
+            </a>
+            {% elif expense.status == 'approved' %}
+            <a class="btn btn-primary" href="{% url 'finance:expense_pay' expense.pk %}">
+                <i class="fas fa-money-bill-wave mr-2"></i>支付费用
+            </a>
+            {% elif expense.status == 'rejected' %}
+            <a class="btn btn-primary" href="{% url 'finance:expense_delete' expense.pk %}">
+                <i class="fas fa-trash mr-2"></i>删除
+            </a>
+            {% endif %}
+            <a href="{% url 'finance:expense_list' %}"
+               class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>返回列表
+            </a>
+        </div>
+    </div> <!-- Status Banner -->
+    <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div>
+                    <span class="text-sm text-gray-600">费用状态：</span>
+                    {% if expense.status == 'draft' %}
+                    <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-gray-100 text-gray-800">
+                        <i class="fas fa-file-alt mr-1"></i>草稿
+                    </span>
+                    {% elif expense.status == 'submitted' %}
+                    <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-theme-100 text-theme-800">
+                        <i class="fas fa-paper-plane mr-1"></i>已提交
+                    </span>
+                    {% elif expense.status == 'approved' %}
+                    <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-green-100 text-green-800">
+                        <i class="fas fa-check mr-1"></i>已审批
+                    </span>
+                    {% elif expense.status == 'rejected' %}
+                    <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-red-100 text-red-800">
+                        <i class="fas fa-times mr-1"></i>已拒绝
+                    </span>
+                    {% elif expense.status == 'paid' %}
+                    <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-purple-100 text-purple-800">
+                        <i class="fas fa-money-bill-wave mr-1"></i>已支付
+                    </span>
+                    {% elif expense.status == 'cancelled' %}
+                    <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full bg-gray-100 text-gray-500">
+                        <i class="fas fa-ban mr-1"></i>已取消
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-theme-600">
+                ¥{{ expense.amount|floatformat:2 }}
+            </div>
+        </div>
+    </div> <!-- Main Info -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column - Basic Info -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- 基本信息 -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                    <h4 class="text-base font-semibold text-gray-900">
+                        <i class="fas fa-info-circle text-theme-600 mr-2"></i>基本信息
+                    </h4>
+                </div>
+                <div class="p-6">
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">费用单号</dt>
+                            <dd class="text-sm text-gray-900 font-medium">{{ expense.expense_number }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">费用日期</dt>
+                            <dd class="text-sm text-gray-900">{{ expense.expense_date|date:"Y-m-d" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">申请人</dt>
+                            <dd class="text-sm text-gray-900">{{ expense.applicant.get_full_name|default:expense.applicant.username }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">申请部门</dt>
+                            <dd class="text-sm text-gray-900">{{ expense.department.name|default:"-" }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div> <!-- 费用信息 -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                    <h4 class="text-base font-semibold text-gray-900">
+                        <i class="fas fa-money-bill-wave text-theme-600 mr-2"></i>费用信息
+                    </h4>
+                </div>
+                <div class="p-6">
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">费用类别</dt>
+                            <dd class="text-sm text-gray-900">{{ expense.get_category_display }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">费用金额</dt>
+                            <dd class="text-sm text-gray-900 font-bold text-theme-600">¥{{ expense.amount|floatformat:2 }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">支付方式</dt>
+                            <dd class="text-sm text-gray-900">{{ expense.get_payment_method_display }}</dd>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500 mb-1">费用说明</dt>
+                            <dd class="text-sm text-gray-900 whitespace-pre-wrap">{{ expense.description }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div> <!-- 关联信息 -->
+            {% if expense.project or expense.reference_number or expense.payment_account or expense.journal %}
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                    <h4 class="text-base font-semibold text-gray-900">
+                        <i class="fas fa-link text-theme-600 mr-2"></i>关联信息
+                    </h4>
+                </div>
+                <div class="p-6">
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {% if expense.project %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">关联项目</dt>
+                            <dd class="text-sm text-gray-900">{{ expense.project }}</dd>
+                        </div>
+                        {% endif %}
+                        {% if expense.reference_number %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">参考单号</dt>
+                            <dd class="text-sm text-gray-900">{{ expense.reference_number }}</dd>
+                        </div>
+                        {% endif %}
+                        {% if expense.payment_account %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">支付科目</dt>
+                            <dd class="text-sm text-gray-900">{{ expense.payment_account.code }} - {{ expense.payment_account.name }}</dd>
+                        </div>
+                        {% endif %}
+                        {% if expense.journal %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">关联凭证</dt>
+                            <dd class="text-sm text-gray-900">
+                                <a href="{% url 'finance:journal_detail' expense.journal.pk %}"
+                                   class="text-theme-600 hover:text-theme-900">
+                                    {{ expense.journal.journal_number }}
+                                </a>
+                            </dd>
+                        </div>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+            {% endif %} <!-- 备注 -->
+            {% if expense.notes or expense.rejection_reason %}
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                    <h4 class="text-base font-semibold text-gray-900">
+                        <i class="fas fa-comment text-theme-600 mr-2"></i>备注
+                    </h4>
+                </div>
+                <div class="p-6">
+                    <dl class="space-y-4">
+                        {% if expense.notes %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500 mb-1">备注信息</dt>
+                            <dd class="text-sm text-gray-900 whitespace-pre-wrap">{{ expense.notes }}</dd>
+                        </div>
+                        {% endif %}
+                        {% if expense.rejection_reason %}
+                        <div>
+                            <dt class="text-sm font-medium text-red-500 mb-1">拒绝原因</dt>
+                            <dd class="text-sm text-red-700 whitespace-pre-wrap bg-red-50 p-3 rounded-lg">{{ expense.rejection_reason }}</dd>
+                        </div>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+            {% endif %}
+        </div> <!-- Right Column - Timeline -->
+        <div class="space-y-6">
+            <!-- 审批流程 -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                    <h4 class="text-base font-semibold text-gray-900">
+                        <i class="fas fa-history text-theme-600 mr-2"></i>审批流程
+                    </h4>
+                </div>
+                <div class="p-6">
+                    <div class="flow-root">
+                        <ul class="-mb-8">
+                            <!-- 创建 -->
+                            <li>
+                                <div class="relative pb-8">
+                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"></span>
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center ring-8 ring-white">
+                                                <i class="fas fa-file-alt text-green-600"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex-1 pt-1.5">
+                                            <p class="text-sm text-gray-900 font-medium">创建费用</p>
+                                            <p class="text-xs text-gray-500">{{ expense.created_by.get_full_name|default:expense.created_by.username }}</p>
+                                            <p class="text-xs text-gray-500">{{ expense.created_at|date:"Y-m-d H:i" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li> <!-- 提交 -->
+                            {% if expense.submitted_at %}
+                            <li>
+                                <div class="relative pb-8">
+                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"></span>
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span class="h-8 w-8 rounded-full bg-theme-100 flex items-center justify-center ring-8 ring-white">
+                                                <i class="fas fa-paper-plane text-theme-600"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex-1 pt-1.5">
+                                            <p class="text-sm text-gray-900 font-medium">提交审批</p>
+                                            <p class="text-xs text-gray-500">{{ expense.submitted_at|date:"Y-m-d H:i" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endif %} <!-- 审批 -->
+                            {% if expense.approved_at %}
+                            <li>
+                                <div class="relative pb-8">
+                                    {% if expense.paid_at %}
+                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"></span>
+                                    {% endif %}
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span class="h-8 w-8 rounded-full {% if expense.status == 'approved' or expense.status == 'paid' %}bg-green-100{% else %}bg-red-100{% endif %} flex items-center justify-center ring-8 ring-white">
+                                                <i class="fas {% if expense.status == 'approved' or expense.status == 'paid' %}fa-check text-green-600{% else %}fa-times text-red-600{% endif %}"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex-1 pt-1.5">
+                                            <p class="text-sm text-gray-900 font-medium">{% if expense.status == 'approved' or expense.status == 'paid' %}审批通过{% else %}审批拒绝{% endif %}</p>
+                                            <p class="text-xs text-gray-500">{{ expense.approved_by.get_full_name|default:expense.approved_by.username }}</p>
+                                            <p class="text-xs text-gray-500">{{ expense.approved_at|date:"Y-m-d H:i" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endif %} <!-- 支付 -->
+                            {% if expense.paid_at %}
+                            <li>
+                                <div class="relative pb-8">
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span class="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center ring-8 ring-white">
+                                                <i class="fas fa-money-bill-wave text-purple-600"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex-1 pt-1.5">
+                                            <p class="text-sm text-gray-900 font-medium">费用支付</p>
+                                            <p class="text-xs text-gray-500">{{ expense.paid_by.get_full_name|default:expense.paid_by.username }}</p>
+                                            <p class="text-xs text-gray-500">{{ expense.paid_at|date:"Y-m-d H:i" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

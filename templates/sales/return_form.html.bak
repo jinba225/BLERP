@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}创建退货单 - {{ order.order_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">销售管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:order_detail' order.pk %}" class="text-gray-500 hover:text-gray-700">{{ order.order_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">创建退货单</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto" x-data="returnForm()">
+<form method="post" @submit="prepareSubmit">
+{% csrf_token %}
+<input type="hidden" name="items_json" x-model="itemsJSON">
+
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-lg font-semibold text-gray-900">创建退货单</h3>
+<div class="flex space-x-3">
+<a href="{% url 'sales:order_detail' order.pk %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"><i class="fas fa-times mr-2"></i>取消</a>
+<button class="btn btn-primary" type="submit"><i class="fas fa-save mr-2"></i>保存</button>
+</div>
+</div>
+
+<!-- 订单信息 -->
+<div class="bg-white rounded-lg shadow mb-6 p-6">
+<h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">订单信息</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div>
+<label class="block text-sm font-medium text-gray-500 mb-1">订单号</label>
+<p class="text-sm text-gray-900 font-medium">{{ order.order_number }}</p>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-500 mb-1">客户</label>
+<p class="text-sm text-gray-900">{{ order.customer.name }}</p>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-500 mb-1">订单金额</label>
+<p class="text-sm text-gray-900 font-medium">¥{{ order.total_amount }}</p>
+</div>
+</div>
+</div>
+
+<!-- 退货信息 -->
+<div class="bg-white rounded-lg shadow mb-6 p-6">
+<h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">退货信息</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">退货日期 *</label>
+<input type="date" name="return_date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500" value="">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">退货原因 *</label>
+<select name="reason" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500">
+<option value="">请选择退货原因</option>
+<option value="defective">产品缺陷</option>
+<option value="wrong_item">发错货</option>
+<option value="damaged">运输损坏</option>
+<option value="not_needed">不再需要</option>
+<option value="other">其他</option>
+</select>
+</div>
+{% if deliveries %}
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">关联发货单</label>
+<select name="delivery" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500">
+<option value="">未指定</option>
+{% for delivery in deliveries %}
+<option value="{{ delivery.id }}">{{ delivery.delivery_number }}</option>
+{% endfor %}
+</select>
+</div>
+{% endif %}
+</div>
+<div class="mt-4">
+<label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+<textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-theme-500 focus:border-theme-500"></textarea>
+</div>
+</div>
+
+<!-- 退货明细 -->
+<div class="bg-white rounded-lg shadow mb-6 p-6">
+<div class="flex justify-between items-center mb-4 pb-2 border-b">
+<h4 class="text-md font-semibold text-gray-900">退货明细</h4>
+</div>
+<div class="overflow-x-auto">
+<table class="min-w-full">
+<thead class="bg-gray-50">
+<tr>
+<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase w-8">#</th>
+<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">产品</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">订单数量</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">已交付数量</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">已退货数量</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">可退货数量</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">退货数量 *</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">单价</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">退款小计</th>
+<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase w-32">货物状态</th>
+</tr>
+</thead>
+<tbody>
+<template x-for="(item, index) in items" :key="index">
+<tr class="border-t">
+<td class="px-3 py-2 text-sm text-gray-500" x-text="index + 1"></td>
+<td class="px-3 py-2 text-sm text-gray-900">
+<div class="font-medium" x-text="item.product_code"></div>
+<div class="text-xs text-gray-500" x-text="item.product_name"></div>
+</td>
+<td class="px-3 py-2 text-sm text-right text-gray-500" x-text="item.order_quantity"></td>
+<td class="px-3 py-2 text-sm text-right text-gray-500" x-text="item.delivered_quantity"></td>
+<td class="px-3 py-2 text-sm text-right text-gray-500" x-text="item.returned_quantity"></td>
+<td class="px-3 py-2 text-sm text-right text-gray-500" x-text="item.available_return_quantity"></td>
+<td class="px-3 py-2">
+<input type="number" x-model="item.quantity" @input="calculateLineTotal(index)"
+       step="1" min="0" :max="item.available_return_quantity"
+       class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right">
+</td>
+<td class="px-3 py-2 text-sm text-right text-gray-900" x-text="formatMoney(item.unit_price)"></td>
+<td class="px-3 py-2 text-sm text-right font-medium text-gray-900" x-text="formatMoney(item.line_total)"></td>
+<td class="px-3 py-2">
+<select x-model="item.condition" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+<option value="">请选择</option>
+<option value="good">完好</option>
+<option value="damaged">损坏</option>
+<option value="defective">缺陷</option>
+<option value="opened">已开封</option>
+</select>
+</td>
+</tr>
+</template>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- 金额汇总 -->
+<div class="bg-white rounded-lg shadow mb-6 p-6">
+<h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">退款汇总</h4>
+<div class="max-w-md ml-auto space-y-2">
+<div class="flex justify-between text-lg font-bold pt-2 border-t">
+<span>退款总计：</span>
+<span class="text-theme-600" x-text="formatMoney(totalRefund)"></span>
+</div>
+</div>
+</div>
+
+</form>
+</div>
+
+<script>
+function returnForm() {
+    // 设置默认日期为当天
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        const returnDateInput = document.querySelector('input[name="return_date"]');
+        if (returnDateInput && !returnDateInput.value) {
+            returnDateInput.value = today;
+        }
+    }); return {
+        items: [
+            {% for item in items %}
+            {
+                order_item_id: {{ item.id }},
+                product_code: '{{ item.product.code }}',
+                product_name: '{{ item.product.name }}',
+                order_quantity: {{ item.quantity }},
+                delivered_quantity: {{ item.delivered_quantity }},
+                returned_quantity: {{ item.returned_quantity|default:0 }},
+                available_return_quantity: {{ item.available_return_quantity|default:0 }},
+                quantity: 0,
+                unit_price: {{ item.unit_price }},
+                line_total: 0,
+                condition: ''
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        totalRefund: 0,
+        itemsJSON: '[]', calculateLineTotal(index) {
+            const item = this.items[index];
+            let qty = parseFloat(item.quantity) || 0; // 限制数量不能超过可退数量
+            if (qty > item.available_return_quantity) {
+                item.quantity = item.available_return_quantity;
+                qty = item.available_return_quantity;
+                alert(`产品 ${item.product_code} - ${item.product_name} 的退货数量不能超过可退数量 ${item.available_return_quantity}`);
+            } const price = parseFloat(item.unit_price) || 0;
+            item.line_total = qty * price;
+            this.calculateTotal();
+        }, calculateTotal() {
+            this.totalRefund = this.items.reduce((sum, item) => sum + (parseFloat(item.line_total) || 0), 0);
+        }, formatMoney(value) {
+            return '¥' + (parseFloat(value) || 0).toFixed(2);
+        }, prepareSubmit(e) {
+            // 检查每个项目是否超过可退数量
+            for (let i = 0; i < this.items.length; i++) {
+                const item = this.items[i];
+                const qty = parseFloat(item.quantity) || 0; if (qty > item.available_return_quantity) {
+                    e.preventDefault();
+                    alert(`产品 ${item.product_code} - ${item.product_name} 的退货数量 (${qty}) 超过可退数量 (${item.available_return_quantity})`);
+                    return false;
+                }
+            } // 只包含有退货数量的项目
+            const validItems = this.items.filter(item => parseFloat(item.quantity) > 0);
+            if (validItems.length === 0) {
+                e.preventDefault();
+                alert('请至少输入一项退货数量');
+                return false;
+            } this.itemsJSON = JSON.stringify(validItems);
+        }
+    }
+}
+</script>
+{% endblock %}

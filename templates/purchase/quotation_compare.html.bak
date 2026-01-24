@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}报价对比 - {{ inquiry.inquiry_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:inquiry_list' %}" class="text-gray-500 hover:text-gray-700">询价管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:inquiry_detail' inquiry.pk %}" class="text-gray-500 hover:text-gray-700">{{ inquiry.inquiry_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">报价对比</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">报价对比 - {{ inquiry.inquiry_number }}</h3>
+            <p class="text-sm text-gray-600 mt-1">{{ inquiry.title }}</p>
+        </div>
+        <a href="{% url 'purchase:inquiry_detail' inquiry.pk %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>返回询价单
+        </a>
+    </div> <!-- Comparison Summary -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h4 class="text-md font-semibold text-gray-900">供应商报价汇总</h4>
+                <p class="text-sm text-gray-600 mt-1">共收到 {{ quotations.count }} 个供应商报价</p>
+            </div>
+        </div>
+    </div> <!-- Price Comparison -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="sticky left-0 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">产品名称</th>
+                        {% for quotation in quotations %}
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">
+                            <div class="font-semibold text-gray-900">{{ quotation.supplier.name }}</div>
+                            <div class="text-xs text-gray-500 mt-1">{{ quotation.quotation_number }}</div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item_comparison in comparison_data %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="sticky left-0 bg-white px-6 py-4 border-r border-gray-200">
+                            <div class="text-sm font-medium text-gray-900">{{ item_comparison.inquiry_item.product.name }}</div>
+                            <div class="text-xs text-gray-500">{{ item_comparison.inquiry_item.product.code }}</div>
+                            <div class="text-xs text-gray-600 mt-1">需求：{{ item_comparison.inquiry_item.quantity }} {{ item_comparison.inquiry_item.product.unit }}</div>
+                            {% if item_comparison.inquiry_item.target_price %}
+                            <div class="text-xs text-theme-600 mt-1">目标价：¥{{ item_comparison.inquiry_item.target_price }}</div>
+                            {% endif %}
+                        </td>
+                        {% for quotation_info in item_comparison.quotations %}
+                        <td class="px-6 py-4 border-r border-gray-200 {% if quotation_info.quotation.status == 'selected' %}bg-green-50{% endif %}">
+                            {% if quotation_info.item %}
+                            <div class="text-center">
+                                <div class="text-sm font-semibold text-gray-900 mb-1">¥{{ quotation_info.item.unit_price|floatformat:2 }}</div>
+                                <div class="text-xs text-gray-500 mb-1">小计：¥{{ quotation_info.item.line_total|floatformat:2 }}</div>
+                                {% if quotation_info.item.brand or quotation_info.item.model %}
+                                <div class="text-xs text-gray-600 mb-1">
+                                    {% if quotation_info.item.brand %}{{ quotation_info.item.brand }}{% endif %}
+                                    {% if quotation_info.item.model %} / {{ quotation_info.item.model }}{% endif %}
+                                </div>
+                                {% endif %}
+                                {% if quotation_info.item.delivery_period %}
+                                <div class="text-xs text-gray-500">
+                                    <i class="fas fa-truck mr-1"></i>{{ quotation_info.item.delivery_period }} 天
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <div class="text-center text-gray-400 text-sm">-</div>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %} <!-- Summary Row -->
+                    <tr class="bg-gray-50 font-semibold">
+                        <td class="sticky left-0 bg-gray-50 px-6 py-4 text-sm text-gray-900 border-r border-gray-200">报价总额</td>
+                        {% for quotation in quotations %}
+                        <td class="px-6 py-4 text-center border-r border-gray-200 {% if quotation.status == 'selected' %}bg-green-100{% endif %}">
+                            <div class="text-lg font-bold text-gray-900">¥{{ quotation.total_amount|floatformat:2 }}</div>
+                        </td>
+                        {% endfor %}
+                    </tr> <!-- Additional Info Rows -->
+                    <tr class="bg-gray-50">
+                        <td class="sticky left-0 bg-gray-50 px-6 py-4 text-sm text-gray-600 border-r border-gray-200">交货期</td>
+                        {% for quotation in quotations %}
+                        <td class="px-6 py-4 text-center text-sm text-gray-900 border-r border-gray-200 {% if quotation.status == 'selected' %}bg-green-50{% endif %}">
+                            {% if quotation.delivery_period %}{{ quotation.delivery_period }} 天{% else %}<span class="text-gray-400">-</span>{% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr> <tr class="bg-gray-50">
+                        <td class="sticky left-0 bg-gray-50 px-6 py-4 text-sm text-gray-600 border-r border-gray-200">付款条款</td>
+                        {% for quotation in quotations %}
+                        <td class="px-6 py-4 text-center text-sm text-gray-900 border-r border-gray-200 {% if quotation.status == 'selected' %}bg-green-50{% endif %}">
+                            {% if quotation.payment_terms %}{{ quotation.get_payment_terms_display }}{% else %}<span class="text-gray-400">-</span>{% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr> <tr class="bg-gray-50">
+                        <td class="sticky left-0 bg-gray-50 px-6 py-4 text-sm text-gray-600 border-r border-gray-200">质保期</td>
+                        {% for quotation in quotations %}
+                        <td class="px-6 py-4 text-center text-sm text-gray-900 border-r border-gray-200 {% if quotation.status == 'selected' %}bg-green-50{% endif %}">
+                            {% if quotation.warranty_period %}{{ quotation.warranty_period }} 个月{% else %}<span class="text-gray-400">-</span>{% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr> <tr class="bg-gray-50">
+                        <td class="sticky left-0 bg-gray-50 px-6 py-4 text-sm text-gray-600 border-r border-gray-200">操作</td>
+                        {% for quotation in quotations %}
+                        <td class="px-6 py-4 text-center border-r border-gray-200 {% if quotation.status == 'selected' %}bg-green-50{% endif %}">
+                            {% if quotation.status == 'submitted' and inquiry.status != 'selected' %}
+                            <a class="btn btn-primary" href="{% url 'purchase:quotation_select' quotation.pk %}">
+                                <i class="fas fa-check mr-1"></i>选定
+                            </a>
+                            {% elif quotation.status == 'selected' %}
+                            <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-xs rounded">
+                                <i class="fas fa-check-circle mr-1"></i>已选定
+                            </span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div> <!-- Tips -->
+    <div class="bg-theme-50 border-l-4 border-theme-400 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-lightbulb text-theme-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-theme-700">
+                    <strong>提示：</strong>选定某个供应商的报价后，该报价将被标记为"已选定"，其他报价将被自动拒绝。您可以继续创建采购订单。
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

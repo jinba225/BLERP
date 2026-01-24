@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% block title %}{{ account.code }} {{ account.name }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:dashboard' %}" class="text-gray-500 hover:text-gray-700">财务管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:account_list' %}" class="text-gray-500 hover:text-gray-700">会计科目</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ account.code }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">{{ account.code }} {{ account.name }}</h3>
+            <p class="text-sm text-gray-600 mt-1">科目详情和交易记录</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'finance:account_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>返回列表
+            </a>
+        </div>
+    </div>
+
+    <!-- Account Info Card -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+                <p class="text-sm text-gray-600 mb-1">科目编号</p>
+                <p class="text-lg font-mono font-semibold text-gray-900">{{ account.code }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">科目名称</p>
+                <p class="text-lg font-semibold text-gray-900">{{ account.name }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">科目类型</p>
+                <div class="mt-1">
+                    {% if account.account_type == 'asset' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-theme-100 text-theme-800">资产</span>
+                    {% elif account.account_type == 'liability' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">负债</span>
+                    {% elif account.account_type == 'equity' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">权益</span>
+                    {% elif account.account_type == 'revenue' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800">收入</span>
+                    {% elif account.account_type == 'expense' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">费用</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">余额方向</p>
+                <p class="text-lg font-semibold text-gray-900">
+                    {% if account.balance_side == 'debit' %}
+                    <i class="fas fa-arrow-left text-theme-600 mr-1"></i>借方
+                    {% else %}
+                    <i class="fas fa-arrow-right text-red-600 mr-1"></i>贷方
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        {% if account.parent %}
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-600 mb-2">上级科目</p>
+            <a href="{% url 'finance:account_detail' account.parent.pk %}" class="inline-flex items-center text-theme-600 hover:text-theme-700">
+                <span class="font-mono font-semibold mr-2">{{ account.parent.code }}</span>
+                <span>{{ account.parent.name }}</span>
+                <i class="fas fa-external-link-alt ml-2 text-xs"></i>
+            </a>
+        </div>
+        {% endif %}
+
+        {% if account.description %}
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-600 mb-2">科目说明</p>
+            <p class="text-sm text-gray-700">{{ account.description }}</p>
+        </div>
+        {% endif %}
+
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">当前余额</p>
+                    <p class="text-3xl font-bold text-gray-900">¥{{ account.balance|floatformat:2 }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600 mb-1">状态</p>
+                    {% if account.is_active %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+                        <i class="fas fa-check-circle mr-1"></i>启用中
+                    </span>
+                    {% else %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800">
+                        <i class="fas fa-ban mr-1"></i>已停用
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sub-accounts -->
+    {% if sub_accounts %}
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">
+                <i class="fas fa-sitemap text-theme-600 mr-2"></i>下级科目
+            </h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">科目编号</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">科目名称</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">当前余额</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">状态</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for sub in sub_accounts %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-mono font-semibold text-gray-900">
+                            {{ sub.code }}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                            {{ sub.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-semibold text-gray-900">
+                            ¥{{ sub.balance|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            {% if sub.is_active %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">启用</span>
+                            {% else %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">停用</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                            <a href="{% url 'finance:account_detail' sub.pk %}" class="text-theme-600 hover:text-theme-700">
+                                查看 <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Transactions -->
+    {% if recent_entries %}
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h4 class="text-md font-semibold text-gray-900">
+                <i class="fas fa-list text-theme-600 mr-2"></i>最近交易记录
+            </h4>
+            <a href="{% url 'finance:journal_list' %}?account={{ account.pk }}" class="text-sm text-theme-600 hover:text-theme-700">
+                查看全部 <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">日期</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">凭证号</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">摘要</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">借方</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">贷方</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">余额</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for entry in recent_entries %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ entry.journal.journal_date }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{% url 'finance:journal_detail' entry.journal.pk %}" class="text-theme-600 hover:text-theme-700 font-medium">
+                                {{ entry.journal.journal_number }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            {{ entry.description|truncatewords:10 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                            {% if entry.debit_amount > 0 %}
+                            <span class="font-semibold text-theme-600">¥{{ entry.debit_amount|floatformat:2 }}</span>
+                            {% else %}
+                            <span class="text-gray-300">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                            {% if entry.credit_amount > 0 %}
+                            <span class="font-semibold text-red-600">¥{{ entry.credit_amount|floatformat:2 }}</span>
+                            {% else %}
+                            <span class="text-gray-300">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900">
+                            ¥{{ entry.balance|floatformat:2 }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow p-12 text-center">
+        <i class="fas fa-inbox text-gray-300 text-5xl mb-4"></i>
+        <p class="text-gray-500">暂无交易记录</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

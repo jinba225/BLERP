@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}创建收货单{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">采购管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:order_list' %}" class="text-gray-500 hover:text-gray-700">采购订单</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:order_detail' order.pk %}" class="text-gray-500 hover:text-gray-700">订单详情</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">创建收货单</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">订单信息</h3>
+        <div class="grid grid-cols-3 gap-4 text-sm">
+            <div><span class="text-gray-600">订单号:</span> <span class="font-medium">{{ order.order_number }}</span></div>
+            <div><span class="text-gray-600">供应商:</span> <span class="font-medium">{{ order.supplier.name }}</span></div>
+            <div><span class="text-gray-600">订单状态:</span> <span class="font-medium">{{ order.get_status_display }}</span></div>
+        </div>
+    </div> <form method="post" class="bg-white rounded-lg shadow p-6 space-y-4">
+        {% csrf_token %}
+        <h3 class="text-lg font-semibold">收货信息</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">收货日期 <span class="text-red-500">*</span></label>
+                <input type="date" name="receipt_date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">收货仓库 <span class="text-red-500">*</span></label>
+                <select name="warehouse" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    {% for warehouse in warehouses %}
+                    <option value="{{ warehouse.id }}" {% if order.warehouse.id == warehouse.id %}selected{% endif %}>{{ warehouse.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div> <div class="border-t pt-4">
+            <h4 class="text-md font-semibold mb-3">收货明细</h4>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">产品名称</th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">订单数量</th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">已收货数量</th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">剩余数量</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">本次收货数量 <span class="text-red-500">*</span></th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">批次号</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">备注</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for item_data in order_items %}
+                        {% with item=item_data.item remaining=item_data.remaining_quantity %}
+                        <tr data-item-id="{{ item.id }}">
+                            <td class="px-4 py-2 text-sm text-gray-900">{{ item.product.name }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900 text-right">{{ item.quantity }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900 text-right">{{ item.received_quantity }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900 text-right font-medium text-green-600">{{ remaining }}</td>
+                            <td class="px-4 py-2">
+                                <input type="number" name="received_quantity_{{ item.id }}" min="0" max="{{ remaining }}" step="1" value="0" required class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+                            </td>
+                            <td class="px-4 py-2">
+                                <input type="text" name="batch_number_{{ item.id }}" class="w-full px-2 py-1 border border-gray-300 rounded text-sm" placeholder="可选">
+                            </td>
+                            <td class="px-4 py-2">
+                                <input type="text" name="notes_{{ item.id }}" class="w-full px-2 py-1 border border-gray-300 rounded text-sm" placeholder="可选">
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div> <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+            <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
+        </div> <div class="flex gap-3 pt-4 border-t">
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-save mr-2"></i>创建收货单
+            </button>
+            <a href="{% url 'purchase:order_detail' order.pk %}" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                <i class="fas fa-times mr-2"></i>取消
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const receiptDateInput = document.querySelector('input[name="receipt_date"]');
+    if (receiptDateInput && !receiptDateInput.value) {
+        receiptDateInput.value = today;
+    } // 自动计算剩余数量
+    document.querySelectorAll('input[name^="received_quantity_"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const max = parseFloat(this.getAttribute('max'));
+            const value = parseFloat(this.value);
+            if (value > max) {
+                alert('收货数量不能超过剩余数量');
+                this.value = max;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

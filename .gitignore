@@ -1,0 +1,6 @@
+*.env
+*.zip
+node_modules/
+dist/
+~/.bmad/
+~/.claude/

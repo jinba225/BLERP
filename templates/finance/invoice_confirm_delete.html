@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}删除发票 - {{ invoice.invoice_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">财务管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:invoice_list' %}" class="text-gray-500 hover:text-gray-700">发票管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">删除确认</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <!-- Warning Icon -->
+        <div class="flex justify-center mb-6">
+            <div class="rounded-full bg-red-100 p-6">
+                <svg class="icon text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+</svg>
+            </div>
+        </div> <!-- Title -->
+        <h3 class="text-2xl font-bold text-center text-gray-900 mb-4">
+            确认删除发票
+        </h3> <!-- Warning Message -->
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div class="flex">
+                <svg class="icon text-red-600 mt-1 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                <div class="text-sm text-red-800">
+                    <p class="font-medium mb-2">您即将删除以下发票：</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>发票号码: <span class="font-semibold">{{ invoice.invoice_number }}</span></li>
+                        {% if invoice.invoice_code %}
+                        <li>发票代码: {{ invoice.invoice_code }}</li>
+                        {% endif %}
+                        <li>发票类型: {{ invoice.get_invoice_type_display }}</li>
+                        <li>价税合计: ¥{{ invoice.total_amount|floatformat:2 }}</li>
+                        <li>明细行数: {{ invoice.items.count }} 条</li>
+                    </ul>
+                </div>
+            </div>
+        </div> <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div class="flex">
+                <svg class="icon text-yellow-600 mt-1 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                <div class="text-sm text-yellow-800">
+                    <p class="font-medium mb-1">重要提示：</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>此操作将软删除该发票，发票状态必须为"草稿"</li>
+                        <li>删除后的发票将从列表中隐藏，但数据仍保留在系统中</li>
+                        <li>如需恢复，请联系系统管理员</li>
+                    </ul>
+                </div>
+            </div>
+        </div> <!-- Invoice Preview -->
+        <div class="border border-gray-200 rounded-lg p-4 mb-6">
+            <h4 class="text-sm font-medium text-gray-700 mb-3 pb-2 border-b">发票信息预览</h4>
+            <dl class="space-y-2 text-sm">
+                <div class="flex">
+                    <dt class="w-32 text-gray-500">开票日期：</dt>
+                    <dd class="text-gray-900">{{ invoice.invoice_date|date:"Y-m-d" }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-gray-500">
+                        {% if invoice.invoice_type == 'purchase' %}供应商：{% else %}客户：{% endif %}
+                    </dt>
+                    <dd class="text-gray-900">
+                        {% if invoice.invoice_type == 'purchase' %}
+                            {{ invoice.supplier.name|default:"-" }}
+                        {% else %}
+                            {{ invoice.customer.name|default:"-" }}
+                        {% endif %}
+                    </dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-gray-500">不含税金额：</dt>
+                    <dd class="text-gray-900">¥{{ invoice.amount_excluding_tax|floatformat:2 }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-gray-500">税额：</dt>
+                    <dd class="text-gray-900">¥{{ invoice.tax_amount|floatformat:2 }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-gray-500">价税合计：</dt>
+                    <dd class="text-gray-900 font-semibold">¥{{ invoice.total_amount|floatformat:2 }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-gray-500">创建人：</dt>
+                    <dd class="text-gray-900">{{ invoice.created_by.username|default:"-" }}</dd>
+                </div>
+                <div class="flex">
+                    <dt class="w-32 text-gray-500">创建时间：</dt>
+                    <dd class="text-gray-900">{{ invoice.created_at|date:"Y-m-d H:i" }}</dd>
+                </div>
+            </dl>
+        </div> <!-- Action Buttons -->
+        <form method="post" class="space-y-3">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>
+                确认删除
+            </button>
+            <a href="{% url 'finance:invoice_detail' invoice.pk %}"
+               class="w-full px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+</svg>
+                取消
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

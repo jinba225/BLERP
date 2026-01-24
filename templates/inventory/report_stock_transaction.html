@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}库存流水报表 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'inventory:stock_list' %}" class="text-gray-500 hover:text-gray-700">库存管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">库存流水</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">库存流水报表</h3>
+            <p class="text-sm text-gray-600 mt-1">查看所有库存出入库事务记录</p>
+        </div>
+    </div> <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                    <svg class="icon text-white text-2xl fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">入库总量</dt>
+                        <dd class="text-2xl font-semibold text-green-600">{{ inbound_quantity }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div> <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-red-500 rounded-md p-3">
+                    <svg class="icon text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+</svg>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 truncate">出库总量</dt>
+                        <dd class="text-2xl font-semibold text-red-600">{{ outbound_quantity }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div> <!-- Search and Filter -->
+    <div class="bg-white rounded-lg shadow p-4">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+            <div>
+                <input type="text" name="search" value="{{ search_query }}" placeholder="搜索产品/参考单号"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+            </div>
+            <div>
+                <select name="warehouse" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                    <option value="">所有仓库</option>
+                    {% for w in warehouses %}
+                    <option value="{{ w.id }}" {% if warehouse_id == w.id|stringformat:"s" %}selected{% endif %}>
+                        {{ w.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <select name="transaction_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                    <option value="">所有类型</option>
+                    {% for type_code, type_name in transaction_types %}
+                    <option value="{{ type_code }}" {% if transaction_type == type_code %}selected{% endif %}>
+                        {{ type_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <input type="date" name="date_from" value="{{ date_from }}" placeholder="开始日期"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+            </div>
+            <div>
+                <input type="date" name="date_to" value="{{ date_to }}" placeholder="结束日期"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+            </div>
+            <div class="flex space-x-2">
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+</svg>搜索
+                </button>
+                <a href="{% url 'inventory:report_stock_transaction' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+</svg>
+                </a>
+            </div>
+        </form>
+    </div> <!-- Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        {% if page_obj %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">时间</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">类型</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">产品</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">仓库</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">库位</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">数量</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">批次号</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">参考单号</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作人</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for trans in page_obj %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ trans.created_at|date:"Y-m-d H:i" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded
+                                {% if trans.transaction_type == 'inbound' %}bg-green-100 text-green-800
+                                {% elif trans.transaction_type == 'outbound' %}bg-red-100 text-red-800
+                                {% elif trans.transaction_type == 'adjustment' %}bg-theme-100 text-theme-800
+                                {% elif trans.transaction_type == 'transfer' %}bg-purple-100 text-purple-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ trans.get_transaction_type_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ trans.product.name }}</div>
+                            <div class="text-xs text-gray-500">{{ trans.product.code }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ trans.warehouse.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% if trans.location %}{{ trans.location.name }}{% else %}<span class="text-gray-400">-</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold
+                            {% if trans.quantity > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                            {% if trans.quantity > 0 %}+{% endif %}{{ trans.quantity }} {{ trans.product.unit }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% if trans.batch_number %}{{ trans.batch_number }}{% else %}<span class="text-gray-400">-</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% if trans.reference_number %}{{ trans.reference_number }}{% else %}<span class="text-gray-400">-</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ trans.created_by.username }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div> <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        上一页
+                    </a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        下一页
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            显示第 <span class="font-medium">{{ page_obj.start_index }}</span>
+                            到 <span class="font-medium">{{ page_obj.end_index }}</span>
+                            条，共 <span class="font-medium">{{ page_obj.paginator.count }}</span> 条
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            {% if page_obj.has_previous %}
+                            <a href="?page=1" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <svg w-5 h-5 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
+                            </a>
+                            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+</svg>
+                            </a>
+                            {% endif %} <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                {{ page_obj.number }}
+                            </span> {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+</svg>
+                            </a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <svg w-5 h-5 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                            </a>
+                            {% endif %}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-12">
+            <svg class="icon text-gray-400 text-5xl mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+</svg>
+            <p class="text-gray-500">暂无流水数据</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

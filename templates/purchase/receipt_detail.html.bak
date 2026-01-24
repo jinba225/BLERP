@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block title %}收货单详情{% endblock %}
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:order_list' %}" class="text-gray-500 hover:text-gray-700">采购管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:receipt_list' %}" class="text-gray-500 hover:text-gray-700">收货管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ receipt.receipt_number }}</span>
+{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <!-- 头部操作区 -->
+    <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold">收货单 {{ receipt.receipt_number }}</h3>
+        <div class="flex gap-2">
+            {% if receipt.status == 'pending' or receipt.status == 'partial' %}
+            <button class="btn btn-primary" type="submit" form="receiveForm">
+                确认收货
+            </button>
+            {% endif %}
+            <a href="{% url 'purchase:receipt_list' %}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">返回列表</a>
+        </div>
+    </div> <!-- 基本信息 -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold mb-4 text-gray-700">基本信息</h4>
+        <div class="grid grid-cols-3 gap-4">
+            <div>
+                <span class="text-gray-600">收货单号:</span>
+                <span class="font-medium">{{ receipt.receipt_number }}</span>
+            </div>
+            <div>
+                <span class="text-gray-600">采购订单:</span>
+                <a href="{% url 'purchase:order_detail' receipt.purchase_order.pk %}" class="text-theme-600 hover:underline">{{ receipt.purchase_order.order_number }}</a>
+            </div>
+            <div>
+                <span class="text-gray-600">供应商:</span>
+                <span class="font-medium">{{ receipt.supplier.name }}</span>
+            </div>
+            <div>
+                <span class="text-gray-600">收货日期:</span>
+                <span class="font-medium">{{ receipt.receipt_date|date:"Y-m-d" }}</span>
+            </div>
+            <div>
+                <span class="text-gray-600">收货仓库:</span>
+                <span class="font-medium">{{ receipt.warehouse.name|default:"未指定" }}</span>
+            </div>
+            <div>
+                <span class="text-gray-600">状态:</span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium
+                    {% if receipt.status == 'pending' %}bg-yellow-100 text-yellow-800
+                    {% elif receipt.status == 'partial' %}bg-theme-100 text-theme-800
+                    {% elif receipt.status == 'received' %}bg-green-100 text-green-800
+                    {% endif %}">
+                    {{ receipt.get_status_display }}
+                </span>
+            </div>
+            <div>
+                <span class="text-gray-600">收货人:</span>
+                <span class="font-medium">{{ receipt.received_by.get_full_name|default:"未指定" }}</span>
+            </div>
+        </div>
+        {% if receipt.notes %}
+        <div class="mt-4 pt-4 border-t">
+            <span class="text-gray-600">备注:</span>
+            <p class="mt-1 text-gray-700">{{ receipt.notes }}</p>
+        </div>
+        {% endif %}
+    </div> <!-- 收货明细 -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold mb-4 text-gray-700">收货明细</h4> {% if receipt.status == 'pending' or receipt.status == 'partial' %}
+        <!-- 待收货状态：显示输入表单 -->
+        <form id="receiveForm" method="post" action="{% url 'purchase:receipt_receive' receipt.pk %}">
+            {% csrf_token %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品名称</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品编号</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">订单数量</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">本次收货数量</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">批次号</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">备注</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for item in receipt.items.all %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-sm">
+                                <a href="{% url 'products:product_detail' item.order_item.product.pk %}" class="text-theme-600 hover:underline">
+                                    {{ item.order_item.product.name }}
+                                </a>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-600">{{ item.order_item.product.sku|default:"—" }}</td>
+                            <td class="px-4 py-3 text-sm text-right">{{ item.order_item.quantity }}</td>
+                            <td class="px-4 py-3 text-sm">
+                                <input type="number"
+                                       name="received_quantity_{{ item.id }}"
+                                       value="{{ item.received_quantity|default:'0' }}"
+                                       min="0"
+                                       max="{{ item.order_item.quantity }}"
+                                       step="1"
+                                       class="w-24 px-2 py-1 border border-gray-300 rounded text-right focus:ring-2 focus:ring-theme-500 focus:border-theme-500"
+                                       required>
+                            </td>
+                            <td class="px-4 py-3 text-sm">
+                                <input type="text"
+                                       name="batch_number_{{ item.id }}"
+                                       value="{{ item.batch_number }}"
+                                       placeholder="批次号"
+                                       class="w-32 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-theme-500 focus:border-theme-500">
+                            </td>
+                            <td class="px-4 py-3 text-sm">
+                                <input type="text"
+                                       name="notes_{{ item.id }}"
+                                       value="{{ item.notes }}"
+                                       placeholder="备注"
+                                       class="w-40 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-theme-500 focus:border-theme-500">
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                暂无收货明细
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4 p-4 bg-theme-50 rounded-lg">
+                <p class="text-sm text-theme-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    请输入本次实际收货数量，可以部分收货。批次号和备注为可选项。
+                </p>
+            </div>
+        </form> {% else %}
+        <!-- 已收货状态：只显示数据 -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品名称</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品编号</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">订单数量</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">收货数量</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">批次号</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">存放位置</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item in receipt.items.all %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm">
+                            <a href="{% url 'products:product_detail' item.order_item.product.pk %}" class="text-theme-600 hover:underline">
+                                {{ item.order_item.product.name }}
+                            </a>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-600">{{ item.order_item.product.sku|default:"—" }}</td>
+                        <td class="px-4 py-3 text-sm text-right">{{ item.order_item.quantity }}</td>
+                        <td class="px-4 py-3 text-sm text-right font-medium">{{ item.received_quantity }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">{{ item.batch_number|default:"—" }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">{{ item.location.name|default:"—" }}</td>
+                    </tr>
+                    {% if item.notes %}
+                    <tr>
+                        <td colspan="6" class="px-4 py-2 text-sm text-gray-600 bg-gray-50">
+                            <span class="font-medium">备注:</span> {{ item.notes }}
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                            暂无收货明细
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div> <!-- 物流信息 -->
+    {% if receipt.delivery_note or receipt.carrier %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold mb-4 text-gray-700">物流信息</h4>
+        <div class="grid grid-cols-3 gap-4">
+            {% if receipt.delivery_note %}
+            <div>
+                <span class="text-gray-600">送货单号:</span>
+                <span class="font-medium">{{ receipt.delivery_note }}</span>
+            </div>
+            {% endif %}
+            {% if receipt.carrier %}
+            <div>
+                <span class="text-gray-600">承运商:</span>
+                <span class="font-medium">{{ receipt.carrier }}</span>
+            </div>
+            {% endif %}
+            {% if receipt.vehicle_number %}
+            <div>
+                <span class="text-gray-600">车牌号:</span>
+                <span class="font-medium">{{ receipt.vehicle_number }}</span>
+            </div>
+            {% endif %}
+            {% if receipt.driver_name %}
+            <div>
+                <span class="text-gray-600">司机姓名:</span>
+                <span class="font-medium">{{ receipt.driver_name }}</span>
+            </div>
+            {% endif %}
+            {% if receipt.driver_phone %}
+            <div>
+                <span class="text-gray-600">司机电话:</span>
+                <span class="font-medium">{{ receipt.driver_phone }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %} <!-- 时间戳 -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold mb-4 text-gray-700">记录信息</h4>
+        <div class="grid grid-cols-3 gap-4 text-sm">
+            <div>
+                <span class="text-gray-600">创建人:</span>
+                <span class="font-medium">{{ receipt.created_by.get_full_name|default:"系统" }}</span>
+            </div>
+            <div>
+                <span class="text-gray-600">创建时间:</span>
+                <span class="font-medium">{{ receipt.created_at|date:"Y-m-d H:i" }}</span>
+            </div>
+            <div>
+                <span class="text-gray-600">最后更新:</span>
+                <span class="font-medium">{{ receipt.updated_at|date:"Y-m-d H:i" }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

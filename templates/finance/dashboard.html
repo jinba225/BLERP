@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% block title %}往来款项 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">往来款项</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">往来款项</h3>
+            <p class="text-sm text-gray-600 mt-1">财务数据总览和关键指标</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'finance:invoice_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+</svg>发票管理
+            </a>
+            <a class="btn btn-primary" href="{% url 'finance:account_report' %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+</svg>往来账款报表
+            </a>
+        </div>
+    </div> <!-- Key Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Total Receivables -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">应收账款总额</p>
+                    <p class="text-3xl font-bold text-theme-600 mt-2">¥{{ total_receivables|floatformat:2 }}</p>
+                    {% if overdue_receivables > 0 %}
+                    <p class="text-xs text-red-500 mt-1">
+                        <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+</svg>{{ overdue_receivables }} 笔逾期
+                    </p>
+                    {% else %}
+                    <p class="text-xs text-green-500 mt-1">
+                        <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>无逾期账款
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="w-16 h-16 bg-theme-100 rounded-full flex items-center justify-center">
+                    <svg class="icon text-theme-600 text-2xl fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'finance:customer_account_list' %}" class="text-sm text-theme-600 hover:text-theme-700">
+                    查看明细 <svg class="icon ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+</svg>
+                </a>
+            </div>
+        </div> <!-- Total Payables -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">应付账款总额</p>
+                    <p class="text-3xl font-bold text-red-600 mt-2">¥{{ total_payables|floatformat:2 }}</p>
+                    {% if overdue_payables > 0 %}
+                    <p class="text-xs text-red-500 mt-1">
+                        <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+</svg>{{ overdue_payables }} 笔逾期
+                    </p>
+                    {% else %}
+                    <p class="text-xs text-green-500 mt-1">
+                        <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>无逾期账款
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg class="icon text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{% url 'finance:supplier_account_list' %}" class="text-sm text-theme-600 hover:text-theme-700">
+                    查看明细 <svg class="icon ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+</svg>
+                </a>
+            </div>
+        </div> <!-- Net Position -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">净头寸</p>
+                    {% if total_receivables|add:total_payables|floatformat:"-2"|floatformat:"0" >= 0 %}
+                    <p class="text-3xl font-bold text-green-600 mt-2">¥{{ total_receivables|add:total_payables|floatformat:2 }}</p>
+                    <p class="text-xs text-gray-500 mt-1">应收 > 应付</p>
+                    {% else %}
+                    <p class="text-3xl font-bold text-yellow-600 mt-2">¥{{ total_receivables|add:total_payables|floatformat:2 }}</p>
+                    <p class="text-xs text-gray-500 mt-1">应付 > 应收</p>
+                    {% endif %}
+                </div>
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg class="icon text-green-600 text-2xl fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>
+                </div>
+            </div>
+        </div> <!-- Quick Actions -->
+        <div class="bg-gradient-to-br from-theme-500 to-theme-600 rounded-lg shadow p-6 text-white">
+            <p class="text-sm opacity-90">快速操作</p>
+            <div class="mt-4 space-y-2">
+                <a href="{% url 'finance:payment_receipt_create' %}" class="block px-3 py-2 bg-white bg-opacity-20 rounded hover:bg-opacity-30 transition-all">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>新建收款单
+                </a>
+                <a href="{% url 'finance:payment_payment_create' %}" class="block px-3 py-2 bg-white bg-opacity-20 rounded hover:bg-opacity-30 transition-all">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>新建付款单
+                </a>
+                <a href="{% url 'finance:invoice_create' %}" class="block px-3 py-2 bg-white bg-opacity-20 rounded hover:bg-opacity-30 transition-all">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>新建发票
+                </a>
+            </div>
+        </div>
+    </div> <!-- Recent Transactions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Recent Journals -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h4 class="text-md font-semibold text-gray-900">
+                    <svg class="icon text-theme-600 mr-2 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>最近日记账
+                </h4>
+                <a href="{% url 'finance:journal_list' %}" class="text-sm text-theme-600 hover:text-theme-700">
+                    查看全部 <svg class="icon ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+</svg>
+                </a>
+            </div>
+            <div class="p-6">
+                {% if recent_journals %}
+                <div class="space-y-3">
+                    {% for journal in recent_journals %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex-1">
+                            <a href="{% url 'finance:journal_detail' journal.pk %}" class="text-sm font-medium text-gray-900 hover:text-theme-600">
+                                {{ journal.journal_number }}
+                            </a>
+                            <p class="text-xs text-gray-500 mt-1">{{ journal.description|truncatewords:8 }}</p>
+                        </div>
+                        <div class="text-right ml-4">
+                            <p class="text-sm font-semibold text-gray-900">¥{{ journal.total_debit|floatformat:2 }}</p>
+                            <p class="text-xs text-gray-500">{{ journal.journal_date }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-gray-400">
+                    <svg class="icon mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+</svg>
+                    <p class="text-sm">暂无日记账记录</p>
+                </div>
+                {% endif %}
+            </div>
+        </div> <!-- Recent Payments -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h4 class="text-md font-semibold text-gray-900">
+                    <svg class="icon text-theme-600 mr-2 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>最近收付款
+                </h4>
+                <a href="{% url 'finance:payment_list' %}" class="text-sm text-theme-600 hover:text-theme-700">
+                    查看全部 <svg class="icon ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+</svg>
+                </a>
+            </div>
+            <div class="p-6">
+                {% if recent_payments %}
+                <div class="space-y-3">
+                    {% for payment in recent_payments %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex-1">
+                            <a href="{% url 'finance:payment_detail' payment.pk %}" class="text-sm font-medium text-gray-900 hover:text-theme-600">
+                                {{ payment.payment_number }}
+                            </a>
+                            <div class="flex items-center mt-1 space-x-2">
+                                {% if payment.payment_type == 'receipt' %}
+                                <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>收款
+                                </span>
+                                {% else %}
+                                <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-theme-100 text-theme-800">
+                                    <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+</svg>付款
+                                </span>
+                                {% endif %}
+                                <span class="text-xs text-gray-500">{{ payment.payment_method_display }}</span>
+                            </div>
+                        </div>
+                        <div class="text-right ml-4">
+                            {% if payment.payment_type == 'receipt' %}
+                            <p class="text-sm font-semibold text-green-600">+¥{{ payment.amount|floatformat:2 }}</p>
+                            {% else %}
+                            <p class="text-sm font-semibold text-red-600">-¥{{ payment.amount|floatformat:2 }}</p>
+                            {% endif %}
+                            <p class="text-xs text-gray-500">{{ payment.payment_date }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-gray-400">
+                    <svg class="icon mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+</svg>
+                    <p class="text-sm">暂无收付款记录</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div> <!-- Additional Info Section -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4">
+            <svg class="icon text-theme-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+</svg>功能模块导航
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <a href="{% url 'finance:account_list' %}" class="p-4 border border-gray-200 rounded-lg hover:border-theme-500 hover:shadow-md transition-all group">
+                <svg class="icon text-2xl text-gray-400 group-hover:text-theme-600 mb-2 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                <p class="font-medium text-gray-900 group-hover:text-theme-600">会计科目</p>
+                <p class="text-xs text-gray-500 mt-1">科目体系管理</p>
+            </a>
+            <a href="{% url 'finance:budget_list' %}" class="p-4 border border-gray-200 rounded-lg hover:border-theme-500 hover:shadow-md transition-all group">
+                <svg class="icon text-2xl text-gray-400 group-hover:text-theme-600 mb-2 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                <p class="font-medium text-gray-900 group-hover:text-theme-600">预算管理</p>
+                <p class="text-xs text-gray-500 mt-1">预算规划和执行</p>
+            </a>
+            <a href="{% url 'finance:payment_receipt_list' %}" class="p-4 border border-gray-200 rounded-lg hover:border-theme-500 hover:shadow-md transition-all group">
+                <svg class="icon text-2xl text-gray-400 group-hover:text-theme-600 mb-2 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" /></svg>
+                <p class="font-medium text-gray-900 group-hover:text-theme-600">收款管理</p>
+                <p class="text-xs text-gray-500 mt-1">客户收款记录</p>
+            </a>
+            <a href="{% url 'finance:payment_payment_list' %}" class="p-4 border border-gray-200 rounded-lg hover:border-theme-500 hover:shadow-md transition-all group">
+                <svg class="icon text-2xl text-gray-400 group-hover:text-theme-600 mb-2 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                <p class="font-medium text-gray-900 group-hover:text-theme-600">付款管理</p>
+                <p class="text-xs text-gray-500 mt-1">供应商付款记录</p>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% block title %}{{ payment.payment_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:dashboard' %}" class="text-gray-500 hover:text-gray-700">往来款项</a>
+<span class="mx-2 text-gray-400">/</span>
+{% if payment.payment_type == 'receipt' %}
+<a href="{% url 'finance:customer_account_list' %}" class="text-gray-500 hover:text-gray-700">应收账款</a>
+{% else %}
+<a href="{% url 'finance:supplier_account_list' %}" class="text-gray-500 hover:text-gray-700">应付账款</a>
+{% endif %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">{{ payment.payment_number }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">{{ payment.payment_number }}</h3>
+            <p class="text-sm text-gray-600 mt-1">
+                {% if payment.payment_type == 'receipt' %}收款单详情{% else %}付款单详情{% endif %}
+            </p>
+        </div>
+        <div class="flex space-x-2">
+            <button onclick="window.print()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                <svg x-data="heroicon('printer')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>打印
+            </button>
+            <a href="{% url 'finance:payment_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                <svg x-data="heroicon('arrow-left')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>返回列表
+            </a>
+        </div>
+    </div>
+
+    <!-- Payment Header -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+                <p class="text-sm text-gray-600 mb-1">单号</p>
+                <p class="text-lg font-mono font-semibold text-gray-900">{{ payment.payment_number }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">日期</p>
+                <p class="text-lg font-semibold text-gray-900">{{ payment.payment_date }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">类型</p>
+                <div class="mt-1">
+                    {% if payment.payment_type == 'receipt' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+                        <i class="fas fa-arrow-down mr-1"></i>收款
+                    </span>
+                    {% else %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-theme-100 text-theme-800">
+                        <svg x-data="heroicon('arrow-up')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>付款
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 mb-1">状态</p>
+                <div class="mt-1">
+                    {% if payment.status == 'draft' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800">草稿</span>
+                    {% elif payment.status == 'confirmed' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">已确认</span>
+                    {% elif payment.status == 'cancelled' %}
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">已取消</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">金额</p>
+                    <p class="text-4xl font-bold {% if payment.payment_type == 'receipt' %}text-green-600{% else %}text-red-600{% endif %}">
+                        {% if payment.payment_type == 'receipt' %}+{% else %}-{% endif %}¥{{ payment.amount|floatformat:2 }}
+                    </p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600 mb-1">付款方式</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ payment.get_payment_method_display }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <p class="text-sm text-gray-600 mb-2">
+                    {% if payment.payment_type == 'receipt' %}付款方{% else %}收款方{% endif %}
+                </p>
+                {% if payment.customer %}
+                <a href="{% url 'customers:customer_detail' payment.customer.pk %}" class="inline-flex items-center text-theme-600 hover:text-theme-700">
+                    <span class="font-semibold">{{ payment.customer.name }}</span>
+                    <svg x-data="heroicon('external-link')" class="ml-2 text-xs" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                </a>
+                {% elif payment.supplier %}
+                <a href="{% url 'suppliers:supplier_detail' payment.supplier.pk %}" class="inline-flex items-center text-theme-600 hover:text-theme-700">
+                    <span class="font-semibold">{{ payment.supplier.name }}</span>
+                    <svg x-data="heroicon('external-link')" class="ml-2 text-xs" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                </a>
+                {% else %}
+                <p class="text-sm text-gray-500">未指定</p>
+                {% endif %}
+            </div>
+
+            {% if payment.account %}
+            <div>
+                <p class="text-sm text-gray-600 mb-2">关联会计科目</p>
+                <a href="{% url 'finance:account_detail' payment.account.pk %}" class="inline-flex items-center text-theme-600 hover:text-theme-700">
+                    <span class="font-mono font-semibold mr-2">{{ payment.account.code }}</span>
+                    <span>{{ payment.account.name }}</span>
+                    <svg x-data="heroicon('external-link')" class="ml-2 text-xs" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if payment.reference_number %}
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-600 mb-2">参考单号</p>
+            <p class="text-sm font-semibold text-gray-900">{{ payment.reference_number }}</p>
+        </div>
+        {% endif %}
+
+        {% if payment.bank_account or payment.check_number %}
+        <div class="mt-6 pt-6 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% if payment.bank_account %}
+            <div>
+                <p class="text-sm text-gray-600 mb-2">银行账户</p>
+                <p class="text-sm font-semibold text-gray-900">{{ payment.bank_account }}</p>
+            </div>
+            {% endif %}
+            {% if payment.check_number %}
+            <div>
+                <p class="text-sm text-gray-600 mb-2">支票号码</p>
+                <p class="text-sm font-semibold text-gray-900">{{ payment.check_number }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if payment.description %}
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-600 mb-2">说明</p>
+            <p class="text-sm text-gray-700">{{ payment.description }}</p>
+        </div>
+        {% endif %}
+
+        {% if payment.notes %}
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-600 mb-2">备注</p>
+            <p class="text-sm text-gray-700">{{ payment.notes }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Related Documents -->
+    {% if payment.related_orders %}
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-md font-semibold text-gray-900">
+                <i class="fas fa-link text-theme-600 mr-2"></i>关联单据
+            </h4>
+        </div>
+        <div class="p-6">
+            <div class="space-y-3">
+                {% for order in payment.related_orders %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">{{ order.type_display }}</p>
+                        <p class="text-xs text-gray-500 mt-1">{{ order.number }}</p>
+                    </div>
+                    <a href="{{ order.url }}" class="text-sm text-theme-600 hover:text-theme-700">
+                        查看 <svg x-data="heroicon('external-link')" class="ml-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Process Timeline -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4">
+            <i class="fas fa-history text-theme-600 mr-2"></i>处理流程
+        </h4>
+        <div class="space-y-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-24 text-sm text-gray-600">创建</div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ payment.created_by.username }}</p>
+                    <p class="text-xs text-gray-500">{{ payment.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        <svg x-data="heroicon('check')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>已完成
+                    </span>
+                </div>
+            </div>
+
+            {% if payment.processed_by %}
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-24 text-sm text-gray-600">处理</div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ payment.processed_by.username }}</p>
+                    <p class="text-xs text-gray-500">{{ payment.processed_at|date:"Y-m-d H:i" }}</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        <svg x-data="heroicon('check')" class="mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>已完成
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if payment.status == 'cancelled' %}
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-24 text-sm text-gray-600">取消</div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-red-600">已取消</p>
+                    {% if payment.cancelled_reason %}
+                    <p class="text-xs text-gray-500 mt-1">原因: {{ payment.cancelled_reason }}</p>
+                    {% endif %}
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                        <i class="fas fa-ban mr-1"></i>已取消
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

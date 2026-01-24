@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}删除确认 - {{ adjustment.adjustment_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">库存管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'inventory:adjustment_list' %}" class="text-gray-500 hover:text-gray-700">库存调整单</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'inventory:adjustment_detail' adjustment.pk %}" class="text-gray-500 hover:text-gray-700">{{ adjustment.adjustment_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">删除确认</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Warning Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="px-6 py-4 bg-red-50 border-b border-red-200">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg x-data="heroicon('exclamation-triangle')" class="text-red-600 text-2xl" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-semibold text-red-900">确认删除</h3>
+                    <p class="text-sm text-red-700 mt-1">此操作将删除以下库存调整单</p>
+                </div>
+            </div>
+        </div> <div class="p-6">
+            <!-- Adjustment Details -->
+            <div class="space-y-4">
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">调整单号</span>
+                    <span class="text-sm font-semibold text-gray-900">{{ adjustment.adjustment_number }}</span>
+                </div> <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">产品</span>
+                    <span class="text-sm text-gray-900">{{ adjustment.product.name }}</span>
+                </div> <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">仓库</span>
+                    <span class="text-sm text-gray-900">{{ adjustment.warehouse.name }}</span>
+                </div> <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">调整类型</span>
+                    <span class="text-sm text-gray-900">{{ adjustment.get_adjustment_type_display }}</span>
+                </div> <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">原数量</span>
+                    <span class="text-sm text-gray-900">{{ adjustment.original_quantity }} {{ adjustment.product.unit.name }}</span>
+                </div> <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">调整后数量</span>
+                    <span class="text-sm font-semibold text-gray-900">{{ adjustment.adjusted_quantity }} {{ adjustment.product.unit.name }}</span>
+                </div> <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">差异</span>
+                    <span class="text-sm font-bold {% if adjustment.difference > 0 %}text-green-600{% elif adjustment.difference < 0 %}text-red-600{% else %}text-gray-900{% endif %}">
+                        {% if adjustment.difference > 0 %}+{% endif %}{{ adjustment.difference }} {{ adjustment.product.unit.name }}
+                    </span>
+                </div>
+            </div> <!-- Warning Message -->
+            <div class="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg x-data="heroicon('exclamation-circle')" class="text-yellow-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-800">
+                            <strong>注意：</strong>删除后此调整单将无法恢复。如果需要保留记录，建议不要删除。
+                        </p>
+                    </div>
+                </div>
+            </div> <!-- Confirmation Form -->
+            <form method="post" class="mt-6">
+                {% csrf_token %}
+                <div class="flex justify-end space-x-3">
+                    <a href="{% url 'inventory:adjustment_detail' adjustment.pk %}"
+                       class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                        <svg x-data="heroicon('x-mark')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>取消
+                    </a>
+                    <button class="btn btn-primary" type="submit">
+                        <svg x-data="heroicon('trash')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>确认删除
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

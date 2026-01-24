@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}确认发货 - {{ delivery.delivery_number }} - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">销售管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:delivery_list' %}" class="text-gray-500 hover:text-gray-700">发货管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'sales:delivery_detail' delivery.pk %}" class="text-gray-500 hover:text-gray-700">{{ delivery.delivery_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">确认发货</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="bg-white rounded-lg shadow p-8">
+        <!-- Icon and Title -->
+        <div class="text-center mb-8">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                <i class="fas fa-truck text-green-600 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">确认发货</h3>
+            <p class="text-sm text-gray-600">请输入本次实际发货数量，支持部分发货</p>
+        </div> <!-- Delivery Information -->
+        <div class="bg-gray-50 rounded-lg p-6 mb-6">
+            <h4 class="text-sm font-semibold text-gray-700 mb-4">发货信息</h4>
+            <dl class="grid grid-cols-2 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 mb-1">发货单号</dt>
+                    <dd class="text-sm text-gray-900 font-medium">{{ delivery.delivery_number }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 mb-1">销售订单</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.sales_order.order_number }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 mb-1">客户名称</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.sales_order.customer.name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 mb-1">发货仓库</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.warehouse.name }}</dd>
+                </div>
+                <div class="col-span-2">
+                    <dt class="text-sm font-medium text-gray-500 mb-1">收货地址</dt>
+                    <dd class="text-sm text-gray-900">{{ delivery.shipping_address }}</dd>
+                </div>
+            </dl>
+        </div> <!-- Delivery Items Table -->
+        <div class="mb-6">
+            <h4 class="text-sm font-semibold text-gray-700 mb-4">发货明细 <span class="text-gray-500 font-normal">（请输入本次实际发货数量）</span></h4>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">产品名称</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">产品编码</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">计划数量</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">已发货</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">未发货</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <span class="text-red-600">*</span> 本次发货数量
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for item in delivery.items.all %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-sm text-gray-900">{{ item.order_item.product.name }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">{{ item.order_item.product.code }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-900 text-right font-medium">{{ item.quantity }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600 text-right">
+                                {% if item.actual_shipped_quantity > 0 %}
+                                    <span class="text-green-600">{{ item.actual_shipped_quantity }}</span>
+                                {% else %}
+                                    <span class="text-gray-400">0</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-right">
+                                {% if item.unshipped_quantity > 0 %}
+                                    <span class="text-orange-600 font-medium">{{ item.unshipped_quantity }}</span>
+                                {% else %}
+                                    <span class="text-gray-400">0</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-right">
+                                <input
+                                    type="number"
+                                    step="1"
+                                    min="1"
+                                    max="{{ item.unshipped_quantity }}"
+                                    value="{{ item.unshipped_quantity }}"
+                                    data-item-id="{{ item.id }}"
+                                    data-max="{{ item.unshipped_quantity }}"
+                                    class="shipped-quantity-input w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-right"
+                                    placeholder="0">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4 text-sm text-gray-600 bg-theme-50 border border-theme-200 rounded-lg p-4">
+                <div class="flex items-start">
+                    <svg x-data="heroicon('information-circle')" class="text-theme-500 mt-0.5 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>
+                    <div>
+                        <p class="font-medium text-theme-900 mb-1">部分发货说明：</p>
+                        <ul class="list-disc list-inside space-y-1 text-theme-800">
+                            <li>您可以输入小于"未发货"数量的值进行部分发货</li>
+                            <li>部分发货后，发货单状态将变为"部分发货"，可继续发货剩余数量</li>
+                            <li>全部发货完成后，发货单状态将自动变为"已发货"</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- Form -->
+        <form method="post" id="shipmentForm">
+            {% csrf_token %}
+            <input type="hidden" name="items_data" id="items_data"> <div class="space-y-4 mb-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">承运商</label>
+                        <input type="text" name="carrier" value="{{ delivery.carrier|default:'顺丰速运' }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                               placeholder="如：顺丰速运">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">快递单号</label>
+                        <input type="text" name="tracking_number" value="{{ delivery.tracking_number }}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                               placeholder="请输入快递单号">
+                    </div>
+                </div>
+            </div> <!-- Action Buttons -->
+            <div class="flex space-x-3">
+                <a href="{% url 'sales:delivery_detail' delivery.pk %}"
+                   class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-center font-medium transition-colors">
+                    <svg x-data="heroicon('x-mark')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>取消
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <svg x-data="heroicon('check')" class="mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" x-cloak><span x-html="svg"></span></svg>确认发货
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('shipmentForm');
+    const itemsDataInput = document.getElementById('items_data');
+    const shippedQuantityInputs = document.querySelectorAll('.shipped-quantity-input'); // 验证输入数量不超过最大值
+    shippedQuantityInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const max = parseFloat(this.dataset.max);
+            const value = parseFloat(this.value); if (value > max) {
+                this.value = max;
+                alert(`发货数量不能超过未发货数量 (${max})`);
+            } if (value < 0) {
+                this.value = 0;
+            }
+        });
+    }); // 表单提交时收集数据
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // 收集所有明细的发货数量
+        const itemsData = [];
+        let hasValidQuantity = false; shippedQuantityInputs.forEach(input => {
+            const itemId = input.dataset.itemId;
+            const shippedQty = parseFloat(input.value) || 0; if (shippedQty > 0) {
+                hasValidQuantity = true;
+            } itemsData.push({
+                item_id: itemId,
+                shipped_quantity: shippedQty
+            });
+        }); // 验证至少有一个明细的发货数量大于0
+        if (!hasValidQuantity) {
+            alert('请至少输入一个产品的发货数量！');
+            return false;
+        } // 将数据转换为JSON并存入隐藏字段
+        itemsDataInput.value = JSON.stringify(itemsData); // 提交表单
+        form.submit();
+    });
+});
+</script>
+{% endblock %}

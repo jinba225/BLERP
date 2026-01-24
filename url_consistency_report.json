@@ -1,0 +1,287 @@
+{
+  "summary": {
+    "total_defined": 771,
+    "total_used": 272,
+    "undefined_count": 0,
+    "unused_count": 69
+  },
+  "undefined_urls": [],
+  "unused_urls": [
+    {
+      "name": "sales:api-root",
+      "pattern": "<drf_format_suffix:format>"
+    },
+    {
+      "name": "sales:api_customer_info",
+      "pattern": "api/customers/<int:customer_id>/info/"
+    },
+    {
+      "name": "sales:api_product_info",
+      "pattern": "api/products/<int:product_id>/info/"
+    },
+    {
+      "name": "sales:api_get_available_templates",
+      "pattern": "api/templates/available/"
+    },
+    {
+      "name": "sales:api_set_default_template",
+      "pattern": "api/templates/set-default/"
+    },
+    {
+      "name": "sales:quote_change_status",
+      "pattern": "quotes/<int:pk>/status/"
+    },
+    {
+      "name": "sales:order_delete",
+      "pattern": "orders/<int:pk>/delete/"
+    },
+    {
+      "name": "sales:delivery_update",
+      "pattern": "deliveries/<int:pk>/edit/"
+    },
+    {
+      "name": "sales:delivery_delete",
+      "pattern": "deliveries/<int:pk>/delete/"
+    },
+    {
+      "name": "sales:delivery_create",
+      "pattern": "orders/<int:order_pk>/delivery/create/"
+    },
+    {
+      "name": "purchase:api-root",
+      "pattern": "<drf_format_suffix:format>"
+    },
+    {
+      "name": "purchase:request_delete",
+      "pattern": "requests/<int:pk>/delete/"
+    },
+    {
+      "name": "purchase:request_submit",
+      "pattern": "requests/<int:pk>/submit/"
+    },
+    {
+      "name": "purchase:request_reject",
+      "pattern": "requests/<int:pk>/reject/"
+    },
+    {
+      "name": "purchase:order_delete",
+      "pattern": "orders/<int:pk>/delete/"
+    },
+    {
+      "name": "purchase:borrow_confirm_receipt",
+      "pattern": "borrows/<int:pk>/confirm-receipt/"
+    },
+    {
+      "name": "purchase:quotation_update",
+      "pattern": "quotations/<int:pk>/edit/"
+    },
+    {
+      "name": "inventory:api-root",
+      "pattern": "<drf_format_suffix:format>"
+    },
+    {
+      "name": "inventory:transaction_list",
+      "pattern": "transactions/"
+    },
+    {
+      "name": "inventory:count_delete",
+      "pattern": "counts/<int:pk>/delete/"
+    },
+    {
+      "name": "products:api-root",
+      "pattern": "<drf_format_suffix:format>"
+    },
+    {
+      "name": "customers:api-root",
+      "pattern": "<drf_format_suffix:format>"
+    },
+    {
+      "name": "customers:api_customer_contacts",
+      "pattern": "api/customers/<int:customer_id>/contacts/"
+    },
+    {
+      "name": "suppliers:api-root",
+      "pattern": "<drf_format_suffix:format>"
+    },
+    {
+      "name": "finance:generate_supplier_account_from_invoice",
+      "pattern": "supplier-accounts/generate-from-invoice/<int:invoice_id>/"
+    },
+    {
+      "name": "finance:payment_receipt_delete",
+      "pattern": "payment-receipts/<int:pk>/delete/"
+    },
+    {
+      "name": "finance:payment_payment_delete",
+      "pattern": "payment-payments/<int:pk>/delete/"
+    },
+    {
+      "name": "finance:invoice_create_from_sales_order",
+      "pattern": "invoices/create-from-sales-order/<int:order_id>/"
+    },
+    {
+      "name": "finance:api-root",
+      "pattern": "<drf_format_suffix:format>"
+    },
+    {
+      "name": "departments:api-root",
+      "pattern": "<drf_format_suffix:format>"
+    },
+    {
+      "name": "users:user-list",
+      "pattern": "^users\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:user-detail",
+      "pattern": "^users/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:user-activate",
+      "pattern": "^users/(?P<pk>[^/.]+)/activate\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:user-deactivate",
+      "pattern": "^users/(?P<pk>[^/.]+)/deactivate\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:user-set-password",
+      "pattern": "^users/(?P<pk>[^/.]+)/set_password\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:role-list",
+      "pattern": "^roles\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:role-detail",
+      "pattern": "^roles/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:role-users",
+      "pattern": "^roles/(?P<pk>[^/.]+)/users\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:userrole-list",
+      "pattern": "^user-roles\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:userrole-detail",
+      "pattern": "^user-roles/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:permission-list",
+      "pattern": "^permissions\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:permission-detail",
+      "pattern": "^permissions/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:userprofile-list",
+      "pattern": "^profiles\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:userprofile-me",
+      "pattern": "^profiles/me\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:userprofile-detail",
+      "pattern": "^profiles/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:loginlog-list",
+      "pattern": "^login-logs\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:loginlog-detail",
+      "pattern": "^login-logs/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "users:api-root",
+      "pattern": "<drf_format_suffix:format>"
+    },
+    {
+      "name": "core:print_template_update_category",
+      "pattern": "print-templates/<int:pk>/update-category/"
+    },
+    {
+      "name": "core:database_management",
+      "pattern": "database/"
+    },
+    {
+      "name": "core:test_dal_simple",
+      "pattern": "test-dal/"
+    },
+    {
+      "name": "ai_assistant:wechat_webhook",
+      "pattern": "webhook/wechat/"
+    },
+    {
+      "name": "ai_assistant:dingtalk_webhook",
+      "pattern": "webhook/dingtalk/"
+    },
+    {
+      "name": "ai_assistant:telegram_webhook",
+      "pattern": "webhook/telegram/"
+    },
+    {
+      "name": "authentication:user_info",
+      "pattern": "user-info/"
+    },
+    {
+      "name": "authentication:change_password",
+      "pattern": "change-password/"
+    },
+    {
+      "name": "authentication:password_reset",
+      "pattern": "password-reset/"
+    },
+    {
+      "name": "authentication:password_reset_confirm",
+      "pattern": "password-reset-confirm/"
+    },
+    {
+      "name": "authentication:refresh_token",
+      "pattern": "refresh-token/"
+    },
+    {
+      "name": "core_api:company-list",
+      "pattern": "^companies\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "core_api:company-detail",
+      "pattern": "^companies/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "core_api:systemconfig-list",
+      "pattern": "^system-configs\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "core_api:systemconfig-by-type",
+      "pattern": "^system-configs/by_type\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "core_api:systemconfig-detail",
+      "pattern": "^system-configs/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "core_api:attachment-list",
+      "pattern": "^attachments\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "core_api:attachment-detail",
+      "pattern": "^attachments/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "core_api:auditlog-list",
+      "pattern": "^audit-logs\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "core_api:auditlog-detail",
+      "pattern": "^audit-logs/(?P<pk>[^/.]+)\\.(?P<format>[a-z0-9]+)/?$"
+    },
+    {
+      "name": "core_api:api-root",
+      "pattern": "<drf_format_suffix:format>"
+    }
+  ]
+}
