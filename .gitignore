@@ -38,6 +38,11 @@ locustfile.py
 SUMMARY.md
 IFLOW.md
 
+# 不需要追踪的文档和配置
+CHANGELOG.md
+QUICKSTART.md
+.dockerignore
+
 
 
 ### Django ###
