@@ -70,7 +70,18 @@ module.exports = {
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
+    require('@tailwindcss/forms')({
+      strategy: 'class',
+      // 禁用默认的焦点样式，避免蓝色 box-shadow
+      defaults: {
+        styles: {
+          focus: {
+            outline: false,
+            'box-shadow': false,
+          }
+        }
+      }
+    }),
     require('@tailwindcss/typography'),
   ],
 }

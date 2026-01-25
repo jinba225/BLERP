@@ -21,6 +21,22 @@
         @apply bg-gray-50 text-gray-900 antialiased;
     }
 
+    /* 强制覆盖所有表单元素的焦点样式，移除蓝色 box-shadow */
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="number"]:focus,
+    input[type="search"]:focus,
+    input[type="date"]:focus,
+    input[type="tel"]:focus,
+    input[type="url"]:focus,
+    textarea:focus,
+    select:focus {
+        border-color: rgb(var(--theme-500)) !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
     /* 覆盖 @tailwindcss/forms 的默认焦点样式 */
     /* 所有输入框焦点时：无边框环，使用主题色边框 */
     input[type="text"],
