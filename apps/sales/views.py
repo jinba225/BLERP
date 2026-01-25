@@ -2613,17 +2613,6 @@ def api_set_default_template(request):
 
 
 # ============================================
-# 打印模板视图已移至 core 模块
-# ============================================
-# 这些视图函数已移动到 apps/core/views_template.py
-# 如需使用,请从 apps.core.views_template 导入
-# from apps.core.views_template import (
-#     template_list,
-#     template_create,
-#     template_edit,
-#     template_delete,
-#     template_set_default,
-# )
 @login_required
 @transaction.atomic
 def order_mark_invoiced(request, pk):

@@ -4,7 +4,6 @@ Sales app URLs.
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
-# views_template 已移至 core 模块: from apps.core import views_template
 
 app_name = 'sales'
 
@@ -73,23 +72,4 @@ urlpatterns = [
 
     # Report URLs
     path('reports/', views.sales_order_report, name='order_report'),
-
-    # ============================================
-    # 打印模板路由已移至 core 模块
-    # ============================================
-    # 打印模板功能现在可以通过以下路径访问:
-    # /settings/print-templates/ (在基础设置菜单下)
-    #
-    # 如需使用旧路径,请取消以下注释并导入 views_template:
-    # from apps.core import views_template
-    #
-    # path('templates/', views_template.template_list, name='template_list'),
-    # path('templates/create/', views_template.template_create, name='template_create'),
-    # path('templates/import/', views_template.template_import, name='template_import'),
-    # path('templates/<int:pk>/edit/', views_template.template_edit, name='template_edit'),
-    # path('templates/<int:pk>/preview/', views_template.template_preview, name='template_preview'),
-    # path('templates/<int:pk>/delete/', views_template.template_delete, name='template_delete'),
-    # path('templates/<int:pk>/set-default/', views_template.template_set_default, name='template_set_default'),
-    # path('templates/<int:pk>/duplicate/', views_template.template_duplicate, name='template_duplicate'),
-    # path('templates/<int:pk>/export/', views_template.template_export, name='template_export'),
 ]

@@ -182,16 +182,16 @@
         .focus\:ring-theme-900:focus { --tw-ring-color: rgb(var(--theme-900)); }
 
         /* Focus Border */
-        .focus\:border-theme-50:focus { border-color: rgb(var(--theme-50)); }
-        .focus\:border-theme-100:focus { border-color: rgb(var(--theme-100)); }
-        .focus\:border-theme-200:focus { border-color: rgb(var(--theme-200)); }
-        .focus\:border-theme-300:focus { border-color: rgb(var(--theme-300)); }
-        .focus\:border-theme-400:focus { border-color: rgb(var(--theme-400)); }
-        .focus\:border-theme-500:focus { border-color: rgb(var(--theme-500)); }
-        .focus\:border-theme-600:focus { border-color: rgb(var(--theme-600)); }
-        .focus\:border-theme-700:focus { border-color: rgb(var(--theme-700)); }
-        .focus\:border-theme-800:focus { border-color: rgb(var(--theme-800)); }
-        .focus\:border-theme-900:focus { border-color: rgb(var(--theme-900)); }
+        .focus\:border-theme-50:focus { border-color: rgb(var(--theme-50)) !important; box-shadow: none !important; }
+        .focus\:border-theme-100:focus { border-color: rgb(var(--theme-100)) !important; box-shadow: none !important; }
+        .focus\:border-theme-200:focus { border-color: rgb(var(--theme-200)) !important; box-shadow: none !important; }
+        .focus\:border-theme-300:focus { border-color: rgb(var(--theme-300)) !important; box-shadow: none !important; }
+        .focus\:border-theme-400:focus { border-color: rgb(var(--theme-400)) !important; box-shadow: none !important; }
+        .focus\:border-theme-500:focus { border-color: rgb(var(--theme-500)) !important; box-shadow: none !important; }
+        .focus\:border-theme-600:focus { border-color: rgb(var(--theme-600)) !important; box-shadow: none !important; }
+        .focus\:border-theme-700:focus { border-color: rgb(var(--theme-700)) !important; box-shadow: none !important; }
+        .focus\:border-theme-800:focus { border-color: rgb(var(--theme-800)) !important; box-shadow: none !important; }
+        .focus\:border-theme-900:focus { border-color: rgb(var(--theme-900)) !important; box-shadow: none !important; }
 
         .bg-gradient-custom {
             background: linear-gradient(135deg, rgb(var(--theme-500)) 0%, rgb(var(--theme-700)) 100%);
@@ -280,7 +280,7 @@
                         type="text"
                         id="username"
                         name="username"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 transition-all duration-200"
                         placeholder="请输入用户名"
                         required
                         autofocus
@@ -298,7 +298,7 @@
                         type="password"
                         id="password"
                         name="password"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 transition-all duration-200"
                         placeholder="请输入密码"
                         required
                     >
@@ -311,7 +311,7 @@
                             type="checkbox"
                             name="remember_me"
                             value="true"
-                            class="rounded border-gray-300 text-theme-600 shadow-sm focus:border-theme-500 focus:ring focus:ring-theme-500 focus:ring-opacity-50"
+                            class="rounded border-gray-300 text-theme-600 shadow-sm focus:border-theme-500 transition-all duration-200"
                         >
                         <span class="ml-2 text-sm text-gray-600">记住我</span>
                     </label>
@@ -321,7 +321,7 @@
                 <!-- Login Button -->
                 <button
                     type="submit"
-                    class="w-full bg-theme-600 text-white py-3 px-4 rounded-lg hover:bg-theme-700 focus:outline-none focus:border-theme-500 focus:ring-offset-2 transition-colors font-medium"
+                    class="w-full bg-theme-600 text-white py-3 px-4 rounded-lg hover:bg-theme-700 focus:outline-none transition-all duration-200 font-medium"
                 >
                     <svg class="icon-xs mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

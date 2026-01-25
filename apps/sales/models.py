@@ -914,17 +914,6 @@ class SalesReturnItem(BaseModel):
 
 
 # ============================================
-# 打印模板模型已移至 core 模块
-# ============================================
-# 原导入语句已移除，避免模型冲突:
-# from .models_print_template import PrintTemplate
-# from .models_template_mapping import DefaultTemplateMapping
-#
-# 如需使用打印模板，请从 core 模块导入:
-# from apps.core.models import PrintTemplate, DefaultTemplateMapping
-
-
-# ============================================
 # 销售借用管理
 # ============================================
 class SalesLoan(BaseModel):
