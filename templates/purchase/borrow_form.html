@@ -43,7 +43,7 @@
                                 @focus="isOpen = true"
                                 @blur="setTimeout(() => isOpen = false, 150)"
                                 placeholder="请选择供应商"
-                                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent outline-none transition-all"
+                                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500  outline-none transition-all"
                             >
                             <!-- 下拉箭头 -->
                             <button
@@ -319,7 +319,7 @@ function addItemRow(itemData = {}) {
     // 搜索输入框（支持输入检索）
     const displayInput = document.createElement('input');
     displayInput.type = 'text';
-    displayInput.className = 'w-full px-3 py-2 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:border-theme-500 focus:border-transparent outline-none transition-all text-sm';
+    displayInput.className = 'w-full px-3 py-2 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:border-theme-500  outline-none transition-all text-sm';
     displayInput.placeholder = '搜索或选择产品';
     displayInput.setAttribute('x-model', 'searchValue');
     displayInput.setAttribute('@input', 'filterProducts()');

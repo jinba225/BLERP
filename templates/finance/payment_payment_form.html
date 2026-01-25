@@ -37,7 +37,7 @@
                     </label>
                     <select name="supplier"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                         <option value="">请选择供应商</option>
                         {% for s in suppliers %}
                         <option value="{{ s.id }}" {% if payment and payment.supplier_id == s.id %}selected{% endif %}>
@@ -55,7 +55,7 @@
                            name="payment_date"
                            required
                            value="{% if payment %}{{ payment.payment_date|date:'Y-m-d' }}{% endif %}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                 </div>
 
                 <div>
@@ -69,7 +69,7 @@
                            min="0.01"
                            value="{% if payment %}{{ payment.amount }}{% endif %}"
                            placeholder="0.00"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                 </div>
 
                 <div>
@@ -78,7 +78,7 @@
                     </label>
                     <select name="currency"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                         <option value="CNY" {% if not payment or payment.currency == 'CNY' %}selected{% endif %}>人民币 (CNY)</option>
                         <option value="USD" {% if payment and payment.currency == 'USD' %}selected{% endif %}>美元 (USD)</option>
                         <option value="EUR" {% if payment and payment.currency == 'EUR' %}selected{% endif %}>欧元 (EUR)</option>
@@ -91,7 +91,7 @@
                     </label>
                     <select name="payment_method"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                         <option value="">请选择付款方式</option>
                         {% for method_code, method_name in payment_methods %}
                         <option value="{{ method_code }}" {% if payment and payment.payment_method == method_code %}selected{% endif %}>
@@ -107,7 +107,7 @@
                     </label>
                     <select name="status"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                         {% for status_code, status_name in payment_statuses %}
                         <option value="{{ status_code }}" {% if payment and payment.status == status_code %}selected{% elif not payment and status_code == 'pending' %}selected{% endif %}>
                             {{ status_name }}
@@ -122,7 +122,7 @@
                            name="bank_account"
                            value="{% if payment %}{{ payment.bank_account }}{% endif %}"
                            placeholder="付款银行账号"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                 </div>
 
                 <div>
@@ -131,7 +131,7 @@
                            name="bank_name"
                            value="{% if payment %}{{ payment.bank_name }}{% endif %}"
                            placeholder="开户银行名称"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                 </div>
 
                 <div>
@@ -140,7 +140,7 @@
                            name="transaction_reference"
                            value="{% if payment %}{{ payment.transaction_reference }}{% endif %}"
                            placeholder="银行交易流水号"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                 </div>
 
                 <div>
@@ -149,7 +149,7 @@
                            name="reference_number"
                            value="{% if payment %}{{ payment.reference_number }}{% endif %}"
                            placeholder="关联的采购订单号等"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                 </div>
 
                 <div class="md:col-span-2">
@@ -158,7 +158,7 @@
                            name="description"
                            value="{% if payment %}{{ payment.description }}{% endif %}"
                            placeholder="付款说明"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                 </div>
 
                 <div class="md:col-span-2">
@@ -166,7 +166,7 @@
                     <textarea name="notes"
                               rows="3"
                               placeholder="备注信息"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">{% if payment %}{{ payment.notes }}{% endif %}</textarea>
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">{% if payment %}{{ payment.notes }}{% endif %}</textarea>
                 </div>
             </div>
         </div>

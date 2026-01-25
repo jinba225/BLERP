@@ -38,7 +38,7 @@
                     </label>
                     <select name="order_type"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                         <option value="">请选择入库类型</option>
                         {% for type_code, type_name in order_types %}
                         <option value="{{ type_code }}" {% if inbound and inbound.order_type == type_code %}selected{% endif %}>
@@ -55,7 +55,7 @@
                     <select name="warehouse"
                             required
                             id="warehouseSelect"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                         <option value="">请选择仓库</option>
                         {% for w in warehouses %}
                         <option value="{{ w.id }}" {% if inbound and inbound.warehouse_id == w.id %}selected{% endif %}>
@@ -73,13 +73,13 @@
                            name="order_date"
                            required
                            value="{% if inbound %}{{ inbound.order_date|date:'Y-m-d' }}{% endif %}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">供应商</label>
                     <select name="supplier"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                         <option value="">请选择供应商</option>
                         {% for s in suppliers %}
                         <option value="{{ s.id }}" {% if inbound and inbound.supplier_id == s.id %}selected{% endif %}>
@@ -95,7 +95,7 @@
                            name="reference_number"
                            value="{% if inbound %}{{ inbound.reference_number }}{% endif %}"
                            placeholder="关联的采购单号等"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                 </div>
 
                 <div>
@@ -104,7 +104,7 @@
                            name="reference_type"
                            value="{% if inbound %}{{ inbound.reference_type }}{% endif %}"
                            placeholder="如: 采购订单、退货单等"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                 </div>
 
                 <div class="md:col-span-2">
@@ -112,7 +112,7 @@
                     <textarea name="notes"
                               rows="3"
                               placeholder="备注信息"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">{% if inbound %}{{ inbound.notes }}{% endif %}</textarea>
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">{% if inbound %}{{ inbound.notes }}{% endif %}</textarea>
                 </div>
             </div>
         </div>

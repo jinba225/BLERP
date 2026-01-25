@@ -112,7 +112,7 @@
                                                min="0"
                                                :max="maxReceivable"
                                                step="1"
-                                               class="w-32 h-9 px-3 border border-gray-300 rounded-l-md box-border focus:outline-none focus:outline-none focus:border-theme-500 focus:border-transparent text-right"
+                                               class="w-32 h-9 px-3 border border-gray-300 rounded-l-md box-border focus:outline-none focus:outline-none focus:border-theme-500  text-right"
                                                required>
                                         <button type="button"
                                                 @click="inputQty = maxReceivable"
@@ -134,14 +134,14 @@
                                        name="batch_number_{{ item.id }}"
                                        value="{{ item.batch_number }}"
                                        placeholder="批次号"
-                                       class="w-32 h-9 px-3 border border-gray-300 rounded box-border focus:outline-none focus:outline-none focus:border-theme-500 focus:border-transparent">
+                                       class="w-32 h-9 px-3 border border-gray-300 rounded box-border focus:outline-none focus:outline-none focus:border-theme-500 ">
                             </td>
                             <td class="px-4 py-3 text-sm">
                                 <input type="text"
                                        name="notes_{{ item.id }}"
                                        value="{{ item.notes }}"
                                        placeholder="备注"
-                                       class="w-32 h-9 px-3 border border-gray-300 rounded box-border focus:outline-none focus:outline-none focus:border-theme-500 focus:border-transparent">
+                                       class="w-32 h-9 px-3 border border-gray-300 rounded box-border focus:outline-none focus:outline-none focus:border-theme-500 ">
                             </td>
                         </tr>
                         {% empty %}

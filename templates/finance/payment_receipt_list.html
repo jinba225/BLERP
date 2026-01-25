@@ -30,12 +30,12 @@
                 <input type="text"
                        name="search"
                        value="{{ search }}"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 "
                        placeholder="收款单号、客户名称...">
             </div> <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
                 <select name="status"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                     <option value="">全部状态</option>
                     {% for status_code, status_name in payment_statuses %}
                     <option value="{{ status_code }}" {% if status == status_code %}selected{% endif %}>
@@ -46,7 +46,7 @@
             </div> <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">收款方式</label>
                 <select name="payment_method"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                     <option value="">全部方式</option>
                     {% for method_code, method_name in payment_methods %}
                     <option value="{{ method_code }}" {% if payment_method == method_code %}selected{% endif %}>
@@ -57,7 +57,7 @@
             </div> <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">客户</label>
                 <select name="customer"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                     <option value="">全部客户</option>
                     {% for c in customers %}
                     <option value="{{ c.id }}" {% if customer_id|stringformat:"s" == c.id|stringformat:"s" %}selected{% endif %}>
@@ -70,13 +70,13 @@
                 <input type="date"
                        name="date_from"
                        value="{{ date_from }}"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
             </div> <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">结束日期</label>
                 <input type="date"
                        name="date_to"
                        value="{{ date_to }}"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-transparent">
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
             </div> <div class="flex items-end col-span-2">
                 <button class="btn btn-primary" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
