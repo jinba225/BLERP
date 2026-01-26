@@ -10,7 +10,7 @@ Mistral Provider - 法国 Mistral AI 的开源大模型
 """
 
 from typing import Dict, Any
-from ..base import BaseAIProvider, AIResponse
+from .base import BaseAIProvider, AIResponse
 import requests
 
 

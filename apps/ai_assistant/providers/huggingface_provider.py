@@ -11,7 +11,7 @@ Hugging Face Provider - 开源模型平台
 """
 
 from typing import Dict, Any
-from ..base import BaseAIProvider, AIResponse
+from .base import BaseAIProvider, AIResponse
 import requests
 
 

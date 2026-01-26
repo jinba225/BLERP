@@ -12,7 +12,7 @@ Microsoft Azure OpenAI Provider
 """
 
 from typing import Dict, Any
-from ..base import BaseAIProvider, AIResponse, ProviderException
+from .base import BaseAIProvider, AIResponse, ProviderException
 import openai
 
 

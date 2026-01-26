@@ -9,7 +9,7 @@ Groq Provider - 高性能、低延迟
 """
 
 from typing import Dict, Any, Optional
-from ..base import BaseAIProvider, AIResponse
+from .base import BaseAIProvider, AIResponse
 import openai
 
 

@@ -11,12 +11,12 @@ AWS Bedrock Provider
 """
 
 from typing import Dict, Any, Optional
-from ..base import BaseAIProvider, AIResponse, ProviderException
+from .base import BaseAIProvider, AIResponse, ProviderException
 import boto3
 from typing import Dict, Any, Optional, Iterator
-from ..base import BaseAIProvider, AIResponse, ProviderException
+from .base import BaseAIProvider, AIResponse, ProviderException
 import boto3
-from ..base import BaseAIProvider, AIResponse, ProviderException
+from .base import BaseAIProvider, AIResponse, ProviderException
 
 
 class BedrockProvider(BaseAIProvider):

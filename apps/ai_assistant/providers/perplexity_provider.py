@@ -11,7 +11,7 @@ Perplexity Provider - 强大的 AI 搜索
 """
 
 from typing import Dict, Any
-from ..base import BaseAIProvider, AIResponse, ProviderException
+from .base import BaseAIProvider, AIResponse, ProviderException
 import openai
 
 

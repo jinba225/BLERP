@@ -11,7 +11,7 @@ Cohere Provider - 专注于 RAG（检索增强生成）
 """
 
 from typing import Dict, Any
-from ..base import BaseAIProvider, AIResponse
+from .base import BaseAIProvider, AIResponse
 import cohere
 
 

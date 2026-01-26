@@ -13,7 +13,7 @@ OpenRouter Provider - 多模型路由平台
 """
 
 from typing import Dict, Any
-from ..base import BaseAIProvider, AIResponse
+from .base import BaseAIProvider, AIResponse
 import openai
 
 
