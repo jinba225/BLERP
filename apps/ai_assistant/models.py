@@ -9,6 +9,164 @@ from apps.core.models import BaseModel
 User = get_user_model()
 
 
+class CustomerAIConfig(BaseModel):
+    """客户级别的 AI 助手配置"""
+
+    PERMISSION_CHOICES = [
+        ('read_only', '只读'),
+        ('read_write', '读写'),
+        ('full_access', '完全访问'),
+    ]
+
+    # 关联客户
+    customer = models.OneToOneField(
+        'customers.Customer',
+        verbose_name='客户',
+        on_delete=models.CASCADE,
+        related_name='ai_config',
+        unique=True
+    )
+
+    # 模型配置（客户级别，优先级高于全局）
+    model_config = models.ForeignKey(
+        'AIModelConfig',
+        verbose_name='AI 模型配置',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='customer_configs',
+        help_text='留空则使用全局默认配置'
+    )
+
+    # 系统提示词自定义
+    system_prompt = models.TextField(
+        '系统提示词',
+        blank=True,
+        help_text='自定义系统提示词，留空则使用默认提示词'
+    )
+
+    # 权限配置
+    permission_level = models.CharField(
+        '权限级别',
+        max_length=20,
+        choices=PERMISSION_CHOICES,
+        default='read_only',
+        help_text='客户 AI 助手的权限级别'
+    )
+
+    # 工具权限控制
+    allowed_tools = models.JSONField(
+        '允许的工具',
+        default=list,
+        blank=True,
+        help_text='允许客户 AI 助手使用的工具列表，留空则使用默认工具集'
+    )
+
+    blocked_tools = models.JSONField(
+        '阻止的工具',
+        default=list,
+        blank=True,
+        help_text='明确阻止的工具列表，优先级高于 allowed_tools'
+    )
+
+    # 参数配置
+    max_conversation_turns = models.IntegerField(
+        '最大对话轮数',
+        default=50,
+        help_text='单次会话的最大对话轮数'
+    )
+
+    max_conversation_duration = models.IntegerField(
+        '最大会话时长(分钟)',
+        default=60,
+        help_text='单次会话的最长持续时间'
+    )
+
+    # 功能开关
+    enable_tool_calling = models.BooleanField(
+        '启用工具调用',
+        default=True,
+        help_text='是否允许 AI 助手调用工具'
+    )
+
+    enable_data_query = models.BooleanField(
+        '启用数据查询',
+        default=True,
+        help_text='是否允许查询客户数据'
+    )
+
+    enable_data_modification = models.BooleanField(
+        '启用数据修改',
+        default=False,
+        help_text='是否允许修改客户数据（需要 full_access 权限）'
+    )
+
+    # 状态管理
+    is_active = models.BooleanField('是否启用', default=True)
+
+    # 使用统计
+    total_conversations = models.IntegerField('总会话数', default=0)
+    total_messages = models.IntegerField('总消息数', default=0)
+    last_used_at = models.DateTimeField('最后使用时间', null=True, blank=True)
+
+    class Meta:
+        db_table = 'customer_ai_config'
+        verbose_name = '客户 AI 配置'
+        verbose_name_plural = '客户 AI 配置'
+        ordering = ['customer__name']
+        indexes = [
+            models.Index(fields=['customer']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['permission_level']),
+        ]
+
+    def __str__(self):
+        return f"{self.customer.name} - AI 配置"
+
+    def get_effective_model_config(self):
+        """获取有效的模型配置（客户配置 > 全局默认）"""
+        if self.model_config:
+            return self.model_config
+        return AIModelConfig.objects.filter(is_default=True).first()
+
+    def get_allowed_tools_list(self):
+        """获取允许的工具列表（考虑阻止列表）"""
+        allowed = self.allowed_tools or []
+        blocked = self.blocked_tools or []
+        return [tool for tool in allowed if tool not in blocked]
+
+    def can_use_tool(self, tool_name):
+        """检查是否可以使用指定工具"""
+        allowed_tools = self.get_allowed_tools_list()
+        
+        # 如果有明确的允许列表，只允许列表中的工具
+        if allowed_tools:
+            return tool_name in allowed_tools
+        
+        # 如果有明确的阻止列表，不允许列表中的工具
+        if self.blocked_tools:
+            return tool_name not in self.blocked_tools
+        
+        # 默认允许
+        return True
+
+    def can_modify_data(self):
+        """检查是否可以修改数据"""
+        return (
+            self.is_active and
+            self.enable_data_modification and
+            self.permission_level == 'full_access'
+        )
+
+    def can_query_data(self):
+        """检查是否可以查询数据"""
+        return (
+            self.is_active and
+            self.enable_data_query and
+            self.permission_level in ['read_write', 'full_access']
+        )
+
+
 class AIModelConfig(BaseModel):
     """大模型API配置"""
 
