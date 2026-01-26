@@ -457,7 +457,157 @@ class ApproveSalesOrderTool(BaseTool):
             )
 
         except Exception as e:
-            return ToolResult(
+             return ToolResult(
                 success=False,
                 error=f"审核订单失败: {str(e)}"
+            )
+
+
+class CreateSalesOrderTool(BaseTool):
+    """创建销售订单工具"""
+
+    name = "create_sales_order"
+    display_name = "创建销售订单"
+    description = "为客户创建销售订单"
+    category = "sales"
+    risk_level = "medium"
+    require_permission = "sales.add_order"
+    require_approval = True  # 需要用户确认
+    
+    def get_parameters_schema(self) -> Dict[str, Any]:
+        return {
+            "type": "object",
+            "properties": {
+                "customer_id": {
+                    "type": "integer",
+                    "description": "客户ID"
+                },
+                "items": {
+                    "type": "array",
+                    "description": "订单明细列表",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "product_id": {
+                                "type": "integer",
+                                "description": "产品ID"
+                            },
+                            "quantity": {
+                                "type": "number",
+                                "description": "数量"
+                            },
+                            "unit_price": {
+                                "type": "number",
+                                "description": "含税单价"
+                            }
+                        },
+                        "required": ["product_id", "quantity", "unit_price"]
+                    }
+                },
+                "delivery_address": {
+                    "type": "string",
+                    "description": "交付地址（可选）"
+                },
+                "notes": {
+                    "type": "string",
+                    "description": "订单备注（可选）"
+                }
+            },
+            "required": ["customer_id", "items"]
+        }
+    
+    def execute(self, customer_id: int, items: list,
+                 delivery_address: str = "", notes: str = "", **kwargs) -> ToolResult:
+        """执行创建订单"""
+        try:
+            from django.db import transaction
+            from datetime import datetime, timedelta
+            from apps.core.utils import DocumentNumberGenerator
+            
+            # 验证客户
+            try:
+                from apps.customers.models import Customer
+                customer = Customer.objects.get(id=customer_id, is_deleted=False)
+            except Customer.DoesNotExist:
+                return ToolResult(
+                    success=False,
+                    error=f"客户ID {customer_id} 不存在"
+                )
+            
+            # 验证产品和计算金额
+            total_amount = 0
+            validated_items = []
+            
+            for item in items:
+                try:
+                    from apps.products.models import Product
+                    product = Product.objects.get(id=item['product_id'], is_deleted=False)
+                except Product.DoesNotExist:
+                    return ToolResult(
+                        success=False,
+                        error=f"产品ID {item['product_id']} 不存在"
+                    )
+                
+                quantity = float(item['quantity'])
+                unit_price = float(item['unit_price'])
+                line_total = quantity * unit_price
+                total_amount += line_total
+                
+                validated_items.append({
+                    'product': product,
+                    'quantity': quantity,
+                    'unit_price': unit_price,
+                    'line_total': line_total
+                })
+            
+            # 创建订单
+            with transaction.atomic():
+                order_number = DocumentNumberGenerator.generate('sales_order')
+                order_date = datetime.now().date()
+                delivery_date = order_date + timedelta(days=30)  # 默认 30 天后交货
+                
+                from apps.sales.models import SalesOrder
+                order = SalesOrder.objects.create(
+                    order_number=order_number,
+                    customer=customer,
+                    order_date=order_date,
+                    total_amount=total_amount,
+                    delivery_address=delivery_address or customer.address or "",
+                    notes=notes,
+                    status='pending',  # 默认待审核
+                    created_by=self.user
+                )
+                
+                # 创建明细
+                from apps.sales.models import SalesOrderItem
+                for i, item_data in enumerate(validated_items, 1):
+                    product = item_data['product']
+                    SalesOrderItem.objects.create(
+                        order=order,
+                        product=product,
+                        product_code=product.code,
+                        quantity=item_data['quantity'],
+                        unit_price=item_data['unit_price'],
+                        line_total=item_data['line_total'],
+                        sequence=i,
+                        created_by=self.user
+                    )
+                
+                return ToolResult(
+                    success=True,
+                    data={
+                        "order_id": order.id,
+                        "order_number": order.order_number,
+                        "customer_name": customer.name,
+                        "total_amount": float(total_amount),
+                        "items_count": len(validated_items),
+                        "delivery_date": delivery_date.strftime("%Y-%m-%d"),
+                    },
+                    message=f"订单 {order.order_number} 创建成功，包含 {len(validated_items)} 个明细"
+                )
+            
+        except Exception as e:
+            return ToolResult(
+                success=False,
+                error=f"创建销售订单失败: {str(e)}"
             )

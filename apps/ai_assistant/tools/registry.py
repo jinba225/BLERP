@@ -173,6 +173,7 @@ def auto_register_tools():
     # 销售工具
     ToolRegistry.register(SearchCustomerTool)
     ToolRegistry.register(CreateSalesQuoteTool)
+    ToolRegistry.register(CreateSalesOrderTool)
     ToolRegistry.register(QuerySalesOrdersTool)
     ToolRegistry.register(GetOrderDetailTool)
     ToolRegistry.register(ApproveSalesOrderTool)
