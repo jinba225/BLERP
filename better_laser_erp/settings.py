@@ -6,6 +6,7 @@ import os
 import secrets
 from pathlib import Path
 from decouple import config
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -368,6 +369,18 @@ if CELERY_BROKER_URL:
     CELERY_WORKER_MAX_TASKS_PER_CHILD = 1000  # Worker 重启阈值
     CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
     CELERY_RESULT_EXPIRES = 3600  # 结果保留1小时
+
+# Celery Beat 定时任务配置
+CELERY_BEAT_SCHEDULE = {
+    'cleanup-expired-conversations': {
+        'task': 'apps.ai_assistant.tasks.cleanup_expired_conversations',
+        'schedule': crontab(hour=2, minute=0),  # 每天凌晨 2 点
+    },
+    'cleanup-old-logs': {
+        'task': 'apps.ai_assistant.tasks.cleanup_old_logs',
+        'schedule': crontab(hour=3, minute=0),  # 每天凌晨 3 点
+    },
+}
 
 # AI Assistant Configuration
 # AI助手异步处理配置
