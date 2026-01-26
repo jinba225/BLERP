@@ -22,6 +22,16 @@ class AIModelConfig(BaseModel):
         ('moonshot', 'Moonshot'),
         ('deepseek', 'DeepSeek'),
         ('mock', 'Mock（测试用）'),
+        ('google', 'Google Gemini'),
+        ('azure_openai', 'Microsoft Azure OpenAI'),
+        ('aws_bedrock', 'AWS Bedrock'),
+        ('groq', 'Groq'),
+        ('huggingface', 'Hugging Face'),
+        ('cohere', 'Cohere'),
+        ('mistral', 'Mistral'),
+        ('perplexity', 'Perplexity'),
+        ('together', 'Together AI'),
+        ('openrouter', 'OpenRouter'),
     ]
 
     # 基本信息
