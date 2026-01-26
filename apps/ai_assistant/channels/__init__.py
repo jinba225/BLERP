@@ -5,7 +5,6 @@
 """
 
 from .base_channel import BaseChannel, IncomingMessage, OutgoingMessage
-from .message_handler import MessageHandler
 from .wechat_channel import WeChatChannel
 from .dingtalk_channel import DingTalkChannel
 from .telegram_channel import TelegramChannel
@@ -14,7 +13,6 @@ __all__ = [
     'BaseChannel',
     'IncomingMessage',
     'OutgoingMessage',
-    'MessageHandler',
     'WeChatChannel',
     'DingTalkChannel',
     'TelegramChannel',

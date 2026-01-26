@@ -1,7 +1,7 @@
 """
 AI Assistant Services 模块
 
-提供 AI 助手相关服务，包括自然语言处理、对话流管理和客户 AI 配置。
+提供 AI 助手相关服务，包括自然语言处理、对话流管理和渠道集成。
 """
 
 from .ai_service import AIService
@@ -22,6 +22,8 @@ from .customer_ai_service import (
     CustomerAIService
 )
 
+from .channel_ai_service import ChannelAIService
+
 __all__ = [
     # AI Service
     'AIService',
@@ -38,4 +40,7 @@ __all__ = [
     
     # Customer AI Service
     'CustomerAIService',
+    
+    # Channel AI Service
+    'ChannelAIService',
 ]

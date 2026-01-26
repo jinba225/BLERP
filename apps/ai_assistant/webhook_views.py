@@ -9,13 +9,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 
-from .models import WeChatConfig, DingTalkConfig, TelegramConfig
+from .models import WeChatConfig, DingTalkConfig, TelegramConfig, ChannelUserMapping
 from .channels import (
     WeChatChannel,
     DingTalkChannel,
     TelegramChannel,
-    MessageHandler,
 )
+from .services import ChannelAIService
+from .channels.base_channel import IncomingMessage, OutgoingMessage
 
 
 # 判断是否启用异步处理
@@ -35,9 +36,22 @@ def _process_message_sync(user, message):
     Returns:
         OutgoingMessage对象
     """
-    handler = MessageHandler(user)
-    return handler.handle_message(message)
-
+    # 使用 ChannelAIService 处理消息
+    from .services import ChannelAIService
+    from .channels.base_channel import IncomingMessage
+    
+    if not message:
+        from .channels import OutgoingMessage
+        return OutgoingMessage(
+            content='❌ 消息解析失败',
+            message_type='text'
+        )
+    
+    # 创建 ChannelAIService 实例
+    ai_service = ChannelAIService(user, message.channel)
+    
+    # 处理消息
+    return ai_service.process_message(message)
 
 def _process_message_async(user, message):
     """
@@ -58,7 +72,7 @@ def _process_message_async(user, message):
         'channel': message.channel,
         'external_user_id': message.external_user_id,
         'content': message.content,
-        'timestamp': message.timestamp.isoformat(),
+        'timestamp': message.timestamp.isoformat() if message.timestamp else None,
         'message_type': message.message_type,
         'conversation_id': message.conversation_id,
         'raw_data': message.raw_data,
