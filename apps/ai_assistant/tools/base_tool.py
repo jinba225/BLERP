@@ -102,20 +102,25 @@ class BaseTool(ABC):
     def check_permission(self) -> bool:
         """
         检查用户权限
-
+        
         Returns:
             是否有权限
         """
         # 如果不需要特殊权限，默认允许
         if not self.require_permission:
             return True
-
+        
         # 超级用户总是有权限
         if self.user.is_superuser:
             return True
-
-        # 检查用户是否有指定权限
-        return self.user.has_perm(self.require_permission)
+        
+        # 使用自定义权限检查
+        try:
+            from apps.ai_assistant.utils.permissions import has_custom_permission
+            return has_custom_permission(self.user, self.require_permission)
+        except Exception as e:
+            # 如果权限检查失败，返回 False（安全第一）
+            return False
 
     def validate_parameters(self, **kwargs) -> tuple[bool, Optional[str]]:
         """
