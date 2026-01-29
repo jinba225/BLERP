@@ -937,6 +937,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "core",
                     "label": "系统管理",
+                    "icon": "fas fa-cogs",
                     "models": [
                         {"model": "Company"},
                         {"model": "SystemConfig"},
@@ -948,6 +949,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "users",
                     "label": "用户管理",
+                    "icon": "fas fa-users",
                     "models": [
                         {"model": "User"},
                         {"model": "Role"},
@@ -957,6 +959,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "customers",
                     "label": "客户管理",
+                    "icon": "fas fa-user-friends",
                     "models": [
                         {"model": "Customer"},
                         {"model": "Contact"},
@@ -965,6 +968,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "products",
                     "label": "产品管理",
+                    "icon": "fas fa-box",
                     "models": [
                         {"model": "Product"},
                         {"model": "ProductCategory"},
@@ -973,6 +977,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "inventory",
                     "label": "库存管理",
+                    "icon": "fas fa-warehouse",
                     "models": [
                         {"model": "Warehouse"},
                         {"model": "Stock"},
@@ -986,6 +991,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "sales",
                     "label": "销售管理",
+                    "icon": "fas fa-shopping-cart",
                     "models": [
                         {"model": "Quote"},
                         {"model": "SalesOrder"},
@@ -997,6 +1003,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "purchase",
                     "label": "采购管理",
+                    "icon": "fas fa-truck",
                     "models": [
                         {"model": "PurchaseRequest"},
                         {"model": "PurchaseOrder"},
@@ -1011,6 +1018,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "suppliers",
                     "label": "供应商管理",
+                    "icon": "fas fa-building",
                     "models": [
                         {"model": "Supplier"},
                         {"model": "SupplierContact"},
@@ -1019,6 +1027,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "finance",
                     "label": "财务管理",
+                    "icon": "fas fa-dollar-sign",
                     "models": [
                         {"model": "Account"},
                         {"model": "Payment"},
@@ -1030,6 +1039,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "departments",
                     "label": "部门管理",
+                    "icon": "fas fa-sitemap",
                     "models": [
                         {"model": "Department"},
                         {"model": "Employee"},
@@ -1038,6 +1048,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "ai_assistant",
                     "label": "AI 助手",
+                    "icon": "fas fa-robot",
                     "models": [
                         {"model": "AIConversation"},
                         {"model": "AIModelConfig"},
@@ -1047,6 +1058,7 @@ JAZZMIN_SETTINGS = {
                 {
                     "app": "ecomm_sync",
                     "label": "电商同步",
+                    "icon": "fas fa-sync",
                     "models": [
                         {"model": "EcommPlatform"},
                         {"model": "EcommProduct"},
