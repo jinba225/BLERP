@@ -153,13 +153,13 @@
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-left" id="jazzy-usermenu">
                         <span class="dropdown-header">{% trans 'Account' %}</span>
                         <div class="dropdown-divider"></div>
-                        <a href="{% url 'admin:password_change' %}" class="dropdown-item">
-                            <i class="fas fa-key mr-2"></i> {% trans 'Change password' %}
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="{% url 'admin:logout' %}" class="dropdown-item">
-                            <i class="fas fa-users mr-2"></i> {% trans 'Log out' %}
-                        </a>
+                         <a href="{% url 'admin:password_change' %}" class="dropdown-item">
+                             {% trans 'Change password' %}
+                         </a>
+                         <div class="dropdown-divider"></div>
+                         <a href="{% url 'admin:logout' %}" class="dropdown-item">
+                             {% trans 'Log out' %}
+                         </a>
                         {% get_user_menu user request.current_app|default:"admin" as user_menu %}
                         {% for link in user_menu %}
                             <div class="dropdown-divider"></div>
@@ -187,13 +187,11 @@
 
                 <div class="sidebar">
                     <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                        <div class="image">
-                            {% if jazzmin_settings|has_jazzmin_setting:"user_avatar" %}
-                                <img src="{% get_user_avatar request.user %}" width="160px" class="img-circle elevation-2" alt="User Image">
-                            {% else %}
-                                <i class="fas fa-inverse user-profile fa-user-circle"></i>
-                            {% endif %}
-                        </div>
+                         <div class="image">
+                             {% if jazzmin_settings|has_jazzmin_setting:"user_avatar" %}
+                                 <img src="{% get_user_avatar request.user %}" width="160px" class="img-circle elevation-2" alt="User Image">
+                             {% endif %}
+                         </div>
                         <div class="info">
                             {% if perms|can_view_self %}
                                 <a href="{% jazzy_admin_url request.user request.current_app|default:"admin" %}" class="d-block">{{ request.user }}</a>
