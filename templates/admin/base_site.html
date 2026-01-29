@@ -1,0 +1,28 @@
+{% extends "admin/jazzmin/base_site.html" %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* 隐藏 Dashboard 首页应用卡片上的图标 */
+    body.jazzmin-dashboard .app-icon,
+    body.dashboard .app-icon,
+    .dashboard .app-icon,
+    [class*="dashboard"] .app-icon {
+        display: none !important;
+    }
+
+    /* 隐藏 Dashboard 页面所有卡片中的图标 */
+    .jazzmin-dashboard .card .fa.icon,
+    .dashboard .card .fa.icon,
+    .dashboard-card .fa.icon {
+        display: none !important;
+    }
+
+    /* 确保侧边栏菜单图标正常显示 */
+    .sidebar-menu .fa,
+    .main-sidebar .fa,
+    .nav-sidebar .fa {
+        display: inline-block !important;
+    }
+</style>
+{% endblock %}
