@@ -97,30 +97,40 @@ class CustomBackend(ModelBackend):
         perm_code = f"{perm.app_label}.{perm.codename}"
         return perm_code in user_perms
     
-    def has_module_perms(self, user_obj):
-        """检查用户是否有指定模块的权限"""
-        if not user_obj or user_obj.is_anonymous:
-            return user_obj and user_obj.is_superuser
-        
-        if not user_obj.is_active:
-            return False
-        
-        user_perms = self._get_user_permissions(user_obj)
-        
-        # 检查模块级权限
-        module_perms = [p for p in user_perms.keys() if '.' in p]
-        
-        return len(module_perms) > 0
-    
-    def get_all_permissions(self, user_obj: User) -> List[dict]:
+    def has_module_perms(self, user_obj, app_label):
         """
-        获取用户的所有权限列表
-        
+        检查用户是否有指定模块的任意权限
+
         Args:
             user_obj: 用户对象
-        
+            app_label: 应用标签，如 'sales', 'customers'
+
         Returns:
-            权限列表，每个元素格式：{code: 'sales.add_order', name: '销售订单添加', module: 'sales'}
+            bool: 是否有该模块的任意权限
+        """
+        if not user_obj or user_obj.is_anonymous:
+            return user_obj and user_obj.is_superuser
+
+        if not user_obj.is_active:
+            return False
+
+        user_perms = self._get_user_permissions(user_obj)
+
+        # 检查是否有该模块的任意权限
+        module_perms = [p for p in user_perms.keys() if p.startswith(f'{app_label}.')]
+
+        return len(module_perms) > 0
+    
+    def get_all_permissions(self, user_obj, obj=None):
+        """
+        获取用户的所有权限列表
+
+        Args:
+            user_obj: 用户对象
+            obj: 被查对象（可选，用于对象级权限检查）
+
+        Returns:
+            权限列表，每个元素格式：{'sales.add_order', 'customers.view_customer', ...}
         """
         if not user_obj or user_obj.is_anonymous:
             return []
@@ -128,29 +138,9 @@ class CustomBackend(ModelBackend):
         from apps.users.models import Permission
         
         user_perms = self._get_user_permissions(user_obj)
-        
-        permissions_list = []
-        for code, name in user_perms.items():
-            try:
-                app_label, perm_codename = code.rsplit('.', 1)
-                perm_obj = Permission.objects.filter(
-                    code=perm_codename,
-                    module__in=[app_label],
-                    is_active=True,
-                    is_deleted=False
-                ).first()
-                
-                if perm_obj:
-                    permissions_list.append({
-                        'code': code,
-                        'name': perm_obj.name,
-                        'module': app_label,
-                        'permission_type': perm_obj.permission_type,
-                    })
-            except Exception:
-                pass
-        
-        return sorted(permissions_list, key=lambda x: (x['module'], x['code']))
+
+        # 返回权限代码集合（Django 标准格式）
+        return set(user_perms.keys())
     
     def has_module_perm(self, user_obj, app_label: str, codename: str):
         """
@@ -195,8 +185,8 @@ class CustomBackend(ModelBackend):
                 
                 # 获取角色的所有权限
                 permissions = role.permissions.filter(is_active=True, is_deleted=False)
-                
-                perms_list.append({
+
+                roles_list.append({
                     'role_name': role.name,
                     'role_code': role.code,
                     'permission_count': permissions.count(),

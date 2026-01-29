@@ -26,6 +26,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Installed Applications
 # ============================================
 INSTALLED_APPS = [
+    # Admin 美化（必须在 django.contrib.admin 之前）
+    'jazzmin',  # Django Admin 现代化主题
+
     # Django Default Apps
     'django.contrib.admin',
     'django.contrib.auth',
@@ -34,10 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',  # 友好的数据格式化（如日期、数字）
-    
-    # Admin 美化
-    'jazzmin',  # Django Admin 现代化主题（必须在 admin 之前）
-    
+
     # Third Party Apps
     'rest_framework',
     'django_filters',
