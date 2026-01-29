@@ -1,35 +1,51 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/base.html" %}
 
 {% block extrahead %}
 {{ block.super }}
 <style>
-    /* ========== 隐藏所有Admin页面侧边栏菜单组的图标 ========== */
-
-    /* 隐藏所有页面的侧边栏应用图标 */
-    .main-sidebar .nav-icon,
-    .sidebar .nav-icon,
-    .nav-sidebar .nav-icon {
+    /* 隐藏所有Admin页面侧边栏菜单组的图标 */
+    .nav-icon {
         display: none !important;
     }
-
-    /* 隐藏侧边栏菜单中的Font Awesome图标（保留折叠箭头） */
-    .main-sidebar .nav-link .fa:not(.fa-angle-left),
-    .sidebar .nav-link .fa:not(.fa-angle-left),
-    .nav-sidebar .nav-link .fa:not(.fa-angle-left) {
+    .main-sidebar i:not(.fa-angle-left):not(.right):not(.fa-clock) {
         display: none !important;
     }
-
-    /* 调整侧边栏菜单文本对齐 */
-    .main-sidebar .nav-link p,
-    .sidebar .nav-link p,
-    .nav-sidebar .nav-link p {
+    .main-sidebar .nav-link p {
         margin-left: 0 !important;
     }
-
-    /* 保持折叠箭头图标可见 */
-    .nav-link .fa-angle-left,
-    .nav-link .right {
+    .fa-angle-left, .right, .fa-clock {
         display: inline-block !important;
     }
 </style>
+<script>
+    // 额外保险：使用JavaScript隐藏图标
+    document.addEventListener('DOMContentLoaded', function() {
+        // 隐藏所有nav-icon
+        var navIcons = document.querySelectorAll('.nav-icon');
+        navIcons.forEach(function(icon) {
+            icon.style.display = 'none';
+            icon.style.visibility = 'hidden';
+        });
+        
+        // 隐藏侧边栏中的其他图标（保留箭头）
+        var sidebar = document.querySelector('.main-sidebar') || document.querySelector('.sidebar');
+        if (sidebar) {
+            var icons = sidebar.querySelectorAll('i');
+            icons.forEach(function(icon) {
+                if (!icon.classList.contains('fa-angle-left') && 
+                    !icon.classList.contains('right') && 
+                    !icon.classList.contains('fa-clock')) {
+                    icon.style.display = 'none';
+                    icon.style.visibility = 'hidden';
+                }
+            });
+        }
+        
+        // 调整菜单文本对齐
+        var navLinks = document.querySelectorAll('.main-sidebar .nav-link p, .sidebar .nav-link p');
+        navLinks.forEach(function(p) {
+            p.style.marginLeft = '0';
+        });
+    });
+</script>
 {% endblock %}
