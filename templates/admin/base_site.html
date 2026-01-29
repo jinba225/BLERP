@@ -3,25 +3,43 @@
 {% block extrahead %}
 {{ block.super }}
 <style>
-    /* 隐藏 Dashboard 首页应用卡片上的图标 */
-    body.jazzmin-dashboard .app-icon,
-    body.dashboard .app-icon,
-    .dashboard .app-icon,
-    [class*="dashboard"] .app-icon {
+    /* ========== 隐藏 Dashboard 页面侧边栏菜单组的图标 ========== */
+
+    /* 只在 Dashboard 页面隐藏侧边栏图标 */
+    body.dashboard .main-sidebar .nav-icon,
+    body.dashboard .sidebar .nav-icon,
+    body.dashboard .nav-sidebar .nav-icon {
         display: none !important;
     }
 
-    /* 隐藏 Dashboard 页面所有卡片中的图标 */
-    .jazzmin-dashboard .card .fa.icon,
-    .dashboard .card .fa.icon,
-    .dashboard-card .fa.icon {
+    /* 隐藏 Dashboard 页面侧边栏菜单中的 Font Awesome 图标 */
+    body.dashboard .main-sidebar .nav-link .fa:not(.fa-angle-left),
+    body.dashboard .sidebar .nav-link .fa:not(.fa-angle-left),
+    body.dashboard .nav-sidebar .nav-link .fa:not(.fa-angle-left) {
         display: none !important;
     }
 
-    /* 确保侧边栏菜单图标正常显示 */
-    .sidebar-menu .fa,
-    .main-sidebar .fa,
-    .nav-sidebar .fa {
+    /* 调整 Dashboard 页面侧边栏菜单文本对齐 */
+    body.dashboard .main-sidebar .nav-link p,
+    body.dashboard .sidebar .nav-link p,
+    body.dashboard .nav-sidebar .nav-link p {
+        margin-left: 0 !important;
+    }
+
+    /* 保持折叠箭头图标可见 */
+    body.dashboard .nav-link .fa-angle-left,
+    body.dashboard .nav-link .right {
+        display: inline-block !important;
+    }
+
+    /* ========== 其他页面保持图标显示 ========== */
+    /* 非Dashboard页面，显示所有图标 */
+    body:not(.dashboard) .main-sidebar .nav-icon,
+    body:not(.dashboard) .sidebar .nav-icon,
+    body:not(.dashboard) .nav-sidebar .nav-icon,
+    body:not(.dashboard) .main-sidebar .nav-link .fa,
+    body:not(.dashboard) .sidebar .nav-link .fa,
+    body:not(.dashboard) .nav-sidebar .nav-link .fa {
         display: inline-block !important;
     }
 </style>
