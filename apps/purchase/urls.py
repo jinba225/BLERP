@@ -10,10 +10,8 @@ app_name = 'purchase'
 router = DefaultRouter()
 
 urlpatterns = [
-    # API routes
     path('api/', include(router.urls)),
-
-    # Purchase Request (询价单) URLs
+    path('', views.request_list, name='request_root'),
     path('requests/', views.request_list, name='request_list'),
     path('requests/create/', views.request_create, name='request_create'),
     path('requests/<int:pk>/', views.request_detail, name='request_detail'),
@@ -23,8 +21,6 @@ urlpatterns = [
     path('requests/<int:pk>/submit/', views.request_submit, name='request_submit'),
     path('requests/<int:pk>/approve/', views.request_approve, name='request_approve'),
     path('requests/<int:pk>/reject/', views.request_reject, name='request_reject'),
-
-    # Purchase Order URLs
     path('orders/', views.order_list, name='order_list'),
     path('orders/create/', views.order_create, name='order_create'),
     path('orders/<int:pk>/', views.order_detail, name='order_detail'),
@@ -33,21 +29,15 @@ urlpatterns = [
     path('orders/<int:pk>/approve/', views.order_approve, name='order_approve'),
     path('orders/<int:pk>/unapprove/', views.order_unapprove, name='order_unapprove'),
     path('orders/<int:pk>/request-payment/', views.order_request_payment, name='order_request_payment'),
-
-    # Purchase Receipt URLs
     path('receipts/', views.receipt_list, name='receipt_list'),
     path('receipts/<int:pk>/', views.receipt_detail, name='receipt_detail'),
     path('orders/<int:order_pk>/receipt/create/', views.receipt_create, name='receipt_create'),
     path('receipts/<int:pk>/receive/', views.receipt_receive, name='receipt_receive'),
-
-    # Purchase Return URLs
     path('returns/', views.return_list, name='return_list'),
     path('returns/<int:pk>/', views.return_detail, name='return_detail'),
     path('orders/<int:order_pk>/return/create/', views.return_create, name='return_create'),
     path('returns/<int:pk>/approve/', views.return_approve, name='return_approve'),
     path('returns/statistics/', views.return_statistics, name='return_statistics'),
-
-    # Borrow URLs (采购借用)
     path('borrows/', views.borrow_list, name='borrow_list'),
     path('borrows/create/', views.borrow_create, name='borrow_create'),
     path('borrows/<int:pk>/', views.borrow_detail, name='borrow_detail'),
@@ -57,24 +47,16 @@ urlpatterns = [
     path('borrows/<int:pk>/confirm-all-receipt/', views.borrow_confirm_all_receipt, name='borrow_confirm_all_receipt'),
     path('borrows/<int:pk>/return/', views.borrow_return, name='borrow_return'),
     path('borrows/<int:pk>/request-conversion/', views.borrow_request_conversion, name='borrow_request_conversion'),
-
-    # Purchase Inquiry URLs (采购询价)
     path('inquiries/', views.inquiry_list, name='inquiry_list'),
     path('inquiries/create/', views.inquiry_create, name='inquiry_create'),
     path('inquiries/<int:pk>/', views.inquiry_detail, name='inquiry_detail'),
     path('inquiries/<int:pk>/edit/', views.inquiry_update, name='inquiry_update'),
     path('inquiries/<int:pk>/delete/', views.inquiry_delete, name='inquiry_delete'),
     path('inquiries/<int:pk>/send/', views.inquiry_send, name='inquiry_send'),
-    path('inquiries/<int:pk>/create-order/', views.inquiry_create_order, name='inquiry_create_order'),
-
-    # Supplier Quotation URLs (供应商报价)
+    path('inquiries/<int:inquiry_pk>/quotations/compare/', views.quotation_compare, name='quotation_compare'),
     path('quotations/', views.quotation_list, name='quotation_list'),
     path('quotations/<int:pk>/', views.quotation_detail, name='quotation_detail'),
     path('quotations/<int:pk>/edit/', views.quotation_update, name='quotation_update'),
     path('quotations/<int:pk>/select/', views.quotation_select, name='quotation_select'),
-    path('inquiries/<int:inquiry_pk>/quotations/compare/', views.quotation_compare, name='quotation_compare'),
-
-
-    # Report URLs (采购报表)
     path('reports/', views.purchase_order_report, name='order_report'),
 ]

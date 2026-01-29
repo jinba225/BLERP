@@ -10,6 +10,7 @@ from .base_tool import BaseTool
 from .sales_tools import (
     SearchCustomerTool,
     CreateSalesQuoteTool,
+    CreateSalesOrderTool,
     QuerySalesOrdersTool,
     GetOrderDetailTool,
     ApproveSalesOrderTool,

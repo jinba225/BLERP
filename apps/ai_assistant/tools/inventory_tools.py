@@ -124,29 +124,22 @@ class SearchProductTool(BaseTool):
             # 构建搜索查询
             products = Product.objects.filter(
                 Q(name__icontains=keyword) |
-                Q(code__icontains=keyword) |
-                Q(specifications__icontains=keyword),
+                Q(code__icontains=keyword),
                 is_deleted=False
             )[:limit]
 
             # 格式化结果
             results = []
             for product in products:
-                # 获取库存总量
-                total_inventory = InventoryStock.objects.filter(
-                    product=product,
-                    is_deleted=False
-                ).aggregate(total=Sum('quantity'))['total'] or 0
-
                 results.append({
                     "id": product.id,
                     "code": product.code,
                     "name": product.name,
                     "specifications": product.specifications or "",
-                    "unit": product.unit,
+                    "unit": product.unit.symbol if product.unit else "",
                     "category": product.category.name if product.category else "",
-                    "is_active": product.is_active,
-                    "total_inventory": float(total_inventory),
+                    "status": product.status,
+                    "product_type": product.product_type,
                 })
 
             return ToolResult(

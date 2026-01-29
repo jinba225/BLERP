@@ -1,13 +1,15 @@
 # Django 核心框架
-Django==5.0.9  # 升级到Django 5.0最新稳定版
-djangorestframework==3.15.2  # 更新DRF以兼容Django 5.0
+Django==5.0.9  # 升级到Django5.0最新稳定版
+djangorestframework==3.15.2  # 更新DRF以兼容Django5.0
+
+# Admin 美化
+django-jazzmin==2.6.0  # Django Admin 现代化主题（Bootstrap5）
 
 # 数据库和模型相关
 django-mptt==0.15.0  # 树形结构支持（部门、产品分类）
 
 # 表单和前端
 django-crispy-forms==2.1
-crispy-tailwind==0.5.0
 
 # 过滤和搜索
 django-filter==23.3
@@ -17,15 +19,10 @@ Pillow==10.4.0
 
 # Excel 和 PDF 支持
 pandas==2.1.4  # 数据处理（Excel/CSV导入导出）
-openpyxl==3.1.2  # Excel 导入导出
-reportlab==4.0.7  # PDF 生成
 django-import-export==4.0.0  # Django 模型导入导出
 
 # 配置管理
 python-decouple==3.8
-
-# 静态文件服务
-whitenoise==6.6.0
 
 # CORS 支持（API 跨域）
 django-cors-headers==4.6.0  # 更新以兼容Django 5.0

@@ -150,32 +150,60 @@ class ConversationFlowManager:
     
     def _handle_collecting_info(self, context: ConversationContext, user_message: str) -> Tuple[str, bool]:
         """处理收集信息阶段的消息"""
-        # 解析新消息中的实体
-        intent_result = self.nlp_service.parse_user_input(user_message)
-        
+        # 在收集信息阶段，直接使用 MockAIProvider 的实体提取逻辑
+        # 这样可以避免 NLP 服务的意图识别干扰实体提取
+
+        # 直接调用 MockAIProvider 的 _extract_intent_entities 方法
+        entities = {}
+        try:
+            if hasattr(self.nlp_service.ai_provider, '_extract_intent_entities'):
+                entities = self.nlp_service.ai_provider._extract_intent_entities(user_message)
+                # 调试信息
+                # print(f"DEBUG: _handle_collecting_info - 提取到的实体: {entities}")
+        except Exception as e:
+            # print(f"DEBUG: _handle_collecting_info - 实体提取失败: {str(e)}")
+            entities = {}
+
         # 更新收集的数据
-        for key, value in intent_result.entities.items():
+        for key, value in entities.items():
             if value:
                 context.collected_data[key] = value
-        
-        # 重新检查缺失字段
+
+        # 检查缺失字段
         required_fields = self.intent_required_fields.get(context.intent, [])
         missing_fields = [
-            field for field in required_fields 
-            if field not in context.collected_data or not context.collected_data[field]
+            field for field in required_fields
+            if field not in context.collected_data or not context.collected_data.get(field)
         ]
-        
+
         context.missing_fields = missing_fields
-        
+
+        # 自动进入确认阶段（当所有字段都已收集时）
         if not missing_fields:
             # 所有必需信息都已收集，进入确认阶段
             context.state = ConversationState.CONFIRMING
             return self._generate_confirmation(context)
-        else:
-            # 继续收集信息
-            reply = self.nlp_service.clarify_missing_info(intent_result, missing_fields)
-            context.updated_at = datetime.now()
-            return reply, False
+
+        # 如果还在收集信息阶段，检查是否有确认指令
+        if missing_fields:
+            if any(word in user_message.lower() for word in ['确认', '是', '好的', 'OK', '没问题']):
+                # 用户确认，进入确认阶段
+                context.state = ConversationState.CONFIRMING
+                return self._generate_confirmation(context)
+            elif any(word in user_message.lower() for word in ['取消', '重来', '重新开始']):
+                # 用户取消，重新开始
+                context.state = ConversationState.GREETING
+                context.collected_data = {}
+                context.missing_fields = []
+                return "好的，已取消当前操作。请问您想做什么？", False
+
+        # 继续收集信息
+        reply = self.nlp_service.clarify_missing_info(
+            IntentResult(intent=context.intent, confidence=0.85, entities={}, original_text=user_message),
+            missing_fields
+        )
+        context.updated_at = datetime.now()
+        return reply, False
     
     def _generate_confirmation(self, context: ConversationContext) -> Tuple[str, bool]:
         """生成确认消息"""
@@ -204,8 +232,24 @@ class ConversationFlowManager:
     def _handle_confirming(self, context: ConversationContext, user_message: str) -> Tuple[str, bool]:
         """处理确认阶段的消息"""
         user_message_lower = user_message.lower()
-        
-        if "确认" in user_message_lower or "是" in user_message_lower or "继续" in user_message_lower:
+
+        # 首先检查是否还有缺失的必需信息
+        required_fields = self.intent_required_fields.get(context.intent, [])
+        missing_fields = [
+            field for field in required_fields
+            if field not in context.collected_data or not context.collected_data.get(field)
+        ]
+
+        # 如果还有缺失信息，回到收集信息阶段
+        if missing_fields:
+            # 还有缺失信息，回到收集信息阶段
+            context.state = ConversationState.COLLECTING_INFO
+            reply = f"以下信息还未提供：{', '.join(missing_fields)}。请补充这些信息。"
+            context.updated_at = datetime.now()
+            return reply, False
+
+        # 检查确认或取消指令
+        if "确认" in user_message_lower or "是" in user_message_lower or "好的" in user_message_lower or "OK" in user_message_lower or "没问题":
             # 用户确认，执行操作
             context.state = ConversationState.EXECUTING
             return self._execute_operation(context)

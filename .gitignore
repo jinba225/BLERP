@@ -1,13 +1,18 @@
+# IDE 和工具配置
 .bmad-core/
 .claude/
 .github/workflows/
 .spec-workflow/
 .trae/documents/
 _bmad/
+
+# Django 相关
 backups/
 logs/
 node_modules/
 .DS_Store
+staticfiles/
+media/
 
 # 临时文件
 *.bak

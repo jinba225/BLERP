@@ -142,28 +142,64 @@ class NLPService:
     
     def _parse_ai_response(self, response_text: str) -> Dict[str, Any]:
         """解析 AI 响应"""
-        # 尝试提取 JSON
-        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        # 尝试提取 JSON（改进的正则表达式，只匹配第一个完整的 JSON 对象）
+        json_match = re.search(r'\{[^{}]*\{[^{}]*\}(?:[^{}]*\{[^{}]*\})*[^{}]*\}', response_text)
         if json_match:
             try:
                 result = json.loads(json_match.group())
-                
+
                 # 验证和转换 intent
                 intent_str = result.get("intent", "unknown")
                 try:
                     result["intent"] = Intent(intent_str)
                 except ValueError:
                     result["intent"] = Intent.UNKNOWN
-                
+
                 # 确保必要字段存在
                 result.setdefault("confidence", 0.0)
                 result.setdefault("entities", {})
                 result.setdefault("reasoning", "")
-                
+
                 return result
             except json.JSONDecodeError:
                 pass
-        
+
+        # 如果没有找到有效的 JSON，尝试从头提取
+        try:
+            # 从开头尝试解析 JSON
+            json_start = response_text.find('{')
+            if json_start >= 0:
+                # 查找匹配的闭合括号
+                brace_count = 0
+                end_pos = json_start + 1
+                for i, char in enumerate(response_text[json_start + 1:], start=json_start + 1):
+                    if char == '{':
+                        brace_count += 1
+                    elif char == '}':
+                        brace_count -= 1
+                        if brace_count == 0:
+                            end_pos = i + 1
+                            break
+
+                json_str = response_text[json_start:end_pos]
+                result = json.loads(json_str)
+
+                # 验证和转换 intent
+                intent_str = result.get("intent", "unknown")
+                try:
+                    result["intent"] = Intent(intent_str)
+                except ValueError:
+                    result["intent"] = Intent.UNKNOWN
+
+                # 确保必要字段存在
+                result.setdefault("confidence", 0.0)
+                result.setdefault("entities", {})
+                result.setdefault("reasoning", "")
+
+                return result
+        except (json.JSONDecodeError, ValueError):
+            pass
+
         raise ValueError("无法解析 AI 响应")
     
     def _fallback_parse(self, user_input: str) -> IntentResult:

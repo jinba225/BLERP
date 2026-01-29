@@ -17,6 +17,7 @@ from apps.ai_assistant.services import (
 )
 from apps.ai_assistant.channels import ChannelAdapter
 from apps.ai_assistant.channels.base_channel import IncomingMessage, OutgoingMessage
+from apps.ai_assistant.utils import decrypt_api_key
 
 User = get_user_model()
 
@@ -39,6 +40,9 @@ class ChannelAIService:
         self.user = user
         self.channel = channel
         
+        # 获取用户 AI 配置（如果存在）- 必须在初始化 AI Provider 之前
+        self.user_ai_config = self._get_user_ai_config()
+        
         # 初始化 AI Provider
         self.ai_provider = self._get_effective_provider()
         
@@ -51,9 +55,6 @@ class ChannelAIService:
         
         # 初始化渠道适配器
         self.channel_adapter = ChannelAdapter(channel)
-        
-        # 获取用户 AI 配置（如果存在）
-        self.user_ai_config = self._get_user_ai_config()
     
     def _get_effective_provider(self) -> Optional[BaseAIProvider]:
         """
@@ -88,41 +89,37 @@ class ChannelAIService:
             OpenAIProvider,
             AnthropicProvider,
             MockAIProvider,
-            GoogleProvider,
-            AzureProvider,
-            TelegramProvider,
-            WeChatProvider,
-            DingTalkProvider,
+            DeepSeekProvider,
         )
-        
+
         provider_map = {
             'openai': OpenAIProvider,
             'anthropic': AnthropicProvider,
             'mock': MockAIProvider,
-            'google': GoogleProvider,
-            'azure_openai': AzureProvider,
-            'telegram': TelegramProvider,
-            'wechat': WeChatProvider,
-            'dingtalk': DingTalkProvider,
+            'deepseek': DeepSeekProvider,
         }
-        
+
         provider_class = provider_map.get(config.provider.lower())
         if not provider_class:
             return None
-        
+
         # 创建 Provider 实例
-        api_key = decrypt_api_key(config.api_key)
-        
+        # Mock Provider 不需要解密
+        if config.provider.lower() == 'mock':
+            api_key = config.api_key
+        else:
+            api_key = decrypt_api_key(config.api_key)
+
         provider_config = {
             'api_key': api_key,
-            'model': config.model_name,
+            'model_name': config.model_name,
             'timeout': config.timeout,
         }
-        
+
         # 添加可选配置
         if config.api_base:
             provider_config['api_base'] = config.api_base
-        
+
         return provider_class(**provider_config)
     
     def _get_user_ai_config(self):

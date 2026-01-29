@@ -10,32 +10,22 @@ app_name = 'inventory'
 router = DefaultRouter()
 
 urlpatterns = [
-    # API routes
     path('api/', include(router.urls)),
-
-    # Stock URLs
+    path('', views.stock_list, name='stock_root'),
     path('stocks/', views.stock_list, name='stock_list'),
     path('stocks/<int:pk>/', views.stock_detail, name='stock_detail'),
-
-    # Transaction URLs
     path('transactions/', views.transaction_list, name='transaction_list'),
-
-    # Warehouse URLs
     path('warehouses/', views.warehouse_list, name='warehouse_list'),
     path('warehouses/create/', views.warehouse_create, name='warehouse_create'),
     path('warehouses/<int:pk>/', views.warehouse_detail, name='warehouse_detail'),
     path('warehouses/<int:pk>/edit/', views.warehouse_update, name='warehouse_update'),
     path('warehouses/<int:warehouse_pk>/locations/create/', views.location_create, name='location_create'),
-
-    # Stock Adjustment URLs (库存调整)
     path('adjustments/', views.adjustment_list, name='adjustment_list'),
     path('adjustments/create/', views.adjustment_create, name='adjustment_create'),
     path('adjustments/<int:pk>/', views.adjustment_detail, name='adjustment_detail'),
     path('adjustments/<int:pk>/edit/', views.adjustment_update, name='adjustment_update'),
     path('adjustments/<int:pk>/delete/', views.adjustment_delete, name='adjustment_delete'),
     path('adjustments/<int:pk>/approve/', views.adjustment_approve, name='adjustment_approve'),
-
-    # Stock Transfer URLs (库存调拨)
     path('transfers/', views.transfer_list, name='transfer_list'),
     path('transfers/create/', views.transfer_create, name='transfer_create'),
     path('transfers/<int:pk>/', views.transfer_detail, name='transfer_detail'),
@@ -46,8 +36,6 @@ urlpatterns = [
     path('transfers/<int:pk>/ship/', views.transfer_ship, name='transfer_ship'),
     path('transfers/<int:pk>/receive/', views.transfer_receive, name='transfer_receive'),
     path('transfers/<int:pk>/cancel/', views.transfer_cancel, name='transfer_cancel'),
-
-    # Stock Count URLs (库存盘点)
     path('counts/', views.count_list, name='count_list'),
     path('counts/create/', views.count_create, name='count_create'),
     path('counts/<int:pk>/', views.count_detail, name='count_detail'),
@@ -56,8 +44,6 @@ urlpatterns = [
     path('counts/<int:pk>/start/', views.count_start, name='count_start'),
     path('counts/<int:pk>/complete/', views.count_complete, name='count_complete'),
     path('counts/<int:pk>/cancel/', views.count_cancel, name='count_cancel'),
-
-    # Inbound Order URLs (入库单)
     path('inbounds/', views.inbound_list, name='inbound_list'),
     path('inbounds/create/', views.inbound_create, name='inbound_create'),
     path('inbounds/<int:pk>/', views.inbound_detail, name='inbound_detail'),
@@ -66,8 +52,6 @@ urlpatterns = [
     path('inbounds/<int:pk>/approve/', views.inbound_approve, name='inbound_approve'),
     path('inbounds/<int:pk>/complete/', views.inbound_complete, name='inbound_complete'),
     path('inbounds/<int:pk>/cancel/', views.inbound_cancel, name='inbound_cancel'),
-
-    # Outbound Order URLs (出库单)
     path('outbounds/', views.outbound_list, name='outbound_list'),
     path('outbounds/create/', views.outbound_create, name='outbound_create'),
     path('outbounds/<int:pk>/', views.outbound_detail, name='outbound_detail'),
@@ -76,19 +60,13 @@ urlpatterns = [
     path('outbounds/<int:pk>/approve/', views.outbound_approve, name='outbound_approve'),
     path('outbounds/<int:pk>/complete/', views.outbound_complete, name='outbound_complete'),
     path('outbounds/<int:pk>/cancel/', views.outbound_cancel, name='outbound_cancel'),
-
-    # Inventory Report URLs (库存报表)
-    path('reports/orders/', views.inventory_order_report, name='inventory_order_report'),  # 统一单据报表
+    path('reports/orders/', views.inventory_order_report, name='inventory_order_report'),
     path('reports/stock-summary/', views.stock_summary_report, name='report_stock_summary'),
     path('reports/stock-transaction/', views.stock_transaction_report, name='report_stock_transaction'),
     path('reports/stock-alert/', views.stock_alert_report, name='report_stock_alert'),
     path('reports/inbound-outbound-statistics/', views.inbound_outbound_statistics, name='report_inbound_outbound_statistics'),
-
-    # Stock Import / Initialization (库存导入及初始化)
     path('import/', views.stock_import, name='stock_import'),
     path('import/submit/', views.stock_import_submit, name='stock_import_submit'),
-
-    # Data Import / Export (数据导入导出)
     path('data-import/', views.data_import, name='data_import'),
     path('data-export/', views.data_export, name='data_export'),
 ]

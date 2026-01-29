@@ -23,6 +23,7 @@ from .models import (
     ChoiceOption,
     ChoiceOptionGroup,
 )
+from .utils.theme_config import THEME_COLORS, DEFAULT_THEME
 
 
 @admin.register(Company)
@@ -71,8 +72,140 @@ class SystemConfigAdmin(admin.ModelAdmin):
         select_across = forms.CharField(required=False, initial='1', widget=forms.HiddenInput)
         timestamp = forms.CharField(required=False, label=_('备份时间戳'))
 
-    actions = ['backup_database_action', 'restore_database_action', 'flush_test_data_action']
+    actions = ['backup_database_action', 'restore_database_action', 'flush_test_data_action', 'initialize_theme_action', 'switch_theme_action']
     action_form = ActionForm
+    
+    def initialize_theme_action(self, request, queryset):
+        """初始化主题配置"""
+        # 获取 Company logo
+        try:
+            company = Company.objects.filter(is_active=True).first()
+            logo_url = company.logo.url if company and company.logo else ''
+        except:
+            logo_url = ''
+        
+        # 初始化三种主题的配置
+        configs = []
+        
+        # 默认主题
+        configs.append(SystemConfig(
+            key='ui.theme',
+            value=DEFAULT_THEME,
+            config_type='ui',
+            description='当前主题 (blue/yellow/red)',
+            is_active=True,
+        ))
+        
+        # Logo 配置
+        configs.append(SystemConfig(
+            key='ui.logo',
+            value=logo_url,
+            config_type='ui',
+            description='公司 Logo 图片',
+            is_active=True,
+        ))
+        
+        # 初始化三种主题的颜色
+        for theme_name, colors in THEME_COLORS.items():
+            configs.append(SystemConfig(
+                key=f'ui.theme.{theme_name}.primary',
+                value=colors['primary'],
+                config_type='ui',
+                description=f'{theme_name} 主题主色',
+                is_active=True,
+            ))
+            configs.append(SystemConfig(
+                key=f'ui.theme.{theme_name}.sidebar_bg',
+                value=colors['sidebar_bg'],
+                config_type='ui',
+                description=f'{theme_name} 主题侧边栏背景',
+                is_active=True,
+            ))
+            configs.append(SystemConfig(
+                key=f'ui.theme.{theme_name}.sidebar_link_active_bg',
+                value=colors['sidebar_link_active_bg'],
+                config_type='ui',
+                description=f'{theme_name} 主题侧边栏激活链接',
+                is_active=True,
+            ))
+            configs.append(SystemConfig(
+                key=f'ui.theme.{theme_name}.sidebar_link_color',
+                value=colors['sidebar_link_color'],
+                config_type='ui',
+                description=f'{theme_name} 主题侧边栏链接',
+                is_active=True,
+            ))
+            configs.append(SystemConfig(
+                key=f'ui.theme.{theme_name}.header_bg',
+                value=colors['header_bg'],
+                config_type='ui',
+                description=f'{theme_name} 主题头部背景',
+                is_active=True,
+            ))
+            configs.append(SystemConfig(
+                key=f'ui.theme.{theme_name}.header_text',
+                value=colors['header_text'],
+                config_type='ui',
+                description=f'{theme_name} 主题头部文字',
+                is_active=True,
+            ))
+        
+        # 批量创建配置（如果已存在则更新）
+        for config in configs:
+            try:
+                existing = SystemConfig.objects.get(key=config.key)
+                existing.value = config.value
+                existing.description = config.description
+                existing.save()
+            except SystemConfig.DoesNotExist:
+                config.save()
+        
+        count = len(configs)
+        self.message_user(
+            request,
+            f'成功初始化 {count} 条主题配置',
+            level=messages.SUCCESS
+        )
+    
+    initialize_theme_action.short_description = '初始化主题配置'
+    
+    def switch_theme_action(self, request, queryset):
+        """切换到指定主题"""
+        if queryset.count() != 1:
+            self.message_user(
+                request,
+                '请选择一个主题配置 (ui.theme)',
+                level=messages.ERROR
+            )
+            return
+        
+        config = queryset.first()
+        
+        # 验证是否是主题配置
+        if config.key != 'ui.theme':
+            self.message_user(
+                request,
+                '请选择 ui.theme 配置项',
+                level=messages.ERROR
+            )
+            return
+        
+        # 获取当前所有主题配置并禁用
+        theme_configs = SystemConfig.objects.filter(
+            key='ui.theme'
+        ).exclude(pk=config.pk)
+        
+        # 设置新主题
+        config.is_active = True
+        config.save()
+        
+        self.message_user(
+            request,
+            f'主题已切换到: {config.value}',
+            level=messages.SUCCESS
+        )
+    
+    switch_theme_action.short_description = '切换到此主题'
 
     def changelist_view(self, request, extra_context=None):
         if request.method == 'POST' and request.POST.get('action'):

@@ -44,8 +44,7 @@ class SearchCustomerTool(BaseTool):
             # 构建搜索查询
             customers = Customer.objects.filter(
                 Q(name__icontains=keyword) |
-                Q(code__icontains=keyword) |
-                Q(contact_person__icontains=keyword),
+                Q(code__icontains=keyword),
                 is_deleted=False
             )[:limit]
 
@@ -56,12 +55,10 @@ class SearchCustomerTool(BaseTool):
                     "id": customer.id,
                     "code": customer.code,
                     "name": customer.name,
-                    "contact_person": customer.contact_person or "",
-                    "phone": customer.phone or "",
-                    "email": customer.email or "",
-                    "address": customer.address or "",
-                    "customer_type": customer.get_customer_type_display(),
-                    "is_active": customer.is_active,
+                    "customer_level": customer.customer_level,
+                    "status": customer.status,
+                    "website": customer.website or "",
+                    "tax_number": customer.tax_number or "",
                 })
 
             return ToolResult(

@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block page_title %}</title>
+    
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-color: #f3f4f6;
+            --border-color: #e5e7eb;
+            --text-color: #333333;
+            --text-light: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0.08);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .breadcrumb {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .breadcrumb li {
+            margin-right: 8px;
+        }
+        
+        .breadcrumb a {
+            color: var(--text-light);
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            color: var(--primary-color);
+        }
+        
+        .breadcrumb li:last-child {
+            margin-right: 0;
+        }
+    </style>
+    
+    <body>
+        <div class="container">
+            {% block content %}
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title">
+                        {% block page_title %}
+                    </h1>
+                    {% block actions %}
+                </div>
+            </div>
+            
+            <ul class="breadcrumb">
+                {% block breadcrumb %}
+                <li><a href="/ecomm_sync/dashboard">电商数据同步</a></li>
+                {% block extra_breadcrumb %}
+            </ul>
+            
+            {% block content %}
+        </div>
+    </body>
+</html>

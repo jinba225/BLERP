@@ -33,6 +33,29 @@ app.conf.beat_schedule = {
         'task': 'apps.ai_assistant.tasks.cleanup_old_logs',
         'schedule': crontab(hour=2, minute=0),  # 每天凌晨2点执行
     },
+    
+    # ========== 电商数据同步任务 ==========
+    
+    # 每日增量同步（凌晨2点）
+    'sync-ecommerce-incremental': {
+        'task': 'apps.ecomm_sync.tasks.sync_platform_products_task',
+        'schedule': crontab(hour=2, minute=0),
+        'options': {'expires': 3600}
+    },
+    
+    # 每周全量同步（周日凌晨3点）
+    'sync-ecommerce-full': {
+        'task': 'apps.ecomm_sync.tasks.sync_platform_products_task',
+        'schedule': crontab(day_of_week=0, hour=3, minute=0),
+        'options': {'expires': 7200}
+    },
+    
+    # 每小时价格监控
+    'monitor-price-changes': {
+        'task': 'apps.ecomm_sync.tasks.sync_price_changes_task',
+        'schedule': crontab(minute=0),
+        'options': {'expires': 300}
+    },
 }
 
 

@@ -1,0 +1,103 @@
+{% extends "ecomm_sync/base.html" %}
+{% load static %}
+
+{% block page_title %}同步日志{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% block content %}
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title">
+                {% block page_title %}
+            </h1>
+            {% block filters %}
+        </div>
+        
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>平台</th>
+                        <th>类型</th>
+                        <th>开始时间</th>
+                        <th>耗时(秒)</th>
+                        <th>记录数</th>
+                        <th>成功数</th>
+                        <th>失败数</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in page_obj.object_list %}
+                    <tr>
+                        <td>{{ log.id }}</td>
+                        <td>{{ log.platform }}</td>
+                        <td>
+                            {{ log.log_type }}
+                        </td>
+                        <td>
+                            {{ log.created_at|date:"Y-m-d H:i:s" }}
+                        </td>
+                        <td>
+                            {{ log.execution_time }}
+                        </td>
+                        <td>
+                            {{ log.records_processed }}
+                        </td>
+                        <td>
+                            {{ log.records_succeeded }}
+                        </td>
+                        <td>
+                            {{ log.records_failed }}
+                        </td>
+                        <td>
+                            <span class="status status-{{ log.status }}">
+                                {{ log.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endblock content %}
+</div>
+
+<style>
+    .table-container {
+        overflow-x: auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0,0.08);
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+    
+    .data-table th {
+        background-color: #f8f9fa;
+        color: #333;
+        padding: 12px 8px;
+        text-align: left;
+        font-weight: 500;
+    }
+    
+    .data-table td {
+        padding: 12px 8px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .data-table tr:hover td {
+        background-color: #f8f9fa;
+    }
+</style>
