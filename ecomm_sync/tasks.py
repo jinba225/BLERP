@@ -68,6 +68,84 @@ def sync_price_changes_task(self, platform_id: int):
 
 
 @shared_task(bind=True, ignore_result=False)
+def sync_orders_task(self, platform_id: int, hours: int = 24):
+    """
+    Celery任务：同步平台订单
+
+    Args:
+        self: Celery任务实例
+        platform_id: 平台ID
+        hours: 同步最近多少小时的订单
+    """
+    from ecomm_sync.models import EcommPlatform
+    from ecomm_sync.services.order_sync import OrderSyncService
+    
+    logger.info(f'开始订单同步: 平台ID={platform_id}, 最近{hours}小时')
+    
+    try:
+        platform = EcommPlatform.objects.get(id=platform_id)
+        service = OrderSyncService(platform)
+        results = service.sync_new_orders(hours=hours)
+        
+        logger.info(f'订单同步完成: {results}')
+        return {'status': 'success', 'result': results}
+        
+    except Exception as e:
+        logger.error(f'订单同步失败: {e}')
+        return {'status': 'failed', 'error': str(e)}
+
+
+@shared_task(bind=True, ignore_result=False)
+def sync_stock_task(self, sku: str):
+    """
+    Celery任务：同步库存到平台
+
+    Args:
+        self: Celery任务实例
+        sku: SKU代码
+    """
+    from ecomm_sync.services.stock_sync import StockSyncService
+    
+    logger.info(f'开始库存同步: SKU={sku}')
+    
+    try:
+        service = StockSyncService()
+        results = service.sync_to_platforms(sku)
+        
+        logger.info(f'库存同步完成: {results}')
+        return {'status': 'success', 'result': results}
+        
+    except Exception as e:
+        logger.error(f'库存同步失败: {e}')
+        return {'status': 'failed', 'error': str(e)}
+
+
+@shared_task(bind=True, ignore_result=False)
+def process_stock_queue_task(self, limit: int = 100):
+    """
+    Celery任务：处理库存同步队列
+
+    Args:
+        self: Celery任务实例
+        limit: 处理数量限制
+    """
+    from ecomm_sync.services.stock_sync import StockSyncService
+    
+    logger.info(f'开始处理库存同步队列, 限制={limit}')
+    
+    try:
+        service = StockSyncService()
+        results = service.process_queue(limit=limit)
+        
+        logger.info(f'库存队列处理完成: {results}')
+        return {'status': 'success', 'result': results}
+        
+    except Exception as e:
+        logger.error(f'库存队列处理失败: {e}')
+        return {'status': 'failed', 'error': str(e)}
+
+
+@shared_task(bind=True, ignore_result=False)
 def test_scraper_task(self, platform_id: int):
     """
     Celery任务：测试爬虫
