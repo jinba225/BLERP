@@ -384,7 +384,7 @@ function addItemRow(itemData = {}) {
     const quantityCell = document.createElement('td');
     quantityCell.className = 'px-4 py-3';
     quantityCell.innerHTML = `
-        <input type="number" class="item-quantity w-full px-2 py-1 rounded"
+        <input type="number" class="item-quantity w-full px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 transition-all"
                data-index="${rowIndex}" value="${itemData.quantity || ''}" step="1" min="1" required>
     `;
 
@@ -392,7 +392,7 @@ function addItemRow(itemData = {}) {
     const notesCell = document.createElement('td');
     notesCell.className = 'px-4 py-3';
     notesCell.innerHTML = `
-        <input type="text" class="item-notes w-full px-2 py-1 rounded"
+        <input type="text" class="item-notes w-full px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 transition-all"
                data-index="${rowIndex}" value="${itemData.notes || ''}">
     `;
 

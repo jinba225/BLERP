@@ -120,13 +120,13 @@
 <td class="px-3 py-2 text-sm text-right text-gray-500" x-text="item.available_return_quantity"></td>
 <td class="px-3 py-2">
 <input type="number" x-model="item.quantity" @input="calculateLineTotal(index)"
-       step="1" min="0" :max="item.available_return_quantity"
-       class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right">
+        step="1" min="0" :max="item.available_return_quantity"
+        class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors">
 </td>
 <td class="px-3 py-2 text-sm text-right text-gray-900" x-text="formatMoney(item.unit_price)"></td>
 <td class="px-3 py-2 text-sm text-right font-medium text-gray-900" x-text="formatMoney(item.line_total)"></td>
 <td class="px-3 py-2">
-<select x-model="item.condition" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+<select x-model="item.condition" class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-theme-500 transition-colors">
 <option value="">请选择</option>
 <option value="good">完好</option>
 <option value="damaged">损坏</option>

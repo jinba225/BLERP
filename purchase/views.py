@@ -2675,7 +2675,7 @@ def borrow_create(request):
             from products.models import Product
             from django.core.serializers.json import DjangoJSONEncoder
 
-            suppliers = Supplier.objects.filter(is_deleted=False, is_active=True).values('id', 'name')
+            suppliers = Supplier.objects.filter(is_deleted=False, is_active=True).values('id', 'name', 'code')
             products = Product.objects.filter(is_deleted=False, status='active').values('id', 'name', 'code', 'unit')
 
             # 处理明细数据，返回给模板以保留用户输入
@@ -2738,7 +2738,7 @@ def borrow_create(request):
     from django.core.serializers.json import DjangoJSONEncoder
     import json
 
-    suppliers = Supplier.objects.filter(is_deleted=False, is_active=True).values('id', 'name')
+    suppliers = Supplier.objects.filter(is_deleted=False, is_active=True).values('id', 'name', 'code')
     products = Product.objects.filter(is_deleted=False, status='active').values('id', 'name', 'code', 'unit')
 
     context = {
@@ -2864,7 +2864,7 @@ def borrow_update(request, pk):
     from django.core.serializers.json import DjangoJSONEncoder
     import json
 
-    suppliers = Supplier.objects.filter(is_deleted=False, is_active=True).values('id', 'name')
+    suppliers = Supplier.objects.filter(is_deleted=False, is_active=True).values('id', 'name', 'code')
     products = Product.objects.filter(is_deleted=False, status='active').values('id', 'name', 'code', 'unit')
 
     # 序列化现有明细数据

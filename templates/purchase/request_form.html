@@ -84,7 +84,7 @@
 <tr class="border-t">
 <td class="px-3 py-2 text-sm text-gray-500" x-text="index + 1"></td>
 <td class="px-3 py-2">
-<select x-model="item.product_id" @change="onProductChange(index)" class="w-full px-2 py-1 border border-gray-300 rounded text-sm" required>
+<select x-model="item.product_id" @change="onProductChange(index)" class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-theme-500 transition-colors" required>
 <option value="">选择产品</option>
 {% for p in products %}
 <option value="{{ p.id }}" data-unit="{{ p.unit.symbol|default:'' }}">{{ p.code }} - {{ p.name }}</option>
@@ -92,10 +92,10 @@
 </select>
 </td>
 <td class="px-3 py-2">
-<input type="number" x-model="item.quantity" step="1" min="0" class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right" required>
+<input type="number" x-model="item.quantity" step="1" min="0" class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors" required>
 </td>
 <td class="px-3 py-2">
-<select x-model="item.preferred_supplier_id" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+<select x-model="item.preferred_supplier_id" class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-theme-500 transition-colors">
 <option value="">未指定</option>
 {% for supplier in suppliers %}
 <option value="{{ supplier.id }}">{{ supplier.name }}</option>
@@ -103,7 +103,7 @@
 </select>
 </td>
 <td class="px-3 py-2">
-<input type="text" x-model="item.specifications" class="w-full px-2 py-1 border border-gray-300 rounded text-sm" placeholder="规格说明">
+<input type="text" x-model="item.specifications" class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-theme-500 transition-colors" placeholder="规格说明">
 </td>
 <td class="px-3 py-2 text-center">
 <button type="button" @click="removeItem(index)" class="text-red-600 hover:text-red-800"><svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
