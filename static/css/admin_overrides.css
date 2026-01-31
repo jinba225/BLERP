@@ -1,0 +1,231 @@
+/**
+ * Admin 专用覆盖样式
+ * 用于隐藏 AdminLTE 的伪元素图标
+ */
+
+/* ==================== 主题色变量 ==================== */
+
+:root {
+    /* 默认主题色 - 蓝色 */
+    --theme-50: #eff6ff;
+    --theme-100: #dbeafe;
+    --theme-200: #bfdbfe;
+    --theme-300: #93c5fd;
+    --theme-400: #60a5fa;
+    --theme-500: #3b82f6;
+    --theme-600: #2563eb;
+    --theme-700: #1d4ed8;
+    --theme-800: #1e40af;
+    --theme-900: #1e3a8a;
+}
+
+/* ==================== Jazzmin主题色覆盖 ==================== */
+
+/* 主色调 */
+.jazzmin-ui .sidebar,
+.jazzmin-ui .main-sidebar {
+    border-right: 1px solid #e5e7eb;
+}
+
+/* 侧边栏激活菜单 */
+.jazzmin-ui .nav-sidebar .nav-item.active > .nav-link {
+    background-color: var(--theme-500) !important;
+    color: #ffffff !important;
+}
+
+.jazzmin-ui .nav-sidebar .nav-item.active > .nav-link .nav-icon {
+    color: #ffffff !important;
+}
+
+/* 侧边栏激活菜单hover */
+.jazzmin-ui .nav-sidebar .nav-item.active > .nav-link:hover {
+    background-color: var(--theme-600) !important;
+}
+
+/* 主要按钮颜色 */
+.jazzmin-ui .btn-primary {
+    background-color: var(--theme-500) !important;
+    border-color: var(--theme-500) !important;
+}
+
+.jazzmin-ui .btn-primary:hover {
+    background-color: var(--theme-600) !important;
+    border-color: var(--theme-600) !important;
+}
+
+/* 表格操作按钮 */
+.jazzmin-ui .button-primary,
+.jazzmin-ui .btn-success,
+.jazzmin-ui .btn-info {
+    background-color: var(--theme-500) !important;
+    border-color: var(--theme-500) !important;
+}
+
+/* 分页激活状态 */
+.jazzmin-ui .pagination .page-item.active .page-link {
+    background-color: var(--theme-500) !important;
+    border-color: var(--theme-500) !important;
+}
+
+/* 链接颜色 */
+.jazzmin-ui a:not(.nav-link):not(.btn):not(.dropdown-item) {
+    color: var(--theme-500) !important;
+}
+
+.jazzmin-ui a:not(.nav-link):not(.btn):not(.dropdown-item):hover {
+    color: var(--theme-600) !important;
+}
+
+/* 表单焦点状态 */
+.jazzmin-ui input:focus,
+.jazzmin-ui select:focus,
+.jazzmin-ui textarea:focus {
+    border-color: var(--theme-500) !important;
+    box-shadow: 0 0 0 0.2rem var(--theme-100) !important;
+}
+
+/* ==================== 隐藏AdminLTE伪元素图标 ==================== */
+
+/* 隐藏AdminLTE默认的:before伪元素图标 */
+.nav-link::before,
+.nav-link::after {
+    display: none !important;
+}
+
+/* Dashboard 链接：保持图标显示（使用更高特异性） */
+ul.nav-sidebar > li.nav-item > a.nav-link[href="/admin/"] > svg.nav-icon,
+ul.nav-sidebar > li.nav-item > a.nav-link[href="/admin/"] > i.nav-icon {
+    display: inline-block !important;
+}
+
+/* 隐藏所有其他 li.nav-item 中的图标（除了Dashboard）（使用更高特异性） */
+ul.nav-sidebar > li.nav-item > a.nav-link:not([href="/admin/"]) > svg.nav-icon,
+ul.nav-sidebar > li.nav-item > a.nav-link:not([href="/admin/"]) > i.nav-icon,
+ul.nav-sidebar > li.nav-item > a.nav-link:not([href="/admin/"]) > i {
+    display: none !important;
+}
+
+/* 隐藏 span.nav-link.disabled 中的图标（不可用的模型） */
+ul.nav-sidebar > li.nav-item > span.nav-link.disabled > svg.nav-icon,
+ul.nav-sidebar > li.nav-item > span.nav-link.disabled > i.nav-icon,
+ul.nav-sidebar > li.nav-item > span.nav-link.disabled > i {
+    display: none !important;
+}
+
+/* 导航分组标题：确保没有图标 */
+.nav-header {
+    position: relative;
+}
+
+/* 导航展开模式下，移除模型项的图标左侧间距 */
+ul.nav-sidebar > li.nav-item > a.nav-link:not([href="/admin/"]) > p {
+    margin-left: 0 !important;
+}
+
+/* 如果存在折叠模式（navigation_expanded=False），隐藏子菜单图标 */
+ul.nav-treeview > li.nav-item > a.nav-link > svg.nav-icon,
+ul.nav-treeview > li.nav-item > a.nav-link > i.nav-icon,
+ul.nav-treeview > li.nav-item > a.nav-link > i {
+    display: none !important;
+}
+
+/* 保持右箭头图标显示（用于折叠/展开子菜单） */
+svg.nav-icon.right,
+i.nav-icon.right {
+    display: inline-block !important;
+}
+
+/* ==================== 禁用鼠标悬停展开子菜单 ==================== */
+
+/* 禁用 has-treeview 悬停自动展开 */
+.nav-item.has-treeview:hover > .nav-treeview {
+    display: none !important;
+}
+
+/* 只有点击时才展开（通过 JS 控制） */
+.nav-item.has-treeview.menu-open > .nav-treeview {
+    display: block !important;
+}
+
+/* 确保右箭头图标样式 */
+.nav-icon.right {
+    position: absolute;
+    right: 1rem;
+    top: 0.7rem;
+    margin-right: 0;
+    transition: transform 0.3s;
+    width: 1rem !important;
+    height: 1rem !important;
+}
+
+/* 展开时箭头旋转 */
+.nav-item.has-treeview.menu-open .nav-icon.right {
+    transform: rotate(-90deg);
+}
+
+/* 确保侧边栏文本正常显示 */
+.nav-link p,
+.nav-link .nav-header {
+    margin-left: 0 !important;
+    padding-left: 0.6rem !important;
+}
+
+/* 保护侧边栏收缩按钮 */
+[data-widget="pushmenu"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+[data-widget="pushmenu"] svg {
+    display: inline-block !important;
+}
+
+/* 确保主导航栏显示 */
+.main-header .navbar-nav {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.main-header .nav-item {
+    display: block !important;
+}
+
+/* ==================== Logo 响应式样式 ==================== */
+
+/* Logo 较大时的样式 */
+#jazzy-logo.logo-large {
+    justify-content: center !important;
+}
+
+#jazzy-logo.logo-large .brand-image {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-height: 50px !important;
+}
+
+#jazzy-logo.logo-large #brand-text {
+    display: none !important;
+}
+
+/* 侧边栏收缩状态下的 Logo 优化 */
+.sidebar-collapse #jazzy-logo .brand-image {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-height: 40px !important;
+}
+
+/* 确保 Logo 始终可见 */
+#jazzy-logo .brand-image {
+    opacity: 1 !important;
+}
+
+/* 品牌文本动画效果 */
+#brand-text {
+    transition: opacity 0.3s ease-in-out;
+}
+
+#jazzy-logo.logo-large #brand-text {
+    opacity: 0;
+    pointer-events: none;
+}

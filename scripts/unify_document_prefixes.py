@@ -5,7 +5,7 @@
 执行方式：
     python manage.py shell < scripts/unify_document_prefixes.py
 """
-from apps.core.models import SystemConfig
+from core.models import SystemConfig
 
 # 需要更新的配置项
 updates = [

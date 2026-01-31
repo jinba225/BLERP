@@ -21,8 +21,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'better_laser_erp.settings')
 django.setup()
 
-from apps.core.models import DocumentNumberSequence
-from apps.finance.models import Payment
+from core.models import DocumentNumberSequence
+from finance.models import Payment
 from django.db.models import Max
 
 

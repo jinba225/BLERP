@@ -2,8 +2,7 @@
 Django==5.0.9  # 升级到Django5.0最新稳定版
 djangorestframework==3.15.2  # 更新DRF以兼容Django5.0
 
-# Admin 美化
-django-jazzmin==2.6.0  # Django Admin 现代化主题（Bootstrap5）
+
 
 # 数据库和模型相关
 django-mptt==0.15.0  # 树形结构支持（部门、产品分类）

@@ -3,7 +3,7 @@ BetterLaser ERP - 测试数据工厂 (Factory Boy)
 用于快速生成测试数据
 
 使用示例:
-    from apps.sales.factories import SalesOrderFactory
+    from sales.factories import SalesOrderFactory
 
     # 创建单个订单
     order = SalesOrderFactory()
