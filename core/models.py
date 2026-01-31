@@ -348,3 +348,110 @@ from .models_template_mapping import DefaultTemplateMapping
 # Dynamic Choice Options (统一选项管理)
 # ============================================
 from .models_choice import ChoiceOption, ChoiceOptionGroup
+
+
+# ============================================
+# Platform Models (统一平台和店铺管理)
+# ============================================
+class Platform(BaseModel):
+    """
+    统一平台配置模型：采集平台+跨境平台+电商平台
+    
+    替代原来分散在collect.Platform和ecomm_sync.EcommPlatform的定义
+    """
+    PLATFORM_TYPES = (
+        ('collect', '采集平台'),
+        ('cross', '跨境平台'),
+        ('ecommerce', '电商平台'),
+    )
+    
+    PLATFORM_CODES = (
+        ('taobao', '淘宝'),
+        ('1688', '1688'),
+        ('shopee', 'Shopee'),
+        ('tiktok', 'TikTok'),
+        ('shopify', 'Shopify'),
+        ('amazon', 'Amazon'),
+        ('ebay', 'eBay'),
+        ('lazada', 'Lazada'),
+        ('woocommerce', 'WooCommerce'),
+    )
+    
+    # 基础信息
+    platform_name = models.CharField('平台名称', max_length=100)
+    platform_code = models.CharField('平台编码', max_length=20, unique=True, choices=PLATFORM_CODES)
+    platform_type = models.CharField('平台类型', max_length=20, choices=PLATFORM_TYPES)
+    
+    # API配置（采集/跨境/电商通用）
+    api_key = models.CharField('API Key', max_length=128, blank=True, help_text='平台API密钥')
+    api_secret = models.CharField('API Secret', max_length=128, blank=True, help_text='平台API密钥')
+    api_url = models.URLField('API网关地址', max_length=256, blank=True)
+    api_version = models.CharField('API版本', max_length=16, blank=True)
+    
+    # OAuth配置（部分平台需要）
+    auth_type = models.CharField('认证方式', max_length=20, blank=True, help_text='如：oauth2, basic等')
+    access_token = models.TextField('访问令牌', blank=True)
+    refresh_token = models.TextField('刷新令牌', blank=True)
+    token_expires_at = models.DateTimeField('令牌过期时间', null=True, blank=True)
+    
+    # 平台配置（JSON存储，避免过多字段）
+    platform_config = models.JSONField('平台配置', default=dict, blank=True, help_text='平台级别的配置信息')
+    
+    is_active = models.BooleanField('是否启用', default=True)
+    description = models.TextField('描述', blank=True)
+    
+    class Meta:
+        verbose_name = '平台配置'
+        verbose_name_plural = '平台配置'
+        db_table = 'core_platform'
+        indexes = [
+            models.Index(fields=['platform_code', 'platform_type', 'is_active']),
+            models.Index(fields=['platform_type', 'is_active']),
+        ]
+    
+    def __str__(self):
+        return f"{self.platform_name} ({self.platform_code})"
+
+
+class Shop(BaseModel):
+    """
+    统一店铺配置模型：跨境平台店铺+电商平台店铺
+    
+    替代原来分散在collect.Shop和ecomm_sync.WooShopConfig的定义
+    """
+    # 基础信息
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, related_name='shops', verbose_name='所属平台')
+    shop_name = models.CharField('店铺名称', max_length=200)
+    shop_code = models.CharField('店铺编码', max_length=100, blank=True)
+    shop_id = models.CharField('平台店铺ID', max_length=100, blank=True, db_index=True)
+    
+    # 店铺配置（JSON存储，避免过多字段）
+    shop_config = models.JSONField('店铺配置', default=dict, blank=True, help_text='店铺级别的配置信息')
+    
+    # 货币和地区
+    currency = models.CharField('货币', max_length=10, default='CNY')
+    country = models.CharField('国家/地区', max_length=50, blank=True)
+    
+    # API凭证（如果与平台不同）
+    api_key = models.CharField('店铺API Key', max_length=128, blank=True)
+    api_secret = models.CharField('店铺API Secret', max_length=128, blank=True)
+    
+    # OAuth配置
+    access_token = models.TextField('访问令牌', blank=True)
+    refresh_token = models.TextField('刷新令牌', blank=True)
+    token_expires_at = models.DateTimeField('令牌过期时间', null=True, blank=True)
+    
+    is_active = models.BooleanField('是否启用', default=True)
+    description = models.TextField('描述', blank=True)
+    
+    class Meta:
+        verbose_name = '店铺配置'
+        verbose_name_plural = '店铺配置'
+        db_table = 'core_shop'
+        indexes = [
+            models.Index(fields=['platform', 'is_active']),
+            models.Index(fields=['shop_id']),
+        ]
+    
+    def __str__(self):
+        return f"{self.shop_name} ({self.platform.platform_name})"

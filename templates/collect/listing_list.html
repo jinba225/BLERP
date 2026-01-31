@@ -1,0 +1,156 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}Listing管理{% endblock %}
+
+{% block content %}
+<div class="p-6" x-data="listingManage()" x-init="initData()">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Listing管理</h1>
+            <p class="text-sm text-gray-500 mt-1">管理跨境平台的商品Listing</p>
+        </div>
+        <button @click="showCreateModal = true"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            创建Listing
+        </button>
+    </div>
+
+    <!-- 筛选 -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div class="flex flex-col md:flex-row gap-4">
+            <input type="text" x-model="search" @input="filterListings()"
+                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                   placeholder="搜索标题或SKU...">
+            <select x-model="filterPlatform" @change="filterListings()"
+                    class="px-3 py-2 border border-gray-300 rounded-md">
+                <option value="">全部平台</option>
+                <template x-for="platform in platforms" :key="platform.id">
+                    <option :value="platform.id" x-text="platform.platform_name"></option>
+                </template>
+            </select>
+            <select x-model="filterStatus" @change="filterListings()"
+                    class="px-3 py-2 border border-gray-300 rounded-md">
+                <option value="">全部状态</option>
+                <option value="draft">草稿</option>
+                <option value="onsale">在售</option>
+                <option value="offshelf">已下架</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Listing列表 -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">标题</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">平台/店铺</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ERP SKU</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">价格</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">同步状态</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                <template x-for="listing in listings" :key="listing.id">
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900 truncate max-w-xs" x-text="listing.title"></div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            <div x-text="listing.platform_name"></div>
+                            <div class="text-xs" x-text="listing.shop_name"></div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500" x-text="listing.erp_sku"></td>
+                        <td class="px-6 py-4 text-sm text-gray-900" x-text="'¥' + listing.price"></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full"
+                                  :class="{
+                                      'bg-gray-100 text-gray-800': listing.listing_status === 'draft',
+                                      'bg-green-100 text-green-800': listing.listing_status === 'onsale',
+                                      'bg-red-100 text-red-800': listing.listing_status === 'offshelf'
+                                  }" x-text="getListingStatusText(listing.listing_status)"></span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full"
+                                  :class="{
+                                      'bg-yellow-100 text-yellow-800': listing.sync_status === 'pending',
+                                      'bg-blue-100 text-blue-800': listing.sync_status === 'syncing',
+                                      'bg-green-100 text-green-800': listing.sync_status === 'success',
+                                      'bg-red-100 text-red-800': listing.sync_status === 'failed'
+                                  }" x-text="getSyncStatusText(listing.sync_status)"></span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a :href="`/admin/collect/productlisting/${listing.id}/change/`" 
+                               class="text-blue-600 hover:text-blue-900">编辑</a>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('listingManage', () => ({
+        listings: [],
+        platforms: [],
+        search: '',
+        filterPlatform: '',
+        filterStatus: '',
+        
+        async initData() {
+            await this.fetchPlatforms();
+            await this.fetchListings();
+        },
+        
+        async fetchPlatforms() {
+            const response = await fetch('/collect/platforms/');
+            const data = await response.json();
+            this.platforms = data.platforms?.filter(p => p.platform_type === 'cross') || [];
+        },
+        
+        async fetchListings() {
+            const params = new URLSearchParams({
+                search: this.search,
+                platform: this.filterPlatform,
+                status: this.filterStatus
+            });
+            const response = await fetch(`/collect/listings/?${params}`);
+            const data = await response.json();
+            this.listings = data.listings || [];
+        },
+        
+        filterListings() {
+            this.fetchListings();
+        },
+        
+        getListingStatusText(status) {
+            const statusMap = {
+                'draft': '草稿',
+                'onsale': '在售',
+                'offshelf': '已下架'
+            };
+            return statusMap[status] || status;
+        },
+        
+        getSyncStatusText(status) {
+            const statusMap = {
+                'pending': '待同步',
+                'syncing': '同步中',
+                'success': '已同步',
+                'failed': '同步失败'
+            };
+            return statusMap[status] || status;
+        }
+    }));
+});
+</script>
+{% endblock %}

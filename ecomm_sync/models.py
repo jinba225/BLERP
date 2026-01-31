@@ -1,49 +1,7 @@
 from django.db import models
 from django.core.validators import URLValidator
-from core.models import BaseModel
+from core.models import BaseModel, Platform, Shop
 from products.models import Product
-
-
-class EcommPlatform(BaseModel):
-    """电商平台配置"""
-
-    PLATFORM_TYPES = [
-        ('taobao', '淘宝'),
-        ('alibaba', '1688'),
-    ]
-
-    platform_type = models.CharField('平台类型', max_length=20, choices=PLATFORM_TYPES)
-    name = models.CharField('平台名称', max_length=100)
-    base_url = models.URLField('基础URL')
-    is_active = models.BooleanField('是否启用', default=True)
-    description = models.TextField('描述', blank=True)
-
-    class Meta:
-        verbose_name = '电商平台'
-        verbose_name_plural = '电商平台'
-        db_table = 'ecomm_platform'
-
-    def __str__(self):
-        return self.name
-
-
-class WooShopConfig(BaseModel):
-    """WooCommerce店铺配置"""
-
-    shop_url = models.URLField('店铺URL')
-    shop_name = models.CharField('店铺名称', max_length=200, blank=True)
-    consumer_key = models.CharField('Consumer Key', max_length=200)
-    consumer_secret = models.CharField('Consumer Secret', max_length=200)
-    is_active = models.BooleanField('是否启用', default=True)
-    default_category_id = models.PositiveIntegerField('默认分类ID', null=True, blank=True, help_text='WooCommerce中的默认商品分类ID')
-
-    class Meta:
-        verbose_name = 'WooCommerce配置'
-        verbose_name_plural = 'WooCommerce配置'
-        db_table = 'ecomm_woo_shop'
-
-    def __str__(self):
-        return self.shop_name or self.shop_url
 
 
 class EcommProduct(BaseModel):
@@ -56,7 +14,7 @@ class EcommProduct(BaseModel):
         ('delisted', '已下架'),
     ]
 
-    platform = models.ForeignKey(EcommPlatform, on_delete=models.CASCADE, related_name='products', verbose_name='平台')
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, related_name='ecomm_products', verbose_name='平台')
     external_id = models.CharField('平台商品ID', max_length=200, db_index=True)
     external_url = models.URLField('商品链接', max_length=1000)
     raw_data = models.JSONField('原始数据', default=dict, blank=True)
@@ -93,7 +51,7 @@ class SyncStrategy(BaseModel):
 
     name = models.CharField('策略名称', max_length=100)
     strategy_type = models.CharField('策略类型', max_length=20, choices=STRATEGY_TYPES)
-    platform = models.ForeignKey(EcommPlatform, on_delete=models.CASCADE, related_name='strategies', verbose_name='平台')
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, related_name='strategies', verbose_name='平台')
 
     update_fields = models.JSONField('更新字段', default=list, help_text='如：["price", "stock", "status"]')
     sync_interval_hours = models.PositiveIntegerField('同步间隔(小时)', default=24)
@@ -130,7 +88,7 @@ class SyncLog(BaseModel):
     ]
 
     log_type = models.CharField('日志类型', max_length=20, choices=LOG_TYPES)
-    platform = models.ForeignKey(EcommPlatform, on_delete=models.SET_NULL, null=True, blank=True, related_name='sync_logs', verbose_name='平台')
+    platform = models.ForeignKey(Platform, on_delete=models.SET_NULL, null=True, blank=True, related_name='sync_logs', verbose_name='平台')
     strategy = models.ForeignKey(SyncStrategy, on_delete=models.SET_NULL, null=True, blank=True, related_name='sync_logs', verbose_name='同步策略')
     status = models.CharField('状态', max_length=20, choices=STATUS_CHOICES, default='running')
     records_processed = models.PositiveIntegerField('处理记录数', default=0)
@@ -201,7 +159,7 @@ class PlatformAccount(BaseModel):
     ]
 
     account_type = models.CharField('账号类型', max_length=20, choices=ACCOUNT_TYPES)
-    platform = models.ForeignKey(EcommPlatform, on_delete=models.CASCADE, related_name='accounts', verbose_name='平台')
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, related_name='accounts', verbose_name='平台')
     account_name = models.CharField('账号名称', max_length=200)
     platform_user_id = models.CharField('平台用户ID', max_length=200, blank=True)
     auth_config = models.JSONField('认证配置', default=dict, help_text='加密存储的认证信息')
@@ -246,7 +204,7 @@ class PlatformOrder(BaseModel):
         ('failed', '同步失败'),
     ]
 
-    platform = models.ForeignKey(EcommPlatform, on_delete=models.CASCADE, related_name='orders', verbose_name='平台')
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, related_name='orders', verbose_name='平台')
     account = models.ForeignKey(PlatformAccount, on_delete=models.SET_NULL, null=True, related_name='orders', verbose_name='账号')
     platform_order_id = models.CharField('平台订单号', max_length=200, db_index=True)
     order_status = models.CharField('订单状态', max_length=20, choices=ORDER_STATUS_CHOICES)
@@ -317,7 +275,7 @@ class ProductListing(BaseModel):
     ]
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='listings', verbose_name='商品')
-    platform = models.ForeignKey(EcommPlatform, on_delete=models.CASCADE, related_name='listings', verbose_name='平台')
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, related_name='listings', verbose_name='平台')
     account = models.ForeignKey(PlatformAccount, on_delete=models.CASCADE, related_name='listings', verbose_name='账号')
 
     platform_product_id = models.CharField('平台商品ID', max_length=200, db_index=True)
@@ -368,7 +326,7 @@ class StockSyncQueue(BaseModel):
     ]
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='stock_sync_queues', verbose_name='商品')
-    platform = models.ForeignKey(EcommPlatform, on_delete=models.CASCADE, related_name='stock_sync_queues', verbose_name='平台')
+    platform = models.ForeignKey(Platform, on_delete=models.CASCADE, related_name='stock_sync_queues', verbose_name='平台')
     account = models.ForeignKey(PlatformAccount, on_delete=models.CASCADE, related_name='stock_sync_queues', verbose_name='账号')
 
     sync_type = models.CharField('同步类型', max_length=20, choices=SYNC_TYPES)
@@ -400,7 +358,7 @@ class APICallLog(BaseModel):
     """API调用日志"""
 
     account = models.ForeignKey(PlatformAccount, on_delete=models.SET_NULL, null=True, related_name='api_logs', verbose_name='账号')
-    platform = models.ForeignKey(EcommPlatform, on_delete=models.SET_NULL, null=True, related_name='api_logs', verbose_name='平台')
+    platform = models.ForeignKey(Platform, on_delete=models.SET_NULL, null=True, related_name='api_logs', verbose_name='平台')
 
     endpoint = models.CharField('API端点', max_length=500)
     method = models.CharField('HTTP方法', max_length=10, choices=[('GET', 'GET'), ('POST', 'POST'), ('PUT', 'PUT'), ('DELETE', 'DELETE')])

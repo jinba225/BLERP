@@ -1,0 +1,109 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}平台配置{% endblock %}
+
+{% block content %}
+<div class="p-6" x-data="platformManage()" x-init="initData()">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">平台配置</h1>
+            <p class="text-sm text-gray-500 mt-1">管理采集平台和跨境平台配置</p>
+        </div>
+        <a href="/admin/collect/platform/add/" 
+           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors">
+            <i class="fas fa-plus"></i>
+            新建平台
+        </a>
+    </div>
+
+    <!-- 筛选 -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div class="flex gap-4">
+            <select x-model="filterType" @change="filterPlatforms()"
+                    class="px-3 py-2 border border-gray-300 rounded-md">
+                <option value="">全部类型</option>
+                <option value="collect">采集平台</option>
+                <option value="cross">跨境平台</option>
+                <option value="both">通用平台</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 平台列表 -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">平台名称</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">平台编码</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">平台类型</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">API URL</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                <template x-for="platform in platforms" :key="platform.id">
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="platform.platform_name"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="platform.platform_code"></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full"
+                                  :class="{
+                                      'bg-blue-100 text-blue-800': platform.platform_type === 'collect',
+                                      'bg-green-100 text-green-800': platform.platform_type === 'cross',
+                                      'bg-purple-100 text-purple-800': platform.platform_type === 'both'
+                                  }" x-text="getPlatformTypeText(platform.platform_type)"></span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500 truncate max-w-xs" x-text="platform.api_url || '-'"></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm" :class="platform.is_active ? 'text-green-600' : 'text-red-600'"
+                                  x-text="platform.is_active ? '启用' : '禁用'"></span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a :href="`/admin/collect/platform/${platform.id}/change/`" class="text-blue-600 hover:text-blue-900">编辑</a>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('platformManage', () => ({
+        platforms: [],
+        filterType: '',
+        
+        async initData() {
+            await this.fetchPlatforms();
+        },
+        
+        async fetchPlatforms() {
+            const params = this.filterType ? `?type=${this.filterType}` : '';
+            const response = await fetch(`/collect/platforms/${params}`);
+            const data = await response.json();
+            this.platforms = data.platforms || [];
+        },
+        
+        filterPlatforms() {
+            this.fetchPlatforms();
+        },
+        
+        getPlatformTypeText(type) {
+            const typeMap = {
+                'collect': '采集平台',
+                'cross': '跨境平台',
+                'both': '通用平台'
+            };
+            return typeMap[type] || type;
+        }
+    }));
+});
+</script>
+{% endblock %}

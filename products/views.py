@@ -17,7 +17,7 @@ def product_list(request):
     """
     List all products with search and filter capabilities.
     """
-    products = Product.objects.filter(is_deleted=False).select_related('category', 'brand', 'unit')
+    products = Product.objects.filter(is_deleted=False).select_related('category', 'brand', 'unit').prefetch_related('listings')
 
     # Search
     search = request.GET.get('search', '')

@@ -2,7 +2,7 @@ import asyncio
 import logging
 from typing import Dict, List, Optional
 from .base import BaseScraper
-from ecomm_sync.models import EcommPlatform
+from core.models import Platform
 
 
 logger = logging.getLogger(__name__)

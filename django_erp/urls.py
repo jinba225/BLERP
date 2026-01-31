@@ -8,8 +8,6 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from core import views as core_views
 
-app_name = 'ecomm_sync'
-
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -35,18 +33,25 @@ urlpatterns = [
     path('departments/', include('departments.urls')),
     path('users/', include('users.urls')),
 
-    # ✨ Settings routes (基础设置)
+    # Ecomm Sync frontend routes
+    path('ecomm/', include('ecomm_sync.urls')),
+    
+    # Collect frontend routes
+    path('collect/', include('collect.urls')),
+
+    # Settings routes (基础设置)
     path('settings/', include('core.urls')),
 
-    # 🎨 Theme switcher routes (主题切换)
+    # Theme switcher routes (主题切换)
     path('theme/', TemplateView.as_view(template_name='theme_switcher/index.html'), name='theme_switch'),
 
-    # 🤖 AI Assistant routes
+    # AI Assistant routes
     path('ai/', include('ai_assistant.urls')),
 
     # API URLs
     path('api/auth/', include('authentication.urls')),
     path('api/core/', include('core.api_urls')),
+    path('api/ecomm/', include('ecomm_sync.urls')),
 ]
 
 # Serve media files in development
@@ -59,7 +64,7 @@ admin.site.site_header = "BetterLaser ERP 管理后台"
 admin.site.site_title = "BetterLaser ERP"
 admin.site.index_title = "欢迎使用 BetterLaser ERP 管理后台"
 
-# Cancel registration of LogEntry to avoid showing it in the sidebar
+# Cancel registration of LogEntry to avoid showing it in sidebar
 try:
     from django.contrib.admin.models import LogEntry
     admin.site.unregister(LogEntry)

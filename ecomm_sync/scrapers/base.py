@@ -4,7 +4,7 @@ import random
 import logging
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
-from ecomm_sync.models import EcommPlatform
+from core.models import Platform
 
 
 logger = logging.getLogger(__name__)

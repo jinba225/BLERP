@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'finance',
     'ai_assistant',
     'ecomm_sync',
+    'collect',
 ]
 
 # ============================================

@@ -16,13 +16,13 @@ def sync_platform_products_task(self, platform_id: int, strategy_type: str = 'in
         platform_id: 平台ID
         strategy_type: 同步策略类型
     """
-    from ecomm_sync.models import EcommPlatform
+    from core.models import Platform
     from ecomm_sync.services.sync_manager import SyncManager
 
     logger.info(f'开始同步任务: 平台ID={platform_id}, 策略={strategy_type}')
     
     try:
-        platform = EcommPlatform.objects.get(id=platform_id)
+        platform = Platform.objects.get(id=platform_id)
         sync_manager = SyncManager()
         
         result = asyncio.run(
@@ -46,13 +46,13 @@ def sync_price_changes_task(self, platform_id: int):
         self: Celery任务实例
         platform_id: 平台ID
     """
-    from ecomm_sync.models import EcommPlatform
+    from core.models import Platform
     from ecomm_sync.services.sync_manager import SyncManager
     
     logger.info(f'开始价格监控任务: 平台ID={platform_id}')
     
     try:
-        platform = EcommPlatform.objects.get(id=platform_id)
+        platform = Platform.objects.get(id=platform_id)
         sync_manager = SyncManager()
         
         result = asyncio.run(
@@ -77,13 +77,13 @@ def sync_orders_task(self, platform_id: int, hours: int = 24):
         platform_id: 平台ID
         hours: 同步最近多少小时的订单
     """
-    from ecomm_sync.models import EcommPlatform
+    from core.models import Platform
     from ecomm_sync.services.order_sync import OrderSyncService
     
     logger.info(f'开始订单同步: 平台ID={platform_id}, 最近{hours}小时')
     
     try:
-        platform = EcommPlatform.objects.get(id=platform_id)
+        platform = Platform.objects.get(id=platform_id)
         service = OrderSyncService(platform)
         results = service.sync_new_orders(hours=hours)
         
@@ -154,13 +154,13 @@ def test_scraper_task(self, platform_id: int):
         self: Celery任务实例
         platform_id: 平台ID
     """
-    from ecomm_sync.models import EcommPlatform
+    from core.models import Platform
     from ecomm_sync.scrapers.hybrid import HybridScraper
     
     logger.info(f'开始测试爬虫: 平台ID={platform_id}')
     
     try:
-        platform = EcommPlatform.objects.get(id=platform_id)
+        platform = Platform.objects.get(id=platform_id)
         scraper = HybridScraper(platform)
         
         status = scraper.get_api_status()

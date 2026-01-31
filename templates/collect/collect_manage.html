@@ -1,0 +1,402 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}采集任务管理{% endblock %}
+
+{% block content %}
+<div class="p-6" x-data="collectManage()" x-init="initData()">
+    <!-- 页面头部 -->
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">采集任务管理</h1>
+            <p class="text-sm text-gray-500 mt-1">管理商品采集任务，支持淘宝/1688平台</p>
+        </div>
+        <button @click="showCreateModal = true" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors">
+            <i class="fas fa-plus"></i>
+            新建采集任务
+        </button>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">搜索</label>
+                <input type="text" x-model="search" @input="fetchTasks()"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="搜索任务名称或商品链接...">
+            </div>
+            <div class="w-full md:w-48">
+                <label class="block text-sm font-medium text-gray-700 mb-1">采集平台</label>
+                <select x-model="filterPlatform" @change="fetchTasks()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">全部平台</option>
+                    <template x-for="platform in platforms" :key="platform.id">
+                        <option :value="platform.id" x-text="platform.platform_name"></option>
+                    </template>
+                </select>
+            </div>
+            <div class="w-full md:w-48">
+                <label class="block text-sm font-medium text-gray-700 mb-1">采集状态</label>
+                <select x-model="filterStatus" @change="fetchTasks()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">全部状态</option>
+                    <option value="pending">待采集</option>
+                    <option value="running">采集中</option>
+                    <option value="success">采集成功</option>
+                    <option value="failed">采集失败</option>
+                    <option value="partial">部分成功</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务列表 -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">任务名称</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平台</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">计划/成功/失败</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">采集状态</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">落地状态</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">成功率</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <template x-for="task in tasks" :key="task.id">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900" x-text="task.task_name"></div>
+                                <div class="text-xs text-gray-500" x-show="task.celery_task_id">
+                                    Celery: <span x-text="task.celery_task_id"></span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-gray-900" x-text="task.platform_name"></span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">
+                                    <span x-text="task.collect_num"></span> /
+                                    <span x-text="task.success_num"></span> /
+                                    <span x-text="task.fail_num"></span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                      :class="{
+                                          'bg-yellow-100 text-yellow-800': task.collect_status === 'running',
+                                          'bg-green-100 text-green-800': task.collect_status === 'success',
+                                          'bg-red-100 text-red-800': task.collect_status === 'failed',
+                                          'bg-blue-100 text-blue-800': task.collect_status === 'partial',
+                                          'bg-gray-100 text-gray-800': task.collect_status === 'pending'
+                                      }" x-text="getStatusText(task.collect_status)"></span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                      :class="{
+                                          'bg-green-100 text-green-800': task.land_status === 'success',
+                                          'bg-red-100 text-red-800': task.land_status === 'failed',
+                                          'bg-gray-100 text-gray-800': task.land_status === 'unland'
+                                      }" x-text="getLandStatusText(task.land_status)"></span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-16 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" 
+                                             :style="'width: ' + task.success_rate + '%'"></div>
+                                    </div>
+                                    <span class="ml-2 text-sm text-gray-700" x-text="task.success_rate + '%'"></span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <span x-text="formatDate(task.created_at)"></span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button @click="viewTaskDetail(task.id)" 
+                                        class="text-blue-600 hover:text-blue-900 mr-3">查看详情</button>
+                                <button @click="viewProducts(task.id)" 
+                                        class="text-green-600 hover:text-green-900" x-show="task.success_num > 0">查看产品</button>
+                            </td>
+                        </tr>
+                    </template>
+                    <tr x-show="tasks.length === 0">
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fas fa-inbox text-4xl mb-2"></i>
+                            <p>暂无采集任务</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 新建采集任务弹窗 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" 
+     x-show="showCreateModal" x-cloak>
+    <div class="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
+        <div class="flex justify-between items-center p-6 border-b">
+            <h3 class="text-lg font-semibold text-gray-900">新建采集任务</h3>
+            <button @click="showCreateModal = false" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <form x-data="collectTaskForm()" @submit.prevent="submitForm" class="p-6">
+            <div class="space-y-4">
+                <!-- 任务名称 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">任务名称 <span class="text-red-500">*</span></label>
+                    <input type="text" name="task_name" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                           placeholder="如：淘宝手机类目采集2025-01-31">
+                </div>
+                
+                <!-- 采集平台 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">采集平台 <span class="text-red-500">*</span></label>
+                    <select name="platform" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        <option value="">请选择采集平台</option>
+                        <template x-for="platform in platforms.filter(p => p.platform_type === 'collect')" :key="platform.id">
+                            <option :value="platform.id" x-text="platform.platform_name"></option>
+                        </template>
+                    </select>
+                </div>
+                
+                <!-- 商品链接 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">采集商品链接 <span class="text-red-500">*</span></label>
+                    <textarea name="collect_urls" rows="6" required
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                              placeholder="请输入商品链接，每行一个&#10;https://item.taobao.com/item.htm?id=123456&#10;https://detail.1688.com/offer/789012.html"></textarea>
+                    <p class="mt-1 text-xs text-gray-500">每行一个链接，系统会自动去重</p>
+                </div>
+                
+                <!-- 跨境同步选项 -->
+                <div class="border-t pt-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="sync_cross" @change="toggleCrossSync"
+                               class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">采集落地后自动同步到跨境平台</span>
+                    </label>
+                </div>
+                
+                <!-- 跨境平台/店铺选择（默认隐藏） -->
+                <div x-show="syncCross" class="space-y-4 pt-4">
+                    <div class="bg-blue-50 p-4 rounded-md">
+                        <h4 class="text-sm font-medium text-blue-900 mb-2">自动同步配置</h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">目标跨境平台 <span class="text-red-500">*</span></label>
+                                <select name="cross_platform" @change="filterShops"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                    <option value="">请选择跨境平台</option>
+                                    <template x-for="platform in crossPlatforms" :key="platform.id">
+                                        <option :value="platform.id" x-text="platform.platform_name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">目标跨境店铺 <span class="text-red-500">*</span></label>
+                                <select name="cross_shop"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                    <option value="">请选择跨境店铺</option>
+                                    <template x-for="shop in filteredShops" :key="shop.id">
+                                        <option :value="shop.id" x-text="shop.shop_name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">定价规则（可选）</label>
+                                <select name="pricing_rule"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                    <option value="">使用默认定价</option>
+                                    <template x-for="rule in pricingRules" :key="rule.id">
+                                        <option :value="rule.id" x-text="rule.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">自动翻译（可选）</label>
+                                <select name="target_language" x-model="translateLang"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                    <option value="">不翻译</option>
+                                    <option value="en">翻译为英文</option>
+                                    <option value="ja">翻译为日文</option>
+                                    <option value="ko">翻译为韩文</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6 pt-4 border-t">
+                <button type="button" @click="showCreateModal = false"
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                    取消
+                </button>
+                <button type="submit" :disabled="submitting"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    <i class="fas fa-spinner fa-spin mr-2" x-show="submitting"></i>
+                    <span x-text="submitting ? '创建中...' : '创建并启动采集'"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('collectManage', () => ({
+        tasks: [],
+        platforms: [],
+        shops: [],
+        pricingRules: [],
+        showCreateModal: false,
+        search: '',
+        filterPlatform: '',
+        filterStatus: '',
+        
+        async initData() {
+            await this.fetchPlatforms();
+            await this.fetchTasks();
+            await this.fetchPricingRules();
+        },
+        
+        async fetchPlatforms() {
+            const response = await fetch('/collect/platforms/');
+            const data = await response.json();
+            this.platforms = data.platforms || [];
+        },
+        
+        async fetchTasks() {
+            const params = new URLSearchParams({
+                search: this.search,
+                platform: this.filterPlatform,
+                status: this.filterStatus
+            });
+            const response = await fetch(`/collect/?${params}`);
+            const data = await response.json();
+            this.tasks = data.tasks || [];
+        },
+        
+        async fetchPricingRules() {
+            // 从Admin获取定价规则列表
+            const response = await fetch('/admin/collect/pricingrule/?format=json');
+            const data = await response.json();
+            this.pricingRules = data.items || [];
+        },
+        
+        getStatusText(status) {
+            const statusMap = {
+                'pending': '待采集',
+                'running': '采集中',
+                'success': '采集成功',
+                'failed': '采集失败',
+                'partial': '部分成功'
+            };
+            return statusMap[status] || status;
+        },
+        
+        getLandStatusText(status) {
+            const statusMap = {
+                'unland': '未落地',
+                'running': '落地中',
+                'success': '落地成功',
+                'failed': '落地失败'
+            };
+            return statusMap[status] || status;
+        },
+        
+        formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleString('zh-CN');
+        },
+        
+        viewTaskDetail(taskId) {
+            // 跳转到任务详情页（可以创建新页面或弹窗）
+            window.location.href = `/admin/collect/collecttask/${taskId}/change/`;
+        },
+        
+        viewProducts(taskId) {
+            // 跳转到产品列表，筛选该任务的产品
+            window.location.href = `/admin/products/product/?collect_task=${taskId}`;
+        },
+        
+        get crossPlatforms() {
+            return this.platforms.filter(p => p.platform_type === 'cross');
+        },
+        
+        get computed: {
+            filteredShops() {
+                // 根据选中的跨境平台过滤店铺
+                return this.shops.filter(s => s.platform_id === this.selectedCrossPlatform);
+            }
+        }
+    }));
+    
+    Alpine.data('collectTaskForm', () => ({
+        syncCross: false,
+        translateLang: '',
+        filteredShops: [],
+        selectedCrossPlatform: '',
+        submitting: false,
+        
+        toggleCrossSync(event) {
+            this.syncCross = event.target.checked;
+        },
+        
+        filterShops(event) {
+            this.selectedCrossPlatform = event.target.value;
+            const platformId = event.target.value;
+            // 从shops中过滤出该平台的店铺
+            this.filteredShops = window.Alpine.store('collectManage').shops.filter(s => s.platform_id == platformId);
+        },
+        
+        async submitForm() {
+            this.submitting = true;
+            const formData = new FormData(event.target);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            
+            try {
+                const response = await fetch('/collect/task/create/', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    alert(result.msg);
+                    window.location.reload();
+                } else {
+                    alert(result.msg);
+                }
+            } catch (e) {
+                alert('创建采集任务失败，请重试');
+                console.error(e);
+            } finally {
+                this.submitting = false;
+            }
+        }
+    }));
+});
+</script>
+{% endblock %}

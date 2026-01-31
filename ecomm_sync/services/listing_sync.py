@@ -18,7 +18,7 @@ class ListingService:
             发布结果
         """
         from products.models import Product
-        from ecomm_sync.models import EcommPlatform, ProductListing, PlatformAccount
+        from core.models import Platform, ProductListing, PlatformAccount
         from ecomm_sync.adapters import get_adapter
 
         results = {
@@ -30,7 +30,7 @@ class ListingService:
 
         for platform_id in platforms:
             try:
-                platform = EcommPlatform.objects.get(id=platform_id)
+                platform = Platform.objects.get(id=platform_id)
                 account = PlatformAccount.objects.filter(
                     platform=platform,
                     is_active=True
