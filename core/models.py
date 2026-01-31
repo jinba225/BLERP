@@ -97,6 +97,7 @@ class Company(BaseModel):
     website = models.URLField('网站', blank=True)
     logo = models.ImageField('公司Logo', upload_to='company/logos/', blank=True)
     description = models.TextField('公司描述', blank=True)
+    description_en = models.TextField('Company Description (English)', blank=True, help_text='英文公司描述')
     is_active = models.BooleanField('是否启用', default=True)
 
     class Meta:

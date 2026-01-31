@@ -55,7 +55,7 @@ class StockMovementResource(resources.ModelResource):
         fields = (
             'id', 'transaction_type', 'product', 'warehouse',
             'quantity', 'reference_type', 'reference_id',
-            'created_at', 'updated_at'
+            'movement_date', 'created_at', 'updated_at'
         )
         export_order = fields
         import_id_fields = ['id']

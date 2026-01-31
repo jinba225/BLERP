@@ -105,12 +105,28 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
 class UserInfoSerializer(serializers.ModelSerializer):
     """User info serializer for authentication."""
-    
-    full_name = serializers.ReadOnlyField(source='get_full_name')
-    display_name = serializers.ReadOnlyField()
+
+    def get_full_name_field(self, obj: User) -> str:
+        """Get full name of user."""
+        return obj.get_full_name() if hasattr(obj, 'get_full_name') else ''
+
+    def get_display_name_field(self, obj: User) -> str:
+        """Get display name for user."""
+        return obj.display_name if hasattr(obj, 'display_name') else ''
+
+    def get_avatar_url_field(self, obj: User) -> str:
+        """Get avatar URL."""
+        if obj.avatar:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.avatar.url)
+        return ''
+
+    full_name = serializers.SerializerMethodField()
+    display_name = serializers.SerializerMethodField()
     department_name = serializers.CharField(source='department.name', read_only=True)
     avatar_url = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = User
         fields = [
@@ -118,10 +134,19 @@ class UserInfoSerializer(serializers.ModelSerializer):
             'full_name', 'display_name', 'department_name', 'position',
             'avatar', 'avatar_url', 'is_active', 'last_login'
         ]
-    
-    def get_avatar_url(self, obj):
+
+    def get_full_name(self, obj: User) -> str:
+        """Get full name of user."""
+        return obj.get_full_name() if hasattr(obj, 'get_full_name') else ''
+
+    def get_display_name(self, obj: User) -> str:
+        """Get display name for user."""
+        return obj.display_name if hasattr(obj, 'display_name') else ''
+
+    def get_avatar_url(self, obj: User) -> str:
+        """Get avatar URL."""
         if obj.avatar:
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(obj.avatar.url)
-        return None
+        return ''

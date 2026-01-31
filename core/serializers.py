@@ -1,13 +1,14 @@
 """
-Core serializers for the ERP system.
+Core serializers for ERP system.
 """
+from typing import Any
 from rest_framework import serializers
 from .models import Company, SystemConfig, Attachment, AuditLog
 
 
 class CompanySerializer(serializers.ModelSerializer):
     """Company serializer."""
-    
+
     class Meta:
         model = Company
         fields = [
@@ -17,10 +18,9 @@ class CompanySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
-
 class SystemConfigSerializer(serializers.ModelSerializer):
     """System configuration serializer."""
-    
+
     class Meta:
         model = SystemConfig
         fields = [
@@ -29,12 +29,15 @@ class SystemConfigSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
-
 class AttachmentSerializer(serializers.ModelSerializer):
     """Attachment serializer."""
-    
-    file_size_display = serializers.ReadOnlyField()
-    
+
+    def get_file_size_display(self, obj: Attachment) -> str:
+        """Get formatted file size."""
+        return obj.file_size_display if hasattr(obj, 'file_size_display') else ''
+
+    file_size_display = serializers.SerializerMethodField()
+
     class Meta:
         model = Attachment
         fields = [
@@ -44,12 +47,11 @@ class AttachmentSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'file_size', 'created_at', 'updated_at']
 
-
 class AuditLogSerializer(serializers.ModelSerializer):
     """Audit log serializer."""
-    
+
     user_name = serializers.CharField(source='user.username', read_only=True)
-    
+
     class Meta:
         model = AuditLog
         fields = [

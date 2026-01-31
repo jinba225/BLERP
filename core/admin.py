@@ -31,6 +31,25 @@ class CompanyAdmin(admin.ModelAdmin):
     list_filter = ['is_active', 'created_at']
     search_fields = ['name', 'code', 'legal_representative']
     readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('基本信息', {
+            'fields': ('name', 'code', 'is_active')
+        }),
+        ('公司信息', {
+            'fields': ('legal_representative', 'registration_number', 'tax_number', 'address')
+        }),
+        ('联系方式', {
+            'fields': ('phone', 'fax', 'email', 'website')
+        }),
+        ('Logo和描述', {
+            'fields': ('logo', 'description', 'description_en')
+        }),
+        ('系统信息', {
+            'fields': ('created_at', 'updated_at', 'created_by', 'updated_by'),
+            'classes': ('collapse',)
+        }),
+    )
 
 
 @admin.register(SystemConfig)

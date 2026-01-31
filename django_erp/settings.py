@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Django Core Settings
 # ============================================
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=lambda x: [s.strip() for s in x.split(',')] if x else [])
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda x: [s.strip() for s in x.split(',')] if x else [])
 LANGUAGE_CODE = 'zh-hans'
 TIME_ZONE = 'Asia/Shanghai'
 USE_I18N = True
@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'crispy_forms',
-    
+    'drf_spectacular',  # OpenAPI 3.x documentation
+
     # Project Apps
     'core',
     'users',
@@ -65,7 +66,9 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -84,7 +87,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-
+                'core.context_processors.company_info',
             ],
         },
     },
@@ -108,12 +111,32 @@ ROOT_URLCONF = 'django_erp.urls'
 # ============================================
 # Database Settings
 # ============================================
+DB_ENGINE = config('DB_ENGINE', default='django.db.backends.sqlite3')
+DB_NAME = config('DB_NAME', default=BASE_DIR / 'db.sqlite3')
+DB_USER = config('DB_USER', default=None)
+DB_PASSWORD = config('DB_PASSWORD', default=None)
+DB_HOST = config('DB_HOST', default=None)
+DB_PORT = config('DB_PORT', default=None, cast=lambda v: int(v) if v and v.lower() != 'none' else None)
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': DB_ENGINE,
+        'NAME': DB_NAME if isinstance(DB_NAME, str) else str(DB_NAME),
     }
 }
+
+if DB_ENGINE == 'django.db.backends.postgresql':
+    DATABASES['default'].update({
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+        'CONN_MAX_AGE': 600,  # 10分钟连接重用（实现简单的连接池）
+        'OPTIONS': {
+            'connect_timeout': 10,
+            'options': '-c statement_timeout=30000',  # 30秒查询超时
+        },
+    })
 
 # Redis Configuration
 REDIS_HOST = config('REDIS_HOST', default=None)
@@ -130,8 +153,20 @@ CACHES = {
 if REDIS_HOST:
     CACHES['default'] = {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}',
+        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/0',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        'KEY_PREFIX': 'django_erp',
+        'TIMEOUT': 300,  # 5分钟缓存超时
+        'VERSION': 1,
     }
+
+# Cache timeout settings
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = 600  # 10分钟缓存超时
+CACHE_MIDDLEWARE_KEY_PREFIX = ''
+CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 # ============================================
 # Authentication settings
@@ -160,6 +195,16 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '1000/hour',
+        'burst': '1000/day',
+    }
 }
 
 # CORS settings
@@ -174,12 +219,12 @@ CORS_ALLOW_CREDENTIALS = True
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production')
 
 # JWT Settings
-JWT_SECRET_KEY = config('JWT_SECRET_KEY', default=SECRET_KEY)
+JWT_SECRET_KEY = config('JWT_SECRET_KEY', default=None)
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION_DELTA = 86400  # 24 hours
 
 # DeepSeek AI API Key
-DEEPSEEK_API_KEY = 'sk-ffee6eadd5aa4548aad1a4b51ce2e5fc'
+DEEPSEEK_API_KEY = config('DEEPSEEK_API_KEY', default=None)
 
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
@@ -265,6 +310,7 @@ if CELERY_BROKER_URL:
 
 # Celery Beat 定时任务配置
 CELERY_BEAT_SCHEDULE = {
+    # AI助手定时任务
     'cleanup-expired-conversations': {
         'task': 'ai_assistant.tasks.cleanup_expired_conversations',
         'schedule': crontab(hour=2, minute=0),  # 每天凌晨 2 点
@@ -272,6 +318,22 @@ CELERY_BEAT_SCHEDULE = {
     'cleanup-old-logs': {
         'task': 'ai_assistant.tasks.cleanup_old_logs',
         'schedule': crontab(hour=3, minute=0),  # 每天凌晨 3 点
+    },
+    # 电商同步定时任务
+    'sync-ecommerce-incremental': {
+        'task': 'ecomm_sync.tasks.sync_platform_products_task',
+        'schedule': crontab(hour=2, minute=0),
+        'options': {'expires': 3600}
+    },
+    'sync-ecommerce-full': {
+        'task': 'ecomm_sync.tasks.sync_platform_products_task',
+        'schedule': crontab(day_of_week=0, hour=3, minute=0),
+        'options': {'expires': 7200}
+    },
+    'monitor-price-changes': {
+        'task': 'ecomm_sync.tasks.sync_price_changes_task',
+        'schedule': crontab(minute=0),
+        'options': {'expires': 300}
     },
 }
 
@@ -290,7 +352,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50MB
 # 基础安全头部（开发和生产环境都启用）
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'SAMEORIGIN'  # 允许在相同域名下使用 iframe
+X_FRAME_OPTIONS = 'DENY'  # 禁止在 iframe 中嵌入
 SESSION_COOKIE_HTTPONLY = True  # 防止 JavaScript 访问 session cookie
 CSRF_COOKIE_HTTPONLY = True  # 防止 JavaScript 访问 CSRF cookie
 
@@ -342,7 +404,52 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 # ============================================
 # AI助手配置
-# ============================================
 # API Key加密密钥（请在.env中设置，生产环境必须配置）
 ENCRYPTION_KEY = os.getenv('ENCRYPTION_KEY', None)
+
+# ============================================
+# OpenAPI/Swagger Documentation Settings
+# ============================================
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'BetterLaser ERP API',
+    'DESCRIPTION': 'ERP系统API文档',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'COMPONENT_SPLIT_REQUEST': True,
+    'TAGS': [
+        {'name': 'Authentication', 'description': '用户认证相关接口'},
+        {'name': 'Core', 'description': '核心功能接口'},
+        {'name': 'Users', 'description': '用户管理接口'},
+        {'name': 'Customers', 'description': '客户管理接口'},
+        {'name': 'Suppliers', 'description': '供应商管理接口'},
+        {'name': 'Products', 'description': '产品管理接口'},
+        {'name': 'Inventory', 'description': '库存管理接口'},
+        {'name': 'Sales', 'description': '销售管理接口'},
+        {'name': 'Purchase', 'description': '采购管理接口'},
+        {'name': 'Finance', 'description': '财务管理接口'},
+        {'name': 'Departments', 'description': '部门管理接口'},
+        {'name': 'AI Assistant', 'description': 'AI助手接口'},
+    ],
+    'SERVERS': [
+        {'url': 'http://localhost:8000', 'description': '开发环境'},
+        {'url': 'https://erp.example.com', 'description': '生产环境'},
+    ],
+    'SCHEMA_COERCE_PATH_PK': True,
+    'SCHEMA_COERCE_METHOD_NAMES': {
+        'retrieve': 'read',
+        'destroy': 'delete',
+    },
+    'POSTPROCESSING_HOOKS': [],
+}
+
+# ============================================
+# Rate Limiting Settings
+# ============================================
+RATELIMIT_ENABLE = True
+RATELIMIT_USE_CACHE = 'default'
+RATELIMIT_VIEW = 'rest_framework.throttling.Throttled'
+
+# Rate limit configuration for different types of requests
+RATELIMIT_RATE = '1000/h'  # Default rate limit
 

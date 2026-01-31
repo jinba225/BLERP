@@ -10,6 +10,9 @@ django-mptt==0.15.0  # 树形结构支持（部门、产品分类）
 # 表单和前端
 django-crispy-forms==2.1
 
+# API 文档
+drf-spectacular==0.27.2
+
 # 过滤和搜索
 django-filter==23.3
 
@@ -26,6 +29,9 @@ python-decouple==3.8
 # CORS 支持（API 跨域）
 django-cors-headers==4.6.0  # 更新以兼容Django 5.0
 
+# API 速率限制
+django-ratelimit==4.1.0
+
 # JWT 认证
 PyJWT==2.8.0
 cryptography==41.0.7
@@ -39,8 +45,8 @@ requests==2.31.0  # HTTP请求库（百度文心等使用）
 # 生产环境依赖
 # ==========================================
 
-# 数据库驱动（生产环境 MySQL）
-mysqlclient==2.2.0
+# 数据库驱动（生产环境 PostgreSQL）
+psycopg2-binary==2.9.9
 
 # 生产服务器
 gunicorn==21.2.0
