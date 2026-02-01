@@ -402,5 +402,26 @@ def get_adapter(account: 'PlatformAccount') -> BaseAdapter:
     elif platform_type == 'woo':
         from .woo.api import WooCommerceAdapter
         return WooCommerceAdapter(account)
+    elif platform_type == 'jumia':
+        from .jumia.adapter import JumiaAdapter
+        return JumiaAdapter(account)
+    elif platform_type == 'cdiscount':
+        from .cdiscount.adapter import CdiscountAdapter
+        return CdiscountAdapter(account)
+    elif platform_type == 'shopee':
+        from .shopee.adapter import ShopeeAdapter
+        return ShopeeAdapter(account)
+    elif platform_type == 'tiktok':
+        from .tiktok.adapter import TikTokAdapter
+        return TikTokAdapter(account)
+    elif platform_type == 'temu':
+        from .temu.adapter import TemuAdapter
+        return TemuAdapter(account)
+    elif platform_type == 'wish':
+        from .wish.adapter import WishAdapter
+        return WishAdapter(account)
+    elif platform_type == 'mercadolibre':
+        from .mercadolibre.adapter import MercadoLibreAdapter
+        return MercadoLibreAdapter(account)
     else:
         raise ValueError(f'不支持的平台类型: {platform_type}')

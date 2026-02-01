@@ -54,10 +54,11 @@ urlpatterns = [
     # AI Assistant routes
     path('ai/', include('ai_assistant.urls')),
 
-    # API URLs
-    path('api/auth/', include('authentication.urls')),
-    path('api/core/', include('core.api_urls')),
-    path('api/ecomm/', include('ecomm_sync.urls')),
+     # API URLs
+     path('api/auth/', include('authentication.urls')),
+     path('api/core/', include('core.api_urls')),
+     path('api/ecomm/', include('ecomm_sync.urls')),
+     path('api/bi/', include('bi.urls')),
 ]
 
 # Serve media files in development

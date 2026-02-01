@@ -89,6 +89,32 @@ class PurchaseOrder(BaseModel):
     notes = models.TextField('备注', blank=True)
     internal_notes = models.TextField('内部备注', blank=True)
 
+    # Platform integration - 平台集成
+    platform = models.ForeignKey(
+        'core.Platform',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='purchase_orders',
+        verbose_name='电商平台'
+    )
+    platform_account = models.ForeignKey(
+        'ecomm_sync.PlatformAccount',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='purchase_orders',
+        verbose_name='平台账号'
+    )
+    sync_to_platform = models.BooleanField('同步到平台', default=False,
+                                      help_text='是否将采购商品同步到电商平台')
+    platform_sync_status = models.CharField('平台同步状态', max_length=20,
+                                          choices=[('pending', '待同步'), ('synced', '已同步'), ('syncing', '同步中'), ('failed', '同步失败')],
+                                          default='pending',
+                                          help_text='商品同步到电商平台的状态')
+    last_synced_at = models.DateTimeField('最后同步时间', null=True, blank=True)
+    sync_error = models.TextField('同步错误', blank=True)
+    
     # Approval
     approved_by = models.ForeignKey(
         User,
@@ -1334,3 +1360,208 @@ class BorrowItem(BaseModel):
     def can_return(self):
         """是否可归还"""
         return self.remaining_quantity > 0
+
+
+class PurchaseOrderItemPlatformMap(BaseModel):
+    """
+    采购订单商品与平台商品关联模型
+    
+    用于将采购订单中的商品与电商平台上的商品建立关联关系，
+    以便支持采购商品自动同步到电商平台
+    """
+    
+    SYNC_STATUS_CHOICES = [
+        ('pending', '待同步'),
+        ('synced', '已同步'),
+        ('syncing', '同步中'),
+        ('failed', '同步失败'),
+    ]
+    
+    purchase_order_item = models.ForeignKey(
+        PurchaseOrderItem,
+        on_delete=models.CASCADE,
+        related_name='platform_maps',
+        verbose_name='采购订单商品'
+    )
+    platform = models.ForeignKey(
+        'core.Platform',
+        on_delete=models.CASCADE,
+        related_name='purchase_platform_maps',
+        verbose_name='电商平台'
+    )
+    platform_account = models.ForeignKey(
+        'ecomm_sync.PlatformAccount',
+        on_delete=models.CASCADE,
+        related_name='purchase_platform_maps',
+        verbose_name='平台账号'
+    )
+    platform_product_id = models.CharField(
+        '平台商品ID',
+        max_length=200,
+        db_index=True,
+        help_text='电商平台上的商品ID'
+    )
+    platform_sku = models.CharField(
+        '平台SKU',
+        max_length=200,
+        blank=True,
+        help_text='电商平台上的SKU'
+    )
+    sync_enabled = models.BooleanField(
+        '启用同步',
+        default=True,
+        help_text='是否启用自动同步到电商平台'
+    )
+    sync_status = models.CharField(
+        '同步状态',
+        max_length=20,
+        choices=SYNC_STATUS_CHOICES,
+        default='pending',
+        help_text='商品同步到电商平台的状态'
+    )
+    last_synced_at = models.DateTimeField(
+        '最后同步时间',
+        null=True,
+        blank=True,
+        help_text='上次成功同步到电商平台的时间'
+    )
+    sync_error = models.TextField(
+        '同步错误',
+        blank=True,
+        help_text='同步失败时的错误信息'
+    )
+    
+    class Meta:
+        verbose_name = '采购订单商品平台映射'
+        verbose_name_plural = '采购订单商品平台映射'
+        db_table = 'purchase_order_item_platform_map'
+        unique_together = [
+            ['purchase_order_item', 'platform', 'platform_account', 'platform_product_id']
+        ]
+        indexes = [
+            models.Index(fields=['platform', 'sync_status']),
+            models.Index(fields=['sync_enabled', 'sync_status']),
+            models.Index(fields=['-last_synced_at']),
+            models.Index(fields=['purchase_order_item', 'platform']),
+        ]
+        ordering = ['-last_synced_at']
+    
+    def __str__(self):
+        return f"{self.purchase_order_item} -> {self.platform.name}"
+    
+    @property
+    def needs_sync(self):
+        """是否需要同步"""
+        return self.sync_enabled and self.sync_status in ['pending', 'failed']
+
+
+class PurchaseSyncQueue(BaseModel):
+    """
+    采购商品同步队列
+    
+    用于管理采购商品的批量同步任务，支持异步处理和重试机制
+    """
+    
+    SYNC_TYPES = [
+        ('add', '新增'),
+        ('update', '更新'),
+        ('delete', '删除'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', '待处理'),
+        ('processing', '处理中'),
+        ('success', '成功'),
+        ('failed', '失败'),
+    ]
+    
+    purchase_order_item = models.ForeignKey(
+        PurchaseOrderItem,
+        on_delete=models.CASCADE,
+        related_name='sync_queues',
+        verbose_name='采购订单商品'
+    )
+    platform = models.ForeignKey(
+        'core.Platform',
+        on_delete=models.CASCADE,
+        related_name='purchase_sync_queues',
+        verbose_name='电商平台'
+    )
+    platform_account = models.ForeignKey(
+        'ecomm_sync.PlatformAccount',
+        on_delete=models.CASCADE,
+        related_name='purchase_sync_queues',
+        verbose_name='平台账号'
+    )
+    sync_type = models.CharField(
+        '同步类型',
+        max_length=20,
+        choices=SYNC_TYPES,
+        help_text='add=新增商品, update=更新商品信息, delete=删除商品'
+    )
+    sync_data = models.JSONField(
+        '同步数据',
+        default=dict,
+        blank=True,
+        help_text='要同步的商品数据（JSON格式）'
+    )
+    status = models.CharField(
+        '状态',
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
+    retry_count = models.IntegerField(
+        '重试次数',
+        default=0,
+        help_text='已重试次数'
+    )
+    max_retries = models.IntegerField(
+        '最大重试次数',
+        default=3,
+        help_text='最大重试次数'
+    )
+    error_message = models.TextField(
+        '错误信息',
+        blank=True,
+        help_text='同步失败时的错误信息'
+    )
+    processed_at = models.DateTimeField(
+        '处理时间',
+        null=True,
+        blank=True,
+        help_text='任务开始处理的时间'
+    )
+    completed_at = models.DateTimeField(
+        '完成时间',
+        null=True,
+        blank=True,
+        help_text='任务完成的时间'
+    )
+    
+    class Meta:
+        verbose_name = '采购同步队列'
+        verbose_name_plural = '采购同步队列'
+        db_table = 'purchase_sync_queue'
+        indexes = [
+            models.Index(fields=['status', 'created_at']),
+            models.Index(fields=['platform', 'status']),
+            models.Index(fields=['sync_type', 'status']),
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['retry_count', 'status']),
+        ]
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.purchase_order_item} - {self.platform.name} - {self.get_status_display()}"
+    
+    @property
+    def can_retry(self):
+        """是否可以重试"""
+        return self.status == 'failed' and self.retry_count < self.max_retries
+    
+    @property
+    def is_completed(self):
+        """是否已完成"""
+        return self.status == 'success'
+

@@ -156,6 +156,13 @@ class PlatformAccount(BaseModel):
         ('lazada', 'Lazada'),
         ('woo', 'WooCommerce'),
         ('shopify', 'Shopify'),
+        ('jumia', 'Jumia'),
+        ('cdiscount', 'Cdiscount'),
+        ('shopee', 'Shopee'),
+        ('tiktok', 'TikTok Shop'),
+        ('temu', 'Temu'),
+        ('wish', 'Wish'),
+        ('mercadolibre', 'MercadoLibre'),
     ]
 
     account_type = models.CharField('账号类型', max_length=20, choices=ACCOUNT_TYPES)

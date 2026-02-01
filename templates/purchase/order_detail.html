@@ -68,6 +68,30 @@
             {% endif %}
         </div>
     </div>
+    {% if order.sync_to_platform %}
+    <div class="bg-white rounded-lg shadow p-6 space-y-4">
+        <h4 class="text-md font-semibold">平台同步状态</h4>
+        <div class="grid grid-cols-3 gap-4">
+            <div><span class="text-gray-600">电商平台:</span> <span class="font-medium">{{ order.platform.name|default:'-' }}</span></div>
+            <div><span class="text-gray-600">平台账号:</span> <span class="font-medium">{{ order.platform_account.account_name|default:'-' }}</span></div>
+            <div><span class="text-gray-600">同步状态:</span>
+                {% if order.platform_sync_status == 'pending' %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">待同步</span>
+                {% elif order.platform_sync_status == 'syncing' %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">同步中</span>
+                {% elif order.platform_sync_status == 'synced' %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">已同步</span>
+                {% elif order.platform_sync_status == 'failed' %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">同步失败</span>
+                {% endif %}
+            </div>
+            <div><span class="text-gray-600">最后同步时间:</span> <span class="font-medium">{{ order.last_synced_at|date:"Y-m-d H:i:s"|default:'-' }}</span></div>
+            {% if order.sync_error %}
+            <div class="col-span-2"><span class="text-gray-600">同步错误:</span> <span class="font-medium text-red-600">{{ order.sync_error }}</span></div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">

@@ -159,7 +159,7 @@ class DingTalkNotifier:
         """发送错误通知"""
         content = {
             'text': f'## 电商同步系统错误\n\n' +
-                     f'**错误类型：**{context.get('error_type', '未知）}\n\n' +
+                     f'**错误类型：**{context.get("error_type", "未知")}\n\n' +
                      f'**错误信息：**{error}\n\n' +
                      f'**上下文：**{context}\n\n' +
                      f'- 时间：{time.strftime("%Y-%m-%d %H:%M:%S")}',

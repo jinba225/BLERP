@@ -58,9 +58,9 @@ class ProductSyncView:
                 {'name': '商品管理', 'url': '#'}
             ],
             'sync_options': [
-                'price_only': '仅同步价格',
-                'stock_only': '仅同步库存',
-                'status_only': '仅同步状态',
-                'full_sync': '全量同步',
+                {'value': 'price_only', 'label': '仅同步价格'},
+                {'value': 'stock_only', 'label': '仅同步库存'},
+                {'value': 'status_only', 'label': '仅同步状态'},
+                {'value': 'full_sync', 'label': '全量同步'},
             ],
         }

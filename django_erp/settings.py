@@ -56,7 +56,9 @@ INSTALLED_APPS = [
     'finance',
     'ai_assistant',
     'ecomm_sync',
-    'collect',
+     'collect',
+    'logistics',
+    'bi',
 ]
 
 # ============================================
@@ -334,6 +336,121 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ecomm_sync.tasks.sync_price_changes_task',
         'schedule': crontab(minute=0),
         'options': {'expires': 300}
+    },
+    # 物流同步定时任务
+    'track-shipping-batch': {
+        'task': 'ecomm_sync.tasks.batch_track_shipping_task',
+        'schedule': crontab(minute='*/5'),  # 每5分钟
+        'options': {'expires': 300}
+    },
+    # 采购同步定时任务
+    'sync-purchase-order-to-platform': {
+        'task': 'ecomm_sync.tasks.link_purchase_order_to_platform_task',
+        'schedule': crontab(minute=30),  # 每30分钟
+        'options': {'expires': 1800}
+    },
+    'sync-purchase-order-to-platform-status': {
+        'task': 'ecomm_sync.tasks.sync_purchase_order_to_platform_task',
+        'schedule': crontab(hour=1, minute=0),  # 每天凌晨1点
+        'options': {'expires': 3600}
+    },
+    'sync-purchase-items-to-platform': {
+        'task': 'ecomm_sync.tasks.sync_purchase_items_to_platform_task',
+        'schedule': crontab(minute='*/10'),  # 每10分钟
+        'options': {'expires': 600}
+    },
+    'sync-purchase-status-to-platform': {
+        'task': 'ecomm_sync.tasks.sync_purchase_status_to_platform_task',
+        'schedule': crontab(minute='*/15'),  # 每15分钟
+        'options': {'expires': 900}
+    },
+    'process-purchase-sync-queue': {
+        'task': 'ecomm_sync.tasks.process_purchase_sync_queue_task',
+        'schedule': crontab(minute='*/2'),  # 每2分钟
+        'options': {'expires': 120}
+    },
+    # 自动补货提醒
+    'auto-restock-alert': {
+        'task': 'ecomm_sync.tasks.auto_restock_alert_task',
+        'schedule': crontab(hour=8, minute=0),  # 每天早上8点
+        'options': {'expires': 3600}
+    },
+    # Jumia平台同步
+    'sync-jumia-products': {
+        'task': 'ecomm_sync.tasks.sync_jumia_products_task',
+        'schedule': crontab(minute=0),  # 每小时
+        'options': {'expires': 3600}
+    },
+    'sync-jumia-orders': {
+        'task': 'ecomm_sync.tasks.sync_jumia_orders_task',
+        'schedule': crontab(minute='*/30'),  # 每30分钟
+        'options': {'expires': 1800}
+    },
+    # Cdiscount平台同步
+    'sync-cdiscount-products': {
+        'task': 'ecomm_sync.tasks.sync_cdiscount_products_task',
+        'schedule': crontab(minute=0),  # 每小时
+        'options': {'expires': 3600}
+    },
+    'sync-cdiscount-orders': {
+        'task': 'ecomm_sync.tasks.sync_cdiscount_orders_task',
+        'schedule': crontab(minute='*/30'),  # 每30分钟
+        'options': {'expires': 1800}
+    },
+    # Shopee平台同步
+    'sync-shopee-products': {
+        'task': 'ecomm_sync.tasks.sync_shopee_products_task',
+        'schedule': crontab(minute=0),  # 每小时
+        'options': {'expires': 3600}
+    },
+    'sync-shopee-orders': {
+        'task': 'ecomm_sync.tasks.sync_shopee_orders_task',
+        'schedule': crontab(minute='*/30'),  # 每30分钟
+        'options': {'expires': 1800}
+    },
+    # TikTok Shop平台同步
+    'sync-tiktok-products': {
+        'task': 'ecomm_sync.tasks.sync_tiktok_products_task',
+        'schedule': crontab(minute=0),  # 每小时
+        'options': {'expires': 3600}
+    },
+    'sync-tiktok-orders': {
+        'task': 'ecomm_sync.tasks.sync_tiktok_orders_task',
+        'schedule': crontab(minute='*/30'),  # 每30分钟
+        'options': {'expires': 1800}
+    },
+    # Temu平台同步
+    'sync-temu-products': {
+        'task': 'ecomm_sync.tasks.sync_temu_products_task',
+        'schedule': crontab(minute=0),  # 每小时
+        'options': {'expires': 3600}
+    },
+    'sync-temu-orders': {
+        'task': 'ecomm_sync.tasks.sync_temu_orders_task',
+        'schedule': crontab(minute='*/30'),  # 每30分钟
+        'options': {'expires': 1800}
+    },
+    # Wish平台同步
+    'sync-wish-products': {
+        'task': 'ecomm_sync.tasks.sync_wish_products_task',
+        'schedule': crontab(minute=0),  # 每小时
+        'options': {'expires': 3600}
+    },
+    'sync-wish-orders': {
+        'task': 'ecomm_sync.tasks.sync_wish_orders_task',
+        'schedule': crontab(minute='*/30'),  # 每30分钟
+        'options': {'expires': 1800}
+    },
+    # MercadoLibre平台同步
+    'sync-mercadolibre-products': {
+        'task': 'ecomm_sync.tasks.sync_mercadolibre_products_task',
+        'schedule': crontab(minute=0),  # 每小时
+        'options': {'expires': 3600}
+    },
+    'sync-mercadolibre-orders': {
+        'task': 'ecomm_sync.tasks.sync_mercadolibre_orders_task',
+        'schedule': crontab(minute='*/30'),  # 每30分钟
+        'options': {'expires': 1800}
     },
 }
 
