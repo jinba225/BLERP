@@ -178,3 +178,6 @@ legacy_data/
 poetry.toml
 pdm.lock
 .pdm.toml
+
+# 备份目录
+.backups/
