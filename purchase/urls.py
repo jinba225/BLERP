@@ -42,7 +42,6 @@ urlpatterns = [
     path('borrows/create/', views.borrow_create, name='borrow_create'),
     path('borrows/<int:pk>/', views.borrow_detail, name='borrow_detail'),
     path('borrows/<int:pk>/edit/', views.borrow_update, name='borrow_update'),
-    path('borrows/<int:pk>/approve/', views.borrow_approve, name='borrow_approve'),
     path('borrows/<int:pk>/confirm-receipt/', views.borrow_confirm_receipt, name='borrow_confirm_receipt'),
     path('borrows/<int:pk>/confirm-all-receipt/', views.borrow_confirm_all_receipt, name='borrow_confirm_all_receipt'),
     path('borrows/<int:pk>/return/', views.borrow_return, name='borrow_return'),

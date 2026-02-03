@@ -2760,12 +2760,11 @@ def borrow_detail(request, pk):
 
     # 操作权限判断
     can_edit = borrow.status == 'draft'
-    can_approve = borrow.status == 'draft'
 
     # 计算总的可借用数量
     total_borrowable = sum(item.borrowable_quantity for item in items)
     can_confirm_receipt = (
-        borrow.status in ['approved', 'borrowed'] and
+        borrow.status == 'borrowed' and
         total_borrowable > 0  # 只有还有剩余可借用数量时才显示入库按钮
     )
 
@@ -2780,7 +2779,6 @@ def borrow_detail(request, pk):
         'borrow': borrow,
         'items': items,
         'can_edit': can_edit,
-        'can_approve': can_approve,
         'can_confirm_receipt': can_confirm_receipt,
         'can_return': can_return,
         'can_request_conversion': can_request_conversion,
@@ -2893,28 +2891,6 @@ def borrow_update(request, pk):
 
 @login_required
 @transaction.atomic
-def borrow_approve(request, pk):
-    """审核借用单"""
-    borrow = get_object_or_404(Borrow, pk=pk, is_deleted=False)
-
-    # 检查状态
-    if borrow.status != 'draft':
-        messages.error(request, '只有草稿状态的借用单才能审核')
-        return redirect('purchase:borrow_detail', pk=pk)
-
-    try:
-        # 调用模型的审核方法
-        borrow.approve_borrow(request.user)
-        messages.success(request, f'借用单 {borrow.borrow_number} 审核成功！')
-    except ValueError as e:
-        messages.error(request, f'审核失败: {str(e)}')
-        return redirect('purchase:borrow_detail', pk=pk)
-
-    return redirect('purchase:borrow_detail', pk=pk)
-
-
-@login_required
-@transaction.atomic
 def borrow_confirm_receipt(request, pk):
     """借用入库确认"""
     from decimal import Decimal
@@ -2922,8 +2898,8 @@ def borrow_confirm_receipt(request, pk):
     borrow = get_object_or_404(Borrow, pk=pk, is_deleted=False)
 
     # 检查状态
-    if borrow.status not in ['approved', 'borrowed']:
-        messages.error(request, '只有已审核或借用中状态的借用单才能确认入库')
+    if borrow.status != 'borrowed':
+        messages.error(request, '只有借用中状态的借用单才能确认入库')
         return redirect('purchase:borrow_detail', pk=pk)
 
     if request.method == 'POST':
@@ -2976,8 +2952,8 @@ def borrow_confirm_all_receipt(request, pk):
     borrow = get_object_or_404(Borrow, pk=pk, is_deleted=False)
 
     # 检查状态
-    if borrow.status not in ['approved', 'borrowed']:
-        messages.error(request, '只有已审核或借用中状态的借用单才能确认入库')
+    if borrow.status != 'borrowed':
+        messages.error(request, '只有借用中状态的借用单才能确认入库')
         return redirect('purchase:borrow_detail', pk=pk)
 
     # 检查是否还有剩余可借用数量

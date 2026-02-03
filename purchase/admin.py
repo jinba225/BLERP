@@ -202,19 +202,16 @@ class BorrowItemInline(admin.TabularInline):
 
 @admin.register(Borrow)
 class BorrowAdmin(admin.ModelAdmin):
-    list_display = ('borrow_number', 'supplier', 'buyer', 'borrow_date', 'expected_return_date', 'status', 'approved_by')
+    list_display = ('borrow_number', 'supplier', 'buyer', 'borrow_date', 'expected_return_date', 'status')
     list_filter = ('status', 'borrow_date', 'supplier')
     search_fields = ('borrow_number', 'supplier__name', 'purpose')
-    readonly_fields = ('borrow_number', 'approved_at', 'created_at', 'updated_at')
+    readonly_fields = ('borrow_number', 'created_at', 'updated_at')
     fieldsets = (
         ('基本信息', {
             'fields': ('borrow_number', 'supplier', 'buyer', 'status')
         }),
         ('日期信息', {
             'fields': ('borrow_date', 'expected_return_date')
-        }),
-        ('审核信息', {
-            'fields': ('approved_by', 'approved_at')
         }),
         ('转采购信息', {
             'fields': ('converted_order',)

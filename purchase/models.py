@@ -899,7 +899,6 @@ class Borrow(BaseModel):
     """
     BORROW_STATUS = [
         ('draft', '草稿'),
-        ('approved', '已审核'),
         ('borrowed', '借用中'),
         ('completed', '已完成'),
     ]
@@ -923,17 +922,6 @@ class Borrow(BaseModel):
     # 状态管理（简化版）
     status = models.CharField('状态', max_length=20, choices=BORROW_STATUS, default='draft')
 
-    # 审核信息
-    approved_by = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='approved_borrows',
-        verbose_name='审核人'
-    )
-    approved_at = models.DateTimeField('审核时间', null=True, blank=True)
-
     # 日期管理（不需要逾期相关）
     borrow_date = models.DateField('借用日期')
     expected_return_date = models.DateField('预计归还日期', null=True, blank=True)
@@ -948,16 +936,6 @@ class Borrow(BaseModel):
         verbose_name='转换的采购订单'
     )
 
-    # 转采购审核信息
-    conversion_approved_by = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='approved_borrow_conversions',
-        verbose_name='转采购审核人'
-    )
-    conversion_approved_at = models.DateTimeField('转采购审核时间', null=True, blank=True)
     conversion_notes = models.TextField('转采购备注', blank=True)
 
     # 备注
@@ -1005,33 +983,17 @@ class Borrow(BaseModel):
         return PurchaseOrder.objects.filter(
             notes__contains=self.borrow_number,
             is_deleted=False
-        ).order_by('created_at')
+         ).order_by('created_at')
 
-    def approve_borrow(self, approved_by_user):
-        """
-        审核借用单（提交即审核，但不入库）
-
-        审核通过后等待借用入库确认
-
-        Args:
-            approved_by_user: 审核人
-        """
-        if self.status != 'draft':
-            raise ValueError('只有草稿状态的借用单才能审核')
-
-        self.status = 'approved'
-        self.approved_by = approved_by_user
-        self.approved_at = timezone.now()
-        self.save()
 
     def confirm_borrow_receipt(self, user, items_to_receive=None):
         """
-        借用入库确认（审核通过后才能入库）
+        借用入库确认（创建后直接可以入库）
 
         核心逻辑：
         1. 订单.累计已借用数量 += 本次借用数量
         2. 借用仓库存 += 本次借用数量（入库）
-        3. 状态更新为 borrowed
+        3. 状态保持在 borrowed
 
         Args:
             user: 操作人
@@ -1040,8 +1002,8 @@ class Borrow(BaseModel):
         """
         from inventory.models import Warehouse, InventoryTransaction
 
-        if self.status not in ['approved', 'borrowed']:
-            raise ValueError('只有已审核或借用中状态的借用单才能确认入库')
+        if self.status != 'borrowed':
+            raise ValueError('只有借用中状态的借用单才能确认入库')
 
         # 获取借用仓
         try:
