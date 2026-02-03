@@ -8,9 +8,9 @@
     {% load static %}
 
     <!-- 所有依赖库 - 本地文件 -->
-    <script src="{% static 'libs/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'libs/jsbarcode.min.js' %}"></script>
-    <script src="{% static 'libs/socket.io.min.js' %}"></script>
+    <script src="{% static 'js/libs/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/libs/jsbarcode.min.js' %}"></script>
+    <script src="{% static 'js/libs/socket.io.min.js' %}"></script>
 
     <!-- ✨ 关键！必须在 socket.io 加载后、HiPrint 加载前禁用连接 -->
     <script>
@@ -57,12 +57,12 @@
         }
     </script>
 
-    <script src="{% static 'libs/jspdf.umd.min.js' %}"></script>
-    <script src="{% static 'libs/html2canvas.min.js' %}"></script>
-    <script src="{% static 'libs/canvg.umd.min.js' %}"></script>
+    <script src="{% static 'js/libs/jspdf.umd.min.js' %}"></script>
+    <script src="{% static 'js/libs/html2canvas.min.js' %}"></script>
+    <script src="{% static 'js/libs/canvg.umd.min.js' %}"></script>
 
     <!-- HiPrint CSS -->
-    <link rel="stylesheet" href="{% static 'libs/print-lock.css' %}">
+    <link rel="stylesheet" href="{% static 'js/libs/print-lock.css' %}">
 
     <!-- ✨ 关键修复：使用 Object.defineProperty 锁定 autoConnect 为 false（不可被 HiPrint 覆盖） -->
     <script>
@@ -118,7 +118,7 @@
 </script>
 
     <!-- HiPrint JS -->
-    <script src="{% static 'libs/vue-plugin-hiprint.js' %}"></script>
+    <script src="{% static 'js/libs/vue-plugin-hiprint.js' %}"></script>
 
     <script>
         // 验证 autoConnect 锁定是否生效
