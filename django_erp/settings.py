@@ -3,6 +3,7 @@ Django settings for django_erp project.
 """
 
 import os
+import sys
 import secrets
 from pathlib import Path
 from decouple import config
@@ -10,6 +11,25 @@ from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# ============================================
+# 路径配置 - 添加 apps/ 到 Python 路径
+# ============================================
+# 将 apps/ 目录添加到 Python 路径，以便 Django 能找到所有应用
+# 注意：所有 Django 应用已从根目录迁移至 apps/ 目录
+APPS_DIR = BASE_DIR / 'apps'
+if str(APPS_DIR) not in sys.path:
+    sys.path.insert(0, str(APPS_DIR))
+
+# 将 common/ 目录添加到 Python 路径
+# common/ 包含共享的工具函数、mixins、装饰器等
+COMMON_DIR = BASE_DIR / 'common'
+if str(COMMON_DIR) not in sys.path:
+    sys.path.insert(0, str(COMMON_DIR))
+
+# 环境变量文件位置（已迁移至 config/environment/）
+# python-decouple 会自动查找 .env 文件
+# 备份位置：config/environment/.env
 
 # ============================================
 # Django Core Settings
