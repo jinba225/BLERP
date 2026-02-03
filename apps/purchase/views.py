@@ -18,7 +18,7 @@ from .models import (
     SupplierQuotation, SupplierQuotationItem,
     Borrow, BorrowItem
 )
-from core.utils import DocumentNumberGenerator
+from common.utils import DocumentNumberGenerator
 from core.models import PAYMENT_METHOD_CHOICES
 
 
@@ -1109,7 +1109,7 @@ def receipt_receive(request, pk):
 
         # 获取或创建应付主单
         from finance.models import SupplierAccount, SupplierAccountDetail
-        from core.utils import DocumentNumberGenerator
+        from common.utils import DocumentNumberGenerator
 
         parent_account = SupplierAccount.get_or_create_for_order(receipt.purchase_order)
 
@@ -1135,7 +1135,7 @@ def receipt_receive(request, pk):
             # ========== 借用单转采购订单：创建借用仓→主仓的调拨单据 ==========
             from inventory.models import Warehouse, StockTransfer, StockTransferItem
             from inventory.services import StockTransferService
-            from core.utils import DocumentNumberGenerator
+            from common.utils import DocumentNumberGenerator
 
             try:
                 borrow_wh = Warehouse.get_borrow_warehouse()
@@ -1300,7 +1300,7 @@ def order_request_payment(request, pk):
         due_date = datetime.now().date() + timedelta(days=30)
 
         # 生成应付账款编号（使用PAY前缀）
-        from core.utils import DocumentNumberGenerator
+        from common.utils import DocumentNumberGenerator
         from django.utils import timezone
 
         # 手动生成PAY格式的编号
@@ -1620,7 +1620,7 @@ def return_approve(request, pk):
                     # ========== 自动生成负应付明细 ==========
                     # 每个明细单独生成负应付记录
                     from finance.models import SupplierAccountDetail
-                    from core.utils import DocumentNumberGenerator
+                    from common.utils import DocumentNumberGenerator
 
                     # 获取或创建应付主单
                     parent_account = SupplierAccount.get_or_create_for_order(return_order.purchase_order)
@@ -1823,7 +1823,7 @@ def inquiry_detail(request, pk):
 def inquiry_create(request):
     """Create a new purchase inquiry."""
     if request.method == 'POST':
-        from core.utils import DocumentNumberGenerator
+        from common.utils import DocumentNumberGenerator
         from decimal import Decimal
         import json
 
@@ -2321,7 +2321,7 @@ def inquiry_create_order(request, pk):
         return redirect('purchase:order_detail', pk=inquiry.purchase_order.pk)
 
     if request.method == 'POST':
-        from core.utils import DocumentNumberGenerator
+        from common.utils import DocumentNumberGenerator
 
         # 获取报价信息（如果有选定的话）
         quotation = inquiry.selected_quotation

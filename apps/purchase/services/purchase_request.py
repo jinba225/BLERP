@@ -2,7 +2,7 @@ from django.db import transaction
 from django.utils import timezone
 from decimal import Decimal
 from purchase.models import PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem
-from core.utils import DocumentNumberGenerator
+from common.utils import DocumentNumberGenerator
 
 
 class PurchaseRequestService:

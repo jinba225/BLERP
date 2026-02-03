@@ -367,7 +367,7 @@ class PurchaseRequest(BaseModel):
             ValueError: If validation fails
         """
         from core.models import SystemConfig
-        from core.utils import DocumentNumberGenerator
+        from common.utils import DocumentNumberGenerator
 
         # Validation
         if self.approved_by:

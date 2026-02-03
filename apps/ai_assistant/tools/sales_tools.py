@@ -124,7 +124,7 @@ class CreateSalesQuoteTool(BaseTool):
         try:
             from django.db import transaction
             from datetime import datetime, timedelta
-            from core.utils import DocumentNumberGenerator
+            from common.utils import DocumentNumberGenerator
 
             # 验证客户
             try:
@@ -519,7 +519,7 @@ class CreateSalesOrderTool(BaseTool):
         try:
             from django.db import transaction
             from datetime import datetime, timedelta
-            from core.utils import DocumentNumberGenerator
+            from common.utils import DocumentNumberGenerator
             
             # 验证客户
             try:

@@ -1,6 +1,6 @@
 from django.db import transaction
 from purchase.models import PurchaseOrder, PurchaseOrderItem
-from core.utils import DocumentNumberGenerator
+from common.utils import DocumentNumberGenerator
 
 
 class PurchaseOrderService:

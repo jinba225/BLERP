@@ -1914,7 +1914,7 @@ def outbound_detail(request, pk):
 def outbound_create(request):
     """Create a new outbound order."""
     if request.method == 'POST':
-        from core.utils import DocumentNumberGenerator
+        from common.utils import DocumentNumberGenerator
 
         # Generate order number
         order_number = DocumentNumberGenerator.generate('OBO')

@@ -106,7 +106,7 @@ class QuoteAdmin(ImportExportModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             # Generate quote number if creating new quote
-            from core.utils import DocumentNumberGenerator
+            from common.utils import DocumentNumberGenerator
             if not obj.quote_number:
                 obj.quote_number = DocumentNumberGenerator.generate('QT')
             obj.created_by = request.user
@@ -301,7 +301,7 @@ class SalesLoanAdmin(ImportExportModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             # Generate loan number if creating new loan
-            from core.utils import DocumentNumberGenerator
+            from common.utils import DocumentNumberGenerator
             if not obj.loan_number:
                 obj.loan_number = DocumentNumberGenerator.generate('sales_loan')
             obj.created_by = request.user

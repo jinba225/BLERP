@@ -32,6 +32,9 @@ from .permissions import (
     clear_user_permission_cache,
 )
 
+# Core 工具导出
+from .document_number import DocumentNumberGenerator
+
 __all__ = [
     # 模块
     'database_helper',
@@ -52,4 +55,6 @@ __all__ = [
     'clear_user_permission_cache',
     'encrypt_api_key',
     'decrypt_api_key',
+    # Core 工具类
+    'DocumentNumberGenerator',
 ]

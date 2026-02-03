@@ -10,7 +10,7 @@ from .models import (
     StockTransfer, StockTransferItem, StockCount, StockCountItem,
     InboundOrder, InboundOrderItem
 )
-from core.utils import DocumentNumberGenerator
+from common.utils import DocumentNumberGenerator
 
 class StockAdjustmentService:
     @staticmethod

@@ -7,7 +7,7 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from ai_assistant.models import AIModelConfig
-from ai_assistant.utils import encrypt_api_key
+from common.utils import encrypt_api_key
 
 
 class Command(BaseCommand):

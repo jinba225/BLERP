@@ -467,7 +467,7 @@ class SupplierAccount(BaseModel):
 
         if not account:
             # 创建新的主单
-            from core.utils import DocumentNumberGenerator
+            from common.utils import DocumentNumberGenerator
             account = cls.objects.create(
                 invoice_number=DocumentNumberGenerator.generate('supplier_account'),
                 supplier=purchase_order.supplier,

@@ -41,7 +41,7 @@ class SalesOrderService:
         Returns:
             SalesOrder: 创建的销售订单实例
         """
-        from core.utils import DocumentNumberGenerator
+        from common.utils import DocumentNumberGenerator
         
         with transaction.atomic():
             # 生成订单号

@@ -26,7 +26,7 @@ from .forms import (
     QuoteSearchForm,
     ConvertToOrderForm,
 )
-from core.utils import DocumentNumberGenerator
+from common.utils import DocumentNumberGenerator
 from core.models import Notification
 
 
@@ -1781,7 +1781,7 @@ def return_approve(request, pk):
             if not existing_payment:
                 # 生成唯一单号（带重试机制）
                 def generate_unique_payment_number():
-                    from core.utils import DocumentNumberGenerator
+                    from common.utils import DocumentNumberGenerator
                     from django.db import IntegrityError
 
                     max_retries = 5
@@ -1825,7 +1825,7 @@ def return_approve(request, pk):
 
                 # 自动创建退款应付
                 from finance.models import Payment, SupplierAccount
-                from core.utils import DocumentNumberGenerator
+                from common.utils import DocumentNumberGenerator
                 from decimal import Decimal
 
                 # 检查是否已经存在关联的应付账款记录
@@ -1919,7 +1919,7 @@ def return_receive(request, pk):
 
             # 1. 创建库存调整单 - 将退货商品退回库存
             from inventory.models import InventoryTransaction
-            from core.utils import DocumentNumberGenerator
+            from common.utils import DocumentNumberGenerator
 
             # 获取原发货的仓库
             warehouse = sales_return.delivery.warehouse if sales_return.delivery else None
@@ -2003,7 +2003,7 @@ def return_receive(request, pk):
                 payment_number = None
 
                 def generate_unique_payment_number():
-                    from core.utils import DocumentNumberGenerator
+                    from common.utils import DocumentNumberGenerator
                     from django.db import IntegrityError
 
                     max_retries = 5
@@ -2128,7 +2128,7 @@ def return_process(request, pk):
 
                 # 1. 创建库存调整单 - 将退货商品退回库存
                 from inventory.models import InventoryTransaction
-                from core.utils import DocumentNumberGenerator
+                from common.utils import DocumentNumberGenerator
 
                 # 获取原发货的仓库
                 warehouse = sales_return.delivery.warehouse if sales_return.delivery else None
@@ -2202,7 +2202,7 @@ def return_process(request, pk):
                         payment_number = None
 
                         def generate_unique_payment_number():
-                            from core.utils import DocumentNumberGenerator
+                            from common.utils import DocumentNumberGenerator
                             from django.db import IntegrityError
 
                             max_retries = 5

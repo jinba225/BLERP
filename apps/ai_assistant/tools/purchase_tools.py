@@ -125,7 +125,7 @@ class CreatePurchaseRequestTool(BaseTool):
         try:
             from django.db import transaction
             from datetime import datetime
-            from core.utils import DocumentNumberGenerator
+            from common.utils import DocumentNumberGenerator
 
             # 验证产品
             validated_items = []

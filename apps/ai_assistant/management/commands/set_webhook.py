@@ -41,7 +41,7 @@ class Command(BaseCommand):
     def _set_telegram_webhook(self, webhook_url):
         """设置 Telegram Webhook"""
         from ai_assistant.models import TelegramConfig
-        from ai_assistant.utils import decrypt_api_key
+        from common.utils import decrypt_api_key
         
         config = TelegramConfig.objects.filter(
             is_active=True,

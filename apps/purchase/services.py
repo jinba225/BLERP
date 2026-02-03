@@ -6,7 +6,7 @@ from django.db import transaction
 from django.utils import timezone
 from decimal import Decimal
 from .models import PurchaseOrder, PurchaseOrderItem, PurchaseRequest, PurchaseRequestItem
-from core.utils import DocumentNumberGenerator
+from common.utils import DocumentNumberGenerator
 
 class PurchaseOrderService:
     @staticmethod

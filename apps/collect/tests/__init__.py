@@ -1,0 +1,3 @@
+"""
+Collect module tests.
+"""

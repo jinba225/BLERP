@@ -126,7 +126,7 @@ def _create_invoice_from_order_post(request, order, invoice_type, party_field):
         tuple: (success: bool, invoice: Invoice or None, error_message: str or None)
     """
     from products.models import Product
-    from core.utils import DocumentNumberGenerator
+    from common.utils import DocumentNumberGenerator
     from decimal import Decimal, InvalidOperation
 
     logger.info(
@@ -633,7 +633,7 @@ def customer_account_writeoff(request, pk):
 
         def generate_unique_payment_number(prefix_key):
             """生成唯一的付款单号（带重试机制）"""
-            from core.utils import DocumentNumberGenerator
+            from common.utils import DocumentNumberGenerator
             from django.db import transaction, IntegrityError
 
             max_retries = 5
@@ -827,7 +827,7 @@ def supplier_account_writeoff(request, pk):
 
         def generate_unique_payment_number(prefix_key):
             """生成唯一的付款单号（带重试机制）"""
-            from core.utils import DocumentNumberGenerator
+            from common.utils import DocumentNumberGenerator
             from django.db import transaction, IntegrityError
 
             max_retries = 5
@@ -1399,7 +1399,7 @@ def invoice_create(request):
     if request.method == 'POST':
         try:
             # Generate invoice number
-            from core.utils import DocumentNumberGenerator
+            from common.utils import DocumentNumberGenerator
             invoice_number = DocumentNumberGenerator.generate('invoice')
 
             # Create invoice
@@ -1835,7 +1835,7 @@ def payment_receipt_detail(request, pk):
 def payment_receipt_create(request):
     """Create a new payment receipt."""
     if request.method == 'POST':
-        from core.utils import DocumentNumberGenerator
+        from common.utils import DocumentNumberGenerator
 
         # Generate payment number using the config key name
         payment_number = DocumentNumberGenerator.generate('payment_receipt')
@@ -2090,7 +2090,7 @@ def payment_payment_detail(request, pk):
 def payment_payment_create(request):
     """Create a new payment payment."""
     if request.method == 'POST':
-        from core.utils import DocumentNumberGenerator
+        from common.utils import DocumentNumberGenerator
 
         # Generate payment number using the config key name
         payment_number = DocumentNumberGenerator.generate('payment')
@@ -2608,7 +2608,7 @@ def supplier_account_payment_allocate(request, pk):
     ).order_by('balance_calc')
 
     if request.method == 'POST':
-        from core.utils import DocumentNumberGenerator
+        from common.utils import DocumentNumberGenerator
 
         payment_method = request.POST.get('payment_method')
         payment_date = request.POST.get('payment_date')

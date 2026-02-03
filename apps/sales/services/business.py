@@ -6,7 +6,7 @@ from django.db import transaction
 from django.utils import timezone
 from decimal import Decimal
 from sales.models import Quote, QuoteItem, SalesOrder, SalesOrderItem
-from core.utils import DocumentNumberGenerator
+from common.utils import DocumentNumberGenerator
 
 class QuoteService:
     @staticmethod

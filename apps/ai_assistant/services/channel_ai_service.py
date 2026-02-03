@@ -17,7 +17,7 @@ from ai_assistant.services import (
 )
 from ai_assistant.channels import ChannelAdapter
 from ai_assistant.channels.base_channel import IncomingMessage, OutgoingMessage
-from ai_assistant.utils import decrypt_api_key
+from common.utils import decrypt_api_key
 
 User = get_user_model()
 
@@ -64,7 +64,7 @@ class ChannelAIService:
             BaseAIProvider 实例，如果没有配置则返回 None
         """
         from ai_assistant.models import AIModelConfig
-        from ai_assistant.utils import decrypt_api_key
+        from common.utils import decrypt_api_key
         
         # 1. 优先使用客户级别的配置
         if self.user_ai_config and self.user_ai_config.model_config:

@@ -110,7 +110,7 @@ def auto_reorder_products():
     try:
         from products.models import Product
         from purchase.models import PurchaseRequest, PurchaseRequestItem
-        from core.utils import DocumentNumberGenerator
+        from common.utils import DocumentNumberGenerator
         from departments.models import Department
         from django.contrib.auth import get_user_model
         
