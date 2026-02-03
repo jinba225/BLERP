@@ -85,7 +85,7 @@ def user_list(request):
         'inactive_count': inactive_count,
         'departments': departments,
     }
-    return render(request, 'users/user_list.html', context)
+    return render(request, 'modules/users/user_list.html', context)
 
 
 @login_required
@@ -106,7 +106,7 @@ def user_detail(request, pk):
         'user_roles': user_roles,
         'recent_logins': recent_logins,
     }
-    return render(request, 'users/user_detail.html', context)
+    return render(request, 'modules/users/user_detail.html', context)
 
 
 @login_required
@@ -175,7 +175,7 @@ def user_create(request):
         'roles': roles,
         'gender_choices': User.GENDER_CHOICES,
     }
-    return render(request, 'users/user_form.html', context)
+    return render(request, 'modules/users/user_form.html', context)
 
 
 @login_required
@@ -242,7 +242,7 @@ def user_update(request, pk):
         'current_role_ids': list(current_role_ids),
         'gender_choices': User.GENDER_CHOICES,
     }
-    return render(request, 'users/user_form.html', context)
+    return render(request, 'modules/users/user_form.html', context)
 
 
 @login_required
@@ -274,7 +274,7 @@ def user_delete(request, pk):
     context = {
         'user': user,
     }
-    return render(request, 'users/user_confirm_delete.html', context)
+    return render(request, 'modules/users/user_confirm_delete.html', context)
 
 
 @login_required
@@ -348,7 +348,7 @@ def role_list(request):
         'active_count': active_count,
         'inactive_count': inactive_count,
     }
-    return render(request, 'users/role_list.html', context)
+    return render(request, 'modules/users/role_list.html', context)
 
 
 @login_required
@@ -366,7 +366,7 @@ def role_detail(request, pk):
         'user_roles': user_roles,
         'user_count': UserRole.objects.filter(role=role, is_deleted=False).count(),
     }
-    return render(request, 'users/role_detail.html', context)
+    return render(request, 'modules/users/role_detail.html', context)
 
 
 @login_required
@@ -396,7 +396,7 @@ def role_create(request):
     context = {
         'action': 'create',
     }
-    return render(request, 'users/role_form.html', context)
+    return render(request, 'modules/users/role_form.html', context)
 
 
 @login_required
@@ -425,7 +425,7 @@ def role_update(request, pk):
         'role': role,
         'action': 'update',
     }
-    return render(request, 'users/role_form.html', context)
+    return render(request, 'modules/users/role_form.html', context)
 
 
 @login_required
@@ -455,7 +455,7 @@ def role_delete(request, pk):
         'role': role,
         'user_count': user_count,
     }
-    return render(request, 'users/role_confirm_delete.html', context)
+    return render(request, 'modules/users/role_confirm_delete.html', context)
 
 
 @login_required
@@ -601,7 +601,7 @@ def role_permissions(request, pk):
         'search': search,
         'user_count': current_users.count(),
     }
-    return render(request, 'users/role_permissions.html', context)
+    return render(request, 'modules/users/role_permissions.html', context)
 
 
 # ============================================
@@ -661,7 +661,7 @@ def role_assign_users(request, pk):
         'available_users': available_users,
         'search': search,
     }
-    return render(request, 'users/role_assign_users.html', context)
+    return render(request, 'modules/users/role_assign_users.html', context)
 
 
 @login_required
@@ -693,7 +693,7 @@ def role_remove_user(request, pk, user_id):
         'role': role,
         'user': user,
     }
-    return render(request, 'users/role_remove_user_confirm.html', context)
+    return render(request, 'modules/users/role_remove_user_confirm.html', context)
 
 
 @login_required
@@ -747,4 +747,4 @@ def login_log_list(request):
         'current_page_count': current_page_count,
         'users': users,
     }
-    return render(request, 'users/login_log_list.html', context)
+    return render(request, 'modules/users/login_log_list.html', context)

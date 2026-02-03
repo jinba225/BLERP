@@ -84,7 +84,7 @@ def order_list(request):
         'suppliers': suppliers,
         'total_count': paginator.count,
     }
-    return render(request, 'purchase/order_list.html', context)
+    return render(request, 'modules/purchase/order_list.html', context)
 
 
 @login_required
@@ -130,7 +130,7 @@ def order_detail(request, pk):
         'pending_receipt': pending_receipt,
         'can_request_payment': can_request_payment,
     }
-    return render(request, 'purchase/order_detail.html', context)
+    return render(request, 'modules/purchase/order_detail.html', context)
 
 
 @login_required
@@ -205,7 +205,7 @@ def order_create(request):
         'PAYMENT_METHOD_CHOICES': PAYMENT_METHOD_CHOICES,
         'action': 'create',
     }
-    return render(request, 'purchase/order_form.html', context)
+    return render(request, 'modules/purchase/order_form.html', context)
 
 
 @login_required
@@ -292,7 +292,7 @@ def order_update(request, pk):
         'PAYMENT_METHOD_CHOICES': PAYMENT_METHOD_CHOICES,
         'action': 'update',
     }
-    return render(request, 'purchase/order_form.html', context)
+    return render(request, 'modules/purchase/order_form.html', context)
 
 
 @login_required
@@ -316,7 +316,7 @@ def order_delete(request, pk):
     context = {
         'order': order,
     }
-    return render(request, 'purchase/order_confirm_delete.html', context)
+    return render(request, 'modules/purchase/order_confirm_delete.html', context)
 
 
 # ==================== Purchase Request (询价单) Views ====================
@@ -382,7 +382,7 @@ def request_list(request):
         'departments': departments,
         'total_count': paginator.count,
     }
-    return render(request, 'purchase/request_list.html', context)
+    return render(request, 'modules/purchase/request_list.html', context)
 
 
 @login_required
@@ -418,7 +418,7 @@ def request_detail(request, pk):
         'warehouses': Warehouse.objects.filter(is_deleted=False).order_by('name'),
         'preferred_supplier': preferred_supplier,
     }
-    return render(request, 'purchase/request_detail.html', context)
+    return render(request, 'modules/purchase/request_detail.html', context)
 
 
 @login_required
@@ -486,7 +486,7 @@ def request_create(request):
         'products': products,
         'action': 'create',
     }
-    return render(request, 'purchase/request_form.html', context)
+    return render(request, 'modules/purchase/request_form.html', context)
 
 
 @login_required
@@ -555,7 +555,7 @@ def request_update(request, pk):
         'products': products,
         'action': 'update',
     }
-    return render(request, 'purchase/request_form.html', context)
+    return render(request, 'modules/purchase/request_form.html', context)
 
 
 @login_required
@@ -582,7 +582,7 @@ def request_delete(request, pk):
     context = {
         'request': purchase_request,
     }
-    return render(request, 'purchase/request_confirm_delete.html', context)
+    return render(request, 'modules/purchase/request_confirm_delete.html', context)
 
 
 @login_required
@@ -648,7 +648,7 @@ def request_convert_to_order(request, pk):
         'suppliers': suppliers,
         'warehouses': warehouses,
     }
-    return render(request, 'purchase/request_convert.html', context)
+    return render(request, 'modules/purchase/request_convert.html', context)
 
 
 @login_required
@@ -908,7 +908,7 @@ def receipt_list(request):
         'warehouses': warehouses,
         'total_count': paginator.count,
     }
-    return render(request, 'purchase/receipt_list.html', context)
+    return render(request, 'modules/purchase/receipt_list.html', context)
 
 
 @login_required
@@ -927,7 +927,7 @@ def receipt_detail(request, pk):
         'can_edit': receipt.status == 'draft',
         'can_receive': receipt.status in ['draft', 'received'],
     }
-    return render(request, 'purchase/receipt_detail.html', context)
+    return render(request, 'modules/purchase/receipt_detail.html', context)
 
 
 @login_required
@@ -1047,7 +1047,7 @@ def receipt_create(request, order_pk):
         'warehouses': warehouses,
         'action': 'create',
     }
-    return render(request, 'purchase/receipt_form.html', context)
+    return render(request, 'modules/purchase/receipt_form.html', context)
 
 
 @login_required
@@ -1405,7 +1405,7 @@ def return_list(request):
         'date_to': date_to,
         'total_count': paginator.count,
     }
-    return render(request, 'purchase/return_list.html', context)
+    return render(request, 'modules/purchase/return_list.html', context)
 
 
 @login_required
@@ -1424,7 +1424,7 @@ def return_detail(request, pk):
         'can_edit': return_order.status == 'pending',
         'can_approve': return_order.status == 'pending',
     }
-    return render(request, 'purchase/return_detail.html', context)
+    return render(request, 'modules/purchase/return_detail.html', context)
 
 
 @login_required
@@ -1517,7 +1517,7 @@ def return_create(request, order_pk):
         'order_items': order_items_data,
         'action': 'create',
     }
-    return render(request, 'purchase/return_form.html', context)
+    return render(request, 'modules/purchase/return_form.html', context)
 
 
 @login_required
@@ -1726,7 +1726,7 @@ def return_statistics(request):
         'date_from': date_from,
         'date_to': date_to,
     }
-    return render(request, 'purchase/return_statistics.html', context)
+    return render(request, 'modules/purchase/return_statistics.html', context)
 
 
 # ============================================================
@@ -1787,7 +1787,7 @@ def inquiry_list(request):
         'inquiry_statuses': PurchaseInquiry.INQUIRY_STATUS,
     }
 
-    return render(request, 'purchase/inquiry_list.html', context)
+    return render(request, 'modules/purchase/inquiry_list.html', context)
 
 
 @login_required
@@ -1815,7 +1815,7 @@ def inquiry_detail(request, pk):
         'quotation_counts': quotation_counts,
     }
 
-    return render(request, 'purchase/inquiry_detail.html', context)
+    return render(request, 'modules/purchase/inquiry_detail.html', context)
 
 
 @login_required
@@ -1898,7 +1898,7 @@ def inquiry_create(request):
         'payment_methods': PAYMENT_METHOD_CHOICES,
     }
 
-    return render(request, 'purchase/inquiry_form.html', context)
+    return render(request, 'modules/purchase/inquiry_form.html', context)
 
 
 @login_required
@@ -1984,7 +1984,7 @@ def inquiry_update(request, pk):
         'payment_methods': PAYMENT_METHOD_CHOICES,
     }
 
-    return render(request, 'purchase/inquiry_form.html', context)
+    return render(request, 'modules/purchase/inquiry_form.html', context)
 
 
 @login_required
@@ -2019,7 +2019,7 @@ def inquiry_delete(request, pk):
         'items': inquiry.items.filter(is_deleted=False).select_related('product'),
     }
 
-    return render(request, 'purchase/inquiry_confirm_delete.html', context)
+    return render(request, 'modules/purchase/inquiry_confirm_delete.html', context)
 
 
 @login_required
@@ -2066,7 +2066,7 @@ def inquiry_send(request, pk):
         'items': inquiry.items.filter(is_deleted=False).select_related('product'),
     }
 
-    return render(request, 'purchase/inquiry_send.html', context)
+    return render(request, 'modules/purchase/inquiry_send.html', context)
 
 
 # ============================================================
@@ -2122,7 +2122,7 @@ def quotation_list(request):
         'quotation_statuses': SupplierQuotation.QUOTATION_STATUS,
     }
 
-    return render(request, 'purchase/quotation_list.html', context)
+    return render(request, 'modules/purchase/quotation_list.html', context)
 
 
 @login_required
@@ -2139,7 +2139,7 @@ def quotation_detail(request, pk):
         'items': items,
     }
 
-    return render(request, 'purchase/quotation_detail.html', context)
+    return render(request, 'modules/purchase/quotation_detail.html', context)
 
 
 @login_required
@@ -2217,7 +2217,7 @@ def quotation_update(request, pk):
         'payment_methods': PAYMENT_METHOD_CHOICES,
     }
 
-    return render(request, 'purchase/quotation_form.html', context)
+    return render(request, 'modules/purchase/quotation_form.html', context)
 
 
 @login_required
@@ -2265,7 +2265,7 @@ def quotation_compare(request, inquiry_pk):
         'comparison_data': comparison_data,
     }
 
-    return render(request, 'purchase/quotation_compare.html', context)
+    return render(request, 'modules/purchase/quotation_compare.html', context)
 
 
 @login_required
@@ -2306,7 +2306,7 @@ def quotation_select(request, pk):
         'items': quotation.items.filter(is_deleted=False).select_related('product'),
     }
 
-    return render(request, 'purchase/quotation_confirm_select.html', context)
+    return render(request, 'modules/purchase/quotation_confirm_select.html', context)
 
 
 @login_required
@@ -2425,7 +2425,7 @@ def inquiry_create_order(request, pk):
         'has_quotation': bool(quotation),
     }
 
-    return render(request, 'purchase/inquiry_confirm_create_order.html', context)
+    return render(request, 'modules/purchase/inquiry_confirm_create_order.html', context)
 
 
 
@@ -2558,7 +2558,7 @@ def purchase_order_report(request):
         'filter_product': product_id,
     }
 
-    return render(request, 'purchase/order_report.html', context)
+    return render(request, 'modules/purchase/order_report.html', context)
 
 
 # ==================== Borrow Management Views (采购借用管理) ====================
@@ -2627,7 +2627,7 @@ def borrow_list(request):
         'borrow_statuses': Borrow.BORROW_STATUS,
     }
 
-    return render(request, 'purchase/borrow_list.html', context)
+    return render(request, 'modules/purchase/borrow_list.html', context)
 
 
 @login_required
@@ -2699,7 +2699,7 @@ def borrow_create(request):
                 'errors': errors,
                 'form_data': request.POST,
             }
-            return render(request, 'purchase/borrow_form.html', context)
+            return render(request, 'modules/purchase/borrow_form.html', context)
 
         # 生成借用单号
         borrow_number = DocumentNumberGenerator.generate('borrow')
@@ -2747,7 +2747,7 @@ def borrow_create(request):
         'products': json.dumps(list(products), cls=DjangoJSONEncoder),
     }
 
-    return render(request, 'purchase/borrow_form.html', context)
+    return render(request, 'modules/purchase/borrow_form.html', context)
 
 
 @login_required
@@ -2785,7 +2785,7 @@ def borrow_detail(request, pk):
         'can_approve_conversion': can_approve_conversion,
     }
 
-    return render(request, 'purchase/borrow_detail.html', context)
+    return render(request, 'modules/purchase/borrow_detail.html', context)
 
 
 @login_required
@@ -2886,7 +2886,7 @@ def borrow_update(request, pk):
         'existing_items': json.dumps(existing_items, cls=DjangoJSONEncoder),
     }
 
-    return render(request, 'purchase/borrow_form.html', context)
+    return render(request, 'modules/purchase/borrow_form.html', context)
 
 
 @login_required
@@ -2942,7 +2942,7 @@ def borrow_confirm_receipt(request, pk):
         'items': items,
     }
 
-    return render(request, 'purchase/borrow_confirm_receipt.html', context)
+    return render(request, 'modules/purchase/borrow_confirm_receipt.html', context)
 
 
 @login_required
@@ -3030,7 +3030,7 @@ def borrow_return(request, pk):
         'items': items,
     }
 
-    return render(request, 'purchase/borrow_return.html', context)
+    return render(request, 'modules/purchase/borrow_return.html', context)
 
 
 @login_required
@@ -3165,7 +3165,7 @@ def borrow_request_conversion(request, pk):
         'items': items_with_remaining,
     }
 
-    return render(request, 'purchase/borrow_request_conversion.html', context)
+    return render(request, 'modules/purchase/borrow_request_conversion.html', context)
 
 
 # borrow_approve_conversion 视图已删除 - 转采购无需审核，直接生成订单

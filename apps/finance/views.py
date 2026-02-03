@@ -303,7 +303,7 @@ def account_list(request):
         'is_active': is_active,
         'total_count': paginator.count,
     }
-    return render(request, 'finance/account_list.html', context)
+    return render(request, 'modules/finance/account_list.html', context)
 
 
 @login_required
@@ -325,7 +325,7 @@ def account_detail(request, pk):
         'account': account,
         'entries': entries,
     }
-    return render(request, 'finance/account_detail.html', context)
+    return render(request, 'modules/finance/account_detail.html', context)
 
 
 @login_required
@@ -387,7 +387,7 @@ def journal_list(request):
         'date_to': date_to,
         'total_count': paginator.count,
     }
-    return render(request, 'finance/journal_list.html', context)
+    return render(request, 'modules/finance/journal_list.html', context)
 
 
 @login_required
@@ -405,7 +405,7 @@ def journal_detail(request, pk):
     context = {
         'journal': journal,
     }
-    return render(request, 'finance/journal_detail.html', context)
+    return render(request, 'modules/finance/journal_detail.html', context)
 
 
 @login_required
@@ -464,7 +464,7 @@ def customer_account_list(request):
         'totals': totals,
         'customers': customers,
     }
-    return render(request, 'finance/customer_account_list.html', context)
+    return render(request, 'modules/finance/customer_account_list.html', context)
 
 @login_required
 def customer_account_detail(request, pk):
@@ -496,7 +496,7 @@ def customer_account_detail(request, pk):
     paid_total = payments.aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
 
     from django.utils import timezone
-    return render(request, 'finance/customer_account_detail.html', {
+    return render(request, 'modules/finance/customer_account_detail.html', {
         'account': account,
         'payments': payments,
         'paid_total': paid_total,
@@ -562,7 +562,7 @@ def supplier_account_list(request):
         'totals': totals,
         'status_choices': SupplierAccount.ACCOUNT_STATUS,
     }
-    return render(request, 'finance/supplier_account_list.html', context)
+    return render(request, 'modules/finance/supplier_account_list.html', context)
 
 
 @login_required
@@ -590,7 +590,7 @@ def supplier_account_detail(request, pk):
         'account': account,
         'related_payments': related_payments,
     }
-    return render(request, 'finance/supplier_account_detail.html', context)
+    return render(request, 'modules/finance/supplier_account_detail.html', context)
 
 @login_required
 def customer_account_writeoff(request, pk):
@@ -780,7 +780,7 @@ def customer_account_writeoff(request, pk):
             return redirect('finance:customer_account_detail', pk=pk)
 
     prepays = CustomerPrepayment.objects.filter(customer=account.customer, is_deleted=False, balance__gt=0)
-    return render(request, 'finance/customer_account_writeoff.html', {
+    return render(request, 'modules/finance/customer_account_writeoff.html', {
         'account': account,
         'prepays': prepays,
         'payment_methods': Payment.PAYMENT_METHODS,
@@ -996,14 +996,14 @@ def supplier_account_writeoff(request, pk):
         'account': account,
         'prepays': prepays,
     }
-    return render(request, 'finance/supplier_account_writeoff.html', context)
+    return render(request, 'modules/finance/supplier_account_writeoff.html', context)
 
 @login_required
 def customer_prepayment_list(request):
     prepays = CustomerPrepayment.objects.filter(is_deleted=False)
     paginator = Paginator(prepays, 20)
     page_obj = paginator.get_page(request.GET.get('page'))
-    return render(request, 'finance/customer_prepayment_list.html', {'page_obj': page_obj})
+    return render(request, 'modules/finance/customer_prepayment_list.html', {'page_obj': page_obj})
 
 @login_required
 @transaction.atomic
@@ -1023,14 +1023,14 @@ def customer_prepayment_create(request):
         messages.success(request, '预收款创建成功')
         return redirect('finance:customer_prepayment_list')
     customers = Customer.objects.filter(is_deleted=False)
-    return render(request, 'finance/customer_prepayment_form.html', {'customers': customers})
+    return render(request, 'modules/finance/customer_prepayment_form.html', {'customers': customers})
 
 @login_required
 def supplier_prepayment_list(request):
     prepays = SupplierPrepayment.objects.filter(is_deleted=False)
     paginator = Paginator(prepays, 20)
     page_obj = paginator.get_page(request.GET.get('page'))
-    return render(request, 'finance/supplier_prepayment_list.html', {'page_obj': page_obj})
+    return render(request, 'modules/finance/supplier_prepayment_list.html', {'page_obj': page_obj})
 
 @login_required
 @transaction.atomic
@@ -1050,7 +1050,7 @@ def supplier_prepayment_create(request):
         messages.success(request, '预付款创建成功')
         return redirect('finance:supplier_prepayment_list')
     suppliers = Supplier.objects.filter(is_deleted=False)
-    return render(request, 'finance/supplier_prepayment_form.html', {'suppliers': suppliers})
+    return render(request, 'modules/finance/supplier_prepayment_form.html', {'suppliers': suppliers})
 
 
 @login_required
@@ -1082,7 +1082,7 @@ def generate_supplier_account_from_invoice(request, invoice_id):
     context = {
         'invoice': invoice,
     }
-    return render(request, 'finance/confirm_generate_supplier_account.html', context)
+    return render(request, 'modules/finance/confirm_generate_supplier_account.html', context)
 
 
 @login_required
@@ -1150,7 +1150,7 @@ def payment_list(request):
         'total_count': paginator.count,
         'totals': totals,
     }
-    return render(request, 'finance/payment_list.html', context)
+    return render(request, 'modules/finance/payment_list.html', context)
 
 
 @login_required
@@ -1168,7 +1168,7 @@ def payment_detail(request, pk):
     context = {
         'payment': payment,
     }
-    return render(request, 'finance/payment_detail.html', context)
+    return render(request, 'modules/finance/payment_detail.html', context)
 
 
 @login_required
@@ -1220,7 +1220,7 @@ def budget_list(request):
         'fiscal_year': fiscal_year,
         'total_count': paginator.count,
     }
-    return render(request, 'finance/budget_list.html', context)
+    return render(request, 'modules/finance/budget_list.html', context)
 
 
 @login_required
@@ -1238,7 +1238,7 @@ def budget_detail(request, pk):
     context = {
         'budget': budget,
     }
-    return render(request, 'finance/budget_detail.html', context)
+    return render(request, 'modules/finance/budget_detail.html', context)
 
 
 @login_required
@@ -1286,7 +1286,7 @@ def dashboard(request):
         'recent_journals': recent_journals,
         'recent_payments': recent_payments,
     }
-    return render(request, 'finance/dashboard.html', context)
+    return render(request, 'modules/finance/dashboard.html', context)
 
 
 # ==================== Invoice Management ====================
@@ -1369,7 +1369,7 @@ def invoice_list(request):
         'invoice_type_choices': Invoice.INVOICE_TYPES,
         'status_choices': Invoice.INVOICE_STATUS,
     }
-    return render(request, 'finance/invoice_list.html', context)
+    return render(request, 'modules/finance/invoice_list.html', context)
 
 
 @login_required
@@ -1387,7 +1387,7 @@ def invoice_detail(request, pk):
     context = {
         'invoice': invoice,
     }
-    return render(request, 'finance/invoice_detail.html', context)
+    return render(request, 'modules/finance/invoice_detail.html', context)
 
 
 @login_required
@@ -1477,7 +1477,7 @@ def invoice_create(request):
         'products': Product.objects.filter(is_deleted=False, status='active'),
         'default_tax_rate': 13,
     }
-    return render(request, 'finance/invoice_form.html', context)
+    return render(request, 'modules/finance/invoice_form.html', context)
 
 
 @login_required
@@ -1572,7 +1572,7 @@ def invoice_edit(request, pk):
         'suppliers': Supplier.objects.filter(is_deleted=False, is_active=True),
         'products': Product.objects.filter(is_deleted=False, status='active'),
     }
-    return render(request, 'finance/invoice_form.html', context)
+    return render(request, 'modules/finance/invoice_form.html', context)
 
 
 @login_required
@@ -1604,7 +1604,7 @@ def invoice_delete(request, pk):
     context = {
         'invoice': invoice,
     }
-    return render(request, 'finance/invoice_confirm_delete.html', context)
+    return render(request, 'modules/finance/invoice_confirm_delete.html', context)
 
 
 @login_required
@@ -1675,7 +1675,7 @@ def invoice_verify(request, pk):
     context = {
         'invoice': invoice,
     }
-    return render(request, 'finance/invoice_confirm_verify.html', context)
+    return render(request, 'modules/finance/invoice_confirm_verify.html', context)
 
 
 @login_required
@@ -1729,7 +1729,7 @@ def invoice_create_from_sales_order(request, order_id):
         'initial_items': initial_items,
         'reference_number': order.order_number,
     }
-    return render(request, 'finance/invoice_form.html', context)
+    return render(request, 'modules/finance/invoice_form.html', context)
 
 
 # ============================
@@ -1806,7 +1806,7 @@ def payment_receipt_list(request):
         'total_count': paginator.count,
         'total_amount': total_amount,
     }
-    return render(request, 'finance/payment_receipt_list.html', context)
+    return render(request, 'modules/finance/payment_receipt_list.html', context)
 
 
 @login_required
@@ -1827,7 +1827,7 @@ def payment_receipt_detail(request, pk):
         'can_edit': payment.status in ['pending'],
         'can_cancel': payment.status in ['pending', 'completed'],
     }
-    return render(request, 'finance/payment_receipt_detail.html', context)
+    return render(request, 'modules/finance/payment_receipt_detail.html', context)
 
 
 @login_required
@@ -1878,7 +1878,7 @@ def payment_receipt_create(request):
         'payment_methods': Payment.PAYMENT_METHODS,
         'action': 'create',
     }
-    return render(request, 'finance/payment_receipt_form.html', context)
+    return render(request, 'modules/finance/payment_receipt_form.html', context)
 
 
 @login_required
@@ -1926,7 +1926,7 @@ def payment_receipt_update(request, pk):
         'payment_methods': Payment.PAYMENT_METHODS,
         'action': 'update',
     }
-    return render(request, 'finance/payment_receipt_form.html', context)
+    return render(request, 'modules/finance/payment_receipt_form.html', context)
 
 
 @login_required
@@ -1950,7 +1950,7 @@ def payment_receipt_delete(request, pk):
     context = {
         'payment': payment,
     }
-    return render(request, 'finance/payment_receipt_confirm_delete.html', context)
+    return render(request, 'modules/finance/payment_receipt_confirm_delete.html', context)
 
 
 @login_required
@@ -1974,7 +1974,7 @@ def payment_receipt_cancel(request, pk):
     context = {
         'payment': payment,
     }
-    return render(request, 'finance/payment_receipt_confirm_cancel.html', context)
+    return render(request, 'modules/finance/payment_receipt_confirm_cancel.html', context)
 
 
 # ============================
@@ -2061,7 +2061,7 @@ def payment_payment_list(request):
         'total_count': paginator.count,
         'total_amount': total_amount,
     }
-    return render(request, 'finance/payment_payment_list.html', context)
+    return render(request, 'modules/finance/payment_payment_list.html', context)
 
 
 @login_required
@@ -2082,7 +2082,7 @@ def payment_payment_detail(request, pk):
         'can_edit': payment.status in ['pending'],
         'can_cancel': payment.status in ['pending', 'completed'],
     }
-    return render(request, 'finance/payment_payment_detail.html', context)
+    return render(request, 'modules/finance/payment_payment_detail.html', context)
 
 
 @login_required
@@ -2134,7 +2134,7 @@ def payment_payment_create(request):
         'payment_statuses': Payment.PAYMENT_STATUS,
         'action': 'create',
     }
-    return render(request, 'finance/payment_payment_form.html', context)
+    return render(request, 'modules/finance/payment_payment_form.html', context)
 
 
 @login_required
@@ -2184,7 +2184,7 @@ def payment_payment_update(request, pk):
         'payment_statuses': Payment.PAYMENT_STATUS,
         'action': 'update',
     }
-    return render(request, 'finance/payment_payment_form.html', context)
+    return render(request, 'modules/finance/payment_payment_form.html', context)
 
 
 @login_required
@@ -2208,7 +2208,7 @@ def payment_payment_delete(request, pk):
     context = {
         'payment': payment,
     }
-    return render(request, 'finance/payment_payment_confirm_delete.html', context)
+    return render(request, 'modules/finance/payment_payment_confirm_delete.html', context)
 
 
 @login_required
@@ -2232,7 +2232,7 @@ def payment_payment_cancel(request, pk):
     context = {
         'payment': payment,
     }
-    return render(request, 'finance/payment_payment_confirm_cancel.html', context)
+    return render(request, 'modules/finance/payment_payment_confirm_cancel.html', context)
 
 
 # ============================================
@@ -2282,7 +2282,7 @@ def tax_rate_list(request):
         'total_count': paginator.count,
         'tax_types': TaxRate.TAX_TYPES,
     }
-    return render(request, 'finance/tax_rate_list.html', context)
+    return render(request, 'modules/finance/tax_rate_list.html', context)
 
 
 @login_required
@@ -2295,7 +2295,7 @@ def tax_rate_detail(request, pk):
     context = {
         'tax_rate': tax_rate,
     }
-    return render(request, 'finance/tax_rate_detail.html', context)
+    return render(request, 'modules/finance/tax_rate_detail.html', context)
 
 
 @login_required
@@ -2339,7 +2339,7 @@ def tax_rate_create(request):
         'action': 'create',
         'tax_types': TaxRate.TAX_TYPES,
     }
-    return render(request, 'finance/tax_rate_form.html', context)
+    return render(request, 'modules/finance/tax_rate_form.html', context)
 
 
 @login_required
@@ -2381,7 +2381,7 @@ def tax_rate_update(request, pk):
         'action': 'update',
         'tax_types': TaxRate.TAX_TYPES,
     }
-    return render(request, 'finance/tax_rate_form.html', context)
+    return render(request, 'modules/finance/tax_rate_form.html', context)
 
 
 @login_required
@@ -2403,7 +2403,7 @@ def tax_rate_delete(request, pk):
     context = {
         'tax_rate': tax_rate,
     }
-    return render(request, 'finance/tax_rate_confirm_delete.html', context)
+    return render(request, 'modules/finance/tax_rate_confirm_delete.html', context)
 
 
 
@@ -2507,7 +2507,7 @@ def account_report(request):
         'today': timezone.now().date(),
     }
 
-    return render(request, 'finance/account_report.html', context)
+    return render(request, 'modules/finance/account_report.html', context)
 
 
 # ==================== Supplier Account Payment Allocation (按明细核销) ====================
@@ -2579,7 +2579,7 @@ def supplier_account_payment_list(request):
         'status': status,
         'today': timezone.now().date(),
     }
-    return render(request, 'finance/supplier_account_payment_list.html', context)
+    return render(request, 'modules/finance/supplier_account_payment_list.html', context)
 
 
 @login_required
@@ -2695,4 +2695,4 @@ def supplier_account_payment_allocate(request, pk):
         'details': details,
         'today': timezone.now().date(),
     }
-    return render(request, 'finance/supplier_account_payment_allocate.html', context)
+    return render(request, 'modules/finance/supplier_account_payment_allocate.html', context)

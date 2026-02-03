@@ -121,7 +121,7 @@ def quote_list(request):
         'search_form': search_form,
         'total_count': quotes.count(),
     }
-    return render(request, 'sales/quote_list.html', context)
+    return render(request, 'modules/sales/quote_list.html', context)
 
 
 @login_required
@@ -159,7 +159,7 @@ def quote_detail(request, pk):
         'print_templates': print_templates,
         'default_template': default_template,
     }
-    return render(request, 'sales/quote_detail.html', context)
+    return render(request, 'modules/sales/quote_detail.html', context)
 
 
 @login_required
@@ -214,7 +214,7 @@ def quote_create(request):
         'action': 'create',
         'products': products,
     }
-    return render(request, 'sales/quote_form.html', context)
+    return render(request, 'modules/sales/quote_form.html', context)
 
 
 @login_required
@@ -275,7 +275,7 @@ def quote_update(request, pk):
         'action': 'update',
         'products': products,
     }
-    return render(request, 'sales/quote_form.html', context)
+    return render(request, 'modules/sales/quote_form.html', context)
 
 
 @login_required
@@ -302,7 +302,7 @@ def quote_delete(request, pk):
     context = {
         'quote': quote,
     }
-    return render(request, 'sales/quote_confirm_delete.html', context)
+    return render(request, 'modules/sales/quote_confirm_delete.html', context)
 
 
 @login_required
@@ -364,7 +364,7 @@ def quote_convert_to_order(request, pk):
         'quote': quote,
         'form': form,
     }
-    return render(request, 'sales/quote_convert.html', context)
+    return render(request, 'modules/sales/quote_convert.html', context)
 
 
 @login_required
@@ -444,7 +444,7 @@ def quote_print(request, pk):
             'items': quote.items.all(),
             'print_date': timezone.now(),
         }
-        return render(request, 'sales/quote_print.html', context)
+        return render(request, 'modules/sales/quote_print.html', context)
 
     # Use custom template with HiPrint
     context = {
@@ -455,7 +455,7 @@ def quote_print(request, pk):
         'layout_config': print_template.layout_config,
         'layout_config_json': json.dumps(print_template.layout_config, ensure_ascii=False),
     }
-    return render(request, 'sales/quote_print_hiprint.html', context)
+    return render(request, 'modules/sales/quote_print_hiprint.html', context)
 
 
 @login_required
@@ -577,7 +577,7 @@ def order_list(request):
         'date_to': date_to,
         'total_count': paginator.count,
     }
-    return render(request, 'sales/order_list.html', context)
+    return render(request, 'modules/sales/order_list.html', context)
 
 
 @login_required
@@ -603,7 +603,7 @@ def order_detail(request, pk):
         'can_approve': order.status in ['draft', 'pending'],
         'can_create_delivery': can_create_delivery,
     }
-    return render(request, 'sales/order_detail.html', context)
+    return render(request, 'modules/sales/order_detail.html', context)
 
 
 @login_required
@@ -677,7 +677,7 @@ def order_create(request):
         'products': products,
         'action': 'create',
     }
-    return render(request, 'sales/order_form.html', context)
+    return render(request, 'modules/sales/order_form.html', context)
 
 
 @login_required
@@ -754,7 +754,7 @@ def order_update(request, pk):
         'products': products,
         'action': 'update',
     }
-    return render(request, 'sales/order_form.html', context)
+    return render(request, 'modules/sales/order_form.html', context)
 
 
 @login_required
@@ -778,7 +778,7 @@ def order_delete(request, pk):
     context = {
         'order': order,
     }
-    return render(request, 'sales/order_confirm_delete.html', context)
+    return render(request, 'modules/sales/order_confirm_delete.html', context)
 
 @login_required
 def get_customer_info(request, customer_id):
@@ -959,7 +959,7 @@ def order_unapprove(request, pk):
         'order': order,
         'deliveries': order.deliveries.all(),
     }
-    return render(request, 'sales/order_confirm_unapprove.html', context)
+    return render(request, 'modules/sales/order_confirm_unapprove.html', context)
 
 
 # ==================== Delivery Views ====================
@@ -1009,7 +1009,7 @@ def delivery_list(request):
         'date_to': date_to,
         'total_count': paginator.count,
     }
-    return render(request, 'sales/delivery_list.html', context)
+    return render(request, 'modules/sales/delivery_list.html', context)
 
 
 @login_required
@@ -1028,7 +1028,7 @@ def delivery_detail(request, pk):
         'items': delivery.items.all(),
         'can_ship': delivery.status in ['preparing', 'ready'],
     }
-    return render(request, 'sales/delivery_detail.html', context)
+    return render(request, 'modules/sales/delivery_detail.html', context)
 
 
 @login_required
@@ -1120,7 +1120,7 @@ def delivery_create(request, order_pk):
         'warehouses': warehouses,
         'action': 'create',
     }
-    return render(request, 'sales/delivery_form.html', context)
+    return render(request, 'modules/sales/delivery_form.html', context)
 
 
 @login_required
@@ -1154,7 +1154,7 @@ def delivery_update(request, pk):
         'delivery': delivery,
         'action': 'update',
     }
-    return render(request, 'sales/delivery_form.html', context)
+    return render(request, 'modules/sales/delivery_form.html', context)
 
 
 @login_required
@@ -1445,7 +1445,7 @@ def delivery_ship(request, pk):
     context = {
         'delivery': delivery,
     }
-    return render(request, 'sales/delivery_confirm_ship.html', context)
+    return render(request, 'modules/sales/delivery_confirm_ship.html', context)
 
 
 # ==================== Sales Return Views ====================
@@ -1507,7 +1507,7 @@ def return_list(request):
         'date_to': date_to,
         'total_count': paginator.count,
     }
-    return render(request, 'sales/return_list.html', context)
+    return render(request, 'modules/sales/return_list.html', context)
 
 
 @login_required
@@ -1538,7 +1538,7 @@ def return_detail(request, pk):
         'can_process': sales_return.status == 'received',  # 在已收货状态时显示处理按钮，但通常不会出现，因为确认收货后直接跳到已处理
         'refund_payment': refund_payment,
     }
-    return render(request, 'sales/return_detail.html', context)
+    return render(request, 'modules/sales/return_detail.html', context)
 
 
 @login_required
@@ -1697,7 +1697,7 @@ def return_create(request, order_pk):
         'deliveries': deliveries,
         'action': 'create',
     }
-    return render(request, 'sales/return_form.html', context)
+    return render(request, 'modules/sales/return_form.html', context)
 
 
 @login_required
@@ -1726,7 +1726,7 @@ def return_update(request, pk):
         'return': sales_return,
         'action': 'update',
     }
-    return render(request, 'sales/return_form.html', context)
+    return render(request, 'modules/sales/return_form.html', context)
 
 
 @login_required
@@ -1891,7 +1891,7 @@ def return_approve(request, pk):
     context = {
         'return': sales_return,
     }
-    return render(request, 'sales/return_confirm_approve.html', context)
+    return render(request, 'modules/sales/return_confirm_approve.html', context)
 
 
 @login_required
@@ -2098,7 +2098,7 @@ def return_receive(request, pk):
     context = {
         'return': sales_return,
     }
-    return render(request, 'sales/return_confirm_receive.html', context)
+    return render(request, 'modules/sales/return_confirm_receive.html', context)
 
 
 @login_required
@@ -2297,7 +2297,7 @@ def return_process(request, pk):
     context = {
         'return': sales_return,
     }
-    return render(request, 'sales/return_confirm_process.html', context)
+    return render(request, 'modules/sales/return_confirm_process.html', context)
 
 
 @login_required
@@ -2348,7 +2348,7 @@ def return_reject(request, pk):
     context = {
         'return': sales_return,
     }
-    return render(request, 'sales/return_confirm_reject.html', context)
+    return render(request, 'modules/sales/return_confirm_reject.html', context)
 
 
 @login_required
@@ -2486,7 +2486,7 @@ def return_statistics(request):
         'monthly_refunds_json': json.dumps(monthly_refunds),
     }
 
-    return render(request, 'sales/return_statistics.html', context)
+    return render(request, 'modules/sales/return_statistics.html', context)
 
 
 # ============================================
@@ -2763,7 +2763,7 @@ def sales_order_report(request):
         'filter_product': product_id,
     }
 
-    return render(request, 'sales/order_report.html', context)
+    return render(request, 'modules/sales/order_report.html', context)
 
 
 # ============================================
@@ -2877,7 +2877,7 @@ def loan_list(request):
         'total_count': paginator.count,
         'status_choices': SalesLoan.LOAN_STATUS,
     }
-    return render(request, 'sales/loan_list.html', context)
+    return render(request, 'modules/sales/loan_list.html', context)
 
 
 @login_required
@@ -2978,7 +2978,7 @@ def loan_create(request):
         'salespersons': salespersons,
         'today': timezone.now().date(),
     }
-    return render(request, 'sales/loan_form.html', context)
+    return render(request, 'modules/sales/loan_form.html', context)
 
 
 @login_required
@@ -3013,7 +3013,7 @@ def loan_detail(request, pk):
         'can_request_conversion': can_request_conversion,
         'can_approve_conversion': can_approve_conversion,
     }
-    return render(request, 'sales/loan_detail.html', context)
+    return render(request, 'modules/sales/loan_detail.html', context)
 
 
 @login_required
@@ -3090,7 +3090,7 @@ def loan_update(request, pk):
         'salespersons': salespersons,
         'is_edit': True,
     }
-    return render(request, 'sales/loan_form.html', context)
+    return render(request, 'modules/sales/loan_form.html', context)
 
 
 @login_required
@@ -3200,7 +3200,7 @@ def loan_return(request, pk):
     context = {
         'loan': loan,
     }
-    return render(request, 'sales/loan_return.html', context)
+    return render(request, 'modules/sales/loan_return.html', context)
 
 
 @login_required
@@ -3282,7 +3282,7 @@ def loan_request_conversion(request, pk):
     context = {
         'loan': loan,
     }
-    return render(request, 'sales/loan_request_conversion.html', context)
+    return render(request, 'modules/sales/loan_request_conversion.html', context)
 
 
 @login_required

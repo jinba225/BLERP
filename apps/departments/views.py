@@ -49,7 +49,7 @@ def department_list(request):
         'is_active': is_active,
         'show_root_only': show_root_only,
     }
-    return render(request, 'departments/department_list.html', context)
+    return render(request, 'modules/departments/department_list.html', context)
 
 
 @login_required
@@ -88,7 +88,7 @@ def department_detail(request, pk):
         'children': children,
         'employee_count': department.get_employee_count(),
     }
-    return render(request, 'departments/department_detail.html', context)
+    return render(request, 'modules/departments/department_detail.html', context)
 
 
 @login_required
@@ -105,7 +105,7 @@ def department_tree(request):
     context = {
         'root_departments': root_departments,
     }
-    return render(request, 'departments/department_tree.html', context)
+    return render(request, 'modules/departments/department_tree.html', context)
 
 
 @login_required
@@ -160,7 +160,7 @@ def position_list(request):
         'departments': departments,
         'total_count': paginator.count,
     }
-    return render(request, 'departments/position_list.html', context)
+    return render(request, 'modules/departments/position_list.html', context)
 
 
 @login_required
@@ -185,7 +185,7 @@ def position_detail(request, pk):
         'employees': employees,
         'employee_count': position.get_employee_count(),
     }
-    return render(request, 'departments/position_detail.html', context)
+    return render(request, 'modules/departments/position_detail.html', context)
 
 
 @login_required
@@ -256,7 +256,7 @@ def budget_list(request):
         'total_count': paginator.count,
         'totals': totals,
     }
-    return render(request, 'departments/budget_list.html', context)
+    return render(request, 'modules/departments/budget_list.html', context)
 
 
 @login_required
@@ -274,7 +274,7 @@ def budget_detail(request, pk):
     context = {
         'budget': budget,
     }
-    return render(request, 'departments/budget_detail.html', context)
+    return render(request, 'modules/departments/budget_detail.html', context)
 
 
 @login_required
@@ -312,7 +312,7 @@ def budget_summary(request):
         'budget_type': budget_type,
         'overall_totals': overall_totals,
     }
-    return render(request, 'departments/budget_summary.html', context)
+    return render(request, 'modules/departments/budget_summary.html', context)
 
 
 @login_required
@@ -333,4 +333,4 @@ def organization_chart(request):
     context = {
         'root_departments': root_departments,
     }
-    return render(request, 'departments/organization_chart.html', context)
+    return render(request, 'modules/departments/organization_chart.html', context)

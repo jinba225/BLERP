@@ -41,7 +41,7 @@ def collect_manage(request):
     platforms = Platform.objects.filter(is_deleted=False, is_active=True).order_by('platform_name')
     shops = Shop.objects.filter(is_deleted=False, is_active=True).select_related('platform')
     
-    return render(request, 'collect/collect_manage.html', {
+    return render(request, 'modules/collect/collect_manage.html', {
         'tasks': tasks,
         'platforms': platforms,
         'shops': shops,
@@ -60,7 +60,7 @@ def platform_list(request):
     if platform_type:
         platforms = platforms.filter(platform_type=platform_type)
     
-    return render(request, 'collect/platform_list.html', {
+    return render(request, 'modules/collect/platform_list.html', {
         'platforms': platforms,
     })
 
@@ -77,7 +77,7 @@ def shop_list(request):
     if platform_id:
         shops = shops.filter(platform_id=platform_id)
     
-    return render(request, 'collect/shop_list.html', {
+    return render(request, 'modules/collect/shop_list.html', {
         'shops': shops,
         'platforms': Platform.objects.filter(is_deleted=False, is_active=True),
     })
@@ -110,7 +110,7 @@ def listing_list(request):
     page = request.GET.get('page', 1)
     listings = paginator.get_page(page)
     
-    return render(request, 'collect/listing_list.html', {
+    return render(request, 'modules/collect/listing_list.html', {
         'listings': listings,
         'platforms': Platform.objects.filter(is_deleted=False, is_active=True, platform_type='cross'),
     })

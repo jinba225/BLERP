@@ -67,7 +67,7 @@ def supplier_list(request):
         'categories': categories,
         'total_count': paginator.count,
     }
-    return render(request, 'suppliers/supplier_list.html', context)
+    return render(request, 'modules/suppliers/supplier_list.html', context)
 
 
 @login_required
@@ -86,7 +86,7 @@ def supplier_detail(request, pk):
         'supplier': supplier,
         'contacts': supplier.contacts.filter(is_deleted=False),
     }
-    return render(request, 'suppliers/supplier_detail.html', context)
+    return render(request, 'modules/suppliers/supplier_detail.html', context)
 
 
 @login_required
@@ -193,7 +193,7 @@ def supplier_create(request):
         'buyers': buyers,
         'action': 'create',
     }
-    return render(request, 'suppliers/supplier_form.html', context)
+    return render(request, 'modules/suppliers/supplier_form.html', context)
 
 
 @login_required
@@ -253,7 +253,7 @@ def supplier_update(request, pk):
         'buyers': buyers,
         'action': 'update',
     }
-    return render(request, 'suppliers/supplier_form.html', context)
+    return render(request, 'modules/suppliers/supplier_form.html', context)
 
 
 @login_required
@@ -299,4 +299,4 @@ def supplier_delete(request, pk):
         'supplier': supplier,
         'orders_count': orders_count,
     }
-    return render(request, 'suppliers/supplier_confirm_delete.html', context)
+    return render(request, 'modules/suppliers/supplier_confirm_delete.html', context)

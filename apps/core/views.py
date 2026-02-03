@@ -43,7 +43,7 @@ def login_view(request):
         else:
             messages.error(request, '用户名或密码错误')
 
-    return render(request, 'core/login.html')
+    return render(request, 'modules/core/login.html')
 
 
 @require_http_methods(["GET", "POST"])

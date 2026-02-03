@@ -73,7 +73,7 @@ def product_list(request):
         'brands': brands,
         'total_count': paginator.count,
     }
-    return render(request, 'products/product_list.html', context)
+    return render(request, 'modules/products/product_list.html', context)
 
 
 @login_required
@@ -92,7 +92,7 @@ def product_detail(request, pk):
         'product': product,
         'images': product.images.all(),
     }
-    return render(request, 'products/product_detail.html', context)
+    return render(request, 'modules/products/product_detail.html', context)
 
 
 @login_required
@@ -150,7 +150,7 @@ def product_create(request):
         'units': units,
         'action': 'create',
     }
-    return render(request, 'products/product_form.html', context)
+    return render(request, 'modules/products/product_form.html', context)
 
 
 @login_required
@@ -206,7 +206,7 @@ def product_update(request, pk):
         'units': units,
         'action': 'update',
     }
-    return render(request, 'products/product_form.html', context)
+    return render(request, 'modules/products/product_form.html', context)
 
 
 @login_required
@@ -229,7 +229,7 @@ def product_delete(request, pk):
     context = {
         'product': product,
     }
-    return render(request, 'products/product_confirm_delete.html', context)
+    return render(request, 'modules/products/product_confirm_delete.html', context)
 
 
 # ============================================
@@ -279,7 +279,7 @@ def unit_list(request):
         'total_count': paginator.count,
         'unit_types': Unit.UNIT_TYPES,
     }
-    return render(request, 'products/unit_list.html', context)
+    return render(request, 'modules/products/unit_list.html', context)
 
 
 @login_required
@@ -297,7 +297,7 @@ def unit_detail(request, pk):
         'products': products,
         'product_count': Product.objects.filter(unit=unit, is_deleted=False).count(),
     }
-    return render(request, 'products/unit_detail.html', context)
+    return render(request, 'modules/products/unit_detail.html', context)
 
 
 @login_required
@@ -329,7 +329,7 @@ def unit_create(request):
         'action': 'create',
         'unit_types': Unit.UNIT_TYPES,
     }
-    return render(request, 'products/unit_form.html', context)
+    return render(request, 'modules/products/unit_form.html', context)
 
 
 @login_required
@@ -360,7 +360,7 @@ def unit_update(request, pk):
         'action': 'update',
         'unit_types': Unit.UNIT_TYPES,
     }
-    return render(request, 'products/unit_form.html', context)
+    return render(request, 'modules/products/unit_form.html', context)
 
 
 @login_required
@@ -388,7 +388,7 @@ def unit_delete(request, pk):
     context = {
         'unit': unit,
     }
-    return render(request, 'products/unit_confirm_delete.html', context)
+    return render(request, 'modules/products/unit_confirm_delete.html', context)
 
 
 @login_required
@@ -451,7 +451,7 @@ def brand_list(request):
         'is_active': is_active,
         'total_count': paginator.count,
     }
-    return render(request, 'products/brand_list.html', context)
+    return render(request, 'modules/products/brand_list.html', context)
 
 
 @login_required
@@ -469,7 +469,7 @@ def brand_detail(request, pk):
         'products': products,
         'product_count': Product.objects.filter(brand=brand, is_deleted=False).count(),
     }
-    return render(request, 'products/brand_detail.html', context)
+    return render(request, 'modules/products/brand_detail.html', context)
 
 
 @login_required
@@ -501,7 +501,7 @@ def brand_create(request):
     context = {
         'action': 'create',
     }
-    return render(request, 'products/brand_form.html', context)
+    return render(request, 'modules/products/brand_form.html', context)
 
 
 @login_required
@@ -532,7 +532,7 @@ def brand_update(request, pk):
         'brand': brand,
         'action': 'update',
     }
-    return render(request, 'products/brand_form.html', context)
+    return render(request, 'modules/products/brand_form.html', context)
 
 
 @login_required
@@ -560,7 +560,7 @@ def brand_delete(request, pk):
     context = {
         'brand': brand,
     }
-    return render(request, 'products/brand_confirm_delete.html', context)
+    return render(request, 'modules/products/brand_confirm_delete.html', context)
 
 
 # ============================================
@@ -593,7 +593,7 @@ def category_list(request):
         'search': search,
         'is_active': is_active,
     }
-    return render(request, 'products/category_list.html', context)
+    return render(request, 'modules/products/category_list.html', context)
 
 
 @login_required
@@ -615,7 +615,7 @@ def category_detail(request, pk):
         'product_count': Product.objects.filter(category=category, is_deleted=False).count(),
         'children': children,
     }
-    return render(request, 'products/category_detail.html', context)
+    return render(request, 'modules/products/category_detail.html', context)
 
 
 @login_required
@@ -654,7 +654,7 @@ def category_create(request):
         'action': 'create',
         'all_categories': all_categories,
     }
-    return render(request, 'products/category_form.html', context)
+    return render(request, 'modules/products/category_form.html', context)
 
 
 @login_required
@@ -698,7 +698,7 @@ def category_update(request, pk):
         'action': 'update',
         'all_categories': all_categories,
     }
-    return render(request, 'products/category_form.html', context)
+    return render(request, 'modules/products/category_form.html', context)
 
 
 @login_required
@@ -739,4 +739,4 @@ def category_delete(request, pk):
         'children_count': children_count,
         'product_count': product_count,
     }
-    return render(request, 'products/category_confirm_delete.html', context)
+    return render(request, 'modules/products/category_confirm_delete.html', context)

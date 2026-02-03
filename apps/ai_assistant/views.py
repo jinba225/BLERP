@@ -69,7 +69,7 @@ def model_config_list(request):
         'search': search,
     }
 
-    return render(request, 'ai_assistant/model_config_list.html', context)
+    return render(request, 'modules/ai_assistant/model_config_list.html', context)
 
 
 @login_required
@@ -148,7 +148,7 @@ def model_config_create(request):
         'model_suggestions': model_suggestions,
     }
 
-    return render(request, 'ai_assistant/model_config_form.html', context)
+    return render(request, 'modules/ai_assistant/model_config_form.html', context)
 
 
 @login_required
@@ -230,7 +230,7 @@ def model_config_edit(request, pk):
         'is_edit': True,
     }
 
-    return render(request, 'ai_assistant/model_config_form.html', context)
+    return render(request, 'modules/ai_assistant/model_config_form.html', context)
 
 
 @login_required
@@ -296,7 +296,7 @@ def model_config_test(request, pk):
         'config': config,
     }
 
-    return render(request, 'ai_assistant/model_config_test.html', context)
+    return render(request, 'modules/ai_assistant/model_config_test.html', context)
 
 
 @login_required

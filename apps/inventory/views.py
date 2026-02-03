@@ -100,7 +100,7 @@ def stock_list(request):
         'total_count': paginator.count,
         'total_value': total_value,
     }
-    return render(request, 'inventory/stock_list.html', context)
+    return render(request, 'modules/inventory/stock_list.html', context)
 
 
 @login_required
@@ -129,7 +129,7 @@ def stock_detail(request, pk):
         'stock': stock,
         'transactions': transactions,
     }
-    return render(request, 'inventory/stock_detail.html', context)
+    return render(request, 'modules/inventory/stock_detail.html', context)
 
 
 @login_required
@@ -191,7 +191,7 @@ def transaction_list(request):
         'transaction_types': InventoryTransaction.TRANSACTION_TYPES,
         'total_count': paginator.count,
     }
-    return render(request, 'inventory/transaction_list.html', context)
+    return render(request, 'modules/inventory/transaction_list.html', context)
 
 
 @login_required
@@ -232,7 +232,7 @@ def warehouse_list(request):
         'warehouse_types': Warehouse.WAREHOUSE_TYPES,
         'total_count': paginator.count,
     }
-    return render(request, 'inventory/warehouse_list.html', context)
+    return render(request, 'modules/inventory/warehouse_list.html', context)
 
 
 @login_required
@@ -273,7 +273,7 @@ def warehouse_detail(request, pk):
         'low_stock_count': low_stock_count,
         'locations': locations,
     }
-    return render(request, 'inventory/warehouse_detail.html', context)
+    return render(request, 'modules/inventory/warehouse_detail.html', context)
 
 
 @login_required
@@ -311,7 +311,7 @@ def warehouse_create(request):
         'warehouse_types': Warehouse.WAREHOUSE_TYPES,
         'managers': managers,
     }
-    return render(request, 'inventory/warehouse_form.html', context)
+    return render(request, 'modules/inventory/warehouse_form.html', context)
 
 
 @login_required
@@ -351,7 +351,7 @@ def warehouse_update(request, pk):
         'managers': managers,
         'action': 'update',
     }
-    return render(request, 'inventory/warehouse_form.html', context)
+    return render(request, 'modules/inventory/warehouse_form.html', context)
 
 
 @login_required
@@ -386,7 +386,7 @@ def location_create(request, warehouse_pk):
     context = {
         'warehouse': warehouse,
     }
-    return render(request, 'inventory/location_form.html', context)
+    return render(request, 'modules/inventory/location_form.html', context)
 
 
 # ============================
@@ -467,7 +467,7 @@ def adjustment_list(request):
         'adjustment_reasons': StockAdjustment.ADJUSTMENT_REASONS,
         'total_count': paginator.count,
     }
-    return render(request, 'inventory/adjustment_list.html', context)
+    return render(request, 'modules/inventory/adjustment_list.html', context)
 
 
 @login_required
@@ -502,7 +502,7 @@ def adjustment_detail(request, pk):
         'can_edit': not adjustment.is_approved,
         'can_approve': not adjustment.is_approved,
     }
-    return render(request, 'inventory/adjustment_detail.html', context)
+    return render(request, 'modules/inventory/adjustment_detail.html', context)
 
 
 @login_required
@@ -570,7 +570,7 @@ def adjustment_create(request):
         'adjustment_reasons': StockAdjustment.ADJUSTMENT_REASONS,
         'action': 'create',
     }
-    return render(request, 'inventory/adjustment_form.html', context)
+    return render(request, 'modules/inventory/adjustment_form.html', context)
 
 
 @login_required
@@ -637,7 +637,7 @@ def adjustment_update(request, pk):
         'adjustment_reasons': StockAdjustment.ADJUSTMENT_REASONS,
         'action': 'update',
     }
-    return render(request, 'inventory/adjustment_form.html', context)
+    return render(request, 'modules/inventory/adjustment_form.html', context)
 
 
 @login_required
@@ -661,7 +661,7 @@ def adjustment_delete(request, pk):
     context = {
         'adjustment': adjustment,
     }
-    return render(request, 'inventory/adjustment_confirm_delete.html', context)
+    return render(request, 'modules/inventory/adjustment_confirm_delete.html', context)
 
 
 @login_required
@@ -693,7 +693,7 @@ def adjustment_approve(request, pk):
     context = {
         'adjustment': adjustment,
     }
-    return render(request, 'inventory/adjustment_confirm_approve.html', context)
+    return render(request, 'modules/inventory/adjustment_confirm_approve.html', context)
 
 
 # ============================
@@ -762,7 +762,7 @@ def transfer_list(request):
         'transfer_statuses': StockTransfer.TRANSFER_STATUS,
         'total_count': paginator.count,
     }
-    return render(request, 'inventory/transfer_list.html', context)
+    return render(request, 'modules/inventory/transfer_list.html', context)
 
 
 @login_required
@@ -804,7 +804,7 @@ def transfer_detail(request, pk):
             'can_cancel': transfer.status in ['draft', 'pending', 'approved'],
             'is_auto_generated': False,
         }
-    return render(request, 'inventory/transfer_detail.html', context)
+    return render(request, 'modules/inventory/transfer_detail.html', context)
 
 
 @login_required
@@ -862,7 +862,7 @@ def transfer_create(request):
         'products': products,
         'action': 'create',
     }
-    return render(request, 'inventory/transfer_form.html', context)
+    return render(request, 'modules/inventory/transfer_form.html', context)
 
 
 @login_required
@@ -933,7 +933,7 @@ def transfer_update(request, pk):
         'products': products,
         'action': 'update',
     }
-    return render(request, 'inventory/transfer_form.html', context)
+    return render(request, 'modules/inventory/transfer_form.html', context)
 
 
 @login_required
@@ -958,7 +958,7 @@ def transfer_delete(request, pk):
         'transfer': transfer,
         'items': transfer.items.filter(is_deleted=False),
     }
-    return render(request, 'inventory/transfer_confirm_delete.html', context)
+    return render(request, 'modules/inventory/transfer_confirm_delete.html', context)
 
 
 @login_required
@@ -1008,7 +1008,7 @@ def transfer_approve(request, pk):
         'transfer': transfer,
         'items': transfer.items.filter(is_deleted=False),
     }
-    return render(request, 'inventory/transfer_confirm_approve.html', context)
+    return render(request, 'modules/inventory/transfer_confirm_approve.html', context)
 
 
 @login_required
@@ -1045,7 +1045,7 @@ def transfer_ship(request, pk):
         'transfer': transfer,
         'items': transfer.items.filter(is_deleted=False),
     }
-    return render(request, 'inventory/transfer_confirm_ship.html', context)
+    return render(request, 'modules/inventory/transfer_confirm_ship.html', context)
 
 
 @login_required
@@ -1082,7 +1082,7 @@ def transfer_receive(request, pk):
         'transfer': transfer,
         'items': transfer.items.filter(is_deleted=False),
     }
-    return render(request, 'inventory/transfer_confirm_receive.html', context)
+    return render(request, 'modules/inventory/transfer_confirm_receive.html', context)
 
 
 @login_required
@@ -1112,7 +1112,7 @@ def transfer_cancel(request, pk):
         'transfer': transfer,
         'items': transfer.items.filter(is_deleted=False),
     }
-    return render(request, 'inventory/transfer_confirm_cancel.html', context)
+    return render(request, 'modules/inventory/transfer_confirm_cancel.html', context)
 
 
 # ============================
@@ -1182,7 +1182,7 @@ def count_list(request):
         'count_statuses': StockCount.COUNT_STATUS,
         'total_count': paginator.count,
     }
-    return render(request, 'inventory/count_list.html', context)
+    return render(request, 'modules/inventory/count_list.html', context)
 
 
 @login_required
@@ -1213,7 +1213,7 @@ def count_detail(request, pk):
         'can_complete': count.status == 'in_progress',
         'can_cancel': count.status in ['planned', 'in_progress'],
     }
-    return render(request, 'inventory/count_detail.html', context)
+    return render(request, 'modules/inventory/count_detail.html', context)
 
 
 @login_required
@@ -1272,7 +1272,7 @@ def count_create(request):
         'count_types': StockCount.COUNT_TYPES,
         'action': 'create',
     }
-    return render(request, 'inventory/count_form.html', context)
+    return render(request, 'modules/inventory/count_form.html', context)
 
 
 @login_required
@@ -1338,7 +1338,7 @@ def count_update(request, pk):
         'count_types': StockCount.COUNT_TYPES,
         'action': 'update',
     }
-    return render(request, 'inventory/count_form.html', context)
+    return render(request, 'modules/inventory/count_form.html', context)
 
 
 @login_required
@@ -1363,7 +1363,7 @@ def count_delete(request, pk):
         'count': count,
         'items': count.items.select_related('product').all(),
     }
-    return render(request, 'inventory/count_confirm_delete.html', context)
+    return render(request, 'modules/inventory/count_confirm_delete.html', context)
 
 
 @login_required
@@ -1389,7 +1389,7 @@ def count_start(request, pk):
         'count': count,
         'items': count.items.select_related('product').all(),
     }
-    return render(request, 'inventory/count_confirm_start.html', context)
+    return render(request, 'modules/inventory/count_confirm_start.html', context)
 
 
 @login_required
@@ -1420,7 +1420,7 @@ def count_complete(request, pk):
         'items': count.items.select_related('product').all(),
         'items_with_diff': count.items.exclude(difference=0).select_related('product'),
     }
-    return render(request, 'inventory/count_confirm_complete.html', context)
+    return render(request, 'modules/inventory/count_confirm_complete.html', context)
 
 
 @login_required
@@ -1445,7 +1445,7 @@ def count_cancel(request, pk):
         'count': count,
         'items': count.items.select_related('product').all(),
     }
-    return render(request, 'inventory/count_confirm_cancel.html', context)
+    return render(request, 'modules/inventory/count_confirm_cancel.html', context)
 
 
 # ============================================================
@@ -1512,7 +1512,7 @@ def inbound_list(request):
         'order_statuses': InboundOrder.ORDER_STATUS,
     }
 
-    return render(request, 'inventory/inbound_list.html', context)
+    return render(request, 'modules/inventory/inbound_list.html', context)
 
 
 @login_required
@@ -1531,7 +1531,7 @@ def inbound_detail(request, pk):
         'total_quantity': total_quantity,
     }
 
-    return render(request, 'inventory/inbound_detail.html', context)
+    return render(request, 'modules/inventory/inbound_detail.html', context)
 
 
 @login_required
@@ -1596,7 +1596,7 @@ def inbound_create(request):
         'order_types': InboundOrder.ORDER_TYPES,
     }
 
-    return render(request, 'inventory/inbound_form.html', context)
+    return render(request, 'modules/inventory/inbound_form.html', context)
 
 
 @login_required
@@ -1665,7 +1665,7 @@ def inbound_update(request, pk):
         'order_types': InboundOrder.ORDER_TYPES,
     }
 
-    return render(request, 'inventory/inbound_form.html', context)
+    return render(request, 'modules/inventory/inbound_form.html', context)
 
 
 @login_required
@@ -1700,7 +1700,7 @@ def inbound_delete(request, pk):
         'items': inbound.items.filter(is_deleted=False).select_related('product'),
     }
 
-    return render(request, 'inventory/inbound_confirm_delete.html', context)
+    return render(request, 'modules/inventory/inbound_confirm_delete.html', context)
 
 
 @login_required
@@ -1729,7 +1729,7 @@ def inbound_approve(request, pk):
         'items': inbound.items.filter(is_deleted=False).select_related('product'),
     }
 
-    return render(request, 'inventory/inbound_confirm_approve.html', context)
+    return render(request, 'modules/inventory/inbound_confirm_approve.html', context)
 
 
 @login_required
@@ -1793,7 +1793,7 @@ def inbound_complete(request, pk):
         'items': inbound.items.filter(is_deleted=False).select_related('product', 'location'),
     }
 
-    return render(request, 'inventory/inbound_confirm_complete.html', context)
+    return render(request, 'modules/inventory/inbound_confirm_complete.html', context)
 
 
 @login_required
@@ -1820,7 +1820,7 @@ def inbound_cancel(request, pk):
         'items': inbound.items.filter(is_deleted=False).select_related('product'),
     }
 
-    return render(request, 'inventory/inbound_confirm_cancel.html', context)
+    return render(request, 'modules/inventory/inbound_confirm_cancel.html', context)
 
 
 # ============================================================
@@ -1887,7 +1887,7 @@ def outbound_list(request):
         'order_statuses': OutboundOrder.ORDER_STATUS,
     }
 
-    return render(request, 'inventory/outbound_list.html', context)
+    return render(request, 'modules/inventory/outbound_list.html', context)
 
 
 @login_required
@@ -1906,7 +1906,7 @@ def outbound_detail(request, pk):
         'total_quantity': total_quantity,
     }
 
-    return render(request, 'inventory/outbound_detail.html', context)
+    return render(request, 'modules/inventory/outbound_detail.html', context)
 
 
 @login_required
@@ -1973,7 +1973,7 @@ def outbound_create(request):
         'order_types': OutboundOrder.ORDER_TYPES,
     }
 
-    return render(request, 'inventory/outbound_form.html', context)
+    return render(request, 'modules/inventory/outbound_form.html', context)
 
 
 @login_required
@@ -2041,7 +2041,7 @@ def outbound_update(request, pk):
         'order_types': OutboundOrder.ORDER_TYPES,
     }
 
-    return render(request, 'inventory/outbound_form.html', context)
+    return render(request, 'modules/inventory/outbound_form.html', context)
 
 
 @login_required
@@ -2076,7 +2076,7 @@ def outbound_delete(request, pk):
         'items': outbound.items.filter(is_deleted=False).select_related('product'),
     }
 
-    return render(request, 'inventory/outbound_confirm_delete.html', context)
+    return render(request, 'modules/inventory/outbound_confirm_delete.html', context)
 
 
 @login_required
@@ -2105,7 +2105,7 @@ def outbound_approve(request, pk):
         'items': outbound.items.filter(is_deleted=False).select_related('product'),
     }
 
-    return render(request, 'inventory/outbound_confirm_approve.html', context)
+    return render(request, 'modules/inventory/outbound_confirm_approve.html', context)
 
 
 @login_required
@@ -2199,7 +2199,7 @@ def outbound_complete(request, pk):
         'has_insufficient_stock': has_insufficient_stock,
     }
 
-    return render(request, 'inventory/outbound_confirm_complete.html', context)
+    return render(request, 'modules/inventory/outbound_confirm_complete.html', context)
 
 
 @login_required
@@ -2226,7 +2226,7 @@ def outbound_cancel(request, pk):
         'items': outbound.items.filter(is_deleted=False).select_related('product'),
     }
 
-    return render(request, 'inventory/outbound_confirm_cancel.html', context)
+    return render(request, 'modules/inventory/outbound_confirm_cancel.html', context)
 
 
 # ============================================================
@@ -2296,7 +2296,7 @@ def stock_summary_report(request):
         'total_value': total_value,
     }
 
-    return render(request, 'inventory/report_stock_summary.html', context)
+    return render(request, 'modules/inventory/report_stock_summary.html', context)
 
 
 @login_required
@@ -2364,7 +2364,7 @@ def stock_transaction_report(request):
         'outbound_quantity': outbound_quantity,
     }
 
-    return render(request, 'inventory/report_stock_transaction.html', context)
+    return render(request, 'modules/inventory/report_stock_transaction.html', context)
 
 
 @login_required
@@ -2423,7 +2423,7 @@ def stock_alert_report(request):
         'total_shortage_value': total_shortage_value,
     }
 
-    return render(request, 'inventory/report_stock_alert.html', context)
+    return render(request, 'modules/inventory/report_stock_alert.html', context)
 
 
 @login_required
@@ -2520,7 +2520,7 @@ def inbound_outbound_statistics(request):
         'outbound_order_types': OutboundOrder.ORDER_TYPES,
     }
 
-    return render(request, 'inventory/report_inbound_outbound_statistics.html', context)
+    return render(request, 'modules/inventory/report_inbound_outbound_statistics.html', context)
 
 
 # ============================================
@@ -2541,7 +2541,7 @@ def stock_import(request):
         'warehouses': warehouses,
         'products': products,
     }
-    return render(request, 'inventory/stock_import.html', context)
+    return render(request, 'modules/inventory/stock_import.html', context)
 
 
 # ============================================================
@@ -2773,7 +2773,7 @@ def inventory_order_report(request):
         'total_items': total_items,
     }
 
-    return render(request, 'inventory/inventory_order_report.html', context)
+    return render(request, 'modules/inventory/inventory_order_report.html', context)
 
 
 @login_required

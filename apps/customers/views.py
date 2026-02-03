@@ -60,7 +60,7 @@ def customer_list(request):
         'categories': categories,
         'total_count': paginator.count,
     }
-    return render(request, 'customers/customer_list.html', context)
+    return render(request, 'modules/customers/customer_list.html', context)
 
 
 @login_required
@@ -80,7 +80,7 @@ def customer_detail(request, pk):
         'contacts': customer.contacts.filter(is_deleted=False),
         'addresses': customer.addresses.filter(is_deleted=False),
     }
-    return render(request, 'customers/customer_detail.html', context)
+    return render(request, 'modules/customers/customer_detail.html', context)
 
 
 @login_required
@@ -198,7 +198,7 @@ def customer_create(request):
     # 合并动态选项到context
     context.update(choice_context)
 
-    return render(request, 'customers/customer_form.html', context)
+    return render(request, 'modules/customers/customer_form.html', context)
 
 
 @login_required
@@ -296,7 +296,7 @@ def customer_update(request, pk):
     # 合并动态选项到context
     context.update(choice_context)
 
-    return render(request, 'customers/customer_form.html', context)
+    return render(request, 'modules/customers/customer_form.html', context)
 
 
 @login_required
@@ -358,7 +358,7 @@ def customer_delete(request, pk):
         'quotes_count': quotes_count,
         'orders_count': orders_count,
     }
-    return render(request, 'customers/customer_confirm_delete.html', context)
+    return render(request, 'modules/customers/customer_confirm_delete.html', context)
 
 
 # ==================== Contact Management Views ====================
@@ -411,7 +411,7 @@ def contact_list(request):
         'customers': customers,
         'total_count': paginator.count,
     }
-    return render(request, 'customers/contact_list.html', context)
+    return render(request, 'modules/customers/contact_list.html', context)
 
 
 @login_required
@@ -431,7 +431,7 @@ def contact_create(request):
                 'customers': customers,
                 'action': 'create',
             }
-            return render(request, 'customers/contact_form.html', context)
+            return render(request, 'modules/customers/contact_form.html', context)
 
         try:
             customer = get_object_or_404(Customer, pk=customer_id, is_deleted=False)
@@ -442,7 +442,7 @@ def contact_create(request):
                 'customers': customers,
                 'action': 'create',
             }
-            return render(request, 'customers/contact_form.html', context)
+            return render(request, 'modules/customers/contact_form.html', context)
 
         name = request.POST.get('name', '').strip()
         if not name:
@@ -452,7 +452,7 @@ def contact_create(request):
                 'customers': customers,
                 'action': 'create',
             }
-            return render(request, 'customers/contact_form.html', context)
+            return render(request, 'modules/customers/contact_form.html', context)
 
         try:
             # If this is set as primary, unset other primary contacts for this customer
@@ -499,7 +499,7 @@ def contact_create(request):
         'customers': customers,
         'action': 'create',
     }
-    return render(request, 'customers/contact_form.html', context)
+    return render(request, 'modules/customers/contact_form.html', context)
 
 
 @login_required
@@ -551,7 +551,7 @@ def contact_update(request, pk):
         'customers': customers,
         'action': 'update',
     }
-    return render(request, 'customers/contact_form.html', context)
+    return render(request, 'modules/customers/contact_form.html', context)
 
 
 @login_required
@@ -574,7 +574,7 @@ def contact_delete(request, pk):
     context = {
         'contact': contact,
     }
-    return render(request, 'customers/contact_confirm_delete.html', context)
+    return render(request, 'modules/customers/contact_confirm_delete.html', context)
 
 
 @login_required
