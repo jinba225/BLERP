@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}删除预付款 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:dashboard' %}" class="text-gray-500 hover:text-gray-700">往来款项</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:supplier_prepayment_list' %}" class="text-gray-500 hover:text-gray-700">预付款</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">删除</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow p-6">
+        <!-- 警告图标 -->
+        <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full">
+            <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 2.502-3.172V6.172c0-1.505-1.962-3.172-2.502-3.172H4.172C3.632 3 1.672 4.667 1.672 6.172v8.656c0 1.505.96 3.172 2.502 3.172z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+        </div>
+
+        <h2 class="text-2xl font-bold text-center text-gray-900 mb-4">确认删除预付款？</h2>
+
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">预付款详情</h3>
+            <dl class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <dt class="text-gray-600">供应商：</dt>
+                    <dd class="font-medium text-gray-900">{{ prepay.supplier.name }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-600">预付金额：</dt>
+                    <dd class="font-medium text-gray-900">¥{{ prepay.amount }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-600">剩余余额：</dt>
+                    <dd class="font-medium {% if prepay.balance > 0 %}text-theme-600{% else %}text-green-600{% endif %}">
+                        ¥{{ prepay.balance }}
+                    </dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-600">付款日期：</dt>
+                    <dd class="font-medium text-gray-900">{{ prepay.paid_date }}</dd>
+                </div>
+                {% if prepay.notes %}
+                <div class="flex justify-between">
+                    <dt class="text-gray-600">备注：</dt>
+                    <dd class="font-medium text-gray-900">{{ prepay.notes }}</dd>
+                </div>
+                {% endif %}
+            </dl>
+        </div>
+
+        {% if prepay.balance > 0 %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div class="flex">
+                <svg class="flex-shrink-0 w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">注意</h3>
+                    <p class="mt-1 text-sm text-yellow-700">
+                        该预付款仍有余额 <strong>¥{{ prepay.balance }}</strong>，删除后将无法使用此余额进行核销。
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+            <div class="flex">
+                <svg class="flex-shrink-0 w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">警告</h3>
+                    <p class="mt-1 text-sm text-red-700">
+                        此操作将软删除该预付款记录。删除后记录将不再在列表中显示，但数据仍保留在数据库中。此操作<strong class="text-red-900">不可撤销</strong>。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex justify-center space-x-4">
+                <a href="{% url 'finance:supplier_prepayment_list' %}"
+                   class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    取消
+                </a>
+                <button type="submit"
+                        class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    确认删除
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

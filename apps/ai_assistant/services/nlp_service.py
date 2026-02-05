@@ -25,6 +25,8 @@ from ai_assistant.providers import BaseAIProvider, AIResponse
 
 class Intent(Enum):
     """意图枚举"""
+
+    # ========== 销售模块 ==========
     CREATE_ORDER = "create_order"
     APPROVE_ORDER = "approve_order"
     REJECT_ORDER = "reject_order"
@@ -33,6 +35,69 @@ class Intent(Enum):
     QUERY_INVENTORY = "query_inventory"
     CREATE_QUOTE = "create_quote"
     QUERY_ORDER = "query_order"
+    CREATE_DELIVERY = "create_delivery"
+    QUERY_DELIVERY = "query_delivery"
+    CONFIRM_SHIPMENT = "confirm_shipment"
+    CREATE_RETURN = "create_return"
+    QUERY_RETURN = "query_return"
+    APPROVE_RETURN = "approve_return"
+    CREATE_LOAN = "create_loan"
+    QUERY_LOAN = "query_loan"
+    APPROVE_LOAN = "approve_loan"
+    CONVERT_QUOTE_TO_ORDER = "convert_quote_to_order"
+
+    # ========== 采购模块 ==========
+    QUERY_SUPPLIER = "query_supplier"
+    CREATE_PURCHASE_REQUEST = "create_purchase_request"
+    CREATE_PURCHASE_ORDER = "create_purchase_order"
+    QUERY_PURCHASE_ORDER = "query_purchase_order"
+    APPROVE_PURCHASE_ORDER = "approve_purchase_order"
+    CREATE_INQUIRY = "create_inquiry"
+    QUERY_INQUIRY = "query_inquiry"
+    SEND_INQUIRY = "send_inquiry"
+    ADD_QUOTE = "add_quote"
+    CREATE_RECEIPT = "create_receipt"
+    QUERY_RECEIPT = "query_receipt"
+    CONFIRM_RECEIPT = "confirm_receipt"
+    CREATE_PURCHASE_RETURN = "create_purchase_return"
+    QUERY_PURCHASE_RETURN = "query_purchase_return"
+    CREATE_PURCHASE_LOAN = "create_purchase_loan"
+    QUERY_PURCHASE_LOAN = "query_purchase_loan"
+
+    # ========== 库存模块 ==========
+    QUERY_WAREHOUSE = "query_warehouse"
+    CREATE_WAREHOUSE = "create_warehouse"
+    CREATE_TRANSFER = "create_transfer"
+    QUERY_TRANSFER = "query_transfer"
+    CONFIRM_TRANSFER = "confirm_transfer"
+    CREATE_COUNT = "create_count"
+    QUERY_COUNT = "query_count"
+    SUBMIT_COUNT = "submit_count"
+    CREATE_INBOUND = "create_inbound"
+    QUERY_INBOUND = "query_inbound"
+    CREATE_OUTBOUND = "create_outbound"
+    QUERY_OUTBOUND = "query_outbound"
+    CREATE_ADJUSTMENT = "create_adjustment"
+    QUERY_ADJUSTMENT = "query_adjustment"
+
+    # ========== 财务模块 ==========
+    QUERY_ACCOUNT = "query_account"
+    CREATE_JOURNAL = "create_journal"
+    QUERY_JOURNAL = "query_journal"
+    APPROVE_JOURNAL = "approve_journal"
+    CREATE_PAYMENT = "create_payment"
+    QUERY_PAYMENT = "query_payment"
+    CREATE_PREPAYMENT = "create_prepayment"
+    QUERY_PREPAYMENT = "query_prepayment"
+    CONSOLIDATE_PREPAYMENT = "consolidate_prepayment"
+    QUERY_BUDGET = "query_budget"
+    CREATE_BUDGET = "create_budget"
+    CREATE_EXPENSE = "create_expense"
+    QUERY_EXPENSE = "query_expense"
+    APPROVE_EXPENSE = "approve_expense"
+    QUERY_INVOICE = "query_invoice"
+
+    # ========== 通用 ==========
     UNKNOWN = "unknown"
 
 
@@ -58,26 +123,105 @@ class NLPService:
 
 你的任务是:
 1. 识别用户的意图（从以下选项中选择）:
-   - create_order: 创建销售订单
-   - approve_order: 审核订单
-   - reject_order: 拒绝订单
-   - query_customer: 查询客户信息
-   - query_product: 查询产品信息
-   - query_inventory: 查询库存信息
-   - create_quote: 创建报价单
-   - query_order: 查询订单状态
+
+【销售模块意图】
+- create_order: 创建销售订单
+- approve_order: 审核订单
+- reject_order: 拒绝订单
+- query_customer: 查询客户信息
+- create_quote: 创建报价单
+- query_order: 查询订单状态
+- create_delivery: 创建发货单
+- query_delivery: 查询发货单
+- confirm_shipment: 确认发货
+- create_return: 创建退货单
+- query_return: 查询退货单
+- approve_return: 审核退货
+- create_loan: 创建借货单
+- query_loan: 查询借货单
+- approve_loan: 审核借货
+- convert_quote_to_order: 报价单转订单
+
+【采购模块意图】
+- query_supplier: 查询供应商信息
+- create_purchase_request: 创建采购申请
+- create_purchase_order: 创建采购订单
+- query_purchase_order: 查询采购订单
+- approve_purchase_order: 审核采购订单
+- create_inquiry: 创建询价单
+- query_inquiry: 查询询价单
+- send_inquiry: 发送询价
+- add_quote: 添加供应商报价
+- create_receipt: 创建收货单
+- query_receipt: 查询收货单
+- confirm_receipt: 确认收货
+- create_purchase_return: 创建采购退货
+- query_purchase_return: 查询采购退货
+- create_purchase_loan: 创建采购借出
+- query_purchase_loan: 查询采购借出
+
+【库存模块意图】
+- query_product: 查询产品信息（包括查询所有产品或查询特定产品）
+- query_inventory: 查询库存信息
+- query_warehouse: 查询仓库
+- create_warehouse: 创建仓库
+- create_transfer: 创建库存调拨
+- query_transfer: 查询库存调拨
+- confirm_transfer: 确认调拨
+- create_count: 创建盘点单
+- query_count: 查询盘点单
+- submit_count: 提交盘点
+- create_inbound: 创建入库单
+- query_inbound: 查询入库单
+- create_outbound: 创建出库单
+- query_outbound: 查询出库单
+- create_adjustment: 创建库存调整
+- query_adjustment: 查询库存调整
+
+【财务模块意图】
+- query_account: 查询会计科目
+- create_journal: 创建会计凭证
+- query_journal: 查询会计凭证
+- approve_journal: 审核会计凭证
+- create_payment: 创建收付款
+- query_payment: 查询收付款记录
+- create_prepayment: 创建预付款
+- query_prepayment: 查询预付款
+- consolidate_prepayment: 合并预付款
+- query_budget: 查询预算
+- create_budget: 创建预算
+- create_expense: 创建费用报销
+- query_expense: 查询费用报销
+- approve_expense: 审批费用
+- query_invoice: 查询发票
 
 2. 提取关键实体信息，包括:
    - customer_name: 客户名称
    - customer_code: 客户代码
+   - supplier_name: 供应商名称
+   - supplier_code: 供应商代码
    - product_name: 产品名称
    - product_code: 产品代码
    - quantity: 数量
    - amount: 金额
    - order_number: 订单号
+   - quote_number: 报价单号
+   - delivery_number: 发货单号
+   - return_number: 退货单号
    - warehouse_name: 仓库名称
+   - warehouse_code: 仓库代码
    - delivery_address: 交付地址
    - remark: 备注
+   - date_from: 开始日期
+   - date_to: 结束日期
+   - status: 状态
+   - category: 类别
+   - reason: 原因
+
+重要提示:
+- 如果用户说"查询所有产品"、"列出所有产品"、"有哪些产品"等，intent 应为 "query_product"，entities 可以为空对象 {}
+- 如果用户说"查询产品激光"、"搜索产品xx"等，intent 应为 "query_product"，entities 包含 product_name
+- 对于日期范围，如"2025年1月的订单"，应提取 date_from: "2025-01-01", date_to: "2025-01-31"
 
 3. 返回 JSON 格式，包含以下字段:
    {
@@ -107,15 +251,36 @@ class NLPService:
   "reasoning": "用户明确提到创建订单，并提供了客户、产品和数量信息"
 }
 
-用户输入: "查询订单 SO2025010001 的状态"
+用户输入: "查询所有发货单"
 输出:
 {
-  "intent": "query_order",
+  "intent": "query_delivery",
   "confidence": 0.99,
+  "entities": {},
+  "reasoning": "用户明确要求查询所有发货单"
+}
+
+用户输入: "查询2025年1月的退货单"
+输出:
+{
+  "intent": "query_return",
+  "confidence": 0.95,
   "entities": {
-    "order_number": "SO2025010001"
+    "date_from": "2025-01-01",
+    "date_to": "2025-01-31"
   },
-  "reasoning": "用户明确要求查询订单状态，并提供了订单号"
+  "reasoning": "用户要求查询2025年1月的退货单"
+}
+
+用户输入: "创建收货单，采购订单 PO2025010001"
+输出:
+{
+  "intent": "create_receipt",
+  "confidence": 0.98,
+  "entities": {
+    "order_number": "PO2025010001"
+  },
+  "reasoning": "用户要求创建收货单，并提供了采购订单号"
 }
 
 请只返回 JSON 格式，不要包含其他文字。"""

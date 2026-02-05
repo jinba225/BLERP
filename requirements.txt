@@ -83,3 +83,4 @@ django-celery-beat==2.5.0
 # pytest-django==4.7.0
 # coverage==7.3.3
 # factory-boy==3.3.0
+watchdog==6.0.0  # Django 开发环境自动重载支持

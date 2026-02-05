@@ -57,7 +57,7 @@ class ConversationFlowManager:
             Intent.APPROVE_ORDER: ["order_number"],
             Intent.REJECT_ORDER: ["order_number"],
             Intent.QUERY_CUSTOMER: ["customer_name"],
-            Intent.QUERY_PRODUCT: ["product_name"],
+            Intent.QUERY_PRODUCT: [],  # 查询产品可以不提供产品名称（查询所有）
             Intent.QUERY_INVENTORY: [],
             Intent.QUERY_ORDER: ["order_number"],
         }
@@ -121,26 +121,32 @@ class ConversationFlowManager:
         """处理初始问候消息"""
         # 解析意图
         intent_result = self.nlp_service.parse_user_input(user_message)
-        
+
         context.intent = intent_result.intent
         context.collected_data.update(intent_result.entities)
-        
+
         # 如果意图未知，请求澄清
         if context.intent == Intent.UNKNOWN:
             reply = "我不太理解您的需求。您是想创建订单、查询客户、查询产品，还是有其他需求？"
             context.updated_at = datetime.now()
             return reply, False
-        
+
         # 检查缺失字段
         required_fields = self.intent_required_fields.get(context.intent, [])
         missing_fields = self.nlp_service.extract_missing_entities(intent_result, required_fields)
-        
+
         context.missing_fields = missing_fields
-        
+
         if not missing_fields:
-            # 所有必需信息都已收集，进入确认阶段
-            context.state = ConversationState.CONFIRMING
-            return self._generate_confirmation(context)
+            # 所有必需信息都已收集
+            # 对于查询类操作，直接执行，不需要确认
+            if context.intent in [Intent.QUERY_PRODUCT, Intent.QUERY_INVENTORY, Intent.QUERY_CUSTOMER, Intent.QUERY_ORDER]:
+                context.state = ConversationState.EXECUTING
+                return self._execute_operation(context)
+            else:
+                # 其他操作需要确认
+                context.state = ConversationState.CONFIRMING
+                return self._generate_confirmation(context)
         else:
             # 进入收集信息阶段
             context.state = ConversationState.COLLECTING_INFO
@@ -348,9 +354,164 @@ class ConversationFlowManager:
         return f"📋 客户信息:\n客户名称: {customer_name}\n客户代码: CUST001\n联系人: 张三\n电话: 13800138000\n地址: 北京市朝阳区"
     
     def _query_product(self, context: ConversationContext) -> str:
-        """查询产品（示例实现）"""
-        product_name = context.collected_data.get("product_name", "")
-        return f"📦 产品信息:\n产品名称: {product_name}\n产品代码: PROD001\n单价: ¥5,000.00\n库存: 100"
+        """查询产品（真实实现）"""
+        from ai_assistant.tools.registry import ToolRegistry
+        from users.models import User
+
+        try:
+            # 获取工具注册表
+            registry = ToolRegistry()
+            user = User.objects.get(id=context.user_id)
+
+            # 获取搜索产品工具（注意参数顺序）
+            search_tool = registry.get_tool("search_product", user)
+            if not search_tool:
+                return "❌ 搜索产品工具不可用"
+
+            # 准备参数
+            product_name = context.collected_data.get("product_name", "")
+
+            # 如果没有提供产品名称，返回所有产品
+            if not product_name:
+                result = search_tool.execute(keyword="", limit=50)
+            else:
+                result = search_tool.execute(keyword=product_name, limit=20)
+
+            if result.success:
+                products = result.data
+                if not products:
+                    return "📦 未找到匹配的产品"
+
+                # 格式化输出
+                reply = f"📦 找到 {len(products)} 个产品：\n\n"
+                for i, product in enumerate(products[:10], 1):  # 最多显示10个
+                    reply += f"{i}. **{product.get('name', 'N/A')}**\n"
+                    if product.get('code'):
+                        reply += f"   编码: {product['code']}\n"
+                    if product.get('specifications'):
+                        reply += f"   规格: {product['specifications']}\n"
+                    reply += f"   单位: {product.get('unit', 'N/A')}\n"
+                    reply += f"   状态: {product.get('status', 'N/A')}\n"
+                    reply += "\n"
+
+                if len(products) > 10:
+                    reply += f"\n... 还有 {len(products) - 10} 个产品未显示"
+
+                return reply
+            else:
+                return f"❌ 查询产品失败: {result.error}"
+
+        except Exception as e:
+            return f"❌ 查询产品时发生错误: {str(e)}"
+
+    def _query_inventory(self, context: ConversationContext) -> str:
+        """查询库存"""
+        from ai_assistant.tools.registry import ToolRegistry
+        from users.models import User
+
+        try:
+            registry = ToolRegistry()
+            user = User.objects.get(id=context.user_id)
+
+            # 使用检查库存工具
+            tool = registry.get_tool("check_inventory", user)
+            if not tool:
+                return "❌ 库存查询工具不可用"
+
+            # 执行查询（显示库存低的产品）
+            result = tool.execute(limit=20)
+
+            if result.success:
+                products = result.data
+                if not products:
+                    return "📊 当前库存充足，无低库存产品"
+
+                reply = f"📊 库存状态（共 {len(products)} 个产品）:\n\n"
+                for i, product in enumerate(products[:10], 1):
+                    reply += f"{i}. **{product.get('product', 'N/A')}**\n"
+                    reply += f"   当前库存: {product.get('quantity', 0)}\n"
+                    reply += f"   状态: {'⚠️ 低库存' if product.get('is_low_stock', False) else '✅ 正常'}\n"
+                    reply += "\n"
+
+                if len(products) > 10:
+                    reply += f"\n... 还有 {len(products) - 10} 个产品未显示"
+
+                return reply
+            else:
+                return f"❌ 查询库存失败: {result.error}"
+
+        except Exception as e:
+            return f"❌ 查询库存时发生错误: {str(e)}"
+
+    def _query_customer(self, context: ConversationContext) -> str:
+        """查询客户"""
+        from customers.models import Customer
+
+        try:
+            customer_name = context.collected_data.get("customer_name", "")
+
+            if customer_name:
+                # 搜索特定客户
+                customers = Customer.objects.filter(
+                    name__icontains=customer_name,
+                    is_deleted=False
+                )[:10]
+            else:
+                # 返回所有客户
+                customers = Customer.objects.filter(is_deleted=False)[:10]
+
+            if not customers:
+                return f"📋 未找到匹配的客户"
+
+            reply = f"📋 找到 {len(customers)} 个客户：\n\n"
+            for i, customer in enumerate(customers, 1):
+                reply += f"{i}. **{customer.name}**\n"
+                if customer.code:
+                    reply += f"   客户编码: {customer.code}\n"
+                if customer.contact_person:
+                    reply += f"   联系人: {customer.contact_person}\n"
+                if customer.phone:
+                    reply += f"   电话: {customer.phone}\n"
+                reply += "\n"
+
+            return reply
+
+        except Exception as e:
+            return f"❌ 查询客户时发生错误: {str(e)}"
+
+    def _query_order(self, context: ConversationContext) -> str:
+        """查询订单"""
+        from sales.models import SalesOrder
+
+        try:
+            order_number = context.collected_data.get("order_number", "")
+
+            if order_number:
+                # 查询特定订单
+                orders = SalesOrder.objects.filter(
+                    order_number__icontains=order_number,
+                    is_deleted=False
+                )[:5]
+            else:
+                # 返回最近的订单
+                orders = SalesOrder.objects.filter(is_deleted=False).order_by('-created_at')[:10]
+
+            if not orders:
+                return f"📋 未找到匹配的订单"
+
+            reply = f"📋 找到 {len(orders)} 个订单：\n\n"
+            for i, order in enumerate(orders, 1):
+                reply += f"{i}. **{order.order_number}**\n"
+                reply += f"   客户: {order.customer.name if order.customer else 'N/A'}\n"
+                reply += f"   金额: ¥{order.total_amount:,.2f}\n"
+                reply += f"   状态: {order.get_status_display()}\n"
+                reply += f"   创建时间: {order.created_at.strftime('%Y-%m-%d %H:%M')}\n"
+                reply += "\n"
+
+            return reply
+
+        except Exception as e:
+            return f"❌ 查询订单时发生错误: {str(e)}"
     
     def _query_inventory(self, context: ConversationContext) -> str:
         """查询库存（示例实现）"""

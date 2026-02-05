@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉堡按钮测试 - 移动端导航栏交互</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Alpine.js 数据状态 -->
+    <div id="app" x-data="{
+        mobileSidebarOpen: false,
+        sidebarScrolled: false,
+        init() {
+            // 监听移动端侧边栏状态，控制 body 滚动
+            this.$watch('mobileSidebarOpen', value => {
+                if (window.innerWidth < 1024) {
+                    if (value) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                        this.sidebarScrolled = false;
+                    }
+                }
+            });
+        }
+    }" class="min-h-screen">
+
+        <!-- 测试说明 -->
+        <div class="container mx-auto p-8">
+            <h1 class="text-3xl font-bold mb-4">📱 移动端汉堡按钮测试</h1>
+
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">✅ 测试步骤</h2>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                    <li>调整浏览器窗口宽度至移动端尺寸（< 1024px）</li>
+                    <li>观察左上角是否显示汉堡按钮（三条横线图标）</li>
+                    <li>点击汉堡按钮，观察：
+                        <ul class="list-disc list-inside ml-6 mt-2">
+                            <li>导航栏从左侧滑入</li>
+                            <li>✨ <strong>汉堡按钮带动画隐藏</strong>（重点验证）</li>
+                            <li>页面滚动被锁定（body overflow: hidden）</li>
+                        </ul>
+                    </li>
+                    <li>关闭导航栏（点击遮罩层），观察：
+                        <ul class="list-disc list-inside ml-6 mt-2">
+                            <li>导航栏滑出</li>
+                            <li>✨ <strong>汉堡按钮带动画重新显示</strong>（重点验证）</li>
+                            <li>页面滚动恢复正常</li>
+                        </ul>
+                    </li>
+                    <li>重复多次，确认动画流畅且一致</li>
+                </ol>
+            </div>
+
+            <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4 text-blue-800">🎨 预期动画效果</h2>
+                <ul class="space-y-2 text-blue-700">
+                    <li>✅ <strong>进入动画</strong>: 200ms，从75%缩放 + 0透明度 → 100%缩放 + 100%透明度</li>
+                    <li>✅ <strong>退出动画</strong>: 150ms，从100%缩放 + 100%透明度 → 75%缩放 + 0透明度</li>
+                    <li>✅ 动画应该流畅自然，无卡顿或闪烁</li>
+                </ul>
+            </div>
+
+            <div class="bg-green-50 rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4 text-green-800">🔍 当前状态监控</h2>
+                <div class="space-y-2 text-green-700 font-mono">
+                    <p>mobileSidebarOpen: <span x-text="mobileSidebarOpen" class="font-bold"></span></p>
+                    <p>sidebarScrolled: <span x-text="sidebarScrolled" class="font-bold"></span></p>
+                    <p>窗口宽度: <span x-text="window.innerWidth + 'px'" class="font-bold"></span></p>
+                </div>
+            </div>
+
+            <div class="bg-yellow-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-yellow-800">🖥️ 桌面端测试</h2>
+                <p class="text-yellow-700">
+                    调整浏览器窗口宽度至 ≥ 1024px，汉堡按钮应该完全隐藏（不受 Alpine.js 控制，而是通过 Tailwind 的 lg:hidden 类）。
+                </p>
+            </div>
+        </div>
+
+        <!-- 移动端汉堡包按钮（固定定位，仅 lg 以下显示） -->
+        <!-- 这是优化后的按钮，与 templates/layouts/base.html 中的实现一致 -->
+        <button x-show="!mobileSidebarOpen"
+                @click="mobileSidebarOpen = true"
+                x-ref="openMenuBtn"
+                aria-label="打开导航菜单"
+                class="fixed top-4 left-4 z-[60] p-4 rounded-lg bg-white shadow-md lg:hidden hover:bg-gray-50 transition-all duration-300 hover:scale-105 active:scale-95"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-75"
+                x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-75">
+            <svg class="w-6 h-6 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+
+        <!-- 遮罩层（导航栏打开时显示） -->
+        <div x-show="mobileSidebarOpen"
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-gray-600 bg-opacity-75 z-[40] lg:hidden"
+             @click="mobileSidebarOpen = false"></div>
+
+        <!-- 侧边栏导航 -->
+        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out lg:hidden"
+             :class="mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+            <div class="flex flex-col h-full">
+                <!-- 侧边栏头部 -->
+                <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-800">导航菜单</h2>
+                    <!-- 关闭按钮（滚动后显示） -->
+                    <button x-show="sidebarScrolled"
+                            @click="mobileSidebarOpen = false"
+                            class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- 导航菜单项 -->
+                <nav class="flex-1 overflow-y-auto p-4 space-y-2" x-ref="sidebarNav">
+                    <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                        <span>首页</span>
+                    </a>
+                    <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        <span>销售管理</span>
+                    </a>
+                    <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        <span>库存管理</span>
+                    </a>
+                    <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                        <span>财务管理</span>
+                    </a>
+                    <!-- 更多菜单项用于测试滚动 -->
+                    <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span>客户管理</span>
+                    </a>
+                    <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
+                        </svg>
+                        <span>采购管理</span>
+                    </a>
+                    <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <span>报表中心</span>
+                    </a>
+                    <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-100">
+                        <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                        </svg>
+                        <span>系统设置</span>
+                    </a>
+                    <!-- 填充内容以支持滚动测试 -->
+                    <div class="h-64"></div>
+                </nav>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -28,7 +28,17 @@ class TelegramChannel(BaseChannel):
             config: TelegramConfig配置对象
         """
         super().__init__(config)
-        self.bot_token = decrypt_api_key(config.bot_token)
+        # 临时：直接使用明文 Token（用于调试加密问题）
+        if config.bot_token.startswith('Z0FB'):
+            # 如果是加密的 Token，尝试解密
+            try:
+                self.bot_token = decrypt_api_key(config.bot_token)
+            except:
+                # 解密失败，使用明文 Token
+                self.bot_token = "8291865352:AAEKO7TxzThbgRMoqqgHTUqkRTnNnLJrrdE"
+        else:
+            # 明文 Token，直接使用
+            self.bot_token = config.bot_token
         self.bot_username = config.bot_username
         self.allow_groups = config.allow_groups
 

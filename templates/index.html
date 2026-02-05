@@ -1,0 +1,277 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}仪表盘 - Django ERP{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div style="margin-bottom: 1.5rem;">
+    <h1 style="font-size: 1.5rem; font-weight: 700; color: rgb(17, 24, 39);">欢迎回来，{{ user.username }}！</h1>
+    <p style="color: rgb(107, 114, 128); margin-top: 0.25rem;">这是您的ERP系统仪表盘</p>
+</div>
+
+<!-- 统计卡片 -->
+<div class="dashboard-stats">
+    <!-- 本月销售额 -->
+    <div class="stat-card">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <p style="font-size: 0.875rem; font-weight: 500; color: rgb(75, 85, 99);">本月销售额</p>
+                <p style="font-size: 1.5rem; font-weight: 700; color: rgb(17, 24, 39); margin-top: 0.5rem; margin-bottom: 0;">¥{{ current_month_sales|floatformat:2|default:"0.00" }}</p>
+                <p style="font-size: 0.875rem; color: rgb(107, 114, 128); margin-top: 0.25rem;">{{ sales_orders_count|default:0 }} 个订单</p>
+            </div>
+            <div class="stat-icon stat-icon-blue">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- 待处理订单 -->
+    <div class="stat-card">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <p style="font-size: 0.875rem; font-weight: 500; color: rgb(75, 85, 99);">待处理订单</p>
+                <p style="font-size: 1.5rem; font-weight: 700; color: rgb(17, 24, 39); margin-top: 0.5rem; margin-bottom: 0;">{{ pending_orders|default:0 }}</p>
+                <p style="font-size: 0.875rem; color: rgb(107, 114, 128); margin-top: 0.25rem;">需要关注</p>
+            </div>
+            <div class="stat-icon stat-icon-yellow">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- 低库存产品 -->
+    <div class="stat-card">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <p style="font-size: 0.875rem; font-weight: 500; color: rgb(75, 85, 99);">低库存产品</p>
+                <p style="font-size: 1.5rem; font-weight: 700; color: rgb(17, 24, 39); margin-top: 0.5rem; margin-bottom: 0;">{{ low_stock_items|default:0 }}</p>
+                <p style="font-size: 0.875rem; color: rgb(107, 114, 128); margin-top: 0.25rem;">需要补货</p>
+            </div>
+            <div class="stat-icon stat-icon-red">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增客户 -->
+    <div class="stat-card">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <p style="font-size: 0.875rem; font-weight: 500; color: rgb(75, 85, 99);">新增客户</p>
+                <p style="font-size: 1.5rem; font-weight: 700; color: rgb(17, 24, 39); margin-top: 0.5rem; margin-bottom: 0;">{{ new_customers|default:0 }}</p>
+                <p style="font-size: 0.875rem; color: rgb(107, 114, 128); margin-top: 0.25rem;">本月新增</p>
+            </div>
+            <div class="stat-icon stat-icon-green">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 最近订单 -->
+<div style="background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+    <div style="padding: 1rem 1.5rem; border-bottom: 1px solid rgb(229, 231, 235);">
+        <h2 style="font-size: 1.125rem; font-weight: 600; color: rgb(17, 24, 39); margin: 0;">最近订单</h2>
+    </div>
+    <div style="padding: 1.5rem;">
+        {% if recent_orders %}
+        <div style="overflow-x: auto;">
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>订单号</th>
+                        <th>客户</th>
+                        <th>金额</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td style="font-weight: 500; color: rgb(17, 24, 39);">{{ order.order_number }}</td>
+                        <td style="color: rgb(75, 85, 99);">{{ order.customer.name|default:"未知" }}</td>
+                        <td style="color: rgb(17, 24, 39);">¥{{ order.total_amount|floatformat:2|default:"0.00" }}</td>
+                        <td>
+                            {% if order.status == 'completed' %}
+                            <span class="badge badge-green">{{ order.status|default:"未知" }}</span>
+                            {% elif order.status == 'pending' %}
+                            <span class="badge badge-yellow">{{ order.status|default:"未知" }}</span>
+                            {% elif order.status == 'cancelled' %}
+                            <span class="badge badge-red">{{ order.status|default:"未知" }}</span>
+                            {% else %}
+                            <span class="badge badge-blue">{{ order.status|default:"未知" }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="color: rgb(107, 114, 128); font-size: 0.875rem;">{{ order.created_at|date:"Y-m-d H:i"|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 2rem 0;">
+            <svg style="width: 3rem; height: 3rem; color: rgb(209, 213, 219); margin: 0 auto;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            </svg>
+            <p style="margin-top: 0.5rem; font-size: 0.875rem; color: rgb(107, 114, 128);">暂无订单数据</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* 仪表盘特定样式 */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .dashboard-stats {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.stat-card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.stat-icon-blue {
+    background-color: rgb(239, 246, 255);
+}
+
+.stat-icon-blue svg {
+    color: rgb(37, 99, 235);
+}
+
+.stat-icon-yellow {
+    background-color: rgb(254, 252, 232);
+}
+
+.stat-icon-yellow svg {
+    color: rgb(202, 138, 4);
+}
+
+.stat-icon-red {
+    background-color: rgb(254, 242, 242);
+}
+
+.stat-icon-red svg {
+    color: rgb(220, 38, 38);
+}
+
+.stat-icon-green {
+    background-color: rgb(240, 253, 244);
+}
+
+.stat-icon-green svg {
+    color: rgb(22, 101, 52);
+}
+
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-table thead {
+    background-color: rgb(249, 250, 251);
+}
+
+.order-table th {
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: rgb(107, 114, 128);
+    border-bottom: 1px solid rgb(229, 231, 235);
+}
+
+.order-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgb(229, 231, 235);
+}
+
+.order-table tbody tr:hover {
+    background-color: rgb(249, 250, 251);
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge-green {
+    background-color: rgb(240, 253, 244);
+    color: rgb(22, 101, 52);
+}
+
+.badge-yellow {
+    background-color: rgb(254, 252, 232);
+    color: rgb(202, 138, 4);
+}
+
+.badge-red {
+    background-color: rgb(254, 242, 242);
+    color: rgb(220, 38, 38);
+}
+
+.badge-blue {
+    background-color: rgb(219, 234, 254);
+    color: rgb(29, 78, 216);
+}
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('仪表盘加载完成');
+});
+</script>
+{% endblock %}

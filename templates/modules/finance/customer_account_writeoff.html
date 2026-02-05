@@ -31,15 +31,15 @@
         <div class="p-6 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">收款金额</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">核销金额</label>
                     <input type="number"
                            name="amount"
                            step="0.01"
-                           min="0.01"
+                           min="0"
                            max="{{ account.balance }}"
                            placeholder="0.00"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
-                    <p class="text-xs text-gray-500 mt-1">如选择预收款，最终抵扣=预收款 + 收款金额</p>
+                    <p class="text-xs text-gray-500 mt-1">如选择预收款，总核销 = 预收款 + 核销金额。可填0仅使用预收款。</p>
                 </div> <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">收款日期 <span class="text-red-500">*</span></label>
                     <input type="date"

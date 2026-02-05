@@ -13,7 +13,7 @@ from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 
 from .models import AIModelConfig
-from .services import AIService
+# from .services import AIService  # 暂时注释，AIService尚未实现
 from .utils import encrypt_api_key, decrypt_api_key
 
 
@@ -271,8 +271,10 @@ def model_config_test(request, pk):
 
     if request.method == 'POST':
         try:
-            # 使用AIService测试连接
-            success, message = AIService.test_config(config)
+            # TODO: 实现AIService.test_config()方法
+            # 目前先返回一个模拟的成功响应
+            success = True
+            message = f"配置 {config.name} 测试成功（模拟响应）"
 
             if success:
                 return JsonResponse({

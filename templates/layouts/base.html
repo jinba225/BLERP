@@ -662,11 +662,19 @@
         }
     }" class="flex h-screen bg-gray-50">
         <!-- 移动端汉堡包按钮（固定定位，仅 lg 以下显示） -->
-        <button @click="mobileSidebarOpen = true"
+        <button x-show="!mobileSidebarOpen"
+                @click="mobileSidebarOpen = true"
                 x-ref="openMenuBtn"
                 aria-label="打开导航菜单"
-                class="fixed top-4 left-4 z-[60] p-4 rounded-lg bg-white shadow-md lg:hidden hover:bg-gray-50 transition-all duration-300 hover:scale-105 active:scale-95">
-            <svg class="w-6 h-6 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                class="fixed top-12 left-3 z-[60] p-2 rounded-lg bg-white shadow-md lg:hidden hover:bg-gray-50 transition-all duration-300 hover:scale-105 active:scale-95"
+                style="top: 48px !important; left: 12px !important;"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-75"
+                x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-75">
+            <svg class="w-5 h-5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
         </button>
@@ -1680,11 +1688,11 @@
                 </div>
              </main>
 
-             <!-- Footer 页脚 -->
+             <!-- Footer 页脚 - 已隐藏（按用户要求移除公司信息显示） -->
+             <!--
              <footer class="bg-white border-t border-gray-200 mt-8">
                  <div class="container mx-auto px-6 py-8">
                      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                         <!-- 公司信息 -->
                          <div>
                              <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ company_name }}</h3>
                              {% if company_description %}
@@ -1695,7 +1703,6 @@
                              {% endif %}
                          </div>
 
-                         <!-- 联系方式 -->
                          <div>
                              <h3 class="text-lg font-semibold text-gray-900 mb-4">联系方式</h3>
                              <ul class="space-y-2 text-sm text-gray-600">
@@ -1726,8 +1733,6 @@
                                  {% endif %}
                              </ul>
                          </div>
-
-                         <!-- 法人信息 -->
                          <div>
                              <h3 class="text-lg font-semibold text-gray-900 mb-4">企业信息</h3>
                              <ul class="space-y-2 text-sm text-gray-600">
@@ -1742,8 +1747,6 @@
                                  {% endif %}
                              </ul>
                          </div>
-
-                         <!-- 版权信息 -->
                          <div>
                              <h3 class="text-lg font-semibold text-gray-900 mb-4">&copy; {% now "Y" %}</h3>
                              <p class="text-sm text-gray-600 mb-2">{{ company_name }}. All rights reserved.</p>
@@ -1752,6 +1755,7 @@
                      </div>
                  </div>
              </footer>
+             -->
 
          </div>
      </div>

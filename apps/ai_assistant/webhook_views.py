@@ -15,7 +15,7 @@ from .channels import (
     DingTalkChannel,
     TelegramChannel,
 )
-from .services import ChannelAIService
+# from .services import ChannelAIService  # 暂时注释，ChannelAIService尚未实现
 from .channels.base_channel import IncomingMessage, OutgoingMessage
 
 
@@ -36,22 +36,16 @@ def _process_message_sync(user, message):
     Returns:
         OutgoingMessage对象
     """
-    # 使用 ChannelAIService 处理消息
-    from .services import ChannelAIService
-    from .channels.base_channel import IncomingMessage
-    
-    if not message:
-        from .channels import OutgoingMessage
-        return OutgoingMessage(
-            content='❌ 消息解析失败',
-            message_type='text'
-        )
-    
-    # 创建 ChannelAIService 实例
-    ai_service = ChannelAIService(user, message.channel)
-    
-    # 处理消息
-    return ai_service.process_message(message)
+    # TODO: 实现ChannelAIService后取消注释
+    # from .services import ChannelAIService
+    # ai_service = ChannelAIService(user, message.channel)
+    # return ai_service.process_message(message)
+
+    # 临时返回一个模拟响应
+    return OutgoingMessage(
+        content='⚠️ AI助手服务正在开发中，请稍后再试。',
+        message_type='text'
+    )
 
 def _process_message_async(user, message):
     """

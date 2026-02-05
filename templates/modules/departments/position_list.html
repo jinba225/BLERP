@@ -1,6 +1,76 @@
 {% extends 'base.html' %}
 
-{% block title %}职位管理 - BetterLaser ERP{% endblock %}
+{% block title %}职位管理 - BetterLaser ERP
+
+
+<script>
+// 搜索框清除按钮功能
+function toggleClearButton() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+
+    if (searchInput && clearBtn) {
+        if (searchInput.value.trim() !== '') {
+            clearBtn.style.display = 'flex';
+            updateClearButtonPosition();
+        } else {
+            clearBtn.style.display = 'none';
+        }
+    }
+}
+
+function updateClearButtonPosition() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+
+    if (!searchInput || !clearBtn) return;
+
+    // 创建临时canvas来测量文本宽度
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const inputStyles = window.getComputedStyle(searchInput);
+    context.font = inputStyles.font;
+
+    // 计算文本宽度（考虑左右padding）
+    const textWidth = context.measureText(searchInput.value).width;
+    const paddingLeft = parseFloat(inputStyles.paddingLeft);
+    const offset = textWidth + paddingLeft + 20; // 20px为额外间距
+
+    // 设置按钮位置，确保不超出输入框右边界
+    const inputWidth = searchInput.offsetWidth;
+    const buttonWidth = 24; // 按钮宽度
+    const maxOffset = inputWidth - buttonWidth - 8; // 8px为右边距
+
+    const finalOffset = Math.min(offset, maxOffset);
+    clearBtn.style.left = finalOffset + 'px';
+    clearBtn.style.right = 'auto';
+}
+
+function clearSearchInput() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+    if (searchInput && clearBtn) {
+        searchInput.value = '';
+        clearBtn.style.display = 'none';
+        searchInput.focus();
+    }
+}
+
+// 页面加载时初始化清除按钮状态
+document.addEventListener('DOMContentLoaded', function() {
+    toggleClearButton();
+
+    // 监听窗口大小变化，重新计算按钮位置
+    window.addEventListener('resize', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput && searchInput.value.trim() !== '') {
+            updateClearButtonPosition();
+        }
+    });
+});
+</script>
+
+{% endblock %}
 {% block page_title %}职位管理{% endblock %}
 
 {% block breadcrumb %}
@@ -28,9 +98,18 @@
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 </svg>搜索
                 </label>
-                <input type="text" name="search" value="{{ search }}"
+                <div class="relative flex items-center">
+                <input type="text" name="search" id="searchInput" value="{{ search }}"
                        placeholder="职位名称或代码"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500" oninput="toggleClearButton()">
+                <button type="button" id="clearSearch" onclick="clearSearchInput()"
+                    class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-theme-500 hover:bg-theme-600 text-white flex items-center justify-center transition-all duration-200 hidden"
+                    style="display: none;">
+                    <svg class="icon w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
             </div> <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                     <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

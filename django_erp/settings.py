@@ -165,6 +165,10 @@ REDIS_HOST = config('REDIS_HOST', default=None)
 REDIS_PORT = config('REDIS_PORT', default=6379, cast=int)
 REDIS_PASSWORD = config('REDIS_PASSWORD', default=None)
 
+# 确保 REDIS_HOST 不是字符串 'None'
+if REDIS_HOST == 'None':
+    REDIS_HOST = None
+
 # Caching Configuration
 CACHES = {
     'default': {
@@ -176,9 +180,6 @@ if REDIS_HOST:
     CACHES['default'] = {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
         'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/0',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
         'KEY_PREFIX': 'django_erp',
         'TIMEOUT': 300,  # 5分钟缓存超时
         'VERSION': 1,
