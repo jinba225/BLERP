@@ -1,8 +1,193 @@
 {% extends 'layouts/base.html' %}
-{% block title %}计量单位管理 - BetterLaser ERP - BetterLerp ERP{% endblock %}
+{% block title %}计量单位管理 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">基础设置</span>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">计量单位</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">计量单位列表</h3>
+            <p class="text-sm text-gray-600">共 {{ total_count }} 条记录</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button type="button" @click="manualRefresh"
+                :disabled="isRefreshing"
+                class="text-sm text-gray-600 hover:text-theme-600 flex items-center transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="刷新页面">
+                <svg class="w-4 h-4 mr-2" :class="{ 'animate-spin': isRefreshing }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span x-text="isRefreshing ? '刷新中...' : '刷新'"></span>
+            </button>
+            <a class="btn btn-primary" href="{% url 'products:unit_create' %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新建单位
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">搜索</label>
+                <div class="relative flex items-center">
+                    <input type="text" name="search" id="searchInput" value="{{ search }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500"
+                           placeholder="单位名称、符号..." oninput="toggleClearButton()">
+                    <button type="button" id="clearSearch" onclick="clearSearchInput()"
+                        class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-theme-500 hover:bg-theme-600 text-white flex items-center justify-center transition-all duration-200 hidden"
+                        style="display: none;">
+                        <svg class="icon w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">单位类型</label>
+                <select name="unit_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">全部</option>
+                    {% for type_val, type_label in unit_types %}
+                    <option value="{{ type_val }}" {% if unit_type == type_val %}selected{% endif %}>{{ type_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                <select name="is_active" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">全部</option>
+                    <option value="true" {% if is_active == 'true' %}selected{% endif %}>启用</option>
+                    <option value="false" {% if is_active == 'false' %}selected{% endif %}>停用</option>
+                </select>
+            </div>
+
+            <div class="flex items-end">
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    搜索
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单位名称</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单位符号</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单位类型</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">描述</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">默认</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for unit in page_obj %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {{ unit.name }}
+                        {% if unit.is_default %}
+                        <span class="ml-2 px-2 py-0.5 text-xs font-medium bg-theme-100 text-theme-800 rounded-full">默认</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ unit.symbol }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ unit.get_unit_type_display }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ unit.description|default:"-"|truncatechars:50 }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if unit.is_default %}
+                        <span class="text-theme-600 text-lg">✓</span>
+                        {% else %}
+                        <a href="{% url 'products:unit_set_default' unit.pk %}"
+                           class="inline-flex items-center text-gray-400 hover:text-theme-600 transition-colors"
+                           title="设为默认单位">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded
+                            {% if unit.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if unit.is_active %}启用{% else %}停用{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'products:unit_detail' unit.pk %}" class="text-theme-600 hover:text-theme-700 mr-3" title="查看详情">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </a>
+                        <a href="{% url 'products:unit_update' unit.pk %}" class="text-green-600 hover:text-green-900 mr-3" title="编辑">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </a>
+                        <a href="{% url 'products:unit_delete' unit.pk %}" class="text-red-600 hover:text-red-900" title="删除">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                        <svg class="icon mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <p>暂无计量单位数据</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between w-full">
+                <p class="text-sm text-gray-700">显示第 {{ page_obj.start_index }} 到 {{ page_obj.end_index }} 条，共 {{ page_obj.paginator.count }} 条</p>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-l-md">
+                        上一页
+                    </a>
+                    {% endif %}
+                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                        {{ page_obj.number }}
+                    </span>
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-r-md">
+                        下一页
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
 
 {% block extra_js %}
-
 <script>
 // 搜索框清除按钮功能
 function toggleClearButton() {
@@ -69,172 +254,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
-
-
-
-
-{% block page_title %}计量单位管理{% endblock %}
-
-{% block breadcrumb %}
-<span class="mx-2 text-gray-400">/</span>
-<span class="text-gray-500">基础设置</span>
-<span class="mx-2 text-gray-400">/</span>
-<span class="text-gray-900 font-semibold">计量单位</span>
 {% endblock %}
-
-{% block content %}
-<div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
-    <div class="flex justify-between items-center">
-        <div>
-            <h3 class="text-lg font-semibold text-gray-900">计量单位列表</h3>
-            <p class="text-sm text-gray-600">共 {{ total_count }} 条记录</p>
-        </div>
-        <div class="flex items-center space-x-3">
-            <button type="button" @click="manualRefresh"
-                :disabled="isRefreshing"
-                class="text-sm text-gray-600 hover:text-theme-600 flex items-center transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="刷新页面">
-                <svg class="w-4 h-4 mr-2" :class="{ 'animate-spin': isRefreshing }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                <span x-text="isRefreshing ? '刷新中...' : '刷新'"></span>
-            </button>
-            <a class="btn btn-primary" href="{% url 'products:unit_create' %}">
-            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-</svg>新建单位
-        </a>
-    </div> <div class="bg-white rounded-lg shadow p-6">
-        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">搜索</label>
-                <div class="relative flex items-center">
-                <input type="text" name="search" id="searchInput" value="{{ search }}"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500"
-                       placeholder="单位名称、符号..." oninput="toggleClearButton()">
-                <button type="button" id="clearSearch" onclick="clearSearchInput()"
-                    class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-theme-500 hover:bg-theme-600 text-white flex items-center justify-center transition-all duration-200 hidden"
-                    style="display: none;">
-                    <svg class="icon w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">单位类型</label>
-                <select name="unit_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                    <option value="">全部</option>
-                    {% for type_val, type_label in unit_types %}
-                    <option value="{{ type_val }}" {% if unit_type == type_val %}selected{% endif %}>{{ type_label }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
-                <select name="is_active" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                    <option value="">全部</option>
-                    <option value="true" {% if is_active == 'true' %}selected{% endif %}>启用</option>
-                    <option value="false" {% if is_active == 'false' %}selected{% endif %}>停用</option>
-                </select>
-            </div>
-            <div class="flex items-end">
-                <button class="btn btn-primary" type="submit">
-                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-</svg>搜索
-                </button>
-            </div>
-        </form>
-    </div> <div class="bg-white rounded-lg shadow overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">单位名称</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">单位符号</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">单位类型</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">描述</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">默认</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for unit in page_obj %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {{ unit.name }}
-                        {% if unit.is_default %}
-                        <span class="ml-2 px-2 py-0.5 text-xs font-medium bg-theme-100 text-theme-800 rounded-full">默认</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ unit.symbol }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ unit.get_unit_type_display }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ unit.description|default:"-"|truncatechars:50 }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                        {% if unit.is_default %}
-                        <span class="text-theme-600 text-lg">✓</span>
-                        {% else %}
-                        <a href="{% url 'products:unit_set_default' unit.pk %}"
-                           class="inline-flex items-center text-gray-400 hover:text-theme-600 transition-colors"
-                           title="设为默认单位">
-                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </a>
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-semibold rounded
-                            {% if unit.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {% if unit.is_active %}启用{% else %}停用{% endif %}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{% url 'products:unit_detail' unit.pk %}" class="text-theme-600 hover:text-theme-700 mr-3"><svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-</svg></a>
-                        <a href="{% url 'products:unit_update' unit.pk %}" class="text-green-600 hover:text-green-900 mr-3"><svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-</svg></a>
-                        <a href="{% url 'products:unit_delete' unit.pk %}" class="text-red-600 hover:text-red-900"><svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-</svg></a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                        <svg class="icon mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-</svg>
-                        <p>暂无计量单位数据</p>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table> {% if page_obj.has_other_pages %}
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t">
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <p class="text-sm text-gray-700">显示第 {{ page_obj.start_index }} 到 {{ page_obj.end_index }} 条，共 {{ page_obj.paginator.count }} 条</p>
-                <nav class="relative z-0 inline-flex rounded-md shadow-sm">
-                    {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">上一页</a>
-                    {% endif %}
-                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">{{ page_obj.number }}</span>
-                    {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">下一页</a>
-                    {% endif %}
-                </nav>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-</div>
-{% endblock %}
-
-
-{% endblock %}
-
-

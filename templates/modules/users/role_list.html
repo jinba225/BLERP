@@ -1,145 +1,7 @@
 {% extends 'layouts/base.html' %}
-{% block title %}Page{% endblock %}
-
-{% block extra_js %}
+{% block title %}角色管理 - BetterLaser ERP{% endblock %}
 
 
-<script>
-// 搜索框清除按钮功能
-function toggleClearButton() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-
-    if (searchInput && clearBtn) {
-        if (searchInput.value.trim() !== '') {
-            clearBtn.style.display = 'flex';
-            updateClearButtonPosition();
-        } else {
-            clearBtn.style.display = 'none';
-        }
-    }
-}
-
-function updateClearButtonPosition() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-
-    if (!searchInput || !clearBtn) return;
-
-    // 创建临时canvas来测量文本宽度
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const inputStyles = window.getComputedStyle(searchInput);
-    context.font = inputStyles.font;
-
-    // 计算文本宽度（考虑左右padding）
-    const textWidth = context.measureText(searchInput.value).width;
-    const paddingLeft = parseFloat(inputStyles.paddingLeft);
-    const offset = textWidth + paddingLeft + 20; // 20px为额外间距
-
-    // 设置按钮位置，确保不超出输入框右边界
-    const inputWidth = searchInput.offsetWidth;
-    const buttonWidth = 24; // 按钮宽度
-    const maxOffset = inputWidth - buttonWidth - 8; // 8px为右边距
-
-    const finalOffset = Math.min(offset, maxOffset);
-    clearBtn.style.left = finalOffset + 'px';
-    clearBtn.style.right = 'auto';
-}
-
-function clearSearchInput() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-    if (searchInput && clearBtn) {
-        searchInput.value = '';
-        clearBtn.style.display = 'none';
-        searchInput.focus();
-    }
-}
-
-// 页面加载时初始化清除按钮状态
-document.addEventListener('DOMContentLoaded', function() {
-    toggleClearButton();
-
-    // 监听窗口大小变化，重新计算按钮位置
-    window.addEventListener('resize', function() {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput && searchInput.value.trim() !== '') {
-            updateClearButtonPosition();
-        }
-    });
-});
-</script>
-
-
-
-
-// 搜索框清除按钮功能
-function toggleClearButton() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-
-    if (searchInput && clearBtn) {
-        if (searchInput.value.trim() !== '') {
-            clearBtn.style.display = 'flex';
-            updateClearButtonPosition();
-        } else {
-            clearBtn.style.display = 'none';
-        }
-    }
-}
-
-function updateClearButtonPosition() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-
-    if (!searchInput || !clearBtn) return;
-
-    // 创建临时canvas来测量文本宽度
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const inputStyles = window.getComputedStyle(searchInput);
-    context.font = inputStyles.font;
-
-    // 计算文本宽度（考虑左右padding）
-    const textWidth = context.measureText(searchInput.value).width;
-    const paddingLeft = parseFloat(inputStyles.paddingLeft);
-    const offset = textWidth + paddingLeft + 20; // 20px为额外间距
-
-    // 设置按钮位置，确保不超出输入框右边界
-    const inputWidth = searchInput.offsetWidth;
-    const buttonWidth = 24; // 按钮宽度
-    const maxOffset = inputWidth - buttonWidth - 8; // 8px为右边距
-
-    const finalOffset = Math.min(offset, maxOffset);
-    clearBtn.style.left = finalOffset + 'px';
-    clearBtn.style.right = 'auto';
-}
-
-function clearSearchInput() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-    if (searchInput && clearBtn) {
-        searchInput.value = '';
-        clearBtn.style.display = 'none';
-        searchInput.focus();
-    }
-}
-
-// 页面加载时初始化清除按钮状态
-document.addEventListener('DOMContentLoaded', function() {
-    toggleClearButton();
-
-    // 监听窗口大小变化，重新计算按钮位置
-    window.addEventListener('resize', function() {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput && searchInput.value.trim() !== '') {
-            updateClearButtonPosition();
-        }
-    });
-});
-
-{% endblock %}
 {% block page_title %}角色管理{% endblock %}
 
 {% block breadcrumb %}
@@ -244,13 +106,14 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h2 class="text-lg font-semibold text-gray-900">
                 <svg class="icon mr-2 text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zm8 0h-2a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zM5 3h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
-</svg>角色列表
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+                角色列表
             </h2>
             <a class="btn btn-primary" href="{% url 'users:role_create' %}">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-</svg>新建角色
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>新建角色
             </a>
         </div> <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -350,17 +213,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td colspan="7" class="px-6 py-12 text-center">
                             <div class="text-gray-400">
                                 <svg class="icon mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-</svg>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
                                 <p class="text-lg">暂无角色数据</p>
                                 {% if search or is_active %}
                                 <p class="text-sm mt-2">试试调整搜索条件</p>
                                 {% else %}
-                                <a class="btn btn-primary" href="{% url 'users:role_create' %}">
-                                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-</svg>创建第一个角色
-                                </a>
+                                <div class="mt-6">
+                                    <a class="btn btn-primary" href="{% url 'users:role_create' %}">
+                                        <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        创建第一个角色
+                                    </a>
+                                </div>
                                 {% endif %}
                             </div>
                         </td>
@@ -453,4 +319,77 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
+{% endblock %}
+
+
+
+
+{% block extra_js %}
+<script>
+// 搜索框清除按钮功能
+function toggleClearButton() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+
+    if (searchInput && clearBtn) {
+        if (searchInput.value.trim() !== '') {
+            clearBtn.style.display = 'flex';
+            updateClearButtonPosition();
+        } else {
+            clearBtn.style.display = 'none';
+        }
+    }
+}
+
+function updateClearButtonPosition() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+
+    if (!searchInput || !clearBtn) return;
+
+    // 创建临时canvas来测量文本宽度
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const inputStyles = window.getComputedStyle(searchInput);
+    context.font = inputStyles.font;
+
+    // 计算文本宽度（考虑左右padding）
+    const textWidth = context.measureText(searchInput.value).width;
+    const paddingLeft = parseFloat(inputStyles.paddingLeft);
+    const offset = textWidth + paddingLeft + 20; // 20px为额外间距
+
+    // 设置按钮位置，确保不超出输入框右边界
+    const inputWidth = searchInput.offsetWidth;
+    const buttonWidth = 24; // 按钮宽度
+    const maxOffset = inputWidth - buttonWidth - 8; // 8px为右边距
+
+    const finalOffset = Math.min(offset, maxOffset);
+    clearBtn.style.left = finalOffset + 'px';
+    clearBtn.style.right = 'auto';
+}
+
+function clearSearchInput() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+    if (searchInput && clearBtn) {
+        searchInput.value = '';
+        clearBtn.style.display = 'none';
+        searchInput.focus();
+    }
+}
+
+// 页面加载时初始化清除按钮状态
+document.addEventListener('DOMContentLoaded', function() {
+    toggleClearButton();
+
+    // 监听窗口大小变化，重新计算按钮位置
+    window.addEventListener('resize', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput && searchInput.value.trim() !== '') {
+            updateClearButtonPosition();
+        }
+    });
+});
+</script>
+
 {% endblock %}

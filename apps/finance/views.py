@@ -550,6 +550,10 @@ def supplier_account_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # 预计算每个账款的退货明细数量
+    for account in page_obj:
+        account.return_detail_count = account.details.filter(detail_type='return').count()
+
     # Calculate totals
     totals = accounts.aggregate(
         total_invoice=Sum('invoice_amount'),

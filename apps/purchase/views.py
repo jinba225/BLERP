@@ -1479,9 +1479,27 @@ def return_create(request, order_pk):
                     order_item = PurchaseOrderItem.objects.get(pk=item_data['order_item_id'])
                     return_quantity = int(item_data['return_quantity'])
 
-                    # 验证: 退货总量不能超过订单数量
+                    # 验证1: 退货总量不能超过订单数量
                     if return_quantity > order_item.quantity:
                         raise ValueError(f'产品 {order_item.product.name} 的退货数量 ({return_quantity}) 不能超过订单数量 ({order_item.quantity})')
+
+                    # 验证2: 退货数量不能超过可退货数量
+                    from django.db.models import Sum
+                    returned_quantity = PurchaseReturnItem.objects.filter(
+                        order_item=order_item,
+                        purchase_return__purchase_order=order,
+                        purchase_return__is_deleted=False,
+                        purchase_return__status__in=['approved', 'returned', 'completed']
+                    ).aggregate(total=Sum('quantity'))['total'] or 0
+
+                    returnable_quantity = order_item.received_quantity - returned_quantity
+
+                    if return_quantity > returnable_quantity:
+                        raise ValueError(
+                            f'产品 {order_item.product.name} 的退货数量 ({return_quantity}) '
+                            f'不能超过可退货数量 ({returnable_quantity}。'
+                            f'已收货{order_item.received_quantity} - 已退货{returned_quantity})'
+                        )
 
                     unit_price = order_item.unit_price
 
@@ -1508,11 +1526,23 @@ def return_create(request, order_pk):
             messages.error(request, f'创建失败：{str(e)}')
 
     # GET request
-    # 显示所有订单明细（订单数量、已收货数量、未收货数量）
+    # 显示所有订单明细（订单数量、已收货数量、未收货数量、已退货数量、可退货数量）
     order_items_data = []
     for item in order.items.all():
+        # 计算该订单明细的已退货数量（只计算已审核的退货单）
+        from django.db.models import Sum
+        returned_quantity = PurchaseReturnItem.objects.filter(
+            order_item=item,
+            purchase_return__purchase_order=order,
+            purchase_return__is_deleted=False,
+            purchase_return__status__in=['approved', 'returned', 'completed']
+        ).aggregate(total=Sum('quantity'))['total'] or 0
+
         # 未收货数量 = 订单数量 - 已收货数量
         unreceived_quantity = item.quantity - item.received_quantity
+
+        # 可退货数量 = 已收货数量 - 已退货数量
+        returnable_quantity = item.received_quantity - returned_quantity
 
         order_items_data.append({
             'pk': item.pk,
@@ -1520,6 +1550,8 @@ def return_create(request, order_pk):
             'quantity': item.quantity,
             'received_quantity': item.received_quantity,
             'unreceived_quantity': unreceived_quantity,
+            'returned_quantity': returned_quantity,  # 已退货数量
+            'returnable_quantity': returnable_quantity,  # 可退货数量
             'unit_price': item.unit_price,
             'line_total': item.line_total,
         })
@@ -1542,16 +1574,18 @@ def return_approve(request, pk):
 
     案例1：全收货场景
     - 订单数量100，已收货100，未收货0
-    - 退货30 → 扣已收货30（已收货→70） → 生成30件应收账款
+    - 退货30 → 扣已收货30（已收货→70） → 生成30件负应付账款
 
     案例2：未全收货，退货量≤未收货量
     - 订单数量100，已收货60，未收货40
-    - 退货20 → 减订单数量20（订单→80） → 已收货不变，无应收
+    - 退货20 → 减订单数量20（订单→80） → 已收货不变，无财务记录
 
     案例3：未全收货，退货量>未收货量
     - 订单数量100，已收货60，未收货40
-    - 退货50 → 减订单数量40（订单→60） + 扣已收货10（已收货→50） → 生成10件应收账款
+    - 退货50 → 减订单数量40（订单→60） + 扣已收货10（已收货→50） → 生成10件负应付账款
     """
+    from decimal import Decimal
+
     if request.method != 'POST':
         messages.error(request, '无效的请求方法')
         return redirect('purchase:return_detail', pk=pk)
@@ -1605,9 +1639,10 @@ def return_approve(request, pk):
                     order_item.save()
 
                 if received_return > 0:
-                    # 扣减已收货数量
-                    order_item.received_quantity -= received_return
-                    order_item.save()
+                    # 注意：不扣减received_quantity，保持实际收货数量不变
+                    # received_quantity应该始终记录实际收到的数量
+                    # 退货记录单独存储在PurchaseReturn表中
+                    # 可退货数量 = received_quantity - 已退货数量
 
                     # 创建库存交易（退货出库）
                     if warehouse:
@@ -1631,7 +1666,7 @@ def return_approve(request, pk):
 
                     # ========== 自动生成负应付明细 ==========
                     # 每个明细单独生成负应付记录
-                    from finance.models import SupplierAccountDetail
+                    from finance.models import SupplierAccountDetail, SupplierAccount
                     from common.utils import DocumentNumberGenerator
 
                     # 获取或创建应付主单
@@ -1673,7 +1708,7 @@ def return_approve(request, pk):
             messages.success(
                 request,
                 f'退货单 {return_order.return_number} 审核通过！'
-                f'已扣减订单数量、已收货数量，生成 ¥{total_refund:.2f} 的负应付明细，应付主单已自动归集'
+                f'已扣减订单数量，生成 ¥{total_refund:.2f} 的负应付明细，应付主单已自动归集'
             )
         else:
             messages.success(

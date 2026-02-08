@@ -432,16 +432,16 @@ class SupplierAccount(BaseModel):
             total=models.Sum('amount')
         )['total'] or Decimal('0')
 
-        # 实际应付 = 正应付 + 负应付
-        self.invoice_amount = total_positive + total_negative
+        # 发票金额 = 累计收货正应付（原始发票金额，不含退货）
+        self.invoice_amount = total_positive
 
         # 已核销金额
         self.paid_amount = details.aggregate(
             total=models.Sum('allocated_amount')
         )['total'] or Decimal('0')
 
-        # 未付余额 = 实际应付 - 已核销
-        self.balance = self.invoice_amount - self.paid_amount
+        # 未付余额 = 收货正应付 + 退货负应付 - 已核销金额
+        self.balance = total_positive + total_negative - self.paid_amount
 
         # 更新状态
         self.update_status()
