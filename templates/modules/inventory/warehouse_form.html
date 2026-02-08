@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
 {% block title %}{% if action == 'update' %}编辑仓库{% else %}新建仓库{% endif %} - {{ warehouse.name|default:"新仓库" }} - BetterLaser ERP{% endblock %}
 
 {% block breadcrumb %}

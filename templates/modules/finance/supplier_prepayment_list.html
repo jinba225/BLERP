@@ -1,76 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
+{% load finance_extras %}
 
-{% block title %}预付款 - BetterLaser ERP
-
-
-<script>
-// 搜索框清除按钮功能
-function toggleClearButton() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-
-    if (searchInput && clearBtn) {
-        if (searchInput.value.trim() !== '') {
-            clearBtn.style.display = 'flex';
-            updateClearButtonPosition();
-        } else {
-            clearBtn.style.display = 'none';
-        }
-    }
-}
-
-function updateClearButtonPosition() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-
-    if (!searchInput || !clearBtn) return;
-
-    // 创建临时canvas来测量文本宽度
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const inputStyles = window.getComputedStyle(searchInput);
-    context.font = inputStyles.font;
-
-    // 计算文本宽度（考虑左右padding）
-    const textWidth = context.measureText(searchInput.value).width;
-    const paddingLeft = parseFloat(inputStyles.paddingLeft);
-    const offset = textWidth + paddingLeft + 20; // 20px为额外间距
-
-    // 设置按钮位置，确保不超出输入框右边界
-    const inputWidth = searchInput.offsetWidth;
-    const buttonWidth = 24; // 按钮宽度
-    const maxOffset = inputWidth - buttonWidth - 8; // 8px为右边距
-
-    const finalOffset = Math.min(offset, maxOffset);
-    clearBtn.style.left = finalOffset + 'px';
-    clearBtn.style.right = 'auto';
-}
-
-function clearSearchInput() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-    if (searchInput && clearBtn) {
-        searchInput.value = '';
-        clearBtn.style.display = 'none';
-        searchInput.focus();
-    }
-}
-
-// 页面加载时初始化清除按钮状态
-document.addEventListener('DOMContentLoaded', function() {
-    toggleClearButton();
-
-    // 监听窗口大小变化，重新计算按钮位置
-    window.addEventListener('resize', function() {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput && searchInput.value.trim() !== '') {
-            updateClearButtonPosition();
-        }
-    });
-});
-</script>
-
-{% endblock %}
+{% block title %}预付款 - BetterLaser ERP {% endblock %}
 
 {% block breadcrumb %}
 <span class="mx-2 text-gray-400">/</span>
@@ -80,17 +11,29 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
     <div class="flex justify-between items-center">
         <div>
             <h3 class="text-lg font-semibold text-gray-900">供应商预付款</h3>
-            <p class="text-sm text-gray-600">共 {{ page_obj.paginator.count }} 条记录</p>
+            <p class="text-sm text-gray-600">共 {{ page_obj.paginator.count }} 个供应商（已自动合并）</p>
         </div>
-        <a class="btn btn-primary" href="{% url 'finance:supplier_prepayment_create' %}">
-            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-</svg>新建预付款
-        </a>
+        <div class="flex items-center space-x-3">
+            <button type="button" @click="manualRefresh"
+                :disabled="isRefreshing"
+                class="text-sm text-gray-600 hover:text-theme-600 flex items-center transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="刷新页面">
+                <svg class="w-4 h-4 mr-2" :class="{ 'animate-spin': isRefreshing }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span x-text="isRefreshing ? '刷新中...' : '刷新'"></span>
+            </button>
+            <a class="btn btn-primary" href="{% url 'finance:supplier_prepayment_create' %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新建预付款
+            </a>
+        </div>
     </div>
 
     <!-- 搜索和筛选 -->
@@ -100,16 +43,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">搜索</label>
                     <div class="relative flex items-center">
-                <input type="text" name="search" id="searchInput" value="{{ search }}" placeholder="供应商名称、备注..."
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500" oninput="toggleClearButton()">
-                <button type="button" id="clearSearch" onclick="clearSearchInput()"
-                    class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-theme-500 hover:bg-theme-600 text-white flex items-center justify-center transition-all duration-200 hidden"
-                    style="display: none;">
-                    <svg class="icon w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+                        <input type="text" name="search" id="searchInput" value="{{ search }}" placeholder="供应商名称、备注..."
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">供应商</label>
@@ -152,55 +88,57 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="bg-white rounded-lg shadow overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">供应商</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">金额</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">余额</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">付款日期</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">备注</th>
-                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-            </tr>
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">供应商</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">总金额</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">可用余额</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">预付款笔数</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最后付款日期</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-            {% for prepay in page_obj %}
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 text-sm text-gray-900">{{ prepay.supplier.name }}</td>
-                <td class="px-6 py-4 text-sm text-right text-gray-900">¥{{ prepay.amount|floatformat:2 }}</td>
-                <td class="px-6 py-4 text-sm text-right font-semibold {% if prepay.balance > 0 %}text-theme-600{% else %}text-green-600{% endif %}">¥{{ prepay.balance|floatformat:2 }}</td>
-                <td class="px-6 py-4 text-sm text-gray-500">{{ prepay.paid_date }}</td>
-                <td class="px-6 py-4 text-sm">
-                    <span class="px-2 py-1 text-xs font-semibold rounded
-                        {% if prepay.status == 'active' %}bg-green-100 text-green-800
-                        {% elif prepay.status == 'merged' %}bg-yellow-100 text-yellow-800
-                        {% elif prepay.status == 'exhausted' %}bg-gray-100 text-gray-800
-                        {% endif %}">
-                        {{ prepay.get_status_display }}
-                    </span>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-500">{{ prepay.notes|default:"-" }}</td>
-                <td class="px-6 py-4 text-sm text-center space-x-2">
-                    <a href="{% url 'finance:supplier_prepayment_edit' prepay.id %}"
-                       class="text-theme-600 hover:text-theme-800 inline-flex items-center transition-colors"
-                       title="编辑">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                        <span class="ml-1">编辑</span>
-                    </a>
-                    <a href="{% url 'finance:supplier_prepayment_delete' prepay.id %}"
-                       class="text-red-600 hover:text-red-800 inline-flex items-center transition-colors"
-                       title="删除">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                        <span class="ml-1">删除</span>
-                    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7" class="px-6 py-6 text-center text-gray-500">暂无预付款记录</td></tr>
-            {% endfor %}
+                {% for item in supplier_list %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                        <div class="flex items-center">
+                            <span class="font-medium">{{ item.supplier.name }}</span>
+                            {% if item.prepay_count > 1 %}
+                            <span class="ml-2 px-2 py-0.5 text-xs bg-theme-100 text-theme-800 rounded-full">{{ item.prepay_count }}笔</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-right text-gray-900">¥{{ item.total_amount|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-sm text-right font-semibold {% if item.total_balance > 0 %}text-theme-600{% else %}text-green-600{% endif %}">¥{{ item.total_balance|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ item.prepay_count }} 笔</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ item.latest_date }}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="px-2 py-1 text-xs font-semibold rounded
+                            {% if item.overall_status == 'active' %}bg-green-100 text-green-800
+                            {% elif item.overall_status == 'exhausted' %}bg-gray-100 text-gray-800
+                            {% endif %}">
+                            {{ item.status_label }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-center">
+                        <a href="{% url 'finance:supplier_prepayment_manage' item.supplier_id %}"
+                           class="text-theme-600 hover:text-theme-800 inline-flex items-center transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span class="ml-1">管理预付款</span>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-500">
+                        暂无供应商预付款记录
+                    </td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

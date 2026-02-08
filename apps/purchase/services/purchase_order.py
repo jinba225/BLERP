@@ -1,4 +1,5 @@
 from django.db import transaction
+from decimal import Decimal
 from purchase.models import PurchaseOrder, PurchaseOrderItem
 from common.utils import DocumentNumberGenerator
 

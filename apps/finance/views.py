@@ -7,8 +7,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from django.core.paginator import Paginator
-from django.db.models import Q, Sum, Count
+from django.db.models import Q, Sum, Count, Max, F
 from django.utils import timezone
+from django.http import JsonResponse
+from django.views.decorators.cache import never_cache
 from decimal import Decimal, ROUND_HALF_UP
 
 from .models import (
@@ -413,6 +415,7 @@ def customer_account_list(request):
     """
     List all customer accounts receivable.
     """
+    # 基础查询
     accounts = CustomerAccount.objects.filter(
         is_deleted=False
     ).select_related('customer', 'sales_order')
@@ -435,7 +438,7 @@ def customer_account_list(request):
     if is_overdue == 'true':
         accounts = accounts.filter(due_date__lt=timezone.now().date(), balance__gt=0)
 
-    # Sorting - 按创建时间降序（最新的在最上面）
+    # Sorting - 按创建时间降序（最新创建的在最上面）
     sort = request.GET.get('sort', '-created_at')
     accounts = accounts.order_by(sort)
 
@@ -451,7 +454,7 @@ def customer_account_list(request):
         total_balance=Sum('balance')
     )
 
-    # Get customers for filter dropdown
+    # 获取所有客户用于筛选下拉框
     from customers.models import Customer
     customers = Customer.objects.filter(is_deleted=False, status='active')
 
@@ -505,10 +508,12 @@ def customer_account_detail(request, pk):
 
 
 @login_required
+@never_cache
 def supplier_account_list(request):
     """
     List all supplier accounts payable.
     """
+    # 基础查询
     accounts = SupplierAccount.objects.filter(
         is_deleted=False
     ).select_related('supplier', 'purchase_order', 'invoice')
@@ -552,6 +557,13 @@ def supplier_account_list(request):
         total_balance=Sum('balance')
     )
 
+    # 获取所有供应商用于筛选下拉框
+    from suppliers.models import Supplier
+    suppliers = Supplier.objects.filter(
+        is_deleted=False,
+        is_approved=True
+    ).order_by('name')
+
     context = {
         'page_obj': page_obj,
         'search': search,
@@ -561,11 +573,13 @@ def supplier_account_list(request):
         'total_count': paginator.count,
         'totals': totals,
         'status_choices': SupplierAccount.ACCOUNT_STATUS,
+        'suppliers': suppliers,
     }
     return render(request, 'modules/finance/supplier_account_list.html', context)
 
 
 @login_required
+@never_cache
 def supplier_account_detail(request, pk):
     """
     Display supplier account payable details.
@@ -794,6 +808,7 @@ def supplier_account_writeoff(request, pk):
     if request.method == 'POST':
         amount = Decimal(request.POST.get('amount', '0') or '0')
         prepay_id = request.POST.get('prepayment')
+        use_all_prepays = (prepay_id == 'ALL_PREPAY')  # 是否自动使用所有预付款
         payment_method = request.POST.get('payment_method')
         payment_date = request.POST.get('payment_date')
         invoice_number = request.POST.get('invoice_number', '').strip()
@@ -804,7 +819,36 @@ def supplier_account_writeoff(request, pk):
             return redirect('finance:supplier_account_detail', pk=pk)
 
         effective_prepay_amount = Decimal('0')
-        if prepay_id:
+        used_prepays = []  # 记录使用的预付款
+
+        # 如果勾选了"自动使用所有预付款"
+        if use_all_prepays and account.supplier:
+            all_prepays = SupplierPrepayment.objects.filter(
+                supplier=account.supplier,
+                is_deleted=False,
+                balance__gt=0
+            ).order_by('-paid_date')
+
+            for prepay in all_prepays:
+                max_use = (account.balance - amount - effective_prepay_amount)
+                if max_use < 0:
+                    max_use = Decimal('0')
+                use_amount = min(prepay.balance, max_use)
+
+                if use_amount > 0:
+                    prepay.balance -= use_amount
+                    prepay.save()
+                    used_prepays.append({
+                        'prepay': prepay,
+                        'amount': use_amount
+                    })
+                    effective_prepay_amount += use_amount
+
+                    # 如果已经核销完毕，停止使用更多预付款
+                    if (effective_prepay_amount + amount) >= account.balance:
+                        break
+        elif prepay_id:
+            # 原有逻辑：使用单个预付款
             prepay = SupplierPrepayment.objects.filter(pk=prepay_id, is_deleted=False).first()
             if not prepay:
                 messages.error(request, '预付款不存在或已删除')
@@ -816,6 +860,10 @@ def supplier_account_writeoff(request, pk):
             if effective_prepay_amount > 0:
                 prepay.balance -= effective_prepay_amount
                 prepay.save()
+                used_prepays.append({
+                    'prepay': prepay,
+                    'amount': effective_prepay_amount
+                })
 
         total_offset = (effective_prepay_amount + amount).quantize(Decimal('0.00'), rounding=ROUND_HALF_UP)
         if total_offset <= Decimal('0.00') or total_offset > account.balance:
@@ -854,8 +902,8 @@ def supplier_account_writeoff(request, pk):
                     continue
             raise Exception(f'生成付款单号失败：已尝试 {max_retries} 次')
 
-        # 生成预付款冲抵的单号
-        if prepay_id and effective_prepay_amount > 0:
+        # 为每个预付款生成付款单号
+        for prepay_info in used_prepays:
             try:
                 payment_numbers.append(generate_unique_payment_number('payment'))
             except Exception as e:
@@ -875,8 +923,10 @@ def supplier_account_writeoff(request, pk):
             with transaction.atomic():
                 payment_number_index = 0
 
-                # 创建预付款冲抵的付款记录
-                if prepay_id and effective_prepay_amount > 0:
+                # 为每个预付款创建付款记录
+                for prepay_info in used_prepays:
+                    prepay = prepay_info['prepay']
+                    use_amount = prepay_info['amount']
                     Payment.objects.create(
                         payment_number=payment_numbers[payment_number_index],
                         payment_type='payment',
@@ -884,13 +934,13 @@ def supplier_account_writeoff(request, pk):
                         status='completed',
                         supplier=account.supplier if account.supplier else None,
                         customer=account.customer if account.customer else None,
-                        amount=effective_prepay_amount,
+                        amount=use_amount,
                         currency=account.currency,
                         payment_date=payment_date or timezone.now().date(),
                         reference_type='supplier_account',
                         reference_id=str(account.id),
                         reference_number=account.invoice_number or '',
-                        description='预付款冲抵',
+                        description=f'预付款冲抵（{prepay.paid_date}）',
                         notes=notes,
                         processed_by=request.user,
                         created_by=request.user,
@@ -985,25 +1035,141 @@ def supplier_account_writeoff(request, pk):
 
     # GET request - 显示核销表单
     prepays = []
+    supplier_summary = None
+    total_prepay_balance = Decimal('0')
+
     if account.supplier:
         prepays = SupplierPrepayment.objects.filter(
             supplier=account.supplier,
             is_deleted=False,
             balance__gt=0
-        ).order_by('-created_at')
+        ).order_by('-paid_date')
+
+        # 计算预付款总余额
+        total_prepay_balance = prepays.aggregate(
+            total=Sum('balance')
+        )['total'] or Decimal('0')
+
+        # 计算供应商的总应付余额（所有未结清的账户）
+        supplier_accounts = SupplierAccount.objects.filter(
+            supplier=account.supplier,
+            is_deleted=False
+        ).aggregate(
+            total_balance=Sum('balance'),
+            account_count=Count('id')
+        )
+
+        supplier_summary = {
+            'total_balance': supplier_accounts['total_balance'] or Decimal('0'),
+            'account_count': supplier_accounts['account_count'] or 0,
+        }
 
     context = {
         'account': account,
         'prepays': prepays,
+        'supplier_summary': supplier_summary,
+        'total_prepay_balance': total_prepay_balance,
     }
     return render(request, 'modules/finance/supplier_account_writeoff.html', context)
 
 @login_required
 def customer_prepayment_list(request):
-    prepays = CustomerPrepayment.objects.filter(is_deleted=False)
-    paginator = Paginator(prepays, 20)
+    """客户预收款列表（同一客户自动合并）"""
+    # 获取筛选参数
+    search = request.GET.get('search', '')
+    customer_id = request.GET.get('customer', '')
+    status = request.GET.get('status', '')
+    balance_status = request.GET.get('balance_status', '')
+
+    # 基础查询
+    prepays = CustomerPrepayment.objects.filter(is_deleted=False).select_related('customer')
+
+    # 搜索
+    if search:
+        prepays = prepays.filter(
+            Q(customer__name__icontains=search) |
+            Q(notes__icontains=search)
+        )
+
+    # 客户筛选
+    if customer_id:
+        prepays = prepays.filter(customer_id=customer_id)
+
+    # 状态筛选
+    if status:
+        prepays = prepays.filter(status=status)
+
+    # 余额筛选（基于单个预付款记录）
+    if balance_status == 'has_balance':
+        prepays = prepays.filter(balance__gt=0)
+    elif balance_status == 'no_balance':
+        prepays = prepays.filter(balance=0)
+
+    # 按客户分组聚合（自动合并）
+    aggregated = prepays.values('customer_id').annotate(
+        total_amount=Sum('amount'),
+        total_balance=Sum('balance'),
+        prepay_count=Count('id'),
+        latest_date=Max('received_date')
+    ).order_by('-latest_date')
+
+    # 创建分页器
+    paginator = Paginator(list(aggregated), 20)
     page_obj = paginator.get_page(request.GET.get('page'))
-    return render(request, 'modules/finance/customer_prepayment_list.html', {'page_obj': page_obj})
+
+    # 为每个分页结果构建详细信息
+    customer_list = []
+    for item in page_obj:
+        customer_id_val = item['customer_id']
+        # 获取该客户的所有预付款记录（用于详情展示）
+        customer_prepays = list(prepays.filter(customer_id=customer_id_val).order_by('-received_date'))
+
+        # 获取客户对象
+        customer = customer_prepays[0].customer if customer_prepays else None
+
+        # 判断整体状态
+        total_balance = item['total_balance']
+        if total_balance > 0:
+            overall_status = 'active'
+            status_label = '活跃'
+        elif total_balance == 0:
+            overall_status = 'exhausted'
+            status_label = '已用完'
+        else:
+            overall_status = 'active'
+            status_label = '异常'
+
+        customer_list.append({
+            'customer_id': customer_id_val,
+            'customer': customer,
+            'total_amount': item['total_amount'],
+            'total_balance': total_balance,
+            'prepay_count': item['prepay_count'],
+            'latest_date': item['latest_date'],
+            'overall_status': overall_status,
+            'status_label': status_label,
+            'prepayments': customer_prepays,  # 所有预付款记录列表
+        })
+
+    # 获取所有客户（用于筛选下拉框）
+    customers = Customer.objects.filter(
+        is_deleted=False,
+        prepayments__is_deleted=False
+    ).annotate(
+        prepay_count=Count('prepayments')
+    ).filter(prepay_count__gt=0).order_by('name')
+
+    context = {
+        'page_obj': page_obj,
+        'customer_list': customer_list,
+        'customers': customers,
+        'search': search,
+        'customer_id': customer_id,
+        'status': status,
+        'status_choices': CustomerPrepayment.PREPAYMENT_STATUS,
+        'balance_status': balance_status,
+    }
+    return render(request, 'modules/finance/customer_prepayment_list.html', context)
 
 @login_required
 @transaction.atomic
@@ -1026,11 +1192,131 @@ def customer_prepayment_create(request):
     return render(request, 'modules/finance/customer_prepayment_form.html', {'customers': customers})
 
 @login_required
+@never_cache
 def supplier_prepayment_list(request):
-    prepays = SupplierPrepayment.objects.filter(is_deleted=False)
-    paginator = Paginator(prepays, 20)
+    """供应商预付款列表（同一供应商自动合并）"""
+    # 获取筛选参数
+    search = request.GET.get('search', '')
+    supplier_id = request.GET.get('supplier', '')
+    status = request.GET.get('status', '')
+    balance_status = request.GET.get('balance_status', '')
+
+    # 基础查询
+    prepays = SupplierPrepayment.objects.filter(is_deleted=False).select_related('supplier')
+
+    # 搜索
+    if search:
+        prepays = prepays.filter(
+            Q(supplier__name__icontains=search) |
+            Q(notes__icontains=search)
+        )
+
+    # 供应商筛选
+    if supplier_id:
+        prepays = prepays.filter(supplier_id=supplier_id)
+
+    # 状态筛选
+    if status:
+        prepays = prepays.filter(status=status)
+
+    # 余额筛选（基于单个预付款记录）
+    if balance_status == 'has_balance':
+        prepays = prepays.filter(balance__gt=0)
+    elif balance_status == 'no_balance':
+        prepays = prepays.filter(balance=0)
+
+    # 按供应商分组聚合（自动合并）
+    aggregated = prepays.values('supplier_id').annotate(
+        total_amount=Sum('amount'),
+        total_balance=Sum('balance'),
+        prepay_count=Count('id'),
+        latest_date=Max('paid_date')
+    ).order_by('-latest_date')
+
+    # 创建分页器
+    paginator = Paginator(list(aggregated), 20)
     page_obj = paginator.get_page(request.GET.get('page'))
-    return render(request, 'modules/finance/supplier_prepayment_list.html', {'page_obj': page_obj})
+
+    # 为每个分页结果构建详细信息
+    supplier_list = []
+    for item in page_obj:
+        supplier_id_val = item['supplier_id']
+        # 获取该供应商的所有预付款记录（用于详情展示）
+        supplier_prepays = list(prepays.filter(supplier_id=supplier_id_val).order_by('-paid_date'))
+
+        # 获取供应商对象
+        supplier = supplier_prepays[0].supplier if supplier_prepays else None
+
+        # 判断整体状态
+        total_balance = item['total_balance']
+        if total_balance > 0:
+            overall_status = 'active'
+            status_label = '活跃'
+        elif total_balance == 0:
+            overall_status = 'exhausted'
+            status_label = '已用完'
+        else:
+            overall_status = 'active'
+            status_label = '异常'
+
+        supplier_list.append({
+            'supplier_id': supplier_id_val,
+            'supplier': supplier,
+            'total_amount': item['total_amount'],
+            'total_balance': total_balance,
+            'prepay_count': item['prepay_count'],
+            'latest_date': item['latest_date'],
+            'overall_status': overall_status,
+            'status_label': status_label,
+            'prepayments': supplier_prepays,  # 所有预付款记录列表
+        })
+
+    # 获取所有供应商（用于筛选下拉框）
+    suppliers = Supplier.objects.filter(
+        is_deleted=False,
+        prepayments__is_deleted=False
+    ).annotate(
+        prepay_count=Count('prepayments')
+    ).filter(prepay_count__gt=0).order_by('name')
+
+    context = {
+        'page_obj': page_obj,
+        'supplier_list': supplier_list,
+        'suppliers': suppliers,
+        'search': search,
+        'supplier_id': supplier_id,
+        'status': status,
+        'status_choices': SupplierPrepayment.PREPAYMENT_STATUS,
+        'balance_status': balance_status,
+    }
+    return render(request, 'modules/finance/supplier_prepayment_list.html', context)
+
+@login_required
+def supplier_prepayment_manage(request, supplier_id):
+    """管理供应商的所有预付款"""
+    supplier = get_object_or_404(Supplier, pk=supplier_id, is_deleted=False)
+
+    # 获取该供应商的所有预付款
+    prepays = SupplierPrepayment.objects.filter(
+        supplier=supplier,
+        is_deleted=False
+    ).order_by('-paid_date')
+
+    # 计算总金额和总余额
+    total_stats = prepays.aggregate(
+        total_amount=Sum('amount'),
+        total_balance=Sum('balance')
+    )
+
+    context = {
+        'supplier': supplier,
+        'prepays': prepays,
+        'total_amount': total_stats['total_amount'] or Decimal('0'),
+        'total_balance': total_stats['total_balance'] or Decimal('0'),
+        'prepay_count': prepays.count(),
+    }
+    return render(request, 'modules/finance/supplier_prepayment_manage.html', context)
+
 
 @login_required
 @transaction.atomic
@@ -1051,6 +1337,303 @@ def supplier_prepayment_create(request):
         return redirect('finance:supplier_prepayment_list')
     suppliers = Supplier.objects.filter(is_deleted=False)
     return render(request, 'modules/finance/supplier_prepayment_form.html', {'suppliers': suppliers})
+
+
+@login_required
+@transaction.atomic
+def supplier_prepayment_edit(request, pk):
+    """编辑供应商预付款"""
+    prepay = get_object_or_404(SupplierPrepayment, pk=pk, is_deleted=False)
+
+    # 保存来源页面，用于编辑后返回
+    redirect_url = request.GET.get('next', None)
+
+    # 检查是否已被使用（余额小于原金额）
+    has_usage = prepay.balance < prepay.amount
+
+    if request.method == 'POST':
+        # 已被使用的预付款，只能编辑备注
+        if has_usage:
+            prepay.notes = request.POST.get('notes', '')
+            prepay.save()
+            messages.success(request, '备注更新成功')
+        else:
+            amount = Decimal(request.POST.get('amount', '0'))
+            date = request.POST.get('paid_date')
+
+            # 计算余额变化
+            old_balance = prepay.balance
+            amount_diff = amount - prepay.amount
+            new_balance = old_balance + amount_diff
+
+            if new_balance < 0:
+                messages.error(request, '余额不能为负数')
+                return redirect('finance:supplier_prepayment_edit', pk=pk)
+
+            prepay.amount = amount
+            prepay.balance = new_balance
+            prepay.paid_date = date
+            prepay.notes = request.POST.get('notes', '')
+            prepay.save()
+            messages.success(request, '预付款更新成功')
+
+        # 如果是从管理页面来的，返回管理页面；否则返回列表页
+        if redirect_url and 'supplier_prepayment_manage' in redirect_url:
+            return redirect(redirect_url)
+        return redirect('finance:supplier_prepayment_list')
+
+    suppliers = Supplier.objects.filter(is_deleted=False)
+    return render(request, 'modules/finance/supplier_prepayment_form.html', {
+        'suppliers': suppliers,
+        'prepay': prepay,
+        'is_edit': True,
+        'has_usage': has_usage,
+        'next': request.get_full_path(),  # 传递当前URL用于返回
+    })
+
+
+@login_required
+@transaction.atomic
+def supplier_prepayment_delete(request, pk):
+    """删除供应商预付款"""
+    prepay = get_object_or_404(SupplierPrepayment, pk=pk, is_deleted=False)
+
+    # 保存来源页面
+    redirect_url = request.GET.get('next', '') or request.META.get('HTTP_REFERER', '')
+
+    if request.method == 'POST':
+        # 检查余额
+        if prepay.balance > 0:
+            messages.error(request, f'该预付款还有余额 ¥{prepay.balance}，无法删除')
+            return redirect(redirect_url or 'finance:supplier_prepayment_list')
+
+        prepay.soft_delete()
+        messages.success(request, '预付款删除成功')
+
+        # 如果是从管理页面来的，返回管理页面
+        if redirect_url and 'supplier_prepayment_manage' in redirect_url:
+            return redirect(redirect_url)
+        return redirect('finance:supplier_prepayment_list')
+
+    return render(request, 'modules/finance/supplier_prepayment_confirm_delete.html', {
+        'prepay': prepay,
+        'next': redirect_url or request.META.get('HTTP_REFERER', '')
+    })
+
+
+@login_required
+@transaction.atomic
+def customer_prepayment_edit(request, pk):
+    """编辑客户预收款"""
+    prepay = get_object_or_404(CustomerPrepayment, pk=pk, is_deleted=False)
+
+    # 检查是否已被使用（余额小于原金额）
+    has_usage = prepay.balance < prepay.amount
+
+    if request.method == 'POST':
+        # 已被使用的预收款，只能编辑备注
+        if has_usage:
+            prepay.notes = request.POST.get('notes', '')
+            prepay.save()
+            messages.success(request, '备注更新成功')
+        else:
+            amount = Decimal(request.POST.get('amount', '0'))
+            date = request.POST.get('received_date')
+
+            # 计算余额变化
+            old_balance = prepay.balance
+            amount_diff = amount - prepay.amount
+            new_balance = old_balance + amount_diff
+
+            if new_balance < 0:
+                messages.error(request, '余额不能为负数')
+                return redirect('finance:customer_prepayment_edit', pk=pk)
+
+            prepay.amount = amount
+            prepay.balance = new_balance
+            prepay.received_date = date
+            prepay.notes = request.POST.get('notes', '')
+            prepay.save()
+            messages.success(request, '预收款更新成功')
+
+        return redirect('finance:customer_prepayment_list')
+
+    customers = Customer.objects.filter(is_deleted=False)
+    return render(request, 'modules/finance/customer_prepayment_form.html', {
+        'customers': customers,
+        'prepay': prepay,
+        'is_edit': True,
+        'has_usage': has_usage,
+    })
+
+
+@login_required
+@transaction.atomic
+def customer_prepayment_delete(request, pk):
+    """删除客户预收款"""
+    prepay = get_object_or_404(CustomerPrepayment, pk=pk, is_deleted=False)
+
+    if request.method == 'POST':
+        # 检查余额
+        if prepay.balance > 0:
+            messages.error(request, f'该预收款还有余额 ¥{prepay.balance}，无法删除')
+            return redirect('finance:customer_prepayment_list')
+
+        prepay.soft_delete()
+        messages.success(request, '预收款删除成功')
+        return redirect('finance:customer_prepayment_list')
+
+    return render(request, 'modules/finance/customer_prepayment_confirm_delete.html', {'prepay': prepay})
+
+
+@login_required
+def supplier_prepayment_consolidate(request, supplier_id):
+    """
+    合并供应商的多个预付款
+    """
+    supplier = get_object_or_404(Supplier, pk=supplier_id, is_deleted=False)
+
+    # 获取该供应商所有活跃的预付款（有余额的）
+    prepayments = SupplierPrepayment.objects.filter(
+        supplier=supplier,
+        is_deleted=False,
+        status='active',
+        balance__gt=0
+    ).order_by('-paid_date')
+
+    if request.method == 'POST':
+        prepayment_ids = request.POST.getlist('prepayments')
+
+        if len(prepayment_ids) < 2:
+            messages.error(request, '请至少选择2笔预付款进行合并')
+            return redirect('finance:supplier_prepayment_consolidate', supplier_id=supplier_id)
+
+        # 验证所有预付款都属于该供应商
+        selected_prepays = SupplierPrepayment.objects.filter(
+            id__in=prepayment_ids,
+            supplier=supplier,
+            is_deleted=False,
+            status='active',
+            balance__gt=0
+        )
+
+        if selected_prepays.count() != len(prepayment_ids):
+            messages.error(request, '所选预付款无效或已被使用')
+            return redirect('finance:supplier_prepayment_consolidate', supplier_id=supplier_id)
+
+        # 计算总余额
+        total_balance = sum(prepay.balance for prepay in selected_prepays)
+
+        # 创建新的合并预付款
+        consolidated_prepay = SupplierPrepayment.objects.create(
+            supplier=supplier,
+            amount=total_balance,
+            balance=total_balance,
+            paid_date=timezone.now().date(),
+            notes=f'合并{len(prepayment_ids)}笔预付款',
+            is_consolidated=True,
+            status='active',
+            created_by=request.user,
+        )
+
+        # 更新原预付款状态
+        for prepay in selected_prepays:
+            prepay.status = 'merged'
+            prepay.merged_into = consolidated_prepay
+            prepay.save()
+
+        messages.success(
+            request,
+            f'成功合并{len(prepayment_ids)}笔预付款，总余额¥{total_balance:.2f}'
+        )
+        return redirect('finance:supplier_prepayment_list')
+
+    # 计算统计信息
+    total_count = prepayments.count()
+    total_balance = sum(prepay.balance for prepay in prepayments)
+
+    context = {
+        'supplier': supplier,
+        'prepayments': prepayments,
+        'total_count': total_count,
+        'total_balance': str(total_balance.quantize(Decimal('0.00'))),
+    }
+    return render(request, 'modules/finance/supplier_prepayment_consolidate.html', context)
+
+
+@login_required
+def customer_prepayment_consolidate(request, customer_id):
+    """
+    合并客户的多个预收款
+    """
+    customer = get_object_or_404(Customer, pk=customer_id, is_deleted=False)
+
+    # 获取该客户所有活跃的预收款（有余额的）
+    prepayments = CustomerPrepayment.objects.filter(
+        customer=customer,
+        is_deleted=False,
+        status='active',
+        balance__gt=0
+    ).order_by('-received_date')
+
+    if request.method == 'POST':
+        prepayment_ids = request.POST.getlist('prepayments')
+
+        if len(prepayment_ids) < 2:
+            messages.error(request, '请至少选择2笔预收款进行合并')
+            return redirect('finance:customer_prepayment_consolidate', customer_id=customer_id)
+
+        # 验证所有预收款都属于该客户
+        selected_prepays = CustomerPrepayment.objects.filter(
+            id__in=prepayment_ids,
+            customer=customer,
+            is_deleted=False,
+            status='active',
+            balance__gt=0
+        )
+
+        if selected_prepays.count() != len(prepayment_ids):
+            messages.error(request, '所选预收款无效或已被使用')
+            return redirect('finance:customer_prepayment_consolidate', customer_id=customer_id)
+
+        # 计算总余额
+        total_balance = sum(prepay.balance for prepay in selected_prepays)
+
+        # 创建新的合并预收款
+        consolidated_prepay = CustomerPrepayment.objects.create(
+            customer=customer,
+            amount=total_balance,
+            balance=total_balance,
+            received_date=timezone.now().date(),
+            notes=f'合并{len(prepayment_ids)}笔预收款',
+            is_consolidated=True,
+            status='active',
+            created_by=request.user,
+        )
+
+        # 更新原预收款状态
+        for prepay in selected_prepays:
+            prepay.status = 'merged'
+            prepay.merged_into = consolidated_prepay
+            prepay.save()
+
+        messages.success(
+            request,
+            f'成功合并{len(prepayment_ids)}笔预收款，总余额¥{total_balance:.2f}'
+        )
+        return redirect('finance:customer_prepayment_list')
+
+    # 计算统计信息
+    total_count = prepayments.count()
+    total_balance = sum(prepay.balance for prepay in prepayments)
+
+    context = {
+        'customer': customer,
+        'prepayments': prepayments,
+        'total_count': total_count,
+        'total_balance': str(total_balance.quantize(Decimal('0.00'))),
+    }
+    return render(request, 'modules/finance/customer_prepayment_consolidate.html', context)
 
 
 @login_required
@@ -2421,8 +3004,6 @@ def account_report(request):
     - 逾期状态
     - 结清状态
     """
-    from django.db.models import Count, Sum, Q, F
-    from django.core.paginator import Paginator
     from sales.models import SalesOrder
     from purchase.models import PurchaseOrder
 
@@ -2696,3 +3277,69 @@ def supplier_account_payment_allocate(request, pk):
         'today': timezone.now().date(),
     }
     return render(request, 'modules/finance/supplier_account_payment_allocate.html', context)
+
+
+@login_required
+def api_supplier_account_available_prepays(request, pk):
+    """
+    API: 获取指定供应商账户的可用预付款列表
+    用于供应商核销页面的AJAX调用
+    """
+    account = get_object_or_404(SupplierAccount, pk=pk, is_deleted=False)
+
+    prepays = []
+    if account.supplier:
+        prepays = SupplierPrepayment.objects.filter(
+            supplier=account.supplier,
+            is_deleted=False,
+            balance__gt=0,
+            status='active'  # 只获取活跃状态的预付款
+        ).order_by('-paid_date')  # 按付款日期倒序
+
+    prepayments_data = []
+    for prepay in prepays:
+        prepayments_data.append({
+            'id': prepay.id,
+            'balance': str(prepay.balance),
+            'amount': str(prepay.amount),
+            'paid_date': prepay.paid_date.strftime('%Y-%m-%d') if prepay.paid_date else '',
+        })
+
+    return JsonResponse({
+        'success': True,
+        'prepayments': prepayments_data,
+        'account_balance': str(account.balance),
+    })
+
+
+@login_required
+def api_customer_account_available_prepays(request, pk):
+    """
+    API: 获取指定客户账户的可用预收款列表
+    用于客户核销页面的AJAX调用
+    """
+    account = get_object_or_404(CustomerAccount, pk=pk, is_deleted=False)
+
+    prepays = []
+    if account.customer:
+        prepays = CustomerPrepayment.objects.filter(
+            customer=account.customer,
+            is_deleted=False,
+            balance__gt=0,
+            status='active'  # 只获取活跃状态的预收款
+        ).order_by('-received_date')  # 按收款日期倒序
+
+    prepayments_data = []
+    for prepay in prepays:
+        prepayments_data.append({
+            'id': prepay.id,
+            'balance': str(prepay.balance),
+            'amount': str(prepay.amount),
+            'received_date': prepay.received_date.strftime('%Y-%m-%d') if prepay.received_date else '',
+        })
+
+    return JsonResponse({
+        'success': True,
+        'prepayments': prepayments_data,
+        'account_balance': str(account.balance),
+    })

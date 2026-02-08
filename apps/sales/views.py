@@ -10,7 +10,8 @@ from django.db import transaction
 from django.http import JsonResponse, HttpResponse
 from django.core.paginator import Paginator
 from django.utils import timezone
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count, Avg, F
+from django.db.models.functions import TruncMonth, TruncDate
 from django.urls import reverse
 
 from .models import (
@@ -517,9 +518,8 @@ def quote_duplicate(request, pk):
 @login_required
 def order_list(request):
     """List all sales orders with search and filter."""
-    from django.db.models import Sum, F
     from sales.models import SalesReturnItem, SalesOrderItem
-    
+
     orders = SalesOrder.objects.filter(is_deleted=False).select_related('customer', 'sales_rep')
     
     # Search
@@ -1672,7 +1672,6 @@ def return_create(request, order_pk):
     deliveries = order.deliveries.filter(is_deleted=False, status__in=['shipped', 'delivered'])
 
     # 为每个订单项计算已退货数量和剩余可退数量
-    from django.db.models import Sum
     order_items_with_return_info = []
     for item in order.items.all():
         # 计算该订单项的已退货数量
@@ -2354,8 +2353,6 @@ def return_reject(request, pk):
 @login_required
 def return_statistics(request):
     """Sales return statistics and analysis report."""
-    from django.db.models import Count, Sum, Avg, Q, F
-    from django.db.models.functions import TruncMonth, TruncDate
     from datetime import datetime, timedelta
     import json
 
@@ -2648,7 +2645,6 @@ def sales_order_report(request):
     - 产品、金额范围
     - 交付日期范围
     """
-    from django.db.models import Count, Sum, Q
     from customers.models import Customer
     from users.models import User
     from products.models import Product

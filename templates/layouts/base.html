@@ -1,5 +1,6 @@
 {% load static %}
 {% load humanize %}
+{% load erp_filters %}
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1892,6 +1893,112 @@
             });
         });
     </script>
+
+    <!-- 页面自动刷新模块 -->
+    {% if page_refresh_config.enabled %}
+    <script src="{% static 'js/modules/page-refresh.js' %}"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            // 注册全局Alpine.js组件
+            Alpine.data('usePageRefresh', (config = {}) => ({
+                refreshManager: null,
+
+                init() {
+                    // 合并全局配置和局部配置
+                    const mergedConfig = {
+                        ...{{ page_refresh_config|js }},
+                        ...config,
+                    };
+
+                    // 创建刷新管理器
+                    this.refreshManager = new PageRefreshManager(mergedConfig);
+
+                    // 恢复滚动位置
+                    if (mergedConfig.preserveState) {
+                        const savedScroll = sessionStorage.getItem('pageRefresh_scrollPosition');
+                        if (savedScroll) {
+                            setTimeout(() => {
+                                window.scrollTo(0, parseInt(savedScroll));
+                                sessionStorage.removeItem('pageRefresh_scrollPosition');
+                            }, 100);
+                        }
+                    }
+
+                    // 页面卸载时清理资源
+                    window.addEventListener('beforeunload', () => {
+                        this.refreshManager?.destroy();
+                    });
+                },
+
+                // 手动刷新方法
+                manualRefresh() {
+                    this.refreshManager?.refresh(true);
+                },
+
+                // 获取刷新状态
+                get isRefreshing() {
+                    return this.refreshManager?.state.isRefreshing ?? false;
+                },
+
+                // 获取最后刷新时间
+                get lastRefreshTime() {
+                    return this.refreshManager?.state.lastRefreshTime ?? null;
+                },
+
+                // 获取刷新次数
+                get refreshCount() {
+                    return this.refreshManager?.state.refreshCount ?? 0;
+                },
+            }));
+
+            // 注册全局Store（可选，用于跨组件通信）
+            Alpine.store('pageRefresh', {
+                isEnabled: {{ page_refresh_config.enabled|yesno:'true,false' }},
+                config: {{ page_refresh_config|js }},
+            });
+        });
+    </script>
+    {% endif %}
+
+    <!-- 缓存破坏：确保所有内部链接都获取最新数据 -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 拦截所有内部链接的点击事件
+        document.body.addEventListener('click', function(e) {
+            const anchor = e.target.closest('a');
+            if (!anchor) return;
+
+            const href = anchor.getAttribute('href');
+            if (!href) return;
+
+            // 只处理内部链接（以 / 开头）
+            if (!href.startsWith('/')) return;
+
+            // 跳过外部链接、锚点链接和JavaScript链接
+            if (href.startsWith('http://') || href.startsWith('https://') ||
+                href.startsWith('#') || href.startsWith('javascript:')) {
+                return;
+            }
+
+            // 允许默认行为，但添加缓存破坏参数
+            try {
+                const url = new URL(href, window.location.origin);
+
+                // 添加/更新缓存破坏参数
+                url.searchParams.delete('_cache');
+                url.searchParams.delete('t');
+                url.searchParams.set('_nocache', Date.now().toString());
+
+                // 更新链接地址
+                anchor.href = url.toString();
+            } catch (error) {
+                // 如果URL解析失败，保持原链接不变
+                console.warn('缓存破坏参数添加失败:', error);
+            }
+        });
+    });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

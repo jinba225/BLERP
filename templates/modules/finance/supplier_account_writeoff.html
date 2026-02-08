@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}应付核销 - BetterLaser ERP{% endblock %}
 
@@ -84,20 +84,24 @@
                             placeholder="请输入发票号（可选）"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                         <p class="text-xs text-gray-500 mt-1">填写发票号后，对应的订单状态将更新为"已开票"</p>
-                    </div> <div>
+                    </div>
+                    <div>
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-sm font-medium text-gray-700">使用预付款（可选）</label>
-                            <a href="{% url 'finance:supplier_prepayment_create' %}?supplier_id={{ account.supplier_id }}&next={{ request.path }}"
+                            <a href="{% url 'finance:supplier_prepayment_create' %}?supplier_id={{ account.supplier_id }}&next={{ request.path }}&from_prepayment_create=1"
                                class="text-sm text-theme-600 hover:text-theme-700 font-medium">
                                 + 创建预付款
                             </a>
                         </div>
-                        <select name="prepayment"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+
+                        <select name="prepayment" id="prepaymentSelect"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
                             <option value="">不使用预付款</option>
-                            {% for p in prepays %}
-                            <option value="{{ p.id }}">{{ p.paid_date }} - 余额 ¥{{ p.balance|floatformat:2 }}</option>
-                            {% endfor %}
+                            {% if prepays|length > 0 %}
+                            <option value="ALL_PREPAY" class="font-semibold text-theme-600">
+                                预付款 - ¥{{ total_prepay_balance|floatformat:2 }}
+                            </option>
+                            {% endif %}
                         </select>
                     </div>
                 </div> <div>
@@ -120,74 +124,94 @@
 
 <script>
 (function() {
-    console.log('=== 预付款自动刷新脚本已加载 ===');
-    console.log('当前URL:', window.location.href);
+    'use strict';
+
+    const select = document.getElementById('prepaymentSelect');
+
+    if (!select) {
+        return;
+    }
+
+    // 全局变量存储预付款数据
+    let allPrepayments = [];
+    let totalPrepayBalance = 0;
 
     // 检查是否从预付款创建页面返回
     const urlParams = new URLSearchParams(window.location.search);
     const fromPrepaymentCreate = urlParams.get('from_prepayment_create');
-    console.log('from_prepayment_create 参数:', fromPrepaymentCreate);
 
-    if (fromPrepaymentCreate === '1') {
-        console.log('✓ 检测到从预付款创建返回，开始刷新预付款下拉框');
-
-        // 延迟一小段时间确保页面完全加载
-        setTimeout(() => {
-            refreshPrepaymentDropdown();
-
-            // 清除URL参数（避免重复刷新）
-            const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
-            window.history.replaceState({}, document.title, cleanUrl);
-            console.log('✓ 已清除URL参数');
-        }, 100);
-    }
-
-    function refreshPrepaymentDropdown() {
-        const select = document.querySelector('select[name="prepayment"]');
-        if (!select) {
-            console.error('✗ 未找到预付款下拉框');
-            return;
+    // 页面加载完成后刷新预付款列表
+    document.addEventListener('DOMContentLoaded', function() {
+        if (fromPrepaymentCreate === '1') {
+            setTimeout(() => {
+                refreshPrepaymentDropdown(true);
+                const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            }, 300);
+        } else {
+            refreshPrepaymentDropdown(false);
         }
+    });
 
-        console.log('✓ 开始刷新预付款下拉框');
+    // 定期自动刷新（每30秒）
+    let autoRefreshInterval = setInterval(() => {
+        if (!document.hidden) {
+            refreshPrepaymentDropdown(false);
+        }
+    }, 30000);
+
+    // 页面卸载时清除定时器
+    window.addEventListener('beforeunload', () => {
+        clearInterval(autoRefreshInterval);
+    });
+
+    function refreshPrepaymentDropdown(showToast = false) {
         const selectedValue = select.value;
 
-        // 显示加载提示
+        // 显示加载状态
         select.disabled = true;
 
-        const apiUrl = `{% url 'finance:api_supplier_account_available_prepays' account.pk %}";
-        console.log('✓ API URL:', apiUrl);
-
-        // 添加时间戳防止缓存
+        const apiUrl = "{% url 'finance:api_supplier_account_available_prepays' account.pk %}";
         const cacheBusterUrl = apiUrl + (apiUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
-        console.log('✓ 实际请求URL:', cacheBusterUrl);
 
         fetch(cacheBusterUrl)
             .then(response => {
-                console.log('✓ API响应状态:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
                 return response.json();
             })
             .then(data => {
-                console.log('✓ API返回数据:', data);
-
                 // 清空并重新填充选项
                 select.innerHTML = '<option value="">不使用预付款</option>';
 
-                // 添加新的预付款选项
-                if (data.prepayments && data.prepayments.length > 0) {
-                    console.log(`✓ 找到 ${data.prepayments.length} 个预付款`);
-                    data.prepayments.forEach(prepay => {
-                        const option = document.createElement('option');
-                        option.value = prepay.id;
-                        option.textContent = `${prepay.paid_date} - 余额 ¥${parseFloat(prepay.balance).toFixed(2)}`;
-                        select.appendChild(option);
-                        console.log(`  - ${option.textContent}`);
+                allPrepayments = data.prepayments || [];
+                totalPrepayBalance = 0;
+
+                if (allPrepayments.length > 0) {
+                    // 计算总余额
+                    allPrepayments.forEach(prepay => {
+                        const balance = parseFloat(prepay.balance);
+                        totalPrepayBalance += balance;
                     });
+
+                    // 添加"使用所有预付款"选项
+                    const allPrepayOption = document.createElement('option');
+                    allPrepayOption.value = 'ALL_PREPAY';
+                    allPrepayOption.className = 'font-semibold text-theme-600';
+                    allPrepayOption.textContent = `预付款 - ¥${totalPrepayBalance.toFixed(2)}`;
+                    select.appendChild(allPrepayOption);
+
+                    if (showToast) {
+                        showToastMessage(`✓ 已刷新 ${allPrepayments.length} 个预付款`, 'success');
+                    }
                 } else {
-                    console.log('✗ 没有找到预付款');
+                    if (showToast) {
+                        showToastMessage('暂无可用预付款', 'info');
+                    }
                 }
 
-                // 恢复之前选中的值（如果还存在）
+                // 恢复之前选中的值
                 if (selectedValue) {
                     const optionExists = Array.from(select.options).some(opt => opt.value === selectedValue);
                     if (optionExists) {
@@ -195,25 +219,20 @@
                     }
                 }
 
-                // 显示成功提示
-                if (data.newly_added) {
-                    showToast('✓ 预付款已添加并自动刷新列表', 'success');
-                }
-
                 select.disabled = false;
-                console.log('✓ 预付款下拉框刷新完成');
             })
             .catch(error => {
-                console.error('✗ 刷新预付款列表失败:', error);
+                console.error('✗ 刷新失败:', error);
+                if (showToast) {
+                    showToastMessage('刷新失败，请稍后重试', 'error');
+                }
                 select.disabled = false;
-                showToast('刷新预付款列表失败，请刷新页面', 'error');
             });
     }
 
-    function showToast(message, type = 'info') {
-        // 简单的提示消息实现
+    function showToastMessage(message, type = 'info') {
         const toast = document.createElement('div');
-        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 ${
+        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-full ${
             type === 'success' ? 'bg-green-500 text-white' :
             type === 'error' ? 'bg-red-500 text-white' :
             'bg-blue-500 text-white'
@@ -221,11 +240,18 @@
         toast.textContent = message;
         document.body.appendChild(toast);
 
+        // 动画进入
+        requestAnimationFrame(() => {
+            toast.style.transform = 'translateX(0)';
+        });
+
+        // 3秒后移除
         setTimeout(() => {
             toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
-});
+})();
 </script>
 {% endblock %}

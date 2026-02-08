@@ -87,7 +87,7 @@ def expense_list(request):
         'status_choices': Expense.EXPENSE_STATUS,
         'category_choices': Expense.EXPENSE_CATEGORY,
     }
-    return render(request, 'finance/expense_list.html', context)
+    return render(request, 'modules/finance/expense_list.html', context)
 
 
 @login_required
@@ -129,7 +129,7 @@ def expense_create(request):
         'payment_method_choices': Expense.PAYMENT_METHOD,
         'default_date': date.today(),
     }
-    return render(request, 'finance/expense_form.html', context)
+    return render(request, 'modules/finance/expense_form.html', context)
 
 
 @login_required
@@ -145,7 +145,7 @@ def expense_detail(request, pk):
     context = {
         'expense': expense,
     }
-    return render(request, 'finance/expense_detail.html', context)
+    return render(request, 'modules/finance/expense_detail.html', context)
 
 
 @login_required
@@ -187,7 +187,7 @@ def expense_edit(request, pk):
         'payment_method_choices': Expense.PAYMENT_METHOD,
         'is_edit': True,
     }
-    return render(request, 'finance/expense_form.html', context)
+    return render(request, 'modules/finance/expense_form.html', context)
 
 
 @login_required
@@ -214,7 +214,7 @@ def expense_delete(request, pk):
     context = {
         'expense': expense,
     }
-    return render(request, 'finance/expense_confirm_delete.html', context)
+    return render(request, 'modules/finance/expense_confirm_delete.html', context)
 
 
 @login_required
@@ -238,7 +238,7 @@ def expense_submit(request, pk):
     context = {
         'expense': expense,
     }
-    return render(request, 'finance/expense_confirm_submit.html', context)
+    return render(request, 'modules/finance/expense_confirm_submit.html', context)
 
 
 @login_required
@@ -262,7 +262,7 @@ def expense_approve(request, pk):
     context = {
         'expense': expense,
     }
-    return render(request, 'finance/expense_confirm_approve.html', context)
+    return render(request, 'modules/finance/expense_confirm_approve.html', context)
 
 
 @login_required
@@ -291,7 +291,7 @@ def expense_reject(request, pk):
     context = {
         'expense': expense,
     }
-    return render(request, 'finance/expense_confirm_reject.html', context)
+    return render(request, 'modules/finance/expense_confirm_reject.html', context)
 
 
 @login_required
@@ -346,4 +346,4 @@ def expense_pay(request, pk):
         'expense': expense,
         'payment_accounts': payment_accounts,
     }
-    return render(request, 'finance/expense_pay.html', context)
+    return render(request, 'modules/finance/expense_pay.html', context)

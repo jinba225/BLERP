@@ -2,8 +2,11 @@
 Custom template filters for the ERP system.
 """
 from django import template
+from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.safestring import mark_safe
 from decimal import Decimal
 from datetime import date, datetime
+import json
 
 register = template.Library()
 
@@ -99,3 +102,18 @@ def absolute_value(value):
         return abs(value)
     except (ValueError, TypeError):
         return value
+
+
+@register.filter(name='js')
+def to_javascript(value):
+    """
+    Convert Python value to JavaScript-compatible JSON string.
+    Handles Python booleans (True/False) to JavaScript (true/false).
+    Usage: {{ python_dict|js }}
+    """
+    try:
+        # 使用DjangoJSONEncoder来正确处理所有Python类型
+        # 使用mark_safe防止HTML转义
+        return mark_safe(json.dumps(value, cls=DjangoJSONEncoder))
+    except (TypeError, ValueError):
+        return mark_safe('{}')

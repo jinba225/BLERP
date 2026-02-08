@@ -238,3 +238,114 @@ class QueryOptimizer:
             # 可以添加更多优化...
 
         return queryset
+
+
+class AIModelConfigCache:
+    """
+    AI模型配置缓存服务
+
+    提供模型配置的缓存功能，减少数据库查询
+    """
+
+    # 缓存键前缀
+    CACHE_KEY_PREFIX = 'ai_model_config'
+
+    # 缓存过期时间（秒）
+    DEFAULT_TIMEOUT = 900  # 15分钟
+
+    @classmethod
+    def get_cache_key(cls, key_type: str, identifier: str = '') -> str:
+        """
+        生成缓存键
+
+        Args:
+            key_type: 缓存类型 (default, customer, etc.)
+            identifier: 标识符
+
+        Returns:
+            str: 缓存键
+        """
+        if identifier:
+            return f"{cls.CACHE_KEY_PREFIX}:{key_type}:{identifier}"
+        return f"{cls.CACHE_KEY_PREFIX}:{key_type}"
+
+    @classmethod
+    def get_default_config(cls):
+        """
+        获取缓存的默认模型配置
+
+        Returns:
+            AIModelConfig实例或None
+        """
+        cache_key = cls.get_cache_key('default')
+        from django.core.cache import cache
+        return cache.get(cache_key)
+
+    @classmethod
+    def set_default_config(cls, config, timeout: int = None):
+        """
+        缓存默认模型配置
+
+        Args:
+            config: AIModelConfig实例
+            timeout: 缓存时间（秒），默认使用DEFAULT_TIMEOUT
+        """
+        cache_key = cls.get_cache_key('default')
+        from django.core.cache import cache
+        cache.set(cache_key, config, timeout or cls.DEFAULT_TIMEOUT)
+
+    @classmethod
+    def get_customer_config(cls, customer_id: int):
+        """
+        获取缓存的客户模型配置
+
+        Args:
+            customer_id: 客户ID
+
+        Returns:
+            CustomerAIConfig实例或None
+        """
+        cache_key = cls.get_cache_key('customer', str(customer_id))
+        from django.core.cache import cache
+        return cache.get(cache_key)
+
+    @classmethod
+    def set_customer_config(cls, customer_id: int, config, timeout: int = None):
+        """
+        缓存客户模型配置
+
+        Args:
+            customer_id: 客户ID
+            config: CustomerAIConfig实例
+            timeout: 缓存时间（秒），默认使用DEFAULT_TIMEOUT
+        """
+        cache_key = cls.get_cache_key('customer', str(customer_id))
+        from django.core.cache import cache
+        cache.set(cache_key, config, timeout or cls.DEFAULT_TIMEOUT)
+
+    @classmethod
+    def invalidate_default_config(cls):
+        """使默认配置缓存失效"""
+        cache_key = cls.get_cache_key('default')
+        from django.core.cache import cache
+        cache.delete(cache_key)
+
+    @classmethod
+    def invalidate_customer_config(cls, customer_id: int):
+        """
+        使客户配置缓存失效
+
+        Args:
+            customer_id: 客户ID
+        """
+        cache_key = cls.get_cache_key('customer', str(customer_id))
+        from django.core.cache import cache
+        cache.delete(cache_key)
+
+    @classmethod
+    def invalidate_all_configs(cls):
+        """使所有配置缓存失效"""
+        from django.core.cache import cache
+        # 删除默认配置缓存
+        cls.invalidate_default_config()
+        # 注意：无法批量删除所有客户配置，需要在客户配置更新时主动失效

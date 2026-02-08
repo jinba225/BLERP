@@ -1,6 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}库存单据报表
+{% endblock %}
+
+{% block extra_js %}
 <script>
 // 搜索框清除按钮功能
 function toggleClearButton() {
@@ -67,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
 {% endblock %}
 
 {% block breadcrumb %}

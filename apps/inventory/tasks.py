@@ -3,7 +3,7 @@ Inventory tasks for the ERP system.
 """
 from celery import shared_task
 from django.utils import timezone
-from django.db.models import F
+from django.db.models import F, Sum
 import logging
 
 logger = logging.getLogger(__name__)
@@ -181,10 +181,9 @@ def reconcile_inventory():
     """Reconcile inventory discrepancies."""
     try:
         from .models import InventoryStock, InventoryTransaction
-        from django.db.models import Sum
-        
+
         reconciled_count = 0
-        
+
         # Check each stock record
         for stock in InventoryStock.objects.all():
             # Calculate quantity from transactions

@@ -47,6 +47,20 @@ class Warehouse(BaseModel):
         return f"{self.code} - {self.name}"
 
     @classmethod
+    def get_main_warehouse(cls):
+        """
+        获取主仓库
+        用于采购订单的默认收货仓库
+
+        Returns:
+            Warehouse: 主仓库对象
+
+        Raises:
+            Warehouse.DoesNotExist: 如果主仓库不存在
+        """
+        return cls.objects.get(warehouse_type='main', is_active=True, is_deleted=False)
+
+    @classmethod
     def get_borrow_warehouse(cls):
         """
         获取借用仓

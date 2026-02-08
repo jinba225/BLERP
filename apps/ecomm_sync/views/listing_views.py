@@ -51,4 +51,4 @@ def listing_list(request):
         'accounts': PlatformAccount.objects.filter(is_active=True),
         'listing_status_choices': ProductListing.LISTING_STATUS_CHOICES,
     }
-    return render(request, 'ecomm_sync/listing_list.html', context)
+    return render(request, 'modules/ecomm_sync/listing_list.html', context)

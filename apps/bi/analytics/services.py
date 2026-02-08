@@ -6,7 +6,7 @@ from decimal import Decimal
 from typing import Dict, List, Optional
 import logging
 
-from django.db.models import Sum, Count, Avg, F, Q, Case, When, Value, IntegerField
+from django.db.models import Sum, Count, Avg, F, Q, Case, When, Value, IntegerField, Max
 from django.db.models.functions import Coalesce
 from django.db.models.expressions import Window
 from django.db.models.functions import Rank
@@ -670,8 +670,6 @@ class ReportTemplateService:
     
     def _apply_group_by(self, data: List, group_by: List[Dict]) -> List[Dict]:
         """应用分组"""
-        from django.db.models import Sum
-        
         if not group_by:
             return data
         

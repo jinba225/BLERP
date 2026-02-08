@@ -1,7 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
 {% load inventory_filters %}
+{% load erp_filters %}
 
-{% block title %}库存汇总报表
+{% block title %}库存汇总报表 - BetterLerp ERP{% endblock %}
+
+{% block extra_js %}
 <script>
 // 搜索框清除按钮功能
 function toggleClearButton() {

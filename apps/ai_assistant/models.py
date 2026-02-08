@@ -124,10 +124,42 @@ class CustomerAIConfig(BaseModel):
         return f"{self.customer.name} - AI 配置"
 
     def get_effective_model_config(self):
-        """获取有效的模型配置（客户配置 > 全局默认）"""
+        """获取有效的模型配置（客户配置 > 全局默认，带缓存）"""
+        from ai_assistant.services.cache_service import AIModelConfigCache
+
+        # 1. 优先使用客户级别的配置
         if self.model_config:
             return self.model_config
-        return AIModelConfig.objects.filter(is_default=True).first()
+
+        # 2. 尝试从缓存获取默认配置
+        cached_config = AIModelConfigCache.get_default_config()
+        if cached_config:
+            return cached_config
+
+        # 3. 从数据库查询并缓存
+        default_config = AIModelConfig.objects.filter(
+            is_default=True,
+            is_active=True,
+            is_deleted=False
+        ).first()
+
+        if default_config:
+            AIModelConfigCache.set_default_config(default_config)
+
+        return default_config
+
+    def save(self, *args, **kwargs):
+        """保存配置时自动更新缓存"""
+        super().save(*args, **kwargs)
+
+        # 使相关缓存失效
+        from ai_assistant.services.cache_service import AIModelConfigCache
+
+        if self.customer:
+            AIModelConfigCache.invalidate_customer_config(self.customer.id)
+
+        # 如果修改了默认配置，也使默认配置缓存失效
+        AIModelConfigCache.invalidate_default_config()
 
     def get_allowed_tools_list(self):
         """获取允许的工具列表（考虑阻止列表）"""
@@ -237,6 +269,10 @@ class AIModelConfig(BaseModel):
         if self.is_default:
             AIModelConfig.objects.filter(is_default=True).exclude(pk=self.pk).update(is_default=False)
         super().save(*args, **kwargs)
+
+        # 使缓存失效
+        from ai_assistant.services.cache_service import AIModelConfigCache
+        AIModelConfigCache.invalidate_default_config()
 
 
 class AIConversation(BaseModel):

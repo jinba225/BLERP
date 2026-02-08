@@ -1,0 +1,104 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}管理预付款 - {{ supplier.name }} - BetterLaser ERP {% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">往来款项</span>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'finance:supplier_prepayment_list' %}" class="text-gray-500 hover:text-gray-700">预付款</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">管理预付款</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 供应商信息 -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">{{ supplier.name }}</h3>
+                <p class="text-sm text-gray-600 mt-1">管理该供应商的所有预付款</p>
+            </div>
+            <a href="{% url 'finance:supplier_prepayment_create' %}?supplier_id={{ supplier.id }}"
+               class="btn btn-primary">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新建预付款
+            </a>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-3 bg-gray-50 rounded-lg">
+                <p class="text-xs text-gray-500">预付款笔数</p>
+                <p class="text-xl font-semibold text-gray-900">{{ prepay_count }} 笔</p>
+            </div>
+            <div class="p-3 bg-gray-50 rounded-lg">
+                <p class="text-xs text-gray-500">总金额</p>
+                <p class="text-xl font-semibold text-gray-900">¥{{ total_amount|floatformat:2 }}</p>
+            </div>
+            <div class="p-3 bg-theme-50 rounded-lg">
+                <p class="text-xs text-theme-700">可用余额</p>
+                <p class="text-xl font-semibold text-theme-600">¥{{ total_balance|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预付款列表 -->
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">付款日期</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">金额</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">余额</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">备注</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for prepay in prepays %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm text-gray-900">{{ prepay.paid_date }}</td>
+                    <td class="px-6 py-4 text-sm text-right text-gray-900">¥{{ prepay.amount|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-sm text-right font-semibold {% if prepay.balance > 0 %}text-theme-600{% else %}text-green-600{% endif %}">¥{{ prepay.balance|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="px-2 py-1 text-xs font-semibold rounded
+                            {% if prepay.status == 'active' %}bg-green-100 text-green-800
+                            {% elif prepay.status == 'merged' %}bg-yellow-100 text-yellow-800
+                            {% elif prepay.status == 'exhausted' %}bg-gray-100 text-gray-800
+                            {% endif %}">
+                            {{ prepay.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title="{{ prepay.notes|default:'' }}">{{ prepay.notes|default:"-" }}</td>
+                    <td class="px-6 py-4 text-sm text-center space-x-2">
+                        <a href="{% url 'finance:supplier_prepayment_edit' prepay.id %}"
+                           class="text-theme-600 hover:text-theme-800">编辑</a>
+                        <a href="{% url 'finance:supplier_prepayment_delete' prepay.id %}"
+                           class="text-red-600 hover:text-red-800"
+                           onclick="return confirm('确定要删除该预付款吗？');">删除</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-500">
+                        该供应商暂无预付款记录
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 返回按钮 -->
+    <div class="flex justify-start">
+        <a href="{% url 'finance:supplier_prepayment_list' %}"
+           class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+            返回列表
+        </a>
+    </div>
+</div>
+{% endblock %}

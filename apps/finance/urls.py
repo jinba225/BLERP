@@ -28,12 +28,14 @@ urlpatterns = [
     path('customer-accounts/', views.customer_account_list, name='customer_account_list'),
     path('customer-accounts/<int:pk>/', views.customer_account_detail, name='customer_account_detail'),
     path('customer-accounts/<int:pk>/writeoff/', views.customer_account_writeoff, name='customer_account_writeoff'),
+    path('customer-accounts/<int:pk>/available-prepays/', views.api_customer_account_available_prepays, name='api_customer_account_available_prepays'),
 
     # Supplier Accounts
     path('supplier-accounts/', views.supplier_account_list, name='supplier_account_list'),
     path('supplier-accounts/<int:pk>/', views.supplier_account_detail, name='supplier_account_detail'),
     path('supplier-accounts/generate-from-invoice/<int:invoice_id>/', views.generate_supplier_account_from_invoice, name='generate_supplier_account_from_invoice'),
     path('supplier-accounts/<int:pk>/writeoff/', views.supplier_account_writeoff, name='supplier_account_writeoff'),
+    path('supplier-accounts/<int:pk>/available-prepays/', views.api_supplier_account_available_prepays, name='api_supplier_account_available_prepays'),
     path('supplier-accounts/payment/', views.supplier_account_payment_list, name='supplier_account_payment_list'),
     path('supplier-accounts/payment/<int:pk>/allocate/', views.supplier_account_payment_allocate, name='supplier_account_payment_allocate'),
 
@@ -76,8 +78,15 @@ urlpatterns = [
     # 预收预付
     path('prepayments/customer/', views.customer_prepayment_list, name='customer_prepayment_list'),
     path('prepayments/customer/create/', views.customer_prepayment_create, name='customer_prepayment_create'),
+    path('prepayments/customer/<int:pk>/edit/', views.customer_prepayment_edit, name='customer_prepayment_edit'),
+    path('prepayments/customer/<int:pk>/delete/', views.customer_prepayment_delete, name='customer_prepayment_delete'),
+    path('prepayments/customer/consolidate/<int:customer_id>/', views.customer_prepayment_consolidate, name='customer_prepayment_consolidate'),
     path('prepayments/supplier/', views.supplier_prepayment_list, name='supplier_prepayment_list'),
     path('prepayments/supplier/create/', views.supplier_prepayment_create, name='supplier_prepayment_create'),
+    path('prepayments/supplier/manage/<int:supplier_id>/', views.supplier_prepayment_manage, name='supplier_prepayment_manage'),
+    path('prepayments/supplier/<int:pk>/edit/', views.supplier_prepayment_edit, name='supplier_prepayment_edit'),
+    path('prepayments/supplier/<int:pk>/delete/', views.supplier_prepayment_delete, name='supplier_prepayment_delete'),
+    path('prepayments/supplier/consolidate/<int:supplier_id>/', views.supplier_prepayment_consolidate, name='supplier_prepayment_consolidate'),
 
     # 往来款项报表
     path('reports/accounts/', views.account_report, name='account_report'),

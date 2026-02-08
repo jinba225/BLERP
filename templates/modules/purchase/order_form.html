@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
 {% block title %}{% if action == 'create' %}新建{% else %}编辑{% endif %}采购订单{% endblock %}
 
 {% block content %}
@@ -41,7 +41,7 @@
 <select name="buyer" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
 <option value="">请选择</option>
 {% for buyer in buyers %}
-<option value="{{ buyer.id }}" {% if order and order.buyer and order.buyer.id == buyer.id %}selected{% endif %}>{{ buyer.get_full_name|default:buyer.username }}</option>
+<option value="{{ buyer.id }}" {% if order and order.buyer and order.buyer.id == buyer.id %}selected{% elif action == 'create' and default_buyer and default_buyer.id == buyer.id %}selected{% endif %}>{{ buyer.get_full_name|default:buyer.username }}</option>
 {% endfor %}
 </select>
 </div>
@@ -50,7 +50,7 @@
 <select name="warehouse" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
 <option value="">请选择</option>
 {% for warehouse in warehouses %}
-<option value="{{ warehouse.id }}" {% if order and order.warehouse and order.warehouse.id == warehouse.id %}selected{% endif %}>{{ warehouse.name }}</option>
+<option value="{{ warehouse.id }}" {% if order and order.warehouse and order.warehouse.id == warehouse.id %}selected{% elif action == 'create' and default_warehouse and default_warehouse.id == warehouse.id %}selected{% endif %}>{{ warehouse.name }}</option>
 {% endfor %}
 </select>
 </div>

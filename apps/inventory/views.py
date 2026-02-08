@@ -6,7 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from django.core.paginator import Paginator
-from django.db.models import Q, Sum, F
+from django.db.models import Q, Sum, F, Count
+from django.db.models.functions import TruncDate
 from django.utils import timezone
 from decimal import Decimal
 
@@ -2261,7 +2262,6 @@ def stock_summary_report(request):
     # Filter by low stock (quantity < safety_stock)
     show_low_stock = request.GET.get('low_stock', '').strip()
     if show_low_stock == '1':
-        from django.db.models import F
         stocks = stocks.filter(quantity__lt=F('product__safety_stock'))
 
     # Calculate statistics
@@ -2370,8 +2370,7 @@ def stock_transaction_report(request):
 @login_required
 def stock_alert_report(request):
     """Stock alert report - products with low inventory."""
-    from django.db.models import F
-    
+
     # Get all products with stock below safety level
     low_stocks = InventoryStock.objects.filter(
         is_deleted=False,
@@ -2429,9 +2428,8 @@ def stock_alert_report(request):
 @login_required
 def inbound_outbound_statistics(request):
     """Inbound/Outbound statistics report."""
-    from django.db.models.functions import TruncDate
     from datetime import datetime, timedelta
-    
+
     # Default date range: last 30 days
     today = datetime.now().date()
     default_date_from = today - timedelta(days=30)
@@ -2554,7 +2552,6 @@ def inventory_order_report(request):
     Unified inventory order report - all document types in one view.
     Filters by document type, warehouse, status, and date range.
     """
-    from django.db.models import Count, Sum
     from datetime import datetime, timedelta
 
     # Get filter parameters

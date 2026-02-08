@@ -4,6 +4,7 @@ Core app URLs.
 from django.urls import path
 from . import views_database as db_views
 from . import views_template as tpl_views
+from . import views
 
 app_name = 'core'
 
@@ -25,4 +26,5 @@ urlpatterns = [
     path('database/backup/', db_views.backup_database, name='database_backup'),
     path('database/restore/', db_views.restore_database, name='database_restore_database'),
     path('database/download/<str:filename>/', db_views.download_backup, name='database_download_backup'),
+    path('page-refresh-demo/', views.page_refresh_demo_view, name='page_refresh_demo'),
 ]

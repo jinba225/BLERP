@@ -197,6 +197,16 @@ def order_create(request):
     buyers = User.objects.filter(is_active=True)
     products = Product.objects.filter(is_deleted=False, status='active').select_related('unit')
 
+    # 获取默认采购员（当前登录用户）
+    default_buyer = request.user if request.user.is_active else None
+
+    # 获取默认收货仓库（主仓库）
+    default_warehouse = None
+    try:
+        default_warehouse = Warehouse.get_main_warehouse()
+    except Warehouse.DoesNotExist:
+        pass
+
     context = {
         'suppliers': suppliers,
         'warehouses': warehouses,
@@ -204,6 +214,8 @@ def order_create(request):
         'products': products,
         'PAYMENT_METHOD_CHOICES': PAYMENT_METHOD_CHOICES,
         'action': 'create',
+        'default_buyer': default_buyer,
+        'default_warehouse': default_warehouse,
     }
     return render(request, 'modules/purchase/order_form.html', context)
 

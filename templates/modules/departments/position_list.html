@@ -1,6 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
+{% block title %}Page{% endblock %}
 
-{% block title %}职位管理 - BetterLaser ERP
+{% block extra_js %}
 
 
 <script>
@@ -70,6 +71,74 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+
+
+
+// 搜索框清除按钮功能
+function toggleClearButton() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+
+    if (searchInput && clearBtn) {
+        if (searchInput.value.trim() !== '') {
+            clearBtn.style.display = 'flex';
+            updateClearButtonPosition();
+        } else {
+            clearBtn.style.display = 'none';
+        }
+    }
+}
+
+function updateClearButtonPosition() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+
+    if (!searchInput || !clearBtn) return;
+
+    // 创建临时canvas来测量文本宽度
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const inputStyles = window.getComputedStyle(searchInput);
+    context.font = inputStyles.font;
+
+    // 计算文本宽度（考虑左右padding）
+    const textWidth = context.measureText(searchInput.value).width;
+    const paddingLeft = parseFloat(inputStyles.paddingLeft);
+    const offset = textWidth + paddingLeft + 20; // 20px为额外间距
+
+    // 设置按钮位置，确保不超出输入框右边界
+    const inputWidth = searchInput.offsetWidth;
+    const buttonWidth = 24; // 按钮宽度
+    const maxOffset = inputWidth - buttonWidth - 8; // 8px为右边距
+
+    const finalOffset = Math.min(offset, maxOffset);
+    clearBtn.style.left = finalOffset + 'px';
+    clearBtn.style.right = 'auto';
+}
+
+function clearSearchInput() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+    if (searchInput && clearBtn) {
+        searchInput.value = '';
+        clearBtn.style.display = 'none';
+        searchInput.focus();
+    }
+}
+
+// 页面加载时初始化清除按钮状态
+document.addEventListener('DOMContentLoaded', function() {
+    toggleClearButton();
+
+    // 监听窗口大小变化，重新计算按钮位置
+    window.addEventListener('resize', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput && searchInput.value.trim() !== '') {
+            updateClearButtonPosition();
+        }
+    });
+});
+
 {% endblock %}
 {% block page_title %}职位管理{% endblock %}
 
@@ -81,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
     <!-- 顶部操作栏 -->
     <div class="flex justify-end">
         <a class="btn btn-primary" href="/admin/departments/position/add/">

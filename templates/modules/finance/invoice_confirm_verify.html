@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
 
 {% block title %}
 {% if invoice.invoice_type == 'purchase' %}认证发票{% else %}确认开具{% endif %} - {{ invoice.invoice_number }} - BetterLaser ERP

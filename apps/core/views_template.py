@@ -44,7 +44,7 @@ def template_list(request):
         'category_choices': category_choices,
         'current_category': category_filter,
     }
-    return render(request, 'sales/template_list.html', context)
+    return render(request, 'modules/sales/template_list.html', context)
 
 
 @login_required
@@ -88,7 +88,7 @@ def template_create(request):
         'action': 'create',
         'template_categories': PrintTemplate.CATEGORY_CHOICES,
     }
-    return render(request, 'sales/template_form.html', context)
+    return render(request, 'modules/sales/template_form.html', context)
 
 
 @login_required
@@ -135,7 +135,7 @@ def template_edit(request, pk):
         'template_categories': PrintTemplate.CATEGORY_CHOICES,
         'layout_config_json': json.dumps(template.layout_config, ensure_ascii=False),
     }
-    return render(request, 'sales/template_editor_hiprint_standalone.html', context)
+    return render(request, 'modules/sales/template_editor_hiprint_standalone.html', context)
 
 
 @login_required
@@ -286,7 +286,7 @@ def template_import(request):
         return redirect('core:print_template_list')
 
     # GET request - show import form
-    return render(request, 'sales/template_import.html')
+    return render(request, 'modules/sales/template_import.html')
 
 
 @login_required
@@ -298,7 +298,7 @@ def template_preview(request, pk):
         'template': template,
         'layout_config_json': json.dumps(template.layout_config, ensure_ascii=False),
     }
-    return render(request, 'sales/template_preview.html', context)
+    return render(request, 'modules/sales/template_preview.html', context)
 
 
 @login_required

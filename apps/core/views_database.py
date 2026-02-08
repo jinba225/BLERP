@@ -39,7 +39,7 @@ def database_management(request):
         'page_title': '数据库管理',
     }
 
-    return render(request, 'core/database_management.html', context)
+    return render(request, 'modules/core/database_management.html', context)
 
 
 @login_required

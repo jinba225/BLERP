@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
-{% block title %}采购借用单列表 - BetterLaser ERP
+{% extends 'layouts/base.html' %}
+{% block title %}采购借用单列表 - BetterLaser ERP{% endblock %}
 
-
+{% block extra_js %}
 <script>
 // 搜索框清除按钮功能
 function toggleClearButton() {
@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
 {% endblock %}
 
 {% block breadcrumb %}
@@ -79,19 +78,31 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
     <!-- Header -->
     <div class="flex justify-between items-center">
         <div>
             <h3 class="text-lg font-semibold text-gray-900">采购借用单列表</h3>
             <p class="text-sm text-gray-600">共 {{ page_obj.paginator.count }} 条记录</p>
         </div>
-        <a class="btn btn-primary" href="{% url 'purchase:borrow_create' %}">
-            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-</svg>新建借用单
-        </a>
-    </div> <!-- Statistics Cards -->
+        <div class="flex items-center space-x-3">
+            <button type="button" @click="manualRefresh"
+                :disabled="isRefreshing"
+                class="text-sm text-gray-600 hover:text-theme-600 flex items-center transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="刷新页面">
+                <svg class="w-4 h-4 mr-2" :class="{ 'animate-spin': isRefreshing }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span x-text="isRefreshing ? '刷新中...' : '刷新'"></span>
+            </button>
+            <a class="btn btn-primary" href="{% url 'purchase:borrow_create' %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新建借用单
+            </a>
+        </div>
+    </div> <!-- Header -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center justify-between">
@@ -142,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         </div>
-    </div> <!-- Search and Filter -->
+    </div> <!-- Statistics Cards -->
     <div class="bg-white rounded-lg shadow p-6">
         <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
@@ -186,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </a>
             </div>
         </form>
-    </div> <!-- Table -->
+    </div> <!-- Search and Filter -->
     <div class="bg-white rounded-lg shadow overflow-x-auto">
         {% if page_obj %}
         <div class="overflow-x-auto">

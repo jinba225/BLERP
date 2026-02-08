@@ -2,8 +2,14 @@
 Core middleware for the ERP system.
 """
 import pytz
+import logging
+import traceback
 from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
+from django.http import JsonResponse
+
+
+logger = logging.getLogger(__name__)
 
 
 class TimezoneMiddleware(MiddlewareMixin):
@@ -21,3 +27,43 @@ class TimezoneMiddleware(MiddlewareMixin):
                 timezone.deactivate()
         else:
             timezone.deactivate()
+
+
+class AIAssistantErrorHandlingMiddleware(MiddlewareMixin):
+    """
+    AI 助手错误处理中间件
+
+    专门处理AI助手相关请求的错误，提供友好的错误响应
+    """
+
+    def process_exception(self, request, exception):
+        """
+        处理AI助手相关的异常
+
+        Args:
+            request: HTTP请求对象
+            exception: 异常对象
+
+        Returns:
+            JsonResponse或None
+        """
+        # 只处理 AI 助手相关的请求
+        if not (request.path.startswith('/ai_assistant/') or
+                request.path.startswith('/webhook/')):
+            return None
+
+        # 记录详细错误信息
+        logger.error(
+            f"AI Assistant Error: {str(exception)}\n"
+            f"Path: {request.path}\n"
+            f"Method: {request.method}\n"
+            f"User: {request.user if request.user.is_authenticated else 'Anonymous'}\n"
+            f"Traceback:\n{traceback.format_exc()}"
+        )
+
+        # 返回友好的错误响应
+        return JsonResponse({
+            'success': False,
+            'error': str(exception),
+            'error_type': type(exception).__name__,
+        }, status=500)

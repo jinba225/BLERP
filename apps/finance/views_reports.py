@@ -61,7 +61,7 @@ def financial_report_list(request):
         'total_count': paginator.count,
         'report_type_choices': FinancialReport.REPORT_TYPES,
     }
-    return render(request, 'finance/report_list.html', context)
+    return render(request, 'modules/finance/report_list.html', context)
 
 
 @login_required
@@ -75,7 +75,7 @@ def financial_report_detail(request, pk):
     )
 
     # 根据报表类型选择不同的模板
-    template_name = f'finance/report_{report.report_type}.html'
+    template_name = f'modules/finance/report_{report.report_type}.html'
 
     context = {
         'report': report,
@@ -91,7 +91,7 @@ def financial_report_generator(request):
     context = {
         'report_type_choices': FinancialReport.REPORT_TYPES,
     }
-    return render(request, 'finance/report_generator.html', context)
+    return render(request, 'modules/finance/report_generator.html', context)
 
 
 @login_required
@@ -143,7 +143,7 @@ def generate_balance_sheet(request):
         'report_type_name': '资产负债表',
         'default_date': date.today(),
     }
-    return render(request, 'finance/report_form_balance_sheet.html', context)
+    return render(request, 'modules/finance/report_form_balance_sheet.html', context)
 
 
 @login_required
@@ -210,7 +210,7 @@ def generate_income_statement(request):
         'default_start_date': first_day_of_month,
         'default_end_date': today,
     }
-    return render(request, 'finance/report_form_income_statement.html', context)
+    return render(request, 'modules/finance/report_form_income_statement.html', context)
 
 
 @login_required
@@ -279,7 +279,7 @@ def generate_cash_flow(request):
         'default_start_date': first_day_of_month,
         'default_end_date': today,
     }
-    return render(request, 'finance/report_form_cash_flow.html', context)
+    return render(request, 'modules/finance/report_form_cash_flow.html', context)
 
 
 @login_required
@@ -348,4 +348,4 @@ def generate_trial_balance(request):
         'default_start_date': first_day_of_month,
         'default_end_date': today,
     }
-    return render(request, 'finance/report_form_trial_balance.html', context)
+    return render(request, 'modules/finance/report_form_trial_balance.html', context)

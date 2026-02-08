@@ -6,7 +6,7 @@
 import logging
 from typing import List, Dict, Any
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Count, Sum, Avg
 from logistics.models import ShippingOrder, TrackingInfo, LogisticsCompany
 from logistics.adapters.factory import LogisticsAdapterFactory
 from ecomm_sync.adapters import get_adapter as get_platform_adapter
@@ -260,9 +260,8 @@ class LogisticsSyncService:
         Returns:
             Dict: 统计数据
         """
-        from django.db.models import Count, Sum, Avg
         from decimal import Decimal
-        
+
         # 统计总订单数
         total_orders = ShippingOrder.objects.filter(
             created_at__range=[start_date, end_date]

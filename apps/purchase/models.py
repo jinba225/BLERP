@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from core.models import BaseModel, PAYMENT_METHOD_CHOICES
 from django.utils import timezone
+from django.db.models import Sum
 
 User = get_user_model()
 
@@ -217,14 +218,63 @@ class PurchaseOrder(BaseModel):
             item.line_total for item in self.items.filter(is_deleted=False)
         ) or Decimal('0')
 
+        # 确保所有数值字段都是Decimal类型
+        self.tax_rate = Decimal(str(self.tax_rate))
+        self.discount_rate = Decimal(str(self.discount_rate))
+        self.shipping_cost = Decimal(str(self.shipping_cost))
+        self.discount_amount = Decimal(str(self.discount_amount))
+
         # Calculate tax amount
         if self.tax_rate > 0:
-            self.tax_amount = self.subtotal * (self.tax_rate / 100)
+            self.tax_amount = self.subtotal * (self.tax_rate / Decimal('100'))
         else:
             self.tax_amount = Decimal('0')
 
+        # Calculate discount amount
+        if self.discount_rate > 0:
+            self.discount_amount = self.subtotal * (self.discount_rate / Decimal('100'))
+        else:
+            self.discount_amount = Decimal('0')
+
         # Calculate total amount (subtotal + tax + shipping - discount)
         self.total_amount = self.subtotal + self.tax_amount + self.shipping_cost - self.discount_amount
+
+    def recalculate_received_quantities(self):
+        """
+        重新计算所有订单明细的已收货数量
+
+        从所有已确认的收货单中汇总已收货数量，更新到订单明细
+        这可以修复因任何原因导致的已收货数量不准确的问题
+
+        Returns:
+            dict: 更新结果统计
+        """
+        from decimal import Decimal
+
+        updated_count = 0
+        for item in self.items.filter(is_deleted=False):
+            # 计算该订单明细的实际已收货数量
+            # 从所有已收货状态的收货单明细中汇总
+            actual_received = PurchaseReceiptItem.objects.filter(
+                order_item=item,
+                is_deleted=False,
+                receipt__status='received'  # 只计算已确认收货的
+            ).aggregate(
+                total=Sum('received_quantity')
+            )['total'] or Decimal('0')
+
+            # 如果数量不一致，更新
+            if item.received_quantity != int(actual_received):
+                old_quantity = item.received_quantity
+                item.received_quantity = int(actual_received)
+                item.save(update_fields=['received_quantity', 'updated_at'])
+                updated_count += 1
+
+        return {
+            'order': self.order_number,
+            'total_items': self.items.filter(is_deleted=False).count(),
+            'updated_items': updated_count
+        }
 
 
 class PurchaseOrderItem(BaseModel):
@@ -920,10 +970,10 @@ class Borrow(BaseModel):
     )
 
     # 状态管理（简化版）
-    status = models.CharField('状态', max_length=20, choices=BORROW_STATUS, default='draft')
+    status = models.CharField('状态', max_length=20, choices=BORROW_STATUS, default='draft', db_index=True)
 
     # 日期管理（不需要逾期相关）
-    borrow_date = models.DateField('借用日期')
+    borrow_date = models.DateField('借用日期', db_index=True)
     expected_return_date = models.DateField('预计归还日期', null=True, blank=True)
 
     # 转采购关联

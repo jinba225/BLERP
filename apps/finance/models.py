@@ -708,12 +708,31 @@ class Payment(BaseModel):
 
 
 class CustomerPrepayment(BaseModel):
+    """客户预收款模型"""
+    PREPAYMENT_STATUS = [
+        ('active', '活跃'),
+        ('merged', '已合并'),
+        ('exhausted', '已用完'),
+    ]
+
     customer = models.ForeignKey('customers.Customer', on_delete=models.CASCADE, related_name='prepayments', verbose_name='客户')
     amount = models.DecimalField('预收金额', max_digits=12, decimal_places=2)
     balance = models.DecimalField('剩余余额', max_digits=12, decimal_places=2)
     currency = models.CharField('币种', max_length=10, default='CNY')
     received_date = models.DateField('收到日期')
     notes = models.TextField('备注', blank=True)
+
+    # 预付款合并相关字段
+    status = models.CharField('状态', max_length=20, choices=PREPAYMENT_STATUS, default='active')
+    is_consolidated = models.BooleanField('是否合并记录', default=False)
+    merged_into = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='merged_from',
+        verbose_name='合并到'
+    )
 
     class Meta:
         verbose_name = '客户预收款'
@@ -725,12 +744,31 @@ class CustomerPrepayment(BaseModel):
 
 
 class SupplierPrepayment(BaseModel):
+    """供应商预付款模型"""
+    PREPAYMENT_STATUS = [
+        ('active', '活跃'),
+        ('merged', '已合并'),
+        ('exhausted', '已用完'),
+    ]
+
     supplier = models.ForeignKey('suppliers.Supplier', on_delete=models.CASCADE, related_name='prepayments', verbose_name='供应商')
     amount = models.DecimalField('预付金额', max_digits=12, decimal_places=2)
     balance = models.DecimalField('剩余余额', max_digits=12, decimal_places=2)
     currency = models.CharField('币种', max_length=10, default='CNY')
     paid_date = models.DateField('付款日期')
     notes = models.TextField('备注', blank=True)
+
+    # 预付款合并相关字段
+    status = models.CharField('状态', max_length=20, choices=PREPAYMENT_STATUS, default='active')
+    is_consolidated = models.BooleanField('是否合并记录', default=False)
+    merged_into = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='merged_from',
+        verbose_name='合并到'
+    )
 
     class Meta:
         verbose_name = '供应商预付款'

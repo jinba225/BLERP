@@ -1,6 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'layouts/base.html' %}
+{% block title %}销售订单列表 - BetterLaser ERP - BetterLerp ERP{% endblock %}
 
-{% block title %}销售订单列表 - BetterLaser ERP
+{% block extra_js %}
+
+
+
 
 
 <script>
@@ -70,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-{% endblock %}
 
 {% block breadcrumb %}
 <span class="mx-2 text-gray-400">/</span>
@@ -80,18 +83,29 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endblock %}
 
 {% block content %}
-<div class="space-y-6">
+<div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
     <!-- Header -->
     <div class="flex justify-between items-center">
         <div>
             <h3 class="text-lg font-semibold text-gray-900">销售订单列表</h3>
             <p class="text-sm text-gray-600">共 {{ total_count }} 条记录</p>
         </div>
-        <a class="btn btn-primary" href="{% url 'sales:order_create' %}">
-            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-</svg>新建订单
-        </a>
+        <div class="flex items-center space-x-3">
+            <button type="button" @click="manualRefresh"
+                :disabled="isRefreshing"
+                class="text-sm text-gray-600 hover:text-theme-600 flex items-center transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="刷新页面">
+                <svg class="w-4 h-4 mr-2" :class="{ 'animate-spin': isRefreshing }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span x-text="isRefreshing ? '刷新中...' : '刷新'"></span>
+            </button>
+            <a class="btn btn-primary" href="{% url 'sales:order_create' %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>新建订单
+            </a>
+        </div>
     </div> <!-- Search and Filter -->
     <div class="bg-white rounded-lg shadow p-6">
         <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
@@ -346,153 +360,9 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<style>
-/* Column resize styles */
-#ordersTable {
-    table-layout: auto;
-    border-collapse: collapse;
-}
 
-#ordersTable th {
-    position: relative;
-    user-select: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
 
-#ordersTable td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Removed manual drag styles */
-</style>
-
-<script>
-(function() {
-function initOrderColumnResize() {
-    const table = document.getElementById('ordersTable');
-    if (!table) return; const ths = table.querySelectorAll('th[data-column]'); function getColIndex(th) {
-        return parseInt(th.getAttribute('data-column'), 10);
-    } function setColumnWidth(colIndex, widthPx) {
-        const width = Math.max(50, Math.floor(widthPx));
-        const col = table.querySelector(`colgroup col[data-column="${colIndex}"]`);
-        if (col) col.style.width = width + 'px';
-        const header = table.querySelector(`th[data-column="${colIndex}"]`);
-        if (header) header.style.width = width + 'px';
-    } function getAutoFitWidth(colIndex) {
-        const header = table.querySelector(`th[data-column="${colIndex}"]`);
-        const cells = table.querySelectorAll(`tbody tr td:nth-child(${colIndex + 1})`); // Canvas-based text measurement for reliable width in fixed layouts
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d'); function getFont(el) {
-            const cs = window.getComputedStyle(el);
-            const weight = cs.fontWeight || 'normal';
-            const size = cs.fontSize || '14px';
-            const family = cs.fontFamily || 'sans-serif';
-            return `${weight} ${size} ${family}`;
-        } function measureTextWidth(el) {
-            const text = (el.innerText || '').trim();
-            ctx.font = getFont(el);
-            const metrics = ctx.measureText(text);
-            const contentWidth = Math.ceil(metrics.width);
-            const cs = window.getComputedStyle(el);
-            const padding = parseInt(cs.paddingLeft || '0', 10) + parseInt(cs.paddingRight || '0', 10);
-            return contentWidth + padding;
-        } let maxWidth = 0;
-        if (header) {
-            maxWidth = Math.max(maxWidth, measureTextWidth(header));
-        }
-        cells.forEach(td => {
-            maxWidth = Math.max(maxWidth, measureTextWidth(td));
-        }); // Minimal reasonable width for icon-heavy columns
-        const minWidth = 80;
-        return Math.max(minWidth, Math.ceil(maxWidth) + 8);
-    } function autoFitColumn(colIndex) {
-        const width = getAutoFitWidth(colIndex);
-        setColumnWidth(colIndex, width);
-        saveColumnWidths();
-    } function autoFitAllColumns() {
-        ths.forEach(th => {
-            const colIndex = getColIndex(th);
-            const autoWidth = getAutoFitWidth(colIndex);
-            setColumnWidth(colIndex, autoWidth);
-        });
-        saveColumnWidths();
-    } // Removed manual drag creation and handlers // Double-click on header cell to auto-fit width based on content
-    ths.forEach(th => {
-        th.addEventListener('dblclick', function(e) {
-            e.preventDefault();
-            const colIndex = getColIndex(th);
-            autoFitColumn(colIndex);
-        });
-    }); // Event delegation as a fallback to ensure dblclick is captured
-    const thead = table.querySelector('thead');
-    if (thead) {
-        thead.addEventListener('dblclick', function(e) {
-            const th = e.target.closest('th[data-column]');
-            if (!th) return;
-            const colIndex = getColIndex(th);
-            autoFitColumn(colIndex);
-        }, true);
-    } // Save column widths
-    function saveColumnWidths() {
-        const widths = {};
-        ths.forEach(th => {
-            const col = th.getAttribute('data-column');
-            const colEl = table.querySelector(`colgroup col[data-column="${col}"]`);
-            let w = (colEl && colEl.style.width) || th.style.width || window.getComputedStyle(th).width;
-            widths[col] = w;
-        });
-        localStorage.setItem('sales_order_column_widths', JSON.stringify(widths));
-    } // Load column widths
-    function loadColumnWidths() {
-        try {
-            const saved = localStorage.getItem('sales_order_column_widths');
-            if (saved) {
-                const widths = JSON.parse(saved);
-                ths.forEach(th => {
-                    const col = th.getAttribute('data-column');
-                    if (widths[col]) {
-                        const px = parseInt(widths[col], 10);
-                        setColumnWidth(parseInt(col, 10), px);
-                    }
-                });
-            }
-        } catch (e) {
-            console.warn('Failed to load column widths:', e);
-        }
-    } // Initialize default widths from current th computed widths (once)
-    (function initDefaultWidths() {
-        const saved = localStorage.getItem('sales_order_column_widths');
-        if (saved) return; // already saved
-        const defaults = {};
-        ths.forEach(th => {
-            const col = th.getAttribute('data-column');
-            const w = parseInt(window.getComputedStyle(th).width, 10);
-            defaults[col] = w + 'px';
-            setColumnWidth(parseInt(col, 10), w);
-        });
-        localStorage.setItem('sales_order_column_widths', JSON.stringify(defaults));
-    })(); // Load saved widths, then auto-fit all columns to current content
-    loadColumnWidths();
-    autoFitAllColumns(); // Re-auto-fit when page is shown (back/forward cache or refresh)
-    window.addEventListener('pageshow', function() {
-        autoFitAllColumns();
-    }); // After fonts are ready, re-measure for accuracy
-    try {
-        if (document.fonts && document.fonts.ready) {
-            document.fonts.ready.then(() => autoFitAllColumns());
-        }
-    } catch (e) {} // No manual drag resize; window resize can optionally re-fit columns if needed
-}
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initOrderColumnResize);
-} else {
-    initOrderColumnResize();
-}
-})();
-</script>
 {% endblock %}
+
+
+

@@ -4,6 +4,7 @@ Supplier models for the ERP system.
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
+from django.db.models import Sum
 from core.models import BaseModel, PAYMENT_METHOD_CHOICES
 
 User = get_user_model()
@@ -120,7 +121,6 @@ class Supplier(BaseModel):
     @property
     def total_purchase_amount(self):
         """Get total purchase amount."""
-        from django.db.models import Sum
         return self.purchase_orders.aggregate(
             total=Sum('total_amount')
         )['total'] or 0

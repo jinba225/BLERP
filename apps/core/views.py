@@ -167,3 +167,21 @@ def dashboard_view(request):
         'user': request.user,
     }
     return render(request, 'index.html', context)
+
+
+@login_required
+def page_refresh_demo_view(request):
+    """
+    页面自动刷新功能演示视图
+    """
+    # 自定义页面刷新配置（演示用）
+    request.page_refresh_config = {
+        'interval': 15,  # 演示页面使用较短间隔
+        'show_notifications': True,  # 启用Toast通知
+    }
+
+    context = {
+        'title': '页面刷新功能演示',
+        'user': request.user,
+    }
+    return render(request, 'modules/core/page_refresh_demo.html', context)
