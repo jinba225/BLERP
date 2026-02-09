@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class BaseAdapter(ABC):
     """平台适配器基类"""
 
-    def __init__(self, account: 'PlatformAccount'):
+    def __init__(self, account: "PlatformAccount"):
         """
         初始化适配器
 
@@ -19,7 +19,7 @@ class BaseAdapter(ABC):
         """
         self.account = account
         self.auth_config = account.auth_config
-        self.base_url = ''
+        self.base_url = ""
         self.timeout = 30
         self.max_retries = 3
         self.retry_delay = 2
@@ -178,7 +178,7 @@ class BaseAdapter(ABC):
         data: Dict = None,
         params: Dict = None,
         headers: Dict = None,
-        retry_count: int = 0
+        retry_count: int = 0,
     ) -> Dict:
         """发送HTTP请求（带重试）
 
@@ -205,7 +205,7 @@ class BaseAdapter(ABC):
                 json=data,
                 params=params,
                 headers=headers,
-                timeout=self.timeout
+                timeout=self.timeout,
             )
             response.raise_for_status()
             return response.json()
@@ -224,7 +224,9 @@ class BaseAdapter(ABC):
                 logger.warning(f"API限流: {endpoint}")
                 if retry_count < self.max_retries - 1:
                     time.sleep(5 ** (retry_count + 1))
-                    return self._make_request(method, endpoint, data, params, headers, retry_count + 1)
+                    return self._make_request(
+                        method, endpoint, data, params, headers, retry_count + 1
+                    )
                 raise Exception(f"API限流: {url}")
 
             error_data = {}
@@ -233,7 +235,7 @@ class BaseAdapter(ABC):
             except:
                 pass
 
-            error_msg = error_data.get('message', str(e))
+            error_msg = error_data.get("message", str(e))
             logger.error(f"HTTP错误 {status_code}: {endpoint}, 错误: {error_msg}")
 
             raise Exception(f"HTTP错误 {status_code}: {url}")
@@ -254,7 +256,7 @@ class BaseAdapter(ABC):
         if not price_str:
             return 0.0
 
-        price_str = str(price_str).replace('¥', '').replace(',', '').replace('元', '').strip()
+        price_str = str(price_str).replace("¥", "").replace(",", "").replace("元", "").strip()
 
         try:
             return float(price_str)
@@ -275,13 +277,13 @@ class BaseAdapter(ABC):
 
         stock_str = str(stock_str).strip().lower()
 
-        if '有货' in stock_str or '库存' in stock_str:
+        if "有货" in stock_str or "库存" in stock_str:
             return 999
-        elif '无货' in stock_str or '缺货' in stock_str:
+        elif "无货" in stock_str or "缺货" in stock_str:
             return 0
-        elif '件' in stock_str:
+        elif "件" in stock_str:
             try:
-                return int(''.join(filter(str.isdigit, stock_str)))
+                return int("".join(filter(str.isdigit, stock_str)))
             except ValueError:
                 return 0
         else:
@@ -297,13 +299,13 @@ class BaseAdapter(ABC):
             ERP状态
         """
         if not status_str:
-            return 'inactive'
+            return "inactive"
 
         status_str = str(status_str).strip().lower()
 
         status_map = {
-            'onsale': ['在售', '销售中', '有货', 'active', 'published'],
-            'offshelf': ['下架', '已下架', 'offshelf', 'inactive', 'discontinued', 'draft'],
+            "onsale": ["在售", "销售中", "有货", "active", "published"],
+            "offshelf": ["下架", "已下架", "offshelf", "inactive", "discontinued", "draft"],
         }
 
         for erp_status, keywords in status_map.items():
@@ -311,7 +313,7 @@ class BaseAdapter(ABC):
                 if keyword in status_str:
                     return erp_status
 
-        return 'inactive'
+        return "inactive"
 
     def _normalize_images(self, images: List[str]) -> List[str]:
         """标准化图片URL
@@ -335,14 +337,14 @@ class BaseAdapter(ABC):
                 continue
             seen.add(img_url)
 
-            if not img_url.startswith('http'):
+            if not img_url.startswith("http"):
                 continue
 
             normalized.append(img_url)
 
         return normalized[:6]
 
-    def is_rate_limited(self, response_status: int = None, error_msg: str = '') -> bool:
+    def is_rate_limited(self, response_status: int = None, error_msg: str = "") -> bool:
         """判断是否被限流
 
         Args:
@@ -356,9 +358,13 @@ class BaseAdapter(ABC):
             return True
 
         rate_limit_keywords = [
-            'rate limit', '频率限制', '访问频率',
-            'too many requests', '请求过多',
-            '限流', '访问过快'
+            "rate limit",
+            "频率限制",
+            "访问频率",
+            "too many requests",
+            "请求过多",
+            "限流",
+            "访问过快",
         ]
 
         if error_msg:
@@ -367,7 +373,7 @@ class BaseAdapter(ABC):
         return False
 
 
-def get_adapter(account: 'PlatformAccount') -> BaseAdapter:
+def get_adapter(account: "PlatformAccount") -> BaseAdapter:
     """
     工厂方法：获取对应平台的适配器实例
 
@@ -384,44 +390,57 @@ def get_adapter(account: 'PlatformAccount') -> BaseAdapter:
 
     platform_type = account.account_type
 
-    if platform_type == 'amazon':
+    if platform_type == "amazon":
         from .amazon.mws_api import AmazonAdapter
+
         return AmazonAdapter(account)
-    elif platform_type == 'ebay':
+    elif platform_type == "ebay":
         from .ebay.trading_api import EbayAdapter
+
         return EbayAdapter(account)
-    elif platform_type == 'aliexpress':
+    elif platform_type == "aliexpress":
         from .aliexpress.api import AliexpressAdapter
+
         return AliexpressAdapter(account)
-    elif platform_type == 'lazada':
+    elif platform_type == "lazada":
         from .lazada.api import LazadaAdapter
+
         return LazadaAdapter(account)
-    elif platform_type == 'shopify':
+    elif platform_type == "shopify":
         from .shopify.api import ShopifyAdapter
+
         return ShopifyAdapter(account)
-    elif platform_type == 'woo':
+    elif platform_type == "woo":
         from .woo.api import WooCommerceAdapter
+
         return WooCommerceAdapter(account)
-    elif platform_type == 'jumia':
+    elif platform_type == "jumia":
         from .jumia.adapter import JumiaAdapter
+
         return JumiaAdapter(account)
-    elif platform_type == 'cdiscount':
+    elif platform_type == "cdiscount":
         from .cdiscount.adapter import CdiscountAdapter
+
         return CdiscountAdapter(account)
-    elif platform_type == 'shopee':
+    elif platform_type == "shopee":
         from .shopee.adapter import ShopeeAdapter
+
         return ShopeeAdapter(account)
-    elif platform_type == 'tiktok':
+    elif platform_type == "tiktok":
         from .tiktok.adapter import TikTokAdapter
+
         return TikTokAdapter(account)
-    elif platform_type == 'temu':
+    elif platform_type == "temu":
         from .temu.adapter import TemuAdapter
+
         return TemuAdapter(account)
-    elif platform_type == 'wish':
+    elif platform_type == "wish":
         from .wish.adapter import WishAdapter
+
         return WishAdapter(account)
-    elif platform_type == 'mercadolibre':
+    elif platform_type == "mercadolibre":
         from .mercadolibre.adapter import MercadoLibreAdapter
+
         return MercadoLibreAdapter(account)
     else:
-        raise ValueError(f'不支持的平台类型: {platform_type}')
+        raise ValueError(f"不支持的平台类型: {platform_type}")

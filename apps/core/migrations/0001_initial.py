@@ -4,118 +4,203 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Attachment',
+            name="Attachment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=255, verbose_name='文件名')),
-                ('file', models.FileField(upload_to='attachments/%Y/%m/%d/', verbose_name='文件')),
-                ('file_type', models.CharField(choices=[('image', '图片'), ('document', '文档'), ('video', '视频'), ('audio', '音频'), ('other', '其他')], default='other', max_length=20, verbose_name='文件类型')),
-                ('file_size', models.PositiveIntegerField(default=0, verbose_name='文件大小(字节)')),
-                ('mime_type', models.CharField(blank=True, max_length=100, verbose_name='MIME类型')),
-                ('description', models.TextField(blank=True, verbose_name='描述')),
-                ('object_id', models.PositiveIntegerField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("name", models.CharField(max_length=255, verbose_name="文件名")),
+                ("file", models.FileField(upload_to="attachments/%Y/%m/%d/", verbose_name="文件")),
+                (
+                    "file_type",
+                    models.CharField(
+                        choices=[
+                            ("image", "图片"),
+                            ("document", "文档"),
+                            ("video", "视频"),
+                            ("audio", "音频"),
+                            ("other", "其他"),
+                        ],
+                        default="other",
+                        max_length=20,
+                        verbose_name="文件类型",
+                    ),
+                ),
+                ("file_size", models.PositiveIntegerField(default=0, verbose_name="文件大小(字节)")),
+                ("mime_type", models.CharField(blank=True, max_length=100, verbose_name="MIME类型")),
+                ("description", models.TextField(blank=True, verbose_name="描述")),
+                ("object_id", models.PositiveIntegerField(blank=True, null=True)),
             ],
             options={
-                'verbose_name': '附件',
-                'verbose_name_plural': '附件',
-                'db_table': 'core_attachment',
+                "verbose_name": "附件",
+                "verbose_name_plural": "附件",
+                "db_table": "core_attachment",
             },
         ),
         migrations.CreateModel(
-            name='AuditLog',
+            name="AuditLog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('action', models.CharField(choices=[('create', '创建'), ('update', '更新'), ('delete', '删除'), ('view', '查看'), ('login', '登录'), ('logout', '登出'), ('export', '导出'), ('import', '导入')], max_length=20, verbose_name='操作类型')),
-                ('model_name', models.CharField(blank=True, max_length=100, verbose_name='模型名称')),
-                ('object_id', models.CharField(blank=True, max_length=100, verbose_name='对象ID')),
-                ('object_repr', models.CharField(blank=True, max_length=200, verbose_name='对象描述')),
-                ('changes', models.JSONField(blank=True, default=dict, verbose_name='变更内容')),
-                ('ip_address', models.GenericIPAddressField(blank=True, null=True, verbose_name='IP地址')),
-                ('user_agent', models.TextField(blank=True, verbose_name='用户代理')),
-                ('timestamp', models.DateTimeField(auto_now_add=True, verbose_name='时间戳')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "action",
+                    models.CharField(
+                        choices=[
+                            ("create", "创建"),
+                            ("update", "更新"),
+                            ("delete", "删除"),
+                            ("view", "查看"),
+                            ("login", "登录"),
+                            ("logout", "登出"),
+                            ("export", "导出"),
+                            ("import", "导入"),
+                        ],
+                        max_length=20,
+                        verbose_name="操作类型",
+                    ),
+                ),
+                ("model_name", models.CharField(blank=True, max_length=100, verbose_name="模型名称")),
+                ("object_id", models.CharField(blank=True, max_length=100, verbose_name="对象ID")),
+                ("object_repr", models.CharField(blank=True, max_length=200, verbose_name="对象描述")),
+                ("changes", models.JSONField(blank=True, default=dict, verbose_name="变更内容")),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(blank=True, null=True, verbose_name="IP地址"),
+                ),
+                ("user_agent", models.TextField(blank=True, verbose_name="用户代理")),
+                ("timestamp", models.DateTimeField(auto_now_add=True, verbose_name="时间戳")),
             ],
             options={
-                'verbose_name': '审计日志',
-                'verbose_name_plural': '审计日志',
-                'db_table': 'core_audit_log',
-                'ordering': ['-timestamp'],
+                "verbose_name": "审计日志",
+                "verbose_name_plural": "审计日志",
+                "db_table": "core_audit_log",
+                "ordering": ["-timestamp"],
             },
         ),
         migrations.CreateModel(
-            name='Company',
+            name="Company",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=200, verbose_name='公司名称')),
-                ('code', models.CharField(max_length=50, unique=True, verbose_name='公司代码')),
-                ('legal_representative', models.CharField(blank=True, max_length=100, verbose_name='法定代表人')),
-                ('registration_number', models.CharField(blank=True, max_length=100, verbose_name='注册号')),
-                ('tax_number', models.CharField(blank=True, max_length=100, verbose_name='税号')),
-                ('address', models.TextField(blank=True, verbose_name='地址')),
-                ('phone', models.CharField(blank=True, max_length=50, verbose_name='电话')),
-                ('fax', models.CharField(blank=True, max_length=50, verbose_name='传真')),
-                ('email', models.EmailField(blank=True, max_length=254, verbose_name='邮箱')),
-                ('website', models.URLField(blank=True, verbose_name='网站')),
-                ('logo', models.ImageField(blank=True, upload_to='company/logos/', verbose_name='公司Logo')),
-                ('description', models.TextField(blank=True, verbose_name='公司描述')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("name", models.CharField(max_length=200, verbose_name="公司名称")),
+                ("code", models.CharField(max_length=50, unique=True, verbose_name="公司代码")),
+                (
+                    "legal_representative",
+                    models.CharField(blank=True, max_length=100, verbose_name="法定代表人"),
+                ),
+                (
+                    "registration_number",
+                    models.CharField(blank=True, max_length=100, verbose_name="注册号"),
+                ),
+                ("tax_number", models.CharField(blank=True, max_length=100, verbose_name="税号")),
+                ("address", models.TextField(blank=True, verbose_name="地址")),
+                ("phone", models.CharField(blank=True, max_length=50, verbose_name="电话")),
+                ("fax", models.CharField(blank=True, max_length=50, verbose_name="传真")),
+                ("email", models.EmailField(blank=True, max_length=254, verbose_name="邮箱")),
+                ("website", models.URLField(blank=True, verbose_name="网站")),
+                (
+                    "logo",
+                    models.ImageField(
+                        blank=True, upload_to="company/logos/", verbose_name="公司Logo"
+                    ),
+                ),
+                ("description", models.TextField(blank=True, verbose_name="公司描述")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
             ],
             options={
-                'verbose_name': '公司信息',
-                'verbose_name_plural': '公司信息',
-                'db_table': 'core_company',
+                "verbose_name": "公司信息",
+                "verbose_name_plural": "公司信息",
+                "db_table": "core_company",
             },
         ),
         migrations.CreateModel(
-            name='DocumentNumberSequence',
+            name="DocumentNumberSequence",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('prefix', models.CharField(db_index=True, max_length=10, verbose_name='单据前缀')),
-                ('date_str', models.CharField(db_index=True, help_text='格式: YYYYMMDD', max_length=8, verbose_name='日期字符串')),
-                ('current_number', models.PositiveIntegerField(default=0, verbose_name='当前序号')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("prefix", models.CharField(db_index=True, max_length=10, verbose_name="单据前缀")),
+                (
+                    "date_str",
+                    models.CharField(
+                        db_index=True, help_text="格式: YYYYMMDD", max_length=8, verbose_name="日期字符串"
+                    ),
+                ),
+                ("current_number", models.PositiveIntegerField(default=0, verbose_name="当前序号")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
             ],
             options={
-                'verbose_name': '单据号序列',
-                'verbose_name_plural': '单据号序列',
-                'db_table': 'core_document_number_sequence',
-                'ordering': ['-date_str', 'prefix'],
+                "verbose_name": "单据号序列",
+                "verbose_name_plural": "单据号序列",
+                "db_table": "core_document_number_sequence",
+                "ordering": ["-date_str", "prefix"],
             },
         ),
         migrations.CreateModel(
-            name='SystemConfig',
+            name="SystemConfig",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('key', models.CharField(max_length=100, unique=True, verbose_name='配置键')),
-                ('value', models.TextField(verbose_name='配置值')),
-                ('config_type', models.CharField(choices=[('system', '系统配置'), ('business', '业务配置'), ('ui', '界面配置'), ('security', '安全配置')], default='system', max_length=20, verbose_name='配置类型')),
-                ('description', models.TextField(blank=True, verbose_name='描述')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("key", models.CharField(max_length=100, unique=True, verbose_name="配置键")),
+                ("value", models.TextField(verbose_name="配置值")),
+                (
+                    "config_type",
+                    models.CharField(
+                        choices=[
+                            ("system", "系统配置"),
+                            ("business", "业务配置"),
+                            ("ui", "界面配置"),
+                            ("security", "安全配置"),
+                        ],
+                        default="system",
+                        max_length=20,
+                        verbose_name="配置类型",
+                    ),
+                ),
+                ("description", models.TextField(blank=True, verbose_name="描述")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
             ],
             options={
-                'verbose_name': '系统配置',
-                'verbose_name_plural': '系统配置',
-                'db_table': 'core_system_config',
+                "verbose_name": "系统配置",
+                "verbose_name_plural": "系统配置",
+                "db_table": "core_system_config",
             },
         ),
     ]

@@ -10,7 +10,7 @@ DatabaseHelper = DatabaseManager
 
 # 便捷导出
 __all__ = [
-    'DatabaseManager',
-    'BackupManager',
-    'TestDataGenerator',
+    "DatabaseManager",
+    "BackupManager",
+    "TestDataGenerator",
 ]

@@ -46,51 +46,52 @@ class IntelligentAssistant:
         # 如果用户最近在查询客户信息
         if "query_customer" in last_intents:
             customer_name = last_entities.get("customer_name")
-            suggestions.append({
-                "action": "create_order",
-                "suggestion": f"为 {customer_name} 创建销售订单",
-                "reason": "刚查询了客户信息，可能需要创建订单"
-            })
-            suggestions.append({
-                "action": "create_quote",
-                "suggestion": f"为 {customer_name} 创建报价单",
-                "reason": "可以先创建报价单"
-            })
+            suggestions.append(
+                {
+                    "action": "create_order",
+                    "suggestion": f"为 {customer_name} 创建销售订单",
+                    "reason": "刚查询了客户信息，可能需要创建订单",
+                }
+            )
+            suggestions.append(
+                {
+                    "action": "create_quote",
+                    "suggestion": f"为 {customer_name} 创建报价单",
+                    "reason": "可以先创建报价单",
+                }
+            )
 
         # 如果用户最近在查询订单
         elif "query_order" in last_intents:
-            suggestions.append({
-                "action": "get_order_detail",
-                "suggestion": "查看订单详情",
-                "reason": "可以查看订单的详细信息"
-            })
-            suggestions.append({
-                "action": "create_delivery",
-                "suggestion": "为订单创建发货单",
-                "reason": "订单可能需要发货"
-            })
+            suggestions.append(
+                {"action": "get_order_detail", "suggestion": "查看订单详情", "reason": "可以查看订单的详细信息"}
+            )
+            suggestions.append(
+                {"action": "create_delivery", "suggestion": "为订单创建发货单", "reason": "订单可能需要发货"}
+            )
 
         # 如果用户最近在查询库存
         elif "query_inventory" in last_intents or "query_product" in last_intents:
             product_name = last_entities.get("product_name")
-            suggestions.append({
-                "action": "create_inbound",
-                "suggestion": f"创建 {product_name} 的入库单",
-                "reason": "产品库存可能需要补充"
-            })
+            suggestions.append(
+                {
+                    "action": "create_inbound",
+                    "suggestion": f"创建 {product_name} 的入库单",
+                    "reason": "产品库存可能需要补充",
+                }
+            )
 
         # 如果用户最近在创建单据
         elif "create_" in last_intents:
-            suggestions.append({
-                "action": "query_recent",
-                "suggestion": "查看最近创建的单据",
-                "reason": "确认创建是否成功"
-            })
+            suggestions.append(
+                {"action": "query_recent", "suggestion": "查看最近创建的单据", "reason": "确认创建是否成功"}
+            )
 
         return suggestions
 
-    def autocomplete_parameter(self, param_name: str, partial_value: str,
-                           context: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def autocomplete_parameter(
+        self, param_name: str, partial_value: str, context: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """
         自动补全参数
 
@@ -131,8 +132,7 @@ class IntelligentAssistant:
         from customers.models import Customer
 
         customers = Customer.objects.filter(
-            Q(name__icontains=partial) | Q(code__icontains=partial),
-            is_deleted=False
+            Q(name__icontains=partial) | Q(code__icontains=partial), is_deleted=False
         )[:5]
 
         return [
@@ -140,7 +140,7 @@ class IntelligentAssistant:
                 "value": customer.name,
                 "display": f"{customer.name} ({customer.code})",
                 "type": "customer",
-                "id": customer.id
+                "id": customer.id,
             }
             for customer in customers
         ]
@@ -150,8 +150,7 @@ class IntelligentAssistant:
         from suppliers.models import Supplier
 
         suppliers = Supplier.objects.filter(
-            Q(name__icontains=partial) | Q(code__icontains=partial),
-            is_deleted=False
+            Q(name__icontains=partial) | Q(code__icontains=partial), is_deleted=False
         )[:5]
 
         return [
@@ -159,7 +158,7 @@ class IntelligentAssistant:
                 "value": supplier.name,
                 "display": f"{supplier.name} ({supplier.code})",
                 "type": "supplier",
-                "id": supplier.id
+                "id": supplier.id,
             }
             for supplier in suppliers
         ]
@@ -169,8 +168,7 @@ class IntelligentAssistant:
         from products.models import Product
 
         products = Product.objects.filter(
-            Q(name__icontains=partial) | Q(code__icontains=partial),
-            is_deleted=False
+            Q(name__icontains=partial) | Q(code__icontains=partial), is_deleted=False
         )[:5]
 
         return [
@@ -179,19 +177,21 @@ class IntelligentAssistant:
                 "display": f"{product.name} ({product.code})",
                 "type": "product",
                 "id": product.id,
-                "stock_info": self._get_product_stock_info(product)
+                "stock_info": self._get_product_stock_info(product),
             }
             for product in products
         ]
 
-    def _autocomplete_warehouse(self, partial: str, context: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _autocomplete_warehouse(
+        self, partial: str, context: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """自动补全仓库名称"""
         from inventory.models import Warehouse
 
         warehouses = Warehouse.objects.filter(
             Q(name__icontains=partial) | Q(code__icontains=partial),
             is_deleted=False,
-            is_active=True
+            is_active=True,
         )[:5]
 
         return [
@@ -199,7 +199,7 @@ class IntelligentAssistant:
                 "value": warehouse.name,
                 "display": f"{warehouse.name} ({warehouse.code})",
                 "type": "warehouse",
-                "id": warehouse.id
+                "id": warehouse.id,
             }
             for warehouse in warehouses
         ]
@@ -212,32 +212,34 @@ class IntelligentAssistant:
         results = []
 
         # 搜索销售订单
-        sales_orders = SalesOrder.objects.filter(
-            order_number__icontains=partial,
-            is_deleted=False
-        )[:3]
+        sales_orders = SalesOrder.objects.filter(order_number__icontains=partial, is_deleted=False)[
+            :3
+        ]
 
         for order in sales_orders:
-            results.append({
-                "value": order.order_number,
-                "display": f"销售订单 {order.order_number} ({order.get_status_display()})",
-                "type": "sales_order",
-                "id": order.id
-            })
+            results.append(
+                {
+                    "value": order.order_number,
+                    "display": f"销售订单 {order.order_number} ({order.get_status_display()})",
+                    "type": "sales_order",
+                    "id": order.id,
+                }
+            )
 
         # 搜索采购订单
         purchase_orders = PurchaseOrder.objects.filter(
-            order_number__icontains=partial,
-            is_deleted=False
+            order_number__icontains=partial, is_deleted=False
         )[:3]
 
         for order in purchase_orders:
-            results.append({
-                "value": order.order_number,
-                "display": f"采购订单 {order.order_number} ({order.get_status_display()})",
-                "type": "purchase_order",
-                "id": order.id
-            })
+            results.append(
+                {
+                    "value": order.order_number,
+                    "display": f"采购订单 {order.order_number} ({order.get_status_display()})",
+                    "type": "purchase_order",
+                    "id": order.id,
+                }
+            )
 
         return results
 
@@ -246,10 +248,7 @@ class IntelligentAssistant:
         try:
             from inventory.models import InventoryStock
 
-            stocks = InventoryStock.objects.filter(
-                product=product,
-                is_deleted=False
-            )
+            stocks = InventoryStock.objects.filter(product=product, is_deleted=False)
 
             if not stocks:
                 return "无库存"
@@ -277,32 +276,30 @@ class IntelligentAssistant:
 
         if entity_type == "customer":
             from customers.models import Customer
-            entities = Customer.objects.filter(
-                is_deleted=False
-            ).order_by('-updated_at')[:limit]
+
+            entities = Customer.objects.filter(is_deleted=False).order_by("-updated_at")[:limit]
 
             return [
                 {
                     "id": entity.id,
                     "name": entity.name,
                     "code": entity.code,
-                    "last_used": entity.updated_at.strftime("%Y-%m-%d")
+                    "last_used": entity.updated_at.strftime("%Y-%m-%d"),
                 }
                 for entity in entities
             ]
 
         elif entity_type == "supplier":
             from suppliers.models import Supplier
-            entities = Supplier.objects.filter(
-                is_deleted=False
-            ).order_by('-updated_at')[:limit]
+
+            entities = Supplier.objects.filter(is_deleted=False).order_by("-updated_at")[:limit]
 
             return [
                 {
                     "id": entity.id,
                     "name": entity.name,
                     "code": entity.code,
-                    "last_used": entity.updated_at.strftime("%Y-%m-%d")
+                    "last_used": entity.updated_at.strftime("%Y-%m-%d"),
                 }
                 for entity in entities
             ]
@@ -323,6 +320,7 @@ class IntelligentAssistant:
         # 这里返回一个示例结构
 
         from datetime import date, timedelta
+
         start_date = date.today() - timedelta(days=days)
 
         return {
@@ -331,7 +329,7 @@ class IntelligentAssistant:
             "tool_usage": {},
             "success_rate": 0.0,
             "most_used_tools": [],
-            "average_response_time": 0.0
+            "average_response_time": 0.0,
         }
 
     def detect_repeated_operation(self, context: Dict[str, Any]) -> Optional[Dict[str, str]]:
@@ -353,14 +351,14 @@ class IntelligentAssistant:
         last_action = recent_actions[0]
         second_last_action = recent_actions[1]
 
-        if (last_action.get("tool") == second_last_action.get("tool") and
-            last_action.get("params") == second_last_action.get("params")):
-
+        if last_action.get("tool") == second_last_action.get("tool") and last_action.get(
+            "params"
+        ) == second_last_action.get("params"):
             return {
                 "warning": "重复操作",
                 "message": f"您刚刚执行了相同的操作（{last_action.get('tool')}），是否确认再次执行？",
                 "tool": last_action.get("tool"),
-                "params": last_action.get("params")
+                "params": last_action.get("params"),
             }
 
         return None
@@ -457,7 +455,7 @@ class ContextManager:
             "recent_intents": [],
             "recent_entities": {},
             "recent_actions": [],
-            "conversation_history": []
+            "conversation_history": [],
         }
 
     def _save_context(self):
@@ -486,7 +484,7 @@ class ContextManager:
             "tool": tool_name,
             "params": params,
             "timestamp": timezone.now().isoformat(),
-            "success": result.get("success", False)
+            "success": result.get("success", False),
         }
         self.context["recent_actions"].append(action)
         # 只保留最近10个操作
@@ -505,6 +503,6 @@ class ContextManager:
             "recent_intents": [],
             "recent_entities": {},
             "recent_actions": [],
-            "conversation_history": []
+            "conversation_history": [],
         }
         self._save_context()

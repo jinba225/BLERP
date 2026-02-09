@@ -5,28 +5,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sales', '0017_alter_deliveryitem_actual_shipped_quantity_and_more'),
+        ("sales", "0017_alter_deliveryitem_actual_shipped_quantity_and_more"),
     ]
 
     operations = [
         # SalesOrder索引 - 优化订单列表查询性能
         # 用于优化: filter(customer=X, status=Y).filter(order_date__range=)
         migrations.AddIndex(
-            model_name='salesorder',
+            model_name="salesorder",
             index=models.Index(
-                fields=['customer', 'status', 'order_date'],
-                name='sales_order_cust_status_date_idx'
+                fields=["customer", "status", "order_date"], name="sales_order_cust_status_date_idx"
             ),
         ),
         # SalesOrder索引 - 优化按创建时间倒序查询
         # 用于优化: order_by('-created_at')
         migrations.AddIndex(
-            model_name='salesorder',
-            index=models.Index(
-                fields=['-created_at'],
-                name='sales_order_created_at_desc_idx'
-            ),
+            model_name="salesorder",
+            index=models.Index(fields=["-created_at"], name="sales_order_created_at_desc_idx"),
         ),
     ]

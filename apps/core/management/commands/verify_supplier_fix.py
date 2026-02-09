@@ -4,26 +4,26 @@ from apps.finance.models import SupplierAccount
 
 
 class Command(BaseCommand):
-    help = '验证供应商应付账款核销页面修复'
+    help = "验证供应商应付账款核销页面修复"
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS('🔍 验证供应商应付账款核销页面修复'))
+        self.stdout.write(self.style.SUCCESS("🔍 验证供应商应付账款核销页面修复"))
 
         # 查询有多个账户的供应商
-        multi_account_suppliers = SupplierAccount.objects.filter(
-            is_deleted=False
-        ).values('supplier__id', 'supplier__name').annotate(
-            account_count=Count('id'),
-            total_balance=Sum('balance')
-        ).filter(account_count__gt=1)
+        multi_account_suppliers = (
+            SupplierAccount.objects.filter(is_deleted=False)
+            .values("supplier__id", "supplier__name")
+            .annotate(account_count=Count("id"), total_balance=Sum("balance"))
+            .filter(account_count__gt=1)
+        )
 
         self.stdout.write(f"\n📊 找到 {multi_account_suppliers.count()} 个有多个应付账户的供应商：")
 
         for item in multi_account_suppliers[:5]:
-            supplier_id = item['supplier__id']
-            supplier_name = item['supplier__name']
-            account_count = item['account_count']
-            total_balance = item['total_balance'] or 0
+            supplier_id = item["supplier__id"]
+            supplier_name = item["supplier__name"]
+            account_count = item["account_count"]
+            total_balance = item["total_balance"] or 0
 
             self.stdout.write(f"\n✅ 供应商: {supplier_name} (ID: {supplier_id})")
             self.stdout.write(f"   - 账户数量: {account_count}")
@@ -31,20 +31,20 @@ class Command(BaseCommand):
 
             # 显示详细账户列表
             accounts = SupplierAccount.objects.filter(
-                supplier_id=supplier_id,
-                is_deleted=False
-            ).order_by('invoice_number')
+                supplier_id=supplier_id, is_deleted=False
+            ).order_by("invoice_number")
 
             self.stdout.write(f"   - 详细账户:")
             for acc in accounts:
                 self.stdout.write(f"     * {acc.invoice_number}: ¥{acc.balance:.2f}")
 
         # 查询只有一个账户的供应商
-        single_account_suppliers = SupplierAccount.objects.filter(
-            is_deleted=False
-        ).values('supplier__id').annotate(
-            account_count=Count('id')
-        ).filter(account_count=1)
+        single_account_suppliers = (
+            SupplierAccount.objects.filter(is_deleted=False)
+            .values("supplier__id")
+            .annotate(account_count=Count("id"))
+            .filter(account_count=1)
+        )
 
         self.stdout.write(f"\n📊 找到 {single_account_suppliers.count()} 个只有一个应付账户的供应商")
         self.stdout.write(self.style.WARNING("(这些供应商的核销页面不应显示汇总信息)"))
@@ -53,19 +53,15 @@ class Command(BaseCommand):
         if multi_account_suppliers.exists():
             self.stdout.write(self.style.SUCCESS("\n✅ 视图函数验证:"))
 
-            supplier_id = multi_account_suppliers.first()['supplier__id']
+            supplier_id = multi_account_suppliers.first()["supplier__id"]
             supplier_summary = SupplierAccount.objects.filter(
-                supplier_id=supplier_id,
-                is_deleted=False
-            ).aggregate(
-                total_balance=Sum('balance'),
-                account_count=Count('id')
-            )
+                supplier_id=supplier_id, is_deleted=False
+            ).aggregate(total_balance=Sum("balance"), account_count=Count("id"))
 
             self.stdout.write(f"   - total_balance: {supplier_summary['total_balance']}")
             self.stdout.write(f"   - account_count: {supplier_summary['account_count']}")
 
-            if supplier_summary and supplier_summary['account_count'] > 1:
+            if supplier_summary and supplier_summary["account_count"] > 1:
                 self.stdout.write(self.style.SUCCESS(f"   ✅ 模板条件满足，将显示汇总信息"))
             else:
                 self.stdout.write(self.style.ERROR(f"   ❌ 模板条件不满足"))

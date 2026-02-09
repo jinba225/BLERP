@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('products', '0002_initial'),
+        ("products", "0002_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='track_inventory',
-            field=models.BooleanField(default=True, help_text='服务类产品通常不需要库存管理', verbose_name='是否进行库存管理'),
+            model_name="product",
+            name="track_inventory",
+            field=models.BooleanField(
+                default=True, help_text="服务类产品通常不需要库存管理", verbose_name="是否进行库存管理"
+            ),
         ),
     ]

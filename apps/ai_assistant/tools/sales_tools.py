@@ -25,17 +25,10 @@ class SearchCustomerTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "keyword": {
-                    "type": "string",
-                    "description": "搜索关键词（客户名称、编号或联系人）"
-                },
-                "limit": {
-                    "type": "integer",
-                    "description": "返回结果数量限制（默认10）",
-                    "default": 10
-                }
+                "keyword": {"type": "string", "description": "搜索关键词（客户名称、编号或联系人）"},
+                "limit": {"type": "integer", "description": "返回结果数量限制（默认10）", "default": 10},
             },
-            "required": ["keyword"]
+            "required": ["keyword"],
         }
 
     def execute(self, keyword: str, limit: int = 10, **kwargs) -> ToolResult:
@@ -43,35 +36,28 @@ class SearchCustomerTool(BaseTool):
         try:
             # 构建搜索查询
             customers = Customer.objects.filter(
-                Q(name__icontains=keyword) |
-                Q(code__icontains=keyword),
-                is_deleted=False
+                Q(name__icontains=keyword) | Q(code__icontains=keyword), is_deleted=False
             )[:limit]
 
             # 格式化结果
             results = []
             for customer in customers:
-                results.append({
-                    "id": customer.id,
-                    "code": customer.code,
-                    "name": customer.name,
-                    "customer_level": customer.customer_level,
-                    "status": customer.status,
-                    "website": customer.website or "",
-                    "tax_number": customer.tax_number or "",
-                })
+                results.append(
+                    {
+                        "id": customer.id,
+                        "code": customer.code,
+                        "name": customer.name,
+                        "customer_level": customer.customer_level,
+                        "status": customer.status,
+                        "website": customer.website or "",
+                        "tax_number": customer.tax_number or "",
+                    }
+                )
 
-            return ToolResult(
-                success=True,
-                data=results,
-                message=f"找到 {len(results)} 个客户"
-            )
+            return ToolResult(success=True, data=results, message=f"找到 {len(results)} 个客户")
 
         except Exception as e:
-            return ToolResult(
-                success=False,
-                error=f"搜索客户失败: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"搜索客户失败: {str(e)}")
 
 
 class CreateSalesQuoteTool(BaseTool):
@@ -88,10 +74,7 @@ class CreateSalesQuoteTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "customer_id": {
-                    "type": "integer",
-                    "description": "客户ID"
-                },
+                "customer_id": {"type": "integer", "description": "客户ID"},
                 "items": {
                     "type": "array",
                     "description": "报价明细列表",
@@ -102,24 +85,18 @@ class CreateSalesQuoteTool(BaseTool):
                             "quantity": {"type": "number", "description": "数量"},
                             "unit_price": {"type": "number", "description": "含税单价"},
                         },
-                        "required": ["product_id", "quantity", "unit_price"]
-                    }
+                        "required": ["product_id", "quantity", "unit_price"],
+                    },
                 },
-                "valid_days": {
-                    "type": "integer",
-                    "description": "报价有效天数（默认30天）",
-                    "default": 30
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "备注说明"
-                }
+                "valid_days": {"type": "integer", "description": "报价有效天数（默认30天）", "default": 30},
+                "notes": {"type": "string", "description": "备注说明"},
             },
-            "required": ["customer_id", "items"]
+            "required": ["customer_id", "items"],
         }
 
-    def execute(self, customer_id: int, items: list,
-                valid_days: int = 30, notes: str = "", **kwargs) -> ToolResult:
+    def execute(
+        self, customer_id: int, items: list, valid_days: int = 30, notes: str = "", **kwargs
+    ) -> ToolResult:
         """执行创建报价单"""
         try:
             from django.db import transaction
@@ -130,10 +107,7 @@ class CreateSalesQuoteTool(BaseTool):
             try:
                 customer = Customer.objects.get(id=customer_id, is_deleted=False)
             except Customer.DoesNotExist:
-                return ToolResult(
-                    success=False,
-                    error=f"客户ID {customer_id} 不存在"
-                )
+                return ToolResult(success=False, error=f"客户ID {customer_id} 不存在")
 
             # 验证产品和计算金额
             total_amount = 0
@@ -141,28 +115,27 @@ class CreateSalesQuoteTool(BaseTool):
 
             for item in items:
                 try:
-                    product = Product.objects.get(id=item['product_id'], is_deleted=False)
+                    product = Product.objects.get(id=item["product_id"], is_deleted=False)
                 except Product.DoesNotExist:
-                    return ToolResult(
-                        success=False,
-                        error=f"产品ID {item['product_id']} 不存在"
-                    )
+                    return ToolResult(success=False, error=f"产品ID {item['product_id']} 不存在")
 
-                quantity = float(item['quantity'])
-                unit_price = float(item['unit_price'])
+                quantity = float(item["quantity"])
+                unit_price = float(item["unit_price"])
                 line_total = quantity * unit_price
                 total_amount += line_total
 
-                validated_items.append({
-                    'product': product,
-                    'quantity': quantity,
-                    'unit_price': unit_price,
-                    'line_total': line_total,
-                })
+                validated_items.append(
+                    {
+                        "product": product,
+                        "quantity": quantity,
+                        "unit_price": unit_price,
+                        "line_total": line_total,
+                    }
+                )
 
             # 创建报价单
             with transaction.atomic():
-                quote_number = DocumentNumberGenerator.generate('quotation')
+                quote_number = DocumentNumberGenerator.generate("quotation")
                 quote_date = datetime.now().date()
                 valid_until = quote_date + timedelta(days=valid_days)
 
@@ -173,20 +146,21 @@ class CreateSalesQuoteTool(BaseTool):
                     valid_until=valid_until,
                     total_amount=total_amount,
                     notes=notes,
-                    status='draft',
-                    created_by=self.user
+                    status="draft",
+                    created_by=self.user,
                 )
 
                 # 创建明细
                 for item_data in validated_items:
                     from sales.models import QuoteItem
+
                     QuoteItem.objects.create(
                         quote=quote,
-                        product=item_data['product'],
-                        quantity=item_data['quantity'],
-                        unit_price=item_data['unit_price'],
-                        line_total=item_data['line_total'],
-                        created_by=self.user
+                        product=item_data["product"],
+                        quantity=item_data["quantity"],
+                        unit_price=item_data["unit_price"],
+                        line_total=item_data["line_total"],
+                        created_by=self.user,
                     )
 
             return ToolResult(
@@ -199,14 +173,11 @@ class CreateSalesQuoteTool(BaseTool):
                     "items_count": len(validated_items),
                     "valid_until": valid_until.strftime("%Y-%m-%d"),
                 },
-                message=f"报价单 {quote.quote_number} 创建成功"
+                message=f"报价单 {quote.quote_number} 创建成功",
             )
 
         except Exception as e:
-            return ToolResult(
-                success=False,
-                error=f"创建报价单失败: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"创建报价单失败: {str(e)}")
 
 
 class QuerySalesOrdersTool(BaseTool):
@@ -225,36 +196,36 @@ class QuerySalesOrdersTool(BaseTool):
                 "status": {
                     "type": "string",
                     "description": "订单状态（draft/pending/confirmed/completed/cancelled）",
-                    "enum": ["draft", "pending", "confirmed", "in_production",
-                            "ready_to_ship", "shipped", "delivered", "completed", "cancelled"]
+                    "enum": [
+                        "draft",
+                        "pending",
+                        "confirmed",
+                        "in_production",
+                        "ready_to_ship",
+                        "shipped",
+                        "delivered",
+                        "completed",
+                        "cancelled",
+                    ],
                 },
-                "customer_id": {
-                    "type": "integer",
-                    "description": "客户ID"
-                },
-                "date_from": {
-                    "type": "string",
-                    "description": "开始日期（YYYY-MM-DD）"
-                },
-                "date_to": {
-                    "type": "string",
-                    "description": "结束日期（YYYY-MM-DD）"
-                },
-                "keyword": {
-                    "type": "string",
-                    "description": "搜索关键词（订单号）"
-                },
-                "limit": {
-                    "type": "integer",
-                    "description": "返回结果数量限制（默认20）",
-                    "default": 20
-                }
-            }
+                "customer_id": {"type": "integer", "description": "客户ID"},
+                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
+                "keyword": {"type": "string", "description": "搜索关键词（订单号）"},
+                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+            },
         }
 
-    def execute(self, status: str = None, customer_id: int = None,
-                date_from: str = None, date_to: str = None,
-                keyword: str = None, limit: int = 20, **kwargs) -> ToolResult:
+    def execute(
+        self,
+        status: str = None,
+        customer_id: int = None,
+        date_from: str = None,
+        date_to: str = None,
+        keyword: str = None,
+        limit: int = 20,
+        **kwargs,
+    ) -> ToolResult:
         """执行查询"""
         try:
             # 构建查询
@@ -275,33 +246,28 @@ class QuerySalesOrdersTool(BaseTool):
             if keyword:
                 orders = orders.filter(order_number__icontains=keyword)
 
-            orders = orders.order_by('-order_date')[:limit]
+            orders = orders.order_by("-order_date")[:limit]
 
             # 格式化结果
             results = []
             for order in orders:
-                results.append({
-                    "id": order.id,
-                    "order_number": order.order_number,
-                    "customer_name": order.customer.name,
-                    "order_date": order.order_date.strftime("%Y-%m-%d"),
-                    "total_amount": float(order.total_amount),
-                    "status": order.status,
-                    "status_display": order.get_status_display(),
-                    "items_count": order.items.count(),
-                })
+                results.append(
+                    {
+                        "id": order.id,
+                        "order_number": order.order_number,
+                        "customer_name": order.customer.name,
+                        "order_date": order.order_date.strftime("%Y-%m-%d"),
+                        "total_amount": float(order.total_amount),
+                        "status": order.status,
+                        "status_display": order.get_status_display(),
+                        "items_count": order.items.count(),
+                    }
+                )
 
-            return ToolResult(
-                success=True,
-                data=results,
-                message=f"找到 {len(results)} 个订单"
-            )
+            return ToolResult(success=True, data=results, message=f"找到 {len(results)} 个订单")
 
         except Exception as e:
-            return ToolResult(
-                success=False,
-                error=f"查询订单失败: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"查询订单失败: {str(e)}")
 
 
 class GetOrderDetailTool(BaseTool):
@@ -316,13 +282,8 @@ class GetOrderDetailTool(BaseTool):
     def get_parameters_schema(self) -> Dict[str, Any]:
         return {
             "type": "object",
-            "properties": {
-                "order_id": {
-                    "type": "integer",
-                    "description": "订单ID"
-                }
-            },
-            "required": ["order_id"]
+            "properties": {"order_id": {"type": "integer", "description": "订单ID"}},
+            "required": ["order_id"],
         }
 
     def execute(self, order_id: int, **kwargs) -> ToolResult:
@@ -332,33 +293,36 @@ class GetOrderDetailTool(BaseTool):
             try:
                 order = SalesOrder.objects.get(id=order_id, is_deleted=False)
             except SalesOrder.DoesNotExist:
-                return ToolResult(
-                    success=False,
-                    error=f"订单ID {order_id} 不存在"
-                )
+                return ToolResult(success=False, error=f"订单ID {order_id} 不存在")
 
             # 获取订单明细
             items = []
             for item in order.items.filter(is_deleted=False):
-                items.append({
-                    "product_name": item.product.name,
-                    "product_code": item.product.code,
-                    "quantity": float(item.quantity),
-                    "unit_price": float(item.unit_price),
-                    "line_total": float(item.line_total),
-                    "delivered_quantity": float(item.delivered_quantity),
-                    "remaining_quantity": float(item.remaining_quantity),
-                })
+                items.append(
+                    {
+                        "product_name": item.product.name,
+                        "product_code": item.product.code,
+                        "quantity": float(item.quantity),
+                        "unit_price": float(item.unit_price),
+                        "line_total": float(item.line_total),
+                        "delivered_quantity": float(item.delivered_quantity),
+                        "remaining_quantity": float(item.remaining_quantity),
+                    }
+                )
 
             # 获取发货记录
             deliveries = []
             for delivery in order.deliveries.filter(is_deleted=False):
-                deliveries.append({
-                    "delivery_number": delivery.delivery_number,
-                    "delivery_date": delivery.delivery_date.strftime("%Y-%m-%d") if delivery.delivery_date else None,
-                    "status": delivery.status,
-                    "status_display": delivery.get_status_display(),
-                })
+                deliveries.append(
+                    {
+                        "delivery_number": delivery.delivery_number,
+                        "delivery_date": delivery.delivery_date.strftime("%Y-%m-%d")
+                        if delivery.delivery_date
+                        else None,
+                        "status": delivery.status,
+                        "status_display": delivery.get_status_display(),
+                    }
+                )
 
             # 构建完整信息
             result = {
@@ -370,7 +334,9 @@ class GetOrderDetailTool(BaseTool):
                     "phone": order.customer.phone or "",
                 },
                 "order_date": order.order_date.strftime("%Y-%m-%d"),
-                "delivery_date": order.delivery_date.strftime("%Y-%m-%d") if order.delivery_date else None,
+                "delivery_date": order.delivery_date.strftime("%Y-%m-%d")
+                if order.delivery_date
+                else None,
                 "total_amount": float(order.total_amount),
                 "status": order.status,
                 "status_display": order.get_status_display(),
@@ -381,17 +347,10 @@ class GetOrderDetailTool(BaseTool):
                 "created_by": order.created_by.username if order.created_by else "",
             }
 
-            return ToolResult(
-                success=True,
-                data=result,
-                message=f"订单 {order.order_number} 详情获取成功"
-            )
+            return ToolResult(success=True, data=result, message=f"订单 {order.order_number} 详情获取成功")
 
         except Exception as e:
-            return ToolResult(
-                success=False,
-                error=f"获取订单详情失败: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"获取订单详情失败: {str(e)}")
 
 
 class ApproveSalesOrderTool(BaseTool):
@@ -409,16 +368,10 @@ class ApproveSalesOrderTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "order_id": {
-                    "type": "integer",
-                    "description": "订单ID"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "审核备注"
-                }
+                "order_id": {"type": "integer", "description": "订单ID"},
+                "notes": {"type": "string", "description": "审核备注"},
             },
-            "required": ["order_id"]
+            "required": ["order_id"],
         }
 
     def execute(self, order_id: int, notes: str = "", **kwargs) -> ToolResult:
@@ -428,16 +381,12 @@ class ApproveSalesOrderTool(BaseTool):
             try:
                 order = SalesOrder.objects.get(id=order_id, is_deleted=False)
             except SalesOrder.DoesNotExist:
-                return ToolResult(
-                    success=False,
-                    error=f"订单ID {order_id} 不存在"
-                )
+                return ToolResult(success=False, error=f"订单ID {order_id} 不存在")
 
             # 检查订单状态
-            if order.status != 'pending':
+            if order.status != "pending":
                 return ToolResult(
-                    success=False,
-                    error=f"订单状态为 {order.get_status_display()}，不是待审核状态"
+                    success=False, error=f"订单状态为 {order.get_status_display()}，不是待审核状态"
                 )
 
             # 执行审核
@@ -450,14 +399,11 @@ class ApproveSalesOrderTool(BaseTool):
                     "status": order.status,
                     "status_display": order.get_status_display(),
                 },
-                message=f"订单 {order.order_number} 审核成功，已自动创建发货单和应收账款"
+                message=f"订单 {order.order_number} 审核成功，已自动创建发货单和应收账款",
             )
 
         except Exception as e:
-             return ToolResult(
-                success=False,
-                error=f"审核订单失败: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"审核订单失败: {str(e)}")
 
 
 class CreateSalesOrderTool(BaseTool):
@@ -470,100 +416,82 @@ class CreateSalesOrderTool(BaseTool):
     risk_level = "medium"
     require_permission = "sales.add_order"
     require_approval = True  # 需要用户确认
-    
+
     def get_parameters_schema(self) -> Dict[str, Any]:
         return {
             "type": "object",
             "properties": {
-                "customer_id": {
-                    "type": "integer",
-                    "description": "客户ID"
-                },
+                "customer_id": {"type": "integer", "description": "客户ID"},
                 "items": {
                     "type": "array",
                     "description": "订单明细列表",
                     "items": {
                         "type": "object",
                         "properties": {
-                            "product_id": {
-                                "type": "integer",
-                                "description": "产品ID"
-                            },
-                            "quantity": {
-                                "type": "number",
-                                "description": "数量"
-                            },
-                            "unit_price": {
-                                "type": "number",
-                                "description": "含税单价"
-                            }
+                            "product_id": {"type": "integer", "description": "产品ID"},
+                            "quantity": {"type": "number", "description": "数量"},
+                            "unit_price": {"type": "number", "description": "含税单价"},
                         },
-                        "required": ["product_id", "quantity", "unit_price"]
-                    }
+                        "required": ["product_id", "quantity", "unit_price"],
+                    },
                 },
-                "delivery_address": {
-                    "type": "string",
-                    "description": "交付地址（可选）"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "订单备注（可选）"
-                }
+                "delivery_address": {"type": "string", "description": "交付地址（可选）"},
+                "notes": {"type": "string", "description": "订单备注（可选）"},
             },
-            "required": ["customer_id", "items"]
+            "required": ["customer_id", "items"],
         }
-    
-    def execute(self, customer_id: int, items: list,
-                 delivery_address: str = "", notes: str = "", **kwargs) -> ToolResult:
+
+    def execute(
+        self, customer_id: int, items: list, delivery_address: str = "", notes: str = "", **kwargs
+    ) -> ToolResult:
         """执行创建订单"""
         try:
             from django.db import transaction
             from datetime import datetime, timedelta
             from common.utils import DocumentNumberGenerator
-            
+
             # 验证客户
             try:
                 from customers.models import Customer
+
                 customer = Customer.objects.get(id=customer_id, is_deleted=False)
             except Customer.DoesNotExist:
-                return ToolResult(
-                    success=False,
-                    error=f"客户ID {customer_id} 不存在"
-                )
-            
+                return ToolResult(success=False, error=f"客户ID {customer_id} 不存在")
+
             # 验证产品和计算金额
             total_amount = 0
             validated_items = []
-            
+
             for item in items:
                 try:
                     from products.models import Product
-                    product = Product.objects.get(id=item['product_id'], is_deleted=False)
+
+                    product = Product.objects.get(id=item["product_id"], is_deleted=False)
                 except Product.DoesNotExist:
-                    return ToolResult(
-                        success=False,
-                        error=f"产品ID {item['product_id']} 不存在"
-                    )
-                
-                quantity = float(item['quantity'])
-                unit_price = float(item['unit_price'])
+                    return ToolResult(success=False, error=f"产品ID {item['product_id']} 不存在")
+
+                quantity = float(item["quantity"])
+                unit_price = float(item["unit_price"])
                 line_total = quantity * unit_price
                 total_amount += line_total
-                
-                validated_items.append({
-                    'product': product,
-                    'quantity': quantity,
-                    'unit_price': unit_price,
-                    'line_total': line_total
-                })
-            
+
+                validated_items.append(
+                    {
+                        "product": product,
+                        "quantity": quantity,
+                        "unit_price": unit_price,
+                        "line_total": line_total,
+                    }
+                )
+
             # 创建订单
             with transaction.atomic():
-                order_number = DocumentNumberGenerator.generate('sales_order')
+                order_number = DocumentNumberGenerator.generate("sales_order")
                 order_date = datetime.now().date()
                 delivery_date = order_date + timedelta(days=30)  # 默认 30 天后交货
-                
+
                 from sales.models import SalesOrder
+
                 order = SalesOrder.objects.create(
                     order_number=order_number,
                     customer=customer,
@@ -571,25 +499,26 @@ class CreateSalesOrderTool(BaseTool):
                     total_amount=total_amount,
                     delivery_address=delivery_address or customer.address or "",
                     notes=notes,
-                    status='pending',  # 默认待审核
-                    created_by=self.user
+                    status="pending",  # 默认待审核
+                    created_by=self.user,
                 )
-                
+
                 # 创建明细
                 from sales.models import SalesOrderItem
+
                 for i, item_data in enumerate(validated_items, 1):
-                    product = item_data['product']
+                    product = item_data["product"]
                     SalesOrderItem.objects.create(
                         order=order,
                         product=product,
                         product_code=product.code,
-                        quantity=item_data['quantity'],
-                        unit_price=item_data['unit_price'],
-                        line_total=item_data['line_total'],
+                        quantity=item_data["quantity"],
+                        unit_price=item_data["unit_price"],
+                        line_total=item_data["line_total"],
                         sequence=i,
-                        created_by=self.user
+                        created_by=self.user,
                     )
-                
+
                 return ToolResult(
                     success=True,
                     data={
@@ -600,11 +529,8 @@ class CreateSalesOrderTool(BaseTool):
                         "items_count": len(validated_items),
                         "delivery_date": delivery_date.strftime("%Y-%m-%d"),
                     },
-                    message=f"订单 {order.order_number} 创建成功，包含 {len(validated_items)} 个明细"
+                    message=f"订单 {order.order_number} 创建成功，包含 {len(validated_items)} 个明细",
                 )
-            
+
         except Exception as e:
-            return ToolResult(
-                success=False,
-                error=f"创建销售订单失败: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"创建销售订单失败: {str(e)}")

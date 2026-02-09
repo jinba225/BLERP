@@ -21,7 +21,7 @@ class ApprovalLevel:
         1: {"name": "一级审批", "max_amount": 5000, "approvers": ["department_manager"]},
         2: {"name": "二级审批", "max_amount": 20000, "approvers": ["director"]},
         3: {"name": "三级审批", "max_amount": 100000, "approvers": ["vice_president"]},
-        4: {"name": "四级审批", "max_amount": float('inf'), "approvers": ["president"]},
+        4: {"name": "四级审批", "max_amount": float("inf"), "approvers": ["president"]},
     }
 
     @classmethod
@@ -66,16 +66,16 @@ class ApprovalRequest:
         amount: float = 0,
         requester: User = None,
         description: str = "",
-        metadata: Dict[str, Any] = None
+        metadata: Dict[str, Any] = None,
     ):
         self.request_type = request_type  # 请求类型（如 "expense_approval"）
-        self.entity_type = entity_type    # 实体类型（如 "expense"）
-        self.entity_id = entity_id        # 实体ID
-        self.entity_number = entity_number # 实体编号
-        self.amount = amount              # 金额
-        self.requester = requester       # 申请人
-        self.description = description    # 描述
-        self.metadata = metadata or {}   # 额外元数据
+        self.entity_type = entity_type  # 实体类型（如 "expense"）
+        self.entity_id = entity_id  # 实体ID
+        self.entity_number = entity_number  # 实体编号
+        self.amount = amount  # 金额
+        self.requester = requester  # 申请人
+        self.description = description  # 描述
+        self.metadata = metadata or {}  # 额外元数据
         self.created_at = timezone.now()
 
         # 根据金额确定审批级别
@@ -113,7 +113,7 @@ class ApprovalService:
         amount: float = 0,
         requester: User = None,
         description: str = "",
-        **kwargs
+        **kwargs,
     ) -> ApprovalRequest:
         """
         创建审批请求
@@ -139,7 +139,7 @@ class ApprovalService:
             amount=amount,
             requester=requester,
             description=description,
-            metadata=kwargs
+            metadata=kwargs,
         )
 
         # TODO: 将审批请求保存到数据库或发送通知
@@ -149,9 +149,7 @@ class ApprovalService:
 
     @staticmethod
     def approve_request(
-        request: ApprovalRequest,
-        approver: User,
-        notes: str = ""
+        request: ApprovalRequest, approver: User, notes: str = ""
     ) -> tuple[bool, str, Dict[str, Any]]:
         """
         批准审批请求
@@ -189,9 +187,7 @@ class ApprovalService:
 
     @staticmethod
     def reject_request(
-        request: ApprovalRequest,
-        approver: User,
-        reason: str = ""
+        request: ApprovalRequest, approver: User, reason: str = ""
     ) -> tuple[bool, str, Dict[str, Any]]:
         """
         拒绝审批请求
@@ -222,197 +218,251 @@ class ApprovalService:
     # ========== 具体实体的审批逻辑 ==========
 
     @staticmethod
-    def _approve_expense(request: ApprovalRequest, approver: User, notes: str) -> tuple[bool, str, Dict[str, Any]]:
+    def _approve_expense(
+        request: ApprovalRequest, approver: User, notes: str
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """批准费用报销"""
         from finance.models import Expense
 
         expense = Expense.objects.get(id=request.entity_id, is_deleted=False)
 
         # 检查状态
-        if expense.status != 'submitted':
+        if expense.status != "submitted":
             return False, f"费用状态为 {expense.get_status_display()}，不能审批", {}
 
         # 执行批准
         expense.approve(approved_by_user=approver)
 
-        return True, f"费用报销 {expense.expense_number} 已批准", {
-            "expense_number": expense.expense_number,
-            "status": expense.status,
-            "amount": float(expense.amount),
-        }
+        return (
+            True,
+            f"费用报销 {expense.expense_number} 已批准",
+            {
+                "expense_number": expense.expense_number,
+                "status": expense.status,
+                "amount": float(expense.amount),
+            },
+        )
 
     @staticmethod
-    def _approve_journal(request: ApprovalRequest, approver: User, notes: str) -> tuple[bool, str, Dict[str, Any]]:
+    def _approve_journal(
+        request: ApprovalRequest, approver: User, notes: str
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """批准会计凭证"""
         from finance.models import Journal
 
         journal = Journal.objects.get(id=request.entity_id, is_deleted=False)
 
         # 检查状态
-        if journal.status != 'draft':
+        if journal.status != "draft":
             return False, f"凭证状态为 {journal.get_status_display()}，不能审批", {}
 
         # 批准并过账
-        journal.status = 'posted'
+        journal.status = "posted"
         journal.posted_at = timezone.now()
         journal.posted_by = approver
         journal.notes = f"批准备注: {notes}\n{journal.notes or ''}"
         journal.save()
 
-        return True, f"会计凭证 {journal.journal_number} 已审批并过账", {
-            "journal_number": journal.journal_number,
-            "status": journal.status,
-        }
+        return (
+            True,
+            f"会计凭证 {journal.journal_number} 已审批并过账",
+            {
+                "journal_number": journal.journal_number,
+                "status": journal.status,
+            },
+        )
 
     @staticmethod
-    def _approve_sales_order(request: ApprovalRequest, approver: User, notes: str) -> tuple[bool, str, Dict[str, Any]]:
+    def _approve_sales_order(
+        request: ApprovalRequest, approver: User, notes: str
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """批准销售订单"""
         from sales.models import SalesOrder
 
         order = SalesOrder.objects.get(id=request.entity_id, is_deleted=False)
 
         # 检查状态
-        if order.status != 'pending':
+        if order.status != "pending":
             return False, f"订单状态为 {order.get_status_display()}，不能审批", {}
 
         # 执行批准
         order.approve_order(approved_by_user=approver)
 
-        return True, f"订单 {order.order_number} 已批准", {
-            "order_number": order.order_number,
-            "status": order.status,
-        }
+        return (
+            True,
+            f"订单 {order.order_number} 已批准",
+            {
+                "order_number": order.order_number,
+                "status": order.status,
+            },
+        )
 
     @staticmethod
-    def _approve_purchase_order(request: ApprovalRequest, approver: User, notes: str) -> tuple[bool, str, Dict[str, Any]]:
+    def _approve_purchase_order(
+        request: ApprovalRequest, approver: User, notes: str
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """批准采购订单"""
         from purchase.models import PurchaseOrder
 
         order = PurchaseOrder.objects.get(id=request.entity_id, is_deleted=False)
 
         # 检查状态
-        if order.status != 'pending':
+        if order.status != "pending":
             return False, f"订单状态为 {order.get_status_display()}，不能审批", {}
 
         # 执行批准
-        order.status = 'approved'
+        order.status = "approved"
         order.approved_at = timezone.now()
         order.approved_by = approver
         order.save()
 
-        return True, f"采购订单 {order.order_number} 已批准", {
-            "order_number": order.order_number,
-            "status": order.status,
-        }
+        return (
+            True,
+            f"采购订单 {order.order_number} 已批准",
+            {
+                "order_number": order.order_number,
+                "status": order.status,
+            },
+        )
 
     @staticmethod
-    def _approve_sales_return(request: ApprovalRequest, approver: User, notes: str) -> tuple[bool, str, Dict[str, Any]]:
+    def _approve_sales_return(
+        request: ApprovalRequest, approver: User, notes: str
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """批准销售退货"""
         from sales.models import SalesReturn
 
         sales_return = SalesReturn.objects.get(id=request.entity_id, is_deleted=False)
 
         # 检查状态
-        if sales_return.status != 'pending':
+        if sales_return.status != "pending":
             return False, f"退货单状态为 {sales_return.get_status_display()}，不能审批", {}
 
         # 执行批准
-        sales_return.status = 'approved'
+        sales_return.status = "approved"
         sales_return.approved_at = timezone.now()
         sales_return.approved_by = approver
         sales_return.save()
 
-        return True, f"退货单 {sales_return.return_number} 已批准", {
-            "return_number": sales_return.return_number,
-            "status": sales_return.status,
-        }
+        return (
+            True,
+            f"退货单 {sales_return.return_number} 已批准",
+            {
+                "return_number": sales_return.return_number,
+                "status": sales_return.status,
+            },
+        )
 
     @staticmethod
-    def _approve_purchase_receipt(request: ApprovalRequest, approver: User, notes: str) -> tuple[bool, str, Dict[str, Any]]:
+    def _approve_purchase_receipt(
+        request: ApprovalRequest, approver: User, notes: str
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """批准采购收货"""
         from purchase.models import PurchaseReceipt
 
         receipt = PurchaseReceipt.objects.get(id=request.entity_id, is_deleted=False)
 
         # 检查状态
-        if receipt.status not in ['pending', 'received']:
+        if receipt.status not in ["pending", "received"]:
             return False, f"收货单状态为 {receipt.get_status_display()}，不能审批", {}
 
         # 执行批准
-        receipt.status = 'inspected' if receipt.status == 'received' else 'approved'
+        receipt.status = "inspected" if receipt.status == "received" else "approved"
         receipt.approved_at = timezone.now()
         receipt.approved_by = approver
         receipt.notes = f"批准备注: {notes}\n{receipt.notes or ''}"
         receipt.save()
 
-        return True, f"收货单 {receipt.receipt_number} 已批准入库", {
-            "receipt_number": receipt.receipt_number,
-            "status": receipt.status,
-        }
+        return (
+            True,
+            f"收货单 {receipt.receipt_number} 已批准入库",
+            {
+                "receipt_number": receipt.receipt_number,
+                "status": receipt.status,
+            },
+        )
 
     # ========== 拒绝逻辑 ==========
 
     @staticmethod
-    def _reject_expense(request: ApprovalRequest, approver: User, reason: str) -> tuple[bool, str, Dict[str, Any]]:
+    def _reject_expense(
+        request: ApprovalRequest, approver: User, reason: str
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """拒绝费用报销"""
         from finance.models import Expense
 
         expense = Expense.objects.get(id=request.entity_id, is_deleted=False)
 
         # 检查状态
-        if expense.status != 'submitted':
+        if expense.status != "submitted":
             return False, f"费用状态为 {expense.get_status_display()}，不能拒绝", {}
 
         # 执行拒绝
         expense.reject(rejected_by_user=approver, reason=reason)
 
-        return True, f"费用报销 {expense.expense_number} 已拒绝: {reason}", {
-            "expense_number": expense.expense_number,
-            "status": expense.status,
-        }
+        return (
+            True,
+            f"费用报销 {expense.expense_number} 已拒绝: {reason}",
+            {
+                "expense_number": expense.expense_number,
+                "status": expense.status,
+            },
+        )
 
     @staticmethod
-    def _reject_sales_order(request: ApprovalRequest, approver: User, reason: str) -> tuple[bool, str, Dict[str, Any]]:
+    def _reject_sales_order(
+        request: ApprovalRequest, approver: User, reason: str
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """拒绝销售订单"""
         from sales.models import SalesOrder
 
         order = SalesOrder.objects.get(id=request.entity_id, is_deleted=False)
 
         # 检查状态
-        if order.status != 'pending':
+        if order.status != "pending":
             return False, f"订单状态为 {order.get_status_display()}，不能拒绝", {}
 
         # 执行拒绝
-        order.status = 'cancelled'
+        order.status = "cancelled"
         order.cancelled_at = timezone.now()
         order.cancelled_by = approver
         order.cancellation_reason = reason
         order.save()
 
-        return True, f"订单 {order.order_number} 已拒绝: {reason}", {
-            "order_number": order.order_number,
-            "status": order.status,
-        }
+        return (
+            True,
+            f"订单 {order.order_number} 已拒绝: {reason}",
+            {
+                "order_number": order.order_number,
+                "status": order.status,
+            },
+        )
 
     @staticmethod
-    def _reject_purchase_order(request: ApprovalRequest, approver: User, reason: str) -> tuple[bool, str, Dict[str, Any]]:
+    def _reject_purchase_order(
+        request: ApprovalRequest, approver: User, reason: str
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """拒绝采购订单"""
         from purchase.models import PurchaseOrder
 
         order = PurchaseOrder.objects.get(id=request.entity_id, is_deleted=False)
 
         # 检查状态
-        if order.status != 'pending':
+        if order.status != "pending":
             return False, f"订单状态为 {order.get_status_display()}，不能拒绝", {}
 
         # 执行拒绝
-        order.status = 'cancelled'
+        order.status = "cancelled"
         order.cancelled_at = timezone.now()
         order.cancelled_by = approver
         order.cancellation_reason = reason
         order.save()
 
-        return True, f"采购订单 {order.order_number} 已拒绝: {reason}", {
-            "order_number": order.order_number,
-            "status": order.status,
-        }
+        return (
+            True,
+            f"采购订单 {order.order_number} 已拒绝: {reason}",
+            {
+                "order_number": order.order_number,
+                "status": order.status,
+            },
+        )

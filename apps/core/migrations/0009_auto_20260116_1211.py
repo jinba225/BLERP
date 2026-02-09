@@ -5,44 +5,42 @@ from django.db import migrations
 
 def create_account_detail_configs(apps, schema_editor):
     """创建应付明细和应付主单的单据号前缀配置"""
-    SystemConfig = apps.get_model('core', 'SystemConfig')
+    SystemConfig = apps.get_model("core", "SystemConfig")
 
     configs = [
         {
-            'key': 'document_prefix_account_detail',
-            'value': 'AD',
-            'config_type': 'business',
-            'description': '应付明细单据号前缀 (Account Detail)',
-            'is_active': True
+            "key": "document_prefix_account_detail",
+            "value": "AD",
+            "config_type": "business",
+            "description": "应付明细单据号前缀 (Account Detail)",
+            "is_active": True,
         },
         {
-            'key': 'document_prefix_supplier_account',
-            'value': 'SA',
-            'config_type': 'business',
-            'description': '应付主单单据号前缀 (Supplier Account)',
-            'is_active': True
+            "key": "document_prefix_supplier_account",
+            "value": "SA",
+            "config_type": "business",
+            "description": "应付主单单据号前缀 (Supplier Account)",
+            "is_active": True,
         },
     ]
 
     for config in configs:
         # 检查是否已存在
-        if not SystemConfig.objects.filter(key=config['key']).exists():
+        if not SystemConfig.objects.filter(key=config["key"]).exists():
             SystemConfig.objects.create(**config)
 
 
 def reverse_create_account_detail_configs(apps, schema_editor):
     """回滚：删除创建的配置"""
-    SystemConfig = apps.get_model('core', 'SystemConfig')
-    SystemConfig.objects.filter(key__in=[
-        'document_prefix_account_detail',
-        'document_prefix_supplier_account'
-    ]).delete()
+    SystemConfig = apps.get_model("core", "SystemConfig")
+    SystemConfig.objects.filter(
+        key__in=["document_prefix_account_detail", "document_prefix_supplier_account"]
+    ).delete()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0008_unify_inbound_outbound_prefixes'),
+        ("core", "0008_unify_inbound_outbound_prefixes"),
     ]
 
     operations = [

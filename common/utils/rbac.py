@@ -21,29 +21,24 @@ def require_roles(*role_codes):
         def my_view(request):
             return JsonResponse({'message': 'Authorized'})
     """
+
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
             if not request.user or not request.user.is_authenticated:
-                return JsonResponse(
-                    {'error': '未登录或认证失败'},
-                    status=401
-                )
+                return JsonResponse({"error": "未登录或认证失败"}, status=401)
 
             user_roles = UserRole.objects.filter(
-                user=request.user,
-                role__code__in=role_codes,
-                is_active=True
+                user=request.user, role__code__in=role_codes, is_active=True
             )
 
             if not user_roles.exists():
-                return JsonResponse(
-                    {'error': f'需要 {", ".join(role_codes)} 角色'},
-                    status=403
-                )
+                return JsonResponse({"error": f'需要 {", ".join(role_codes)} 角色'}, status=403)
 
             return view_func(request, *args, **kwargs)
+
         return _wrapped_view
+
     return decorator
 
 
@@ -56,30 +51,27 @@ def require_permissions(*permission_codes):
         def my_view(request):
             return JsonResponse({'message': 'Authorized'})
     """
+
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
             if not request.user or not request.user.is_authenticated:
-                return JsonResponse(
-                    {'error': '未登录或认证失败'},
-                    status=401
-                )
+                return JsonResponse({"error": "未登录或认证失败"}, status=401)
 
             user_permissions = Permission.objects.filter(
                 userrole__user=request.user,
                 userrole__is_active=True,
                 role__permissions__code__in=permission_codes,
-                is_active=True
+                is_active=True,
             )
 
             if not user_permissions.exists():
-                return JsonResponse(
-                    {'error': f'需要 {", ".join(permission_codes)} 权限'},
-                    status=403
-                )
+                return JsonResponse({"error": f'需要 {", ".join(permission_codes)} 权限'}, status=403)
 
             return view_func(request, *args, **kwargs)
+
         return _wrapped_view
+
     return decorator
 
 
@@ -94,11 +86,7 @@ def has_role(user, role_code):
     Returns:
         bool: True if user has the role
     """
-    return UserRole.objects.filter(
-        user=user,
-        role__code=role_code,
-        is_active=True
-    ).exists()
+    return UserRole.objects.filter(user=user, role__code=role_code, is_active=True).exists()
 
 
 def has_permission(user, permission_code):
@@ -116,7 +104,7 @@ def has_permission(user, permission_code):
         userrole__user=user,
         userrole__is_active=True,
         role__permissions__code=permission_code,
-        is_active=True
+        is_active=True,
     ).exists()
 
 
@@ -130,10 +118,7 @@ def get_user_roles(user):
     Returns:
         QuerySet: User's active roles
     """
-    return UserRole.objects.filter(
-        user=user,
-        is_active=True
-    ).select_related('role')
+    return UserRole.objects.filter(user=user, is_active=True).select_related("role")
 
 
 def get_user_permissions(user):
@@ -150,18 +135,18 @@ def get_user_permissions(user):
         userrole__user=user,
         userrole__is_active=True,
         role__permissions__is_active=True,
-        is_active=True
+        is_active=True,
     ).distinct()
 
 
 def is_admin(user):
     """Check if user is an admin."""
-    return has_role(user, 'admin') or has_role(user, 'superadmin')
+    return has_role(user, "admin") or has_role(user, "superadmin")
 
 
 def is_manager(user):
     """Check if user is a manager."""
-    return has_role(user, 'manager') or is_admin(user)
+    return has_role(user, "manager") or is_admin(user)
 
 
 def get_user_department_id(user):

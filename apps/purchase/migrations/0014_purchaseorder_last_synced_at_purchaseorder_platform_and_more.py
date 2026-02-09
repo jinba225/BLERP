@@ -6,104 +6,359 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0011_add_company_description_en'),
-        ('ecomm_sync', '0004_alter_platformaccount_platform_and_more'),
-        ('purchase', '0013_add_borrowed_quantity'),
+        ("core", "0011_add_company_description_en"),
+        ("ecomm_sync", "0004_alter_platformaccount_platform_and_more"),
+        ("purchase", "0013_add_borrowed_quantity"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='purchaseorder',
-            name='last_synced_at',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='最后同步时间'),
+            model_name="purchaseorder",
+            name="last_synced_at",
+            field=models.DateTimeField(blank=True, null=True, verbose_name="最后同步时间"),
         ),
         migrations.AddField(
-            model_name='purchaseorder',
-            name='platform',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='purchase_orders', to='core.platform', verbose_name='电商平台'),
+            model_name="purchaseorder",
+            name="platform",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="purchase_orders",
+                to="core.platform",
+                verbose_name="电商平台",
+            ),
         ),
         migrations.AddField(
-            model_name='purchaseorder',
-            name='platform_account',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='purchase_orders', to='ecomm_sync.platformaccount', verbose_name='平台账号'),
+            model_name="purchaseorder",
+            name="platform_account",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="purchase_orders",
+                to="ecomm_sync.platformaccount",
+                verbose_name="平台账号",
+            ),
         ),
         migrations.AddField(
-            model_name='purchaseorder',
-            name='platform_sync_status',
-            field=models.CharField(choices=[('pending', '待同步'), ('synced', '已同步'), ('syncing', '同步中'), ('failed', '同步失败')], default='pending', help_text='商品同步到电商平台的状态', max_length=20, verbose_name='平台同步状态'),
+            model_name="purchaseorder",
+            name="platform_sync_status",
+            field=models.CharField(
+                choices=[
+                    ("pending", "待同步"),
+                    ("synced", "已同步"),
+                    ("syncing", "同步中"),
+                    ("failed", "同步失败"),
+                ],
+                default="pending",
+                help_text="商品同步到电商平台的状态",
+                max_length=20,
+                verbose_name="平台同步状态",
+            ),
         ),
         migrations.AddField(
-            model_name='purchaseorder',
-            name='sync_error',
-            field=models.TextField(blank=True, verbose_name='同步错误'),
+            model_name="purchaseorder",
+            name="sync_error",
+            field=models.TextField(blank=True, verbose_name="同步错误"),
         ),
         migrations.AddField(
-            model_name='purchaseorder',
-            name='sync_to_platform',
-            field=models.BooleanField(default=False, help_text='是否将采购商品同步到电商平台', verbose_name='同步到平台'),
+            model_name="purchaseorder",
+            name="sync_to_platform",
+            field=models.BooleanField(
+                default=False, help_text="是否将采购商品同步到电商平台", verbose_name="同步到平台"
+            ),
         ),
         migrations.CreateModel(
-            name='PurchaseOrderItemPlatformMap',
+            name="PurchaseOrderItemPlatformMap",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('platform_product_id', models.CharField(db_index=True, help_text='电商平台上的商品ID', max_length=200, verbose_name='平台商品ID')),
-                ('platform_sku', models.CharField(blank=True, help_text='电商平台上的SKU', max_length=200, verbose_name='平台SKU')),
-                ('sync_enabled', models.BooleanField(default=True, help_text='是否启用自动同步到电商平台', verbose_name='启用同步')),
-                ('sync_status', models.CharField(choices=[('pending', '待同步'), ('synced', '已同步'), ('syncing', '同步中'), ('failed', '同步失败')], default='pending', help_text='商品同步到电商平台的状态', max_length=20, verbose_name='同步状态')),
-                ('last_synced_at', models.DateTimeField(blank=True, help_text='上次成功同步到电商平台的时间', null=True, verbose_name='最后同步时间')),
-                ('sync_error', models.TextField(blank=True, help_text='同步失败时的错误信息', verbose_name='同步错误')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('platform', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='purchase_platform_maps', to='core.platform', verbose_name='电商平台')),
-                ('platform_account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='purchase_platform_maps', to='ecomm_sync.platformaccount', verbose_name='平台账号')),
-                ('purchase_order_item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='platform_maps', to='purchase.purchaseorderitem', verbose_name='采购订单商品')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "platform_product_id",
+                    models.CharField(
+                        db_index=True, help_text="电商平台上的商品ID", max_length=200, verbose_name="平台商品ID"
+                    ),
+                ),
+                (
+                    "platform_sku",
+                    models.CharField(
+                        blank=True, help_text="电商平台上的SKU", max_length=200, verbose_name="平台SKU"
+                    ),
+                ),
+                (
+                    "sync_enabled",
+                    models.BooleanField(
+                        default=True, help_text="是否启用自动同步到电商平台", verbose_name="启用同步"
+                    ),
+                ),
+                (
+                    "sync_status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "待同步"),
+                            ("synced", "已同步"),
+                            ("syncing", "同步中"),
+                            ("failed", "同步失败"),
+                        ],
+                        default="pending",
+                        help_text="商品同步到电商平台的状态",
+                        max_length=20,
+                        verbose_name="同步状态",
+                    ),
+                ),
+                (
+                    "last_synced_at",
+                    models.DateTimeField(
+                        blank=True, help_text="上次成功同步到电商平台的时间", null=True, verbose_name="最后同步时间"
+                    ),
+                ),
+                (
+                    "sync_error",
+                    models.TextField(blank=True, help_text="同步失败时的错误信息", verbose_name="同步错误"),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "platform",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="purchase_platform_maps",
+                        to="core.platform",
+                        verbose_name="电商平台",
+                    ),
+                ),
+                (
+                    "platform_account",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="purchase_platform_maps",
+                        to="ecomm_sync.platformaccount",
+                        verbose_name="平台账号",
+                    ),
+                ),
+                (
+                    "purchase_order_item",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="platform_maps",
+                        to="purchase.purchaseorderitem",
+                        verbose_name="采购订单商品",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '采购订单商品平台映射',
-                'verbose_name_plural': '采购订单商品平台映射',
-                'db_table': 'purchase_order_item_platform_map',
-                'ordering': ['-last_synced_at'],
-                'indexes': [models.Index(fields=['platform', 'sync_status'], name='purchase_or_platfor_16117d_idx'), models.Index(fields=['sync_enabled', 'sync_status'], name='purchase_or_sync_en_361403_idx'), models.Index(fields=['-last_synced_at'], name='purchase_or_last_sy_af33a4_idx'), models.Index(fields=['purchase_order_item', 'platform'], name='purchase_or_purchas_21f6d5_idx')],
-                'unique_together': {('purchase_order_item', 'platform', 'platform_account', 'platform_product_id')},
+                "verbose_name": "采购订单商品平台映射",
+                "verbose_name_plural": "采购订单商品平台映射",
+                "db_table": "purchase_order_item_platform_map",
+                "ordering": ["-last_synced_at"],
+                "indexes": [
+                    models.Index(
+                        fields=["platform", "sync_status"], name="purchase_or_platfor_16117d_idx"
+                    ),
+                    models.Index(
+                        fields=["sync_enabled", "sync_status"],
+                        name="purchase_or_sync_en_361403_idx",
+                    ),
+                    models.Index(fields=["-last_synced_at"], name="purchase_or_last_sy_af33a4_idx"),
+                    models.Index(
+                        fields=["purchase_order_item", "platform"],
+                        name="purchase_or_purchas_21f6d5_idx",
+                    ),
+                ],
+                "unique_together": {
+                    ("purchase_order_item", "platform", "platform_account", "platform_product_id")
+                },
             },
         ),
         migrations.CreateModel(
-            name='PurchaseSyncQueue',
+            name="PurchaseSyncQueue",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('sync_type', models.CharField(choices=[('add', '新增'), ('update', '更新'), ('delete', '删除')], help_text='add=新增商品, update=更新商品信息, delete=删除商品', max_length=20, verbose_name='同步类型')),
-                ('sync_data', models.JSONField(blank=True, default=dict, help_text='要同步的商品数据（JSON格式）', verbose_name='同步数据')),
-                ('status', models.CharField(choices=[('pending', '待处理'), ('processing', '处理中'), ('success', '成功'), ('failed', '失败')], default='pending', max_length=20, verbose_name='状态')),
-                ('retry_count', models.IntegerField(default=0, help_text='已重试次数', verbose_name='重试次数')),
-                ('max_retries', models.IntegerField(default=3, help_text='最大重试次数', verbose_name='最大重试次数')),
-                ('error_message', models.TextField(blank=True, help_text='同步失败时的错误信息', verbose_name='错误信息')),
-                ('processed_at', models.DateTimeField(blank=True, help_text='任务开始处理的时间', null=True, verbose_name='处理时间')),
-                ('completed_at', models.DateTimeField(blank=True, help_text='任务完成的时间', null=True, verbose_name='完成时间')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('platform', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='purchase_sync_queues', to='core.platform', verbose_name='电商平台')),
-                ('platform_account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='purchase_sync_queues', to='ecomm_sync.platformaccount', verbose_name='平台账号')),
-                ('purchase_order_item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sync_queues', to='purchase.purchaseorderitem', verbose_name='采购订单商品')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "sync_type",
+                    models.CharField(
+                        choices=[("add", "新增"), ("update", "更新"), ("delete", "删除")],
+                        help_text="add=新增商品, update=更新商品信息, delete=删除商品",
+                        max_length=20,
+                        verbose_name="同步类型",
+                    ),
+                ),
+                (
+                    "sync_data",
+                    models.JSONField(
+                        blank=True, default=dict, help_text="要同步的商品数据（JSON格式）", verbose_name="同步数据"
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "待处理"),
+                            ("processing", "处理中"),
+                            ("success", "成功"),
+                            ("failed", "失败"),
+                        ],
+                        default="pending",
+                        max_length=20,
+                        verbose_name="状态",
+                    ),
+                ),
+                (
+                    "retry_count",
+                    models.IntegerField(default=0, help_text="已重试次数", verbose_name="重试次数"),
+                ),
+                (
+                    "max_retries",
+                    models.IntegerField(default=3, help_text="最大重试次数", verbose_name="最大重试次数"),
+                ),
+                (
+                    "error_message",
+                    models.TextField(blank=True, help_text="同步失败时的错误信息", verbose_name="错误信息"),
+                ),
+                (
+                    "processed_at",
+                    models.DateTimeField(
+                        blank=True, help_text="任务开始处理的时间", null=True, verbose_name="处理时间"
+                    ),
+                ),
+                (
+                    "completed_at",
+                    models.DateTimeField(
+                        blank=True, help_text="任务完成的时间", null=True, verbose_name="完成时间"
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "platform",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="purchase_sync_queues",
+                        to="core.platform",
+                        verbose_name="电商平台",
+                    ),
+                ),
+                (
+                    "platform_account",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="purchase_sync_queues",
+                        to="ecomm_sync.platformaccount",
+                        verbose_name="平台账号",
+                    ),
+                ),
+                (
+                    "purchase_order_item",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sync_queues",
+                        to="purchase.purchaseorderitem",
+                        verbose_name="采购订单商品",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '采购同步队列',
-                'verbose_name_plural': '采购同步队列',
-                'db_table': 'purchase_sync_queue',
-                'ordering': ['-created_at'],
-                'indexes': [models.Index(fields=['status', 'created_at'], name='purchase_sy_status_c18919_idx'), models.Index(fields=['platform', 'status'], name='purchase_sy_platfor_d24f18_idx'), models.Index(fields=['sync_type', 'status'], name='purchase_sy_sync_ty_79fe29_idx'), models.Index(fields=['-created_at'], name='purchase_sy_created_8997e5_idx'), models.Index(fields=['retry_count', 'status'], name='purchase_sy_retry_c_da0eba_idx')],
+                "verbose_name": "采购同步队列",
+                "verbose_name_plural": "采购同步队列",
+                "db_table": "purchase_sync_queue",
+                "ordering": ["-created_at"],
+                "indexes": [
+                    models.Index(
+                        fields=["status", "created_at"], name="purchase_sy_status_c18919_idx"
+                    ),
+                    models.Index(
+                        fields=["platform", "status"], name="purchase_sy_platfor_d24f18_idx"
+                    ),
+                    models.Index(
+                        fields=["sync_type", "status"], name="purchase_sy_sync_ty_79fe29_idx"
+                    ),
+                    models.Index(fields=["-created_at"], name="purchase_sy_created_8997e5_idx"),
+                    models.Index(
+                        fields=["retry_count", "status"], name="purchase_sy_retry_c_da0eba_idx"
+                    ),
+                ],
             },
         ),
     ]

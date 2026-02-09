@@ -4,15 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('purchase', '0015_remove_borrow_approved_at_remove_borrow_approved_by_and_more'),
+        ("purchase", "0015_remove_borrow_approved_at_remove_borrow_approved_by_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='borrow',
-            name='status',
-            field=models.CharField(choices=[('draft', '草稿'), ('borrowed', '借用中'), ('partially_returned', '部分归还'), ('fully_returned', '全部归还'), ('converting', '转换中'), ('completed', '已完成'), ('cancelled', '已取消')], default='draft', max_length=20, verbose_name='状态'),
+            model_name="borrow",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("draft", "草稿"),
+                    ("borrowed", "借用中"),
+                    ("partially_returned", "部分归还"),
+                    ("fully_returned", "全部归还"),
+                    ("converting", "转换中"),
+                    ("completed", "已完成"),
+                    ("cancelled", "已取消"),
+                ],
+                default="draft",
+                max_length=20,
+                verbose_name="状态",
+            ),
         ),
     ]

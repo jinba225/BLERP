@@ -28,24 +28,33 @@
              {% endif %}
 
              {% if can_confirm_receipt %}
-            <a href="{% url 'purchase:borrow_confirm_all_receipt' borrow.pk %}" class="btn btn-primary"
-               onclick="return confirm('确认将所有剩余可借用数量的产品全部入库到借用仓吗？')">
-                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <form method="post" action="{% url 'purchase:borrow_confirm_all_receipt' borrow.pk %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary"
+                        onclick="return confirm('确认将所有剩余可借用数量的产品全部入库到借用仓吗？')">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-9a2 2 0 012-2h4a2 2 0 012 2v9" />
 </svg>一键全部入库
-            </a>
+                </button>
+            </form>
             {% endif %}
 
             {% if can_return %}
-            <a href="{% url 'purchase:borrow_return' borrow.pk %}" class="btn btn-primary">
-                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>处理归还
-            </a>
+            <form method="post" action="{% url 'purchase:borrow_return' borrow.pk %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>处理归还
+                </button>
+            </form>
             {% endif %}
 
             {% if can_request_conversion %}
-            <a href="{% url 'purchase:borrow_request_conversion' borrow.pk %}" class="btn btn-primary">
-                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>转采购订单
-            </a>
+            <form method="post" action="{% url 'purchase:borrow_request_conversion' borrow.pk %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>转采购订单
+                </button>
+            </form>
             {% endif %}
         </div>
     </div>

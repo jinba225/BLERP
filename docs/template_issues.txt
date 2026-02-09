@@ -1,0 +1,171 @@
+Django ERP 模板文件问题清单
+================================================================================
+
+文件: templates/modules/ai_assistant/model_config_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/core/login.html
+  [CRITICAL] missing_extends: 缺少 extends 语句
+
+文件: templates/modules/customers/contact_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/customers/customer_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/departments/budget_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/departments/department_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/departments/position_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/ecomm_sync/listing_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+  [HIGH] script_in_title: 脚本不在 extra_js block 中 (第 336 行)
+
+文件: templates/modules/finance/account_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/finance/budget_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/finance/customer_prepayment_consolidate.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 105 行)
+
+文件: templates/modules/finance/customer_prepayment_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+  [HIGH] script_in_title: 脚本不在 extra_js block 中 (第 354 行)
+
+文件: templates/modules/finance/expense_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/finance/invoice_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/finance/journal_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/finance/payment_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/finance/payment_payment_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/finance/payment_receipt_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/finance/report_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/finance/supplier_prepayment_consolidate.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 105 行)
+
+文件: templates/modules/finance/tax_rate_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/inventory/adjustment_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/inventory/count_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/inventory/inbound_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/inventory/inventory_order_report.html
+  [HIGH] script_in_title: 脚本不在 extra_js block 中 (第 406 行)
+
+文件: templates/modules/inventory/outbound_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/inventory/report_stock_summary.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 8 行)
+  [HIGH] script_in_title: 脚本不在 extra_js block 中 (第 299 行)
+
+文件: templates/modules/inventory/stock_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/inventory/transaction_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/inventory/transfer_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/inventory/warehouse_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/products/brand_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/products/category_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/products/product_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/products/unit_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/purchase/borrow_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 5 行)
+
+文件: templates/modules/purchase/inquiry_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/purchase/order_form.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 183 行)
+
+文件: templates/modules/purchase/order_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 5 行)
+
+文件: templates/modules/purchase/quotation_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/purchase/receipt_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/purchase/return_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/sales/delivery_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/sales/loan_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/sales/order_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 10 行)
+
+文件: templates/modules/sales/quote_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/sales/quote_print.html
+  [CRITICAL] missing_extends: 缺少 extends 语句
+
+文件: templates/modules/sales/quote_print_custom.html
+  [CRITICAL] missing_extends: 缺少 extends 语句
+
+文件: templates/modules/sales/quote_print_hiprint.html
+  [CRITICAL] missing_extends: 缺少 extends 语句
+
+文件: templates/modules/sales/return_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/sales/template_editor.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 192 行)
+
+文件: templates/modules/sales/template_preview.html
+  [CRITICAL] missing_extends: 缺少 extends 语句
+
+文件: templates/modules/suppliers/supplier_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 6 行)
+
+文件: templates/modules/users/role_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+
+文件: templates/modules/users/user_list.html
+  [CRITICAL] script_in_title: 脚本在 title block 中 (第 7 行)
+

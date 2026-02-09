@@ -52,21 +52,21 @@ class WeChatChannel(BaseChannel):
         """
         try:
             # GET请求用于验证URL
-            if request.method == 'GET':
-                msg_signature = request.GET.get('msg_signature', '')
-                timestamp = request.GET.get('timestamp', '')
-                nonce = request.GET.get('nonce', '')
-                echostr = request.GET.get('echostr', '')
+            if request.method == "GET":
+                msg_signature = request.GET.get("msg_signature", "")
+                timestamp = request.GET.get("timestamp", "")
+                nonce = request.GET.get("nonce", "")
+                echostr = request.GET.get("echostr", "")
 
                 # 验证签名
                 if self._verify_signature(self.token, timestamp, nonce, echostr, msg_signature):
                     return True
 
             # POST请求用于接收消息
-            elif request.method == 'POST':
-                msg_signature = request.GET.get('msg_signature', '')
-                timestamp = request.GET.get('timestamp', '')
-                nonce = request.GET.get('nonce', '')
+            elif request.method == "POST":
+                msg_signature = request.GET.get("msg_signature", "")
+                timestamp = request.GET.get("timestamp", "")
+                nonce = request.GET.get("nonce", "")
 
                 # 简单验证（实际应解密消息体验证）
                 return True
@@ -77,8 +77,9 @@ class WeChatChannel(BaseChannel):
             print(f"微信签名验证失败: {str(e)}")
             return False
 
-    def _verify_signature(self, token: str, timestamp: str, nonce: str,
-                         msg: str, signature: str) -> bool:
+    def _verify_signature(
+        self, token: str, timestamp: str, nonce: str, msg: str, signature: str
+    ) -> bool:
         """
         验证微信签名
 
@@ -95,7 +96,7 @@ class WeChatChannel(BaseChannel):
         try:
             tmp_list = [token, timestamp, nonce, msg]
             tmp_list.sort()
-            tmp_str = ''.join(tmp_list)
+            tmp_str = "".join(tmp_list)
             tmp_signature = hashlib.sha1(tmp_str.encode()).hexdigest()
             return tmp_signature == signature
         except Exception:
@@ -114,7 +115,7 @@ class WeChatChannel(BaseChannel):
         try:
             # TODO: 需要解密微信加密消息
             # 这里简化处理，假设已解密
-            body = request.body.decode('utf-8')
+            body = request.body.decode("utf-8")
 
             # 解析XML（微信使用XML格式）
             # 简化版本：直接返回None，实际需要XML解析库
@@ -150,10 +151,8 @@ class WeChatChannel(BaseChannel):
                 "touser": external_user_id,
                 "msgtype": "text",
                 "agentid": self.agent_id,
-                "text": {
-                    "content": message.content
-                },
-                "safe": 0
+                "text": {"content": message.content},
+                "safe": 0,
             }
 
             # 发送请求
@@ -161,7 +160,7 @@ class WeChatChannel(BaseChannel):
             response.raise_for_status()
 
             result = response.json()
-            return result.get('errcode') == 0
+            return result.get("errcode") == 0
 
         except Exception as e:
             print(f"发送微信消息失败: {str(e)}")
@@ -176,32 +175,26 @@ class WeChatChannel(BaseChannel):
         """
         try:
             # 从Redis缓存中获取
-            cached_token = AIAssistantCache.get_access_token('wechat', self.corp_id)
+            cached_token = AIAssistantCache.get_access_token("wechat", self.corp_id)
             if cached_token:
                 return cached_token
 
             # 缓存中没有，请求新token
             url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken"
-            params = {
-                "corpid": self.corp_id,
-                "corpsecret": self.corp_secret
-            }
+            params = {"corpid": self.corp_id, "corpsecret": self.corp_secret}
 
             response = requests.get(url, params=params, timeout=10)
             response.raise_for_status()
 
             result = response.json()
-            if result.get('errcode') == 0:
-                access_token = result.get('access_token')
-                expires_in = result.get('expires_in', 7200)
+            if result.get("errcode") == 0:
+                access_token = result.get("access_token")
+                expires_in = result.get("expires_in", 7200)
 
                 # 存入Redis缓存（提前5分钟过期）
                 cache_timeout = expires_in - 300
                 AIAssistantCache.set_access_token(
-                    'wechat',
-                    self.corp_id,
-                    access_token,
-                    timeout=cache_timeout
+                    "wechat", self.corp_id, access_token, timeout=cache_timeout
                 )
 
                 return access_token

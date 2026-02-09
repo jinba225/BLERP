@@ -20,8 +20,13 @@ from .base import (
 class OpenAIProvider(BaseAIProvider):
     """OpenAI Provider 实现"""
 
-    def __init__(self, api_key: str, api_base: Optional[str] = None,
-                 model_name: str = "gpt-3.5-turbo", **kwargs):
+    def __init__(
+        self,
+        api_key: str,
+        api_base: Optional[str] = None,
+        model_name: str = "gpt-3.5-turbo",
+        **kwargs,
+    ):
         super().__init__(api_key, api_base, model_name, **kwargs)
 
         # 初始化OpenAI客户端
@@ -31,8 +36,9 @@ class OpenAIProvider(BaseAIProvider):
             timeout=self.timeout,
         )
 
-    def chat(self, messages: List[Dict[str, str]],
-             tools: Optional[List[Dict[str, Any]]] = None) -> AIResponse:
+    def chat(
+        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+    ) -> AIResponse:
         """
         发送对话请求
 
@@ -64,7 +70,7 @@ class OpenAIProvider(BaseAIProvider):
             tool_calls = None
 
             # 检查是否有工具调用
-            if hasattr(message, 'tool_calls') and message.tool_calls:
+            if hasattr(message, "tool_calls") and message.tool_calls:
                 tool_calls = [
                     {
                         "id": tc.id,
@@ -72,7 +78,7 @@ class OpenAIProvider(BaseAIProvider):
                         "function": {
                             "name": tc.function.name,
                             "arguments": tc.function.arguments,
-                        }
+                        },
                     }
                     for tc in message.tool_calls
                 ]
@@ -94,8 +100,9 @@ class OpenAIProvider(BaseAIProvider):
         except Exception as e:
             raise ProviderAPIException(f"OpenAI API调用失败: {str(e)}")
 
-    def stream_chat(self, messages: List[Dict[str, str]],
-                   tools: Optional[List[Dict[str, Any]]] = None) -> Iterator[str]:
+    def stream_chat(
+        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+    ) -> Iterator[str]:
         """
         流式对话请求
 
@@ -152,13 +159,15 @@ class OpenAIProvider(BaseAIProvider):
 
         openai_tools = []
         for tool in tools:
-            openai_tools.append({
-                "type": "function",
-                "function": {
-                    "name": tool.get("name"),
-                    "description": tool.get("description"),
-                    "parameters": tool.get("parameters", {}),
+            openai_tools.append(
+                {
+                    "type": "function",
+                    "function": {
+                        "name": tool.get("name"),
+                        "description": tool.get("description"),
+                        "parameters": tool.get("parameters", {}),
+                    },
                 }
-            })
+            )
 
         return openai_tools

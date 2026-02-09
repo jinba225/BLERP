@@ -58,7 +58,9 @@ class CacheService:
         return cache.get(cache_key)
 
     @staticmethod
-    def set(tool_name: str, params: Dict[str, Any], result: Dict[str, Any], ttl: int = None) -> bool:
+    def set(
+        tool_name: str, params: Dict[str, Any], result: Dict[str, Any], ttl: int = None
+    ) -> bool:
         """
         将工具执行结果存入缓存
 
@@ -127,12 +129,10 @@ class CacheService:
                 "total_cached_results": total_keys,
                 "tools_with_cache": len(tool_stats),
                 "cache_hit_ratio": "N/A",  # 需要额外统计
-                "tool_distribution": tool_stats
+                "tool_distribution": tool_stats,
             }
         except Exception as e:
-            return {
-                "error": str(e)
-            }
+            return {"error": str(e)}
 
 
 class CachedToolWrapper:
@@ -213,13 +213,13 @@ class QueryOptimizer:
             # 查询工具优化
             # 使用select_related减少查询次数
             if tool_name == "query_sales_orders":
-                queryset = queryset.select_related('customer')
+                queryset = queryset.select_related("customer")
             elif tool_name == "query_deliveries":
-                queryset = queryset.select_related('sales_order__customer')
+                queryset = queryset.select_related("sales_order__customer")
             elif tool_name == "query_purchase_orders":
-                queryset = queryset.select_related('supplier')
+                queryset = queryset.select_related("supplier")
             elif tool_name == "query_purchase_receipts":
-                queryset = queryset.select_related('purchase_order__supplier')
+                queryset = queryset.select_related("purchase_order__supplier")
             elif tool_name == "query_invoices":
                 queryset = queryset.select_related()
             # 可以添加更多优化...
@@ -228,12 +228,8 @@ class QueryOptimizer:
             # 详情查询工具优化
             # 使用prefetch_related预加载关联数据
             if tool_name == "get_order_detail":
-                queryset = queryset.select_related(
-                    'customer',
-                    'items__product'
-                ).prefetch_related(
-                    'deliveries__items',
-                    'returns__items'
+                queryset = queryset.select_related("customer", "items__product").prefetch_related(
+                    "deliveries__items", "returns__items"
                 )
             # 可以添加更多优化...
 
@@ -248,13 +244,13 @@ class AIModelConfigCache:
     """
 
     # 缓存键前缀
-    CACHE_KEY_PREFIX = 'ai_model_config'
+    CACHE_KEY_PREFIX = "ai_model_config"
 
     # 缓存过期时间（秒）
     DEFAULT_TIMEOUT = 900  # 15分钟
 
     @classmethod
-    def get_cache_key(cls, key_type: str, identifier: str = '') -> str:
+    def get_cache_key(cls, key_type: str, identifier: str = "") -> str:
         """
         生成缓存键
 
@@ -277,8 +273,9 @@ class AIModelConfigCache:
         Returns:
             AIModelConfig实例或None
         """
-        cache_key = cls.get_cache_key('default')
+        cache_key = cls.get_cache_key("default")
         from django.core.cache import cache
+
         return cache.get(cache_key)
 
     @classmethod
@@ -290,8 +287,9 @@ class AIModelConfigCache:
             config: AIModelConfig实例
             timeout: 缓存时间（秒），默认使用DEFAULT_TIMEOUT
         """
-        cache_key = cls.get_cache_key('default')
+        cache_key = cls.get_cache_key("default")
         from django.core.cache import cache
+
         cache.set(cache_key, config, timeout or cls.DEFAULT_TIMEOUT)
 
     @classmethod
@@ -305,8 +303,9 @@ class AIModelConfigCache:
         Returns:
             CustomerAIConfig实例或None
         """
-        cache_key = cls.get_cache_key('customer', str(customer_id))
+        cache_key = cls.get_cache_key("customer", str(customer_id))
         from django.core.cache import cache
+
         return cache.get(cache_key)
 
     @classmethod
@@ -319,15 +318,17 @@ class AIModelConfigCache:
             config: CustomerAIConfig实例
             timeout: 缓存时间（秒），默认使用DEFAULT_TIMEOUT
         """
-        cache_key = cls.get_cache_key('customer', str(customer_id))
+        cache_key = cls.get_cache_key("customer", str(customer_id))
         from django.core.cache import cache
+
         cache.set(cache_key, config, timeout or cls.DEFAULT_TIMEOUT)
 
     @classmethod
     def invalidate_default_config(cls):
         """使默认配置缓存失效"""
-        cache_key = cls.get_cache_key('default')
+        cache_key = cls.get_cache_key("default")
         from django.core.cache import cache
+
         cache.delete(cache_key)
 
     @classmethod
@@ -338,14 +339,16 @@ class AIModelConfigCache:
         Args:
             customer_id: 客户ID
         """
-        cache_key = cls.get_cache_key('customer', str(customer_id))
+        cache_key = cls.get_cache_key("customer", str(customer_id))
         from django.core.cache import cache
+
         cache.delete(cache_key)
 
     @classmethod
     def invalidate_all_configs(cls):
         """使所有配置缓存失效"""
         from django.core.cache import cache
+
         # 删除默认配置缓存
         cls.invalidate_default_config()
         # 注意：无法批量删除所有客户配置，需要在客户配置更新时主动失效

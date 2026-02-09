@@ -29,7 +29,7 @@ class Conflict:
         remote_value: Any,
         strategy: ResolutionStrategy,
         local_version: Optional[int] = None,
-        remote_version: Optional[int] = None
+        remote_version: Optional[int] = None,
     ):
         """
         初始化冲突对象
@@ -82,11 +82,7 @@ class ConflictResolver:
 
         logger.info("初始化数据冲突解决器")
 
-    async def detect_conflicts(
-        self,
-        local_data: Dict,
-        remote_data: Dict
-    ) -> List[Conflict]:
+    async def detect_conflicts(self, local_data: Dict, remote_data: Dict) -> List[Conflict]:
         """
         检测数据冲突
 
@@ -118,22 +114,19 @@ class ConflictResolver:
                     local_value=local_value,
                     remote_value=remote_value,
                     strategy=strategy,
-                    local_version=local_data.get('version'),
-                    remote_version=remote_data.get('version')
+                    local_version=local_data.get("version"),
+                    remote_version=remote_data.get("version"),
                 )
                 conflicts.append(conflict)
 
                 logger.warning(
-                    f"检测到冲突: field={field}, "
-                    f"local={local_value}, remote={remote_value}"
+                    f"检测到冲突: field={field}, " f"local={local_value}, remote={remote_value}"
                 )
 
         return conflicts
 
     async def resolve_conflict(
-        self,
-        conflict: Conflict,
-        auto_resolve: bool = True
+        self, conflict: Conflict, auto_resolve: bool = True
     ) -> Dict[str, Any]:
         """
         解决单个冲突
@@ -155,11 +148,11 @@ class ConflictResolver:
         if not auto_resolve and strategy == ResolutionStrategy.MANUAL:
             # 人工处理
             return {
-                'field': conflict.field,
-                'status': 'pending_manual_review',
-                'local_value': conflict.local_value,
-                'remote_value': conflict.remote_value,
-                'reason': '需要人工处理',
+                "field": conflict.field,
+                "status": "pending_manual_review",
+                "local_value": conflict.local_value,
+                "remote_value": conflict.remote_value,
+                "reason": "需要人工处理",
             }
 
         # 自动解决
@@ -185,9 +178,7 @@ class ConflictResolver:
         return result
 
     async def resolve_conflicts(
-        self,
-        conflicts: List[Conflict],
-        auto_resolve: bool = True
+        self, conflicts: List[Conflict], auto_resolve: bool = True
     ) -> Dict[str, Any]:
         """
         批量解决冲突
@@ -211,26 +202,21 @@ class ConflictResolver:
         for conflict in conflicts:
             result = await self.resolve_conflict(conflict, auto_resolve)
 
-            if result.get('status') == 'pending_manual_review':
+            if result.get("status") == "pending_manual_review":
                 pending_manual.append(result)
             else:
-                resolved_data[conflict.field] = result['value']
+                resolved_data[conflict.field] = result["value"]
 
         return {
-            'resolved_data': resolved_data,
-            'pending_manual': pending_manual,
-            'total_conflicts': len(conflicts),
-            'resolved_count': len(conflicts) - len(pending_manual),
-            'manual_count': len(pending_manual),
+            "resolved_data": resolved_data,
+            "pending_manual": pending_manual,
+            "total_conflicts": len(conflicts),
+            "resolved_count": len(conflicts) - len(pending_manual),
+            "manual_count": len(pending_manual),
         }
 
     def _is_conflicting(
-        self,
-        field: str,
-        local_value: Any,
-        remote_value: Any,
-        local_data: Dict,
-        remote_data: Dict
+        self, field: str, local_value: Any, remote_value: Any, local_data: Dict, remote_data: Dict
     ) -> bool:
         """
         判断是否存在冲突
@@ -254,8 +240,8 @@ class ConflictResolver:
             return False
 
         # 检查版本号
-        local_version = local_data.get('version')
-        remote_version = remote_data.get('version')
+        local_version = local_data.get("version")
+        remote_version = remote_data.get("version")
 
         if local_version is not None and remote_version is not None:
             # 版本号相同但值不同，存在冲突
@@ -282,20 +268,20 @@ class ConflictResolver:
         if conflict.local_version is not None and conflict.remote_version is not None:
             if conflict.local_version > conflict.remote_version:
                 value = conflict.local_value
-                source = 'local'
+                source = "local"
             else:
                 value = conflict.remote_value
-                source = 'remote'
+                source = "remote"
         else:
             # 无版本号，使用远程值
             value = conflict.remote_value
-            source = 'remote'
+            source = "remote"
 
         return {
-            'field': conflict.field,
-            'value': value,
-            'source': source,
-            'reason': 'Last Write Wins',
+            "field": conflict.field,
+            "value": value,
+            "source": source,
+            "reason": "Last Write Wins",
         }
 
     def _resolve_local_priority(self, conflict: Conflict) -> Dict:
@@ -309,10 +295,10 @@ class ConflictResolver:
             dict: 解决结果
         """
         return {
-            'field': conflict.field,
-            'value': conflict.local_value,
-            'source': 'local',
-            'reason': 'Local Priority',
+            "field": conflict.field,
+            "value": conflict.local_value,
+            "source": "local",
+            "reason": "Local Priority",
         }
 
     def _resolve_remote_priority(self, conflict: Conflict) -> Dict:
@@ -326,10 +312,10 @@ class ConflictResolver:
             dict: 解决结果
         """
         return {
-            'field': conflict.field,
-            'value': conflict.remote_value,
-            'source': 'remote',
-            'reason': 'Remote Priority',
+            "field": conflict.field,
+            "value": conflict.remote_value,
+            "source": "remote",
+            "reason": "Remote Priority",
         }
 
     def _resolve_merge(self, conflict: Conflict) -> Dict:
@@ -346,21 +332,21 @@ class ConflictResolver:
         remote = conflict.remote_value
 
         # 根据字段类型合并
-        if conflict.field in ['title', 'listing_title']:
+        if conflict.field in ["title", "listing_title"]:
             # 标题：取较长的
             value = local if len(local) > len(remote) else remote
 
-        elif conflict.field in ['description']:
+        elif conflict.field in ["description"]:
             # 描述：合并
             value = f"{local}\n\n{remote}"
 
-        elif conflict.field in ['images']:
+        elif conflict.field in ["images"]:
             # 图片：合并去重
             local_images = set(local) if isinstance(local, list) else {local}
             remote_images = set(remote) if isinstance(remote, list) else {remote}
             value = list(local_images | remote_images)
 
-        elif conflict.field in ['sku', 'category']:
+        elif conflict.field in ["sku", "category"]:
             # SKU和分类：远程优先
             value = remote
 
@@ -369,10 +355,10 @@ class ConflictResolver:
             value = remote
 
         return {
-            'field': conflict.field,
-            'value': value,
-            'source': 'merged',
-            'reason': 'Merged',
+            "field": conflict.field,
+            "value": value,
+            "source": "merged",
+            "reason": "Merged",
         }
 
     def _record_conflict(self, conflict: Conflict, result: Dict):
@@ -384,13 +370,13 @@ class ConflictResolver:
             result: 解决结果
         """
         record = {
-            'timestamp': timezone.now().isoformat(),
-            'field': conflict.field,
-            'local_value': conflict.local_value,
-            'remote_value': conflict.remote_value,
-            'strategy': conflict.strategy.value,
-            'resolved_value': result.get('value'),
-            'resolved_source': result.get('source'),
+            "timestamp": timezone.now().isoformat(),
+            "field": conflict.field,
+            "local_value": conflict.local_value,
+            "remote_value": conflict.remote_value,
+            "strategy": conflict.strategy.value,
+            "resolved_value": result.get("value"),
+            "resolved_source": result.get("source"),
         }
 
         self.conflict_history.append(record)
@@ -401,11 +387,7 @@ class ConflictResolver:
 
         logger.debug(f"记录冲突历史: {record}")
 
-    def get_conflict_history(
-        self,
-        field: Optional[str] = None,
-        limit: int = 50
-    ) -> List[Dict]:
+    def get_conflict_history(self, field: Optional[str] = None, limit: int = 50) -> List[Dict]:
         """
         获取冲突历史
 
@@ -424,7 +406,7 @@ class ConflictResolver:
 
         # 过滤字段
         if field:
-            history = [h for h in history if h['field'] == field]
+            history = [h for h in history if h["field"] == field]
 
         # 返回最近的记录
         return history[-limit:][::-1]

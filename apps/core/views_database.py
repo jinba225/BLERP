@@ -34,12 +34,12 @@ def database_management(request):
     backups = DatabaseHelper.list_backups()
 
     context = {
-        'db_info': db_info,
-        'backups': backups,
-        'page_title': '数据库管理',
+        "db_info": db_info,
+        "backups": backups,
+        "page_title": "数据库管理",
     }
 
-    return render(request, 'modules/core/database_management.html', context)
+    return render(request, "modules/core/database_management.html", context)
 
 
 @login_required
@@ -53,35 +53,25 @@ def add_test_data(request):
         # 记录审计日志
         AuditLog.objects.create(
             user=request.user,
-            action='create',
-            model_name='DatabaseManagement',
-            object_repr='添加测试数据',
-            changes={'stats': stats},
-            ip_address=request.META.get('REMOTE_ADDR'),
-            user_agent=request.META.get('HTTP_USER_AGENT', '')
+            action="create",
+            model_name="DatabaseManagement",
+            object_repr="添加测试数据",
+            changes={"stats": stats},
+            ip_address=request.META.get("REMOTE_ADDR"),
+            user_agent=request.META.get("HTTP_USER_AGENT", ""),
         )
 
         if success:
             messages.success(request, message)
-            return JsonResponse({
-                'success': True,
-                'message': message,
-                'stats': stats
-            })
+            return JsonResponse({"success": True, "message": message, "stats": stats})
         else:
             messages.error(request, message)
-            return JsonResponse({
-                'success': False,
-                'message': message
-            }, status=400)
+            return JsonResponse({"success": False, "message": message}, status=400)
 
     except Exception as e:
-        error_msg = f'添加测试数据时发生错误: {str(e)}'
+        error_msg = f"添加测试数据时发生错误: {str(e)}"
         messages.error(request, error_msg)
-        return JsonResponse({
-            'success': False,
-            'message': error_msg
-        }, status=500)
+        return JsonResponse({"success": False, "message": error_msg}, status=500)
 
 
 @login_required
@@ -95,35 +85,25 @@ def clear_test_data(request):
         # 记录审计日志
         AuditLog.objects.create(
             user=request.user,
-            action='delete',
-            model_name='DatabaseManagement',
-            object_repr='清除测试数据',
-            changes={'stats': stats},
-            ip_address=request.META.get('REMOTE_ADDR'),
-            user_agent=request.META.get('HTTP_USER_AGENT', '')
+            action="delete",
+            model_name="DatabaseManagement",
+            object_repr="清除测试数据",
+            changes={"stats": stats},
+            ip_address=request.META.get("REMOTE_ADDR"),
+            user_agent=request.META.get("HTTP_USER_AGENT", ""),
         )
 
         if success:
             messages.success(request, message)
-            return JsonResponse({
-                'success': True,
-                'message': message,
-                'stats': stats
-            })
+            return JsonResponse({"success": True, "message": message, "stats": stats})
         else:
             messages.error(request, message)
-            return JsonResponse({
-                'success': False,
-                'message': message
-            }, status=400)
+            return JsonResponse({"success": False, "message": message}, status=400)
 
     except Exception as e:
-        error_msg = f'清除测试数据时发生错误: {str(e)}'
+        error_msg = f"清除测试数据时发生错误: {str(e)}"
         messages.error(request, error_msg)
-        return JsonResponse({
-            'success': False,
-            'message': error_msg
-        }, status=500)
+        return JsonResponse({"success": False, "message": error_msg}, status=500)
 
 
 @login_required
@@ -137,37 +117,31 @@ def backup_database(request):
         # 记录审计日志
         AuditLog.objects.create(
             user=request.user,
-            action='export',
-            model_name='DatabaseManagement',
-            object_repr='备份数据库',
-            changes={
-                'backup_file': str(backup_path) if backup_path else None
-            },
-            ip_address=request.META.get('REMOTE_ADDR'),
-            user_agent=request.META.get('HTTP_USER_AGENT', '')
+            action="export",
+            model_name="DatabaseManagement",
+            object_repr="备份数据库",
+            changes={"backup_file": str(backup_path) if backup_path else None},
+            ip_address=request.META.get("REMOTE_ADDR"),
+            user_agent=request.META.get("HTTP_USER_AGENT", ""),
         )
 
         if success:
             messages.success(request, message)
-            return JsonResponse({
-                'success': True,
-                'message': message,
-                'backup_file': Path(backup_path).name if backup_path else None
-            })
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": message,
+                    "backup_file": Path(backup_path).name if backup_path else None,
+                }
+            )
         else:
             messages.error(request, message)
-            return JsonResponse({
-                'success': False,
-                'message': message
-            }, status=400)
+            return JsonResponse({"success": False, "message": message}, status=400)
 
     except Exception as e:
-        error_msg = f'备份数据库时发生错误: {str(e)}'
+        error_msg = f"备份数据库时发生错误: {str(e)}"
         messages.error(request, error_msg)
-        return JsonResponse({
-            'success': False,
-            'message': error_msg
-        }, status=500)
+        return JsonResponse({"success": False, "message": error_msg}, status=500)
 
 
 @login_required
@@ -176,12 +150,9 @@ def backup_database(request):
 def restore_database(request):
     """还原数据库"""
     try:
-        backup_file = request.POST.get('backup_file')
+        backup_file = request.POST.get("backup_file")
         if not backup_file:
-            return JsonResponse({
-                'success': False,
-                'message': '请选择备份文件'
-            }, status=400)
+            return JsonResponse({"success": False, "message": "请选择备份文件"}, status=400)
 
         # 构建完整路径
         backup_dir = DatabaseHelper.get_backup_dir()
@@ -192,36 +163,25 @@ def restore_database(request):
         # 记录审计日志
         AuditLog.objects.create(
             user=request.user,
-            action='import',
-            model_name='DatabaseManagement',
-            object_repr='还原数据库',
-            changes={
-                'backup_file': backup_file
-            },
-            ip_address=request.META.get('REMOTE_ADDR'),
-            user_agent=request.META.get('HTTP_USER_AGENT', '')
+            action="import",
+            model_name="DatabaseManagement",
+            object_repr="还原数据库",
+            changes={"backup_file": backup_file},
+            ip_address=request.META.get("REMOTE_ADDR"),
+            user_agent=request.META.get("HTTP_USER_AGENT", ""),
         )
 
         if success:
             messages.success(request, message)
-            return JsonResponse({
-                'success': True,
-                'message': message
-            })
+            return JsonResponse({"success": True, "message": message})
         else:
             messages.error(request, message)
-            return JsonResponse({
-                'success': False,
-                'message': message
-            }, status=400)
+            return JsonResponse({"success": False, "message": message}, status=400)
 
     except Exception as e:
-        error_msg = f'还原数据库时发生错误: {str(e)}'
+        error_msg = f"还原数据库时发生错误: {str(e)}"
         messages.error(request, error_msg)
-        return JsonResponse({
-            'success': False,
-            'message': error_msg
-        }, status=500)
+        return JsonResponse({"success": False, "message": error_msg}, status=500)
 
 
 @login_required
@@ -234,25 +194,21 @@ def download_backup(request, filename):
         file_path = backup_dir / filename
 
         if not file_path.exists():
-            messages.error(request, '备份文件不存在')
-            return redirect('core:database_management')
+            messages.error(request, "备份文件不存在")
+            return redirect("core:database_management")
 
         # 记录审计日志
         AuditLog.objects.create(
             user=request.user,
-            action='export',
-            model_name='DatabaseManagement',
-            object_repr=f'下载备份文件: {filename}',
-            ip_address=request.META.get('REMOTE_ADDR'),
-            user_agent=request.META.get('HTTP_USER_AGENT', '')
+            action="export",
+            model_name="DatabaseManagement",
+            object_repr=f"下载备份文件: {filename}",
+            ip_address=request.META.get("REMOTE_ADDR"),
+            user_agent=request.META.get("HTTP_USER_AGENT", ""),
         )
 
-        return FileResponse(
-            open(file_path, 'rb'),
-            as_attachment=True,
-            filename=filename
-        )
+        return FileResponse(open(file_path, "rb"), as_attachment=True, filename=filename)
 
     except Exception as e:
-        messages.error(request, f'下载备份文件时发生错误: {str(e)}')
-        return redirect('core:database_management')
+        messages.error(request, f"下载备份文件时发生错误: {str(e)}")
+        return redirect("core:database_management")

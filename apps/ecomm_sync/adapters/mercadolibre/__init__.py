@@ -1,3 +1,3 @@
 from .adapter import MercadoLibreAdapter
 
-__all__ = ['MercadoLibreAdapter']
+__all__ = ["MercadoLibreAdapter"]

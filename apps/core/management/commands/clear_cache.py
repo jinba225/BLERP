@@ -11,41 +11,41 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = '清除Django缓存'
+    help = "清除Django缓存"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--cache',
+            "--cache",
             type=str,
-            default='default',
-            help='指定要清除的缓存别名（默认: default）',
+            default="default",
+            help="指定要清除的缓存别名（默认: default）",
         )
         parser.add_argument(
-            '--verbose',
-            action='store_true',
-            help='显示详细输出',
+            "--verbose",
+            action="store_true",
+            help="显示详细输出",
         )
 
     def handle(self, *args, **options):
-        cache_alias = options['cache']
-        verbose = options['verbose']
+        cache_alias = options["cache"]
+        verbose = options["verbose"]
 
         if verbose:
-            self.stdout.write(f'正在清除缓存: {cache_alias}')
+            self.stdout.write(f"正在清除缓存: {cache_alias}")
 
         try:
             # 清除指定缓存
             cache_backend = cache
-            if hasattr(cache, 'backend'):
+            if hasattr(cache, "backend"):
                 cache_backend = cache.backend
 
             # 清除所有缓存键
             cache.clear()
 
             if verbose:
-                self.stdout.write(self.style.SUCCESS(f'✓ 成功清除缓存: {cache_alias}'))
+                self.stdout.write(self.style.SUCCESS(f"✓ 成功清除缓存: {cache_alias}"))
             else:
-                self.stdout.write(self.style.SUCCESS('缓存已清除'))
+                self.stdout.write(self.style.SUCCESS("缓存已清除"))
 
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f'✗ 清除缓存失败: {str(e)}'))
+            self.stdout.write(self.style.ERROR(f"✗ 清除缓存失败: {str(e)}"))

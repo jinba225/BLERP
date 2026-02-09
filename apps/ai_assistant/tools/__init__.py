@@ -41,27 +41,27 @@ from .report_tools import (
 
 __all__ = [
     # 基础类
-    'BaseTool',
-    'ToolResult',
-    'ToolRegistry',
+    "BaseTool",
+    "ToolResult",
+    "ToolRegistry",
     # 销售工具
-    'SearchCustomerTool',
-    'CreateSalesQuoteTool',
-    'CreateSalesOrderTool',
-    'QuerySalesOrdersTool',
-    'GetOrderDetailTool',
-    'ApproveSalesOrderTool',
+    "SearchCustomerTool",
+    "CreateSalesQuoteTool",
+    "CreateSalesOrderTool",
+    "QuerySalesOrdersTool",
+    "GetOrderDetailTool",
+    "ApproveSalesOrderTool",
     # 采购工具
-    'SearchSupplierTool',
-    'CreatePurchaseRequestTool',
-    'QueryPurchaseOrdersTool',
-    'ApprovePurchaseOrderTool',
+    "SearchSupplierTool",
+    "CreatePurchaseRequestTool",
+    "QueryPurchaseOrdersTool",
+    "ApprovePurchaseOrderTool",
     # 库存工具
-    'CheckInventoryTool',
-    'SearchProductTool',
-    'GetLowStockAlertTool',
+    "CheckInventoryTool",
+    "SearchProductTool",
+    "GetLowStockAlertTool",
     # 报表工具
-    'GenerateSalesReportTool',
-    'GeneratePurchaseReportTool',
-    'GenerateInventoryReportTool',
+    "GenerateSalesReportTool",
+    "GeneratePurchaseReportTool",
+    "GenerateInventoryReportTool",
 ]

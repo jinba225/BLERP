@@ -6,35 +6,90 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0002_initial'),
+        ("core", "0002_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Notification',
+            name="Notification",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200, verbose_name='标题')),
-                ('message', models.TextField(verbose_name='消息内容')),
-                ('notification_type', models.CharField(choices=[('info', '信息'), ('success', '成功'), ('warning', '警告'), ('error', '错误')], default='info', max_length=20, verbose_name='通知类型')),
-                ('category', models.CharField(choices=[('sales_return', '销售退货'), ('sales_order', '销售订单'), ('purchase_order', '采购订单'), ('inventory', '库存'), ('finance', '财务'), ('system', '系统')], default='system', max_length=30, verbose_name='分类')),
-                ('reference_type', models.CharField(blank=True, max_length=50, verbose_name='关联类型')),
-                ('reference_id', models.CharField(blank=True, max_length=100, verbose_name='关联ID')),
-                ('reference_url', models.CharField(blank=True, max_length=500, verbose_name='关联链接')),
-                ('is_read', models.BooleanField(default=False, verbose_name='是否已读')),
-                ('read_at', models.DateTimeField(blank=True, null=True, verbose_name='阅读时间')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('recipient', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to=settings.AUTH_USER_MODEL, verbose_name='接收人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("title", models.CharField(max_length=200, verbose_name="标题")),
+                ("message", models.TextField(verbose_name="消息内容")),
+                (
+                    "notification_type",
+                    models.CharField(
+                        choices=[
+                            ("info", "信息"),
+                            ("success", "成功"),
+                            ("warning", "警告"),
+                            ("error", "错误"),
+                        ],
+                        default="info",
+                        max_length=20,
+                        verbose_name="通知类型",
+                    ),
+                ),
+                (
+                    "category",
+                    models.CharField(
+                        choices=[
+                            ("sales_return", "销售退货"),
+                            ("sales_order", "销售订单"),
+                            ("purchase_order", "采购订单"),
+                            ("inventory", "库存"),
+                            ("finance", "财务"),
+                            ("system", "系统"),
+                        ],
+                        default="system",
+                        max_length=30,
+                        verbose_name="分类",
+                    ),
+                ),
+                (
+                    "reference_type",
+                    models.CharField(blank=True, max_length=50, verbose_name="关联类型"),
+                ),
+                ("reference_id", models.CharField(blank=True, max_length=100, verbose_name="关联ID")),
+                (
+                    "reference_url",
+                    models.CharField(blank=True, max_length=500, verbose_name="关联链接"),
+                ),
+                ("is_read", models.BooleanField(default=False, verbose_name="是否已读")),
+                ("read_at", models.DateTimeField(blank=True, null=True, verbose_name="阅读时间")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                (
+                    "recipient",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="notifications",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="接收人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '通知',
-                'verbose_name_plural': '通知',
-                'db_table': 'core_notification',
-                'ordering': ['-created_at'],
-                'indexes': [models.Index(fields=['recipient', 'is_read', '-created_at'], name='core_notifi_recipie_1d5476_idx'), models.Index(fields=['recipient', 'category', '-created_at'], name='core_notifi_recipie_45007e_idx')],
+                "verbose_name": "通知",
+                "verbose_name_plural": "通知",
+                "db_table": "core_notification",
+                "ordering": ["-created_at"],
+                "indexes": [
+                    models.Index(
+                        fields=["recipient", "is_read", "-created_at"],
+                        name="core_notifi_recipie_1d5476_idx",
+                    ),
+                    models.Index(
+                        fields=["recipient", "category", "-created_at"],
+                        name="core_notifi_recipie_45007e_idx",
+                    ),
+                ],
             },
         ),
     ]

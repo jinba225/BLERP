@@ -5,6 +5,6 @@ from .purchase_order import PurchaseOrderService
 from .purchase_request import PurchaseRequestService
 
 __all__ = [
-    'PurchaseOrderService',
-    'PurchaseRequestService',
+    "PurchaseOrderService",
+    "PurchaseRequestService",
 ]

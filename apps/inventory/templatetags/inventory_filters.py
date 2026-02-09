@@ -7,7 +7,7 @@ from decimal import Decimal
 register = template.Library()
 
 
-@register.filter(name='mul')
+@register.filter(name="mul")
 def multiply(value, arg):
     """
     Multiply two values.
@@ -15,13 +15,13 @@ def multiply(value, arg):
     """
     try:
         if value is None or arg is None:
-            return Decimal('0')
+            return Decimal("0")
         return Decimal(str(value)) * Decimal(str(arg))
     except (ValueError, TypeError, decimal.InvalidOperation):
-        return Decimal('0')
+        return Decimal("0")
 
 
-@register.filter(name='sub')
+@register.filter(name="sub")
 def subtract(value, arg):
     """
     Subtract arg from value.
@@ -35,7 +35,7 @@ def subtract(value, arg):
         return 0
 
 
-@register.filter(name='percentage')
+@register.filter(name="percentage")
 def percentage(value, total):
     """
     Calculate percentage.

@@ -5,4 +5,4 @@
 """
 from ecomm_sync.adapters.base import get_adapter, BaseAdapter
 
-__all__ = ['get_adapter', 'BaseAdapter']
+__all__ = ["get_adapter", "BaseAdapter"]

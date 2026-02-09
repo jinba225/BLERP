@@ -27,13 +27,18 @@ class BaiduProvider(BaseAIProvider):
         "ernie-bot": "completions",
     }
 
-    def __init__(self, api_key: str, api_base: Optional[str] = None,
-                 model_name: str = "ernie-bot-4.0", **kwargs):
+    def __init__(
+        self,
+        api_key: str,
+        api_base: Optional[str] = None,
+        model_name: str = "ernie-bot-4.0",
+        **kwargs,
+    ):
         super().__init__(api_key, api_base, model_name, **kwargs)
 
         # API Key格式: "API_KEY,SECRET_KEY"
-        if ',' in self.api_key:
-            self.api_key, self.secret_key = self.api_key.split(',', 1)
+        if "," in self.api_key:
+            self.api_key, self.secret_key = self.api_key.split(",", 1)
         else:
             raise ValueError("百度文心API Key格式错误，应为: API_KEY,SECRET_KEY")
 
@@ -71,8 +76,9 @@ class BaiduProvider(BaseAIProvider):
         else:
             return f"https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/{endpoint}?access_token={self.access_token}"
 
-    def chat(self, messages: List[Dict[str, str]],
-             tools: Optional[List[Dict[str, Any]]] = None) -> AIResponse:
+    def chat(
+        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+    ) -> AIResponse:
         """
         发送对话请求
 
@@ -102,7 +108,7 @@ class BaiduProvider(BaseAIProvider):
                 url,
                 json=payload,
                 timeout=self.timeout,
-                headers={"Content-Type": "application/json"}
+                headers={"Content-Type": "application/json"},
             )
             response.raise_for_status()
             result = response.json()
@@ -124,14 +130,16 @@ class BaiduProvider(BaseAIProvider):
             # 检查是否有函数调用
             if "function_call" in result:
                 fc = result["function_call"]
-                tool_calls = [{
-                    "id": "call_" + fc.get("name", ""),
-                    "type": "function",
-                    "function": {
-                        "name": fc.get("name"),
-                        "arguments": fc.get("arguments", "{}"),
+                tool_calls = [
+                    {
+                        "id": "call_" + fc.get("name", ""),
+                        "type": "function",
+                        "function": {
+                            "name": fc.get("name"),
+                            "arguments": fc.get("arguments", "{}"),
+                        },
                     }
-                }]
+                ]
 
             return AIResponse(
                 content=content,
@@ -148,8 +156,9 @@ class BaiduProvider(BaseAIProvider):
         except Exception as e:
             raise ProviderAPIException(f"文心API调用失败: {str(e)}")
 
-    def stream_chat(self, messages: List[Dict[str, str]],
-                   tools: Optional[List[Dict[str, Any]]] = None) -> Iterator[str]:
+    def stream_chat(
+        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+    ) -> Iterator[str]:
         """
         流式对话请求
 
@@ -181,15 +190,15 @@ class BaiduProvider(BaseAIProvider):
                 json=payload,
                 timeout=self.timeout,
                 headers={"Content-Type": "application/json"},
-                stream=True
+                stream=True,
             )
             response.raise_for_status()
 
             # 逐行解析SSE响应
             for line in response.iter_lines():
                 if line:
-                    line_text = line.decode('utf-8')
-                    if line_text.startswith('data: '):
+                    line_text = line.decode("utf-8")
+                    if line_text.startswith("data: "):
                         data_str = line_text[6:]  # 去掉 "data: " 前缀
                         try:
                             data = json.loads(data_str)
@@ -220,10 +229,12 @@ class BaiduProvider(BaseAIProvider):
 
         baidu_tools = []
         for tool in tools:
-            baidu_tools.append({
-                "name": tool.get("name"),
-                "description": tool.get("description"),
-                "parameters": tool.get("parameters", {}),
-            })
+            baidu_tools.append(
+                {
+                    "name": tool.get("name"),
+                    "description": tool.get("description"),
+                    "parameters": tool.get("parameters", {}),
+                }
+            )
 
         return baidu_tools

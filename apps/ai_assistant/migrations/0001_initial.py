@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,169 +14,460 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='AIModelConfig',
+            name="AIModelConfig",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=100, verbose_name='配置名称')),
-                ('provider', models.CharField(choices=[('openai', 'OpenAI'), ('anthropic', 'Anthropic Claude'), ('baidu', '百度文心一言'), ('aliyun', '阿里通义千问'), ('tencent', '腾讯混元'), ('zhipu', '智谱AI'), ('moonshot', 'Moonshot'), ('deepseek', 'DeepSeek')], max_length=50, verbose_name='提供商')),
-                ('api_key', models.CharField(help_text='将被加密存储', max_length=500, verbose_name='API Key')),
-                ('api_base', models.CharField(blank=True, help_text='自定义API地址，留空使用默认', max_length=500, verbose_name='API Base URL')),
-                ('model_name', models.CharField(help_text='如: gpt-4, claude-3-5-sonnet, ernie-bot-4.0', max_length=100, verbose_name='模型名称')),
-                ('temperature', models.DecimalField(decimal_places=2, default=0.7, help_text='控制输出随机性，0-1之间', max_digits=3, verbose_name='Temperature')),
-                ('max_tokens', models.IntegerField(default=2000, help_text='最大生成Token数', verbose_name='Max Tokens')),
-                ('timeout', models.IntegerField(default=60, verbose_name='超时时间(秒)')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('is_default', models.BooleanField(default=False, help_text='默认配置将被优先使用', verbose_name='是否默认')),
-                ('priority', models.IntegerField(default=0, help_text='数字越大优先级越高', verbose_name='优先级')),
-                ('total_requests', models.IntegerField(default=0, verbose_name='总请求数')),
-                ('total_tokens', models.IntegerField(default=0, verbose_name='总Token数')),
-                ('last_used_at', models.DateTimeField(blank=True, null=True, verbose_name='最后使用时间')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("name", models.CharField(max_length=100, verbose_name="配置名称")),
+                (
+                    "provider",
+                    models.CharField(
+                        choices=[
+                            ("openai", "OpenAI"),
+                            ("anthropic", "Anthropic Claude"),
+                            ("baidu", "百度文心一言"),
+                            ("aliyun", "阿里通义千问"),
+                            ("tencent", "腾讯混元"),
+                            ("zhipu", "智谱AI"),
+                            ("moonshot", "Moonshot"),
+                            ("deepseek", "DeepSeek"),
+                        ],
+                        max_length=50,
+                        verbose_name="提供商",
+                    ),
+                ),
+                (
+                    "api_key",
+                    models.CharField(help_text="将被加密存储", max_length=500, verbose_name="API Key"),
+                ),
+                (
+                    "api_base",
+                    models.CharField(
+                        blank=True,
+                        help_text="自定义API地址，留空使用默认",
+                        max_length=500,
+                        verbose_name="API Base URL",
+                    ),
+                ),
+                (
+                    "model_name",
+                    models.CharField(
+                        help_text="如: gpt-4, claude-3-5-sonnet, ernie-bot-4.0",
+                        max_length=100,
+                        verbose_name="模型名称",
+                    ),
+                ),
+                (
+                    "temperature",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0.7,
+                        help_text="控制输出随机性，0-1之间",
+                        max_digits=3,
+                        verbose_name="Temperature",
+                    ),
+                ),
+                (
+                    "max_tokens",
+                    models.IntegerField(
+                        default=2000, help_text="最大生成Token数", verbose_name="Max Tokens"
+                    ),
+                ),
+                ("timeout", models.IntegerField(default=60, verbose_name="超时时间(秒)")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_default",
+                    models.BooleanField(default=False, help_text="默认配置将被优先使用", verbose_name="是否默认"),
+                ),
+                (
+                    "priority",
+                    models.IntegerField(default=0, help_text="数字越大优先级越高", verbose_name="优先级"),
+                ),
+                ("total_requests", models.IntegerField(default=0, verbose_name="总请求数")),
+                ("total_tokens", models.IntegerField(default=0, verbose_name="总Token数")),
+                (
+                    "last_used_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="最后使用时间"),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'AI模型配置',
-                'verbose_name_plural': 'AI模型配置',
-                'db_table': 'ai_model_config',
-                'ordering': ['-priority', '-is_default', 'name'],
+                "verbose_name": "AI模型配置",
+                "verbose_name_plural": "AI模型配置",
+                "db_table": "ai_model_config",
+                "ordering": ["-priority", "-is_default", "name"],
             },
         ),
         migrations.CreateModel(
-            name='WeChatConfig',
+            name="WeChatConfig",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('corp_id', models.CharField(max_length=100, verbose_name='企业ID')),
-                ('corp_secret', models.CharField(help_text='将被加密存储', max_length=500, verbose_name='应用Secret')),
-                ('agent_id', models.CharField(max_length=100, verbose_name='应用AgentID')),
-                ('token', models.CharField(max_length=100, verbose_name='Token')),
-                ('encoding_aes_key', models.CharField(max_length=500, verbose_name='EncodingAESKey')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("corp_id", models.CharField(max_length=100, verbose_name="企业ID")),
+                (
+                    "corp_secret",
+                    models.CharField(help_text="将被加密存储", max_length=500, verbose_name="应用Secret"),
+                ),
+                ("agent_id", models.CharField(max_length=100, verbose_name="应用AgentID")),
+                ("token", models.CharField(max_length=100, verbose_name="Token")),
+                (
+                    "encoding_aes_key",
+                    models.CharField(max_length=500, verbose_name="EncodingAESKey"),
+                ),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '微信配置',
-                'verbose_name_plural': '微信配置',
-                'db_table': 'wechat_config',
+                "verbose_name": "微信配置",
+                "verbose_name_plural": "微信配置",
+                "db_table": "wechat_config",
             },
         ),
         migrations.CreateModel(
-            name='DingTalkConfig',
+            name="DingTalkConfig",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('app_key', models.CharField(max_length=100, verbose_name='AppKey')),
-                ('app_secret', models.CharField(help_text='将被加密存储', max_length=500, verbose_name='AppSecret')),
-                ('agent_id', models.CharField(max_length=100, verbose_name='AgentID')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("app_key", models.CharField(max_length=100, verbose_name="AppKey")),
+                (
+                    "app_secret",
+                    models.CharField(help_text="将被加密存储", max_length=500, verbose_name="AppSecret"),
+                ),
+                ("agent_id", models.CharField(max_length=100, verbose_name="AgentID")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '钉钉配置',
-                'verbose_name_plural': '钉钉配置',
-                'db_table': 'dingtalk_config',
+                "verbose_name": "钉钉配置",
+                "verbose_name_plural": "钉钉配置",
+                "db_table": "dingtalk_config",
             },
         ),
         migrations.CreateModel(
-            name='AITool',
+            name="AITool",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('tool_name', models.CharField(db_index=True, max_length=100, unique=True, verbose_name='工具名称')),
-                ('display_name', models.CharField(max_length=200, verbose_name='显示名称')),
-                ('category', models.CharField(choices=[('sales', '销售管理'), ('purchase', '采购管理'), ('inventory', '库存管理'), ('finance', '财务管理'), ('report', '报表查询'), ('system', '系统管理')], max_length=50, verbose_name='分类')),
-                ('description', models.TextField(help_text='描述工具的功能，AI会根据此决定是否调用', verbose_name='工具描述')),
-                ('parameters', models.JSONField(help_text='JSON Schema格式定义工具参数', verbose_name='参数定义')),
-                ('handler_path', models.CharField(help_text='如: apps.ai_assistant.tools.sales.SearchCustomerTool', max_length=200, verbose_name='处理器路径')),
-                ('requires_approval', models.BooleanField(default=False, help_text='高风险操作需要用户确认', verbose_name='需要审批')),
-                ('required_permissions', models.JSONField(default=list, help_text='用户需要的权限列表', verbose_name='所需权限')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('call_count', models.IntegerField(default=0, verbose_name='调用次数')),
-                ('success_count', models.IntegerField(default=0, verbose_name='成功次数')),
-                ('last_called_at', models.DateTimeField(blank=True, null=True, verbose_name='最后调用时间')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "tool_name",
+                    models.CharField(
+                        db_index=True, max_length=100, unique=True, verbose_name="工具名称"
+                    ),
+                ),
+                ("display_name", models.CharField(max_length=200, verbose_name="显示名称")),
+                (
+                    "category",
+                    models.CharField(
+                        choices=[
+                            ("sales", "销售管理"),
+                            ("purchase", "采购管理"),
+                            ("inventory", "库存管理"),
+                            ("finance", "财务管理"),
+                            ("report", "报表查询"),
+                            ("system", "系统管理"),
+                        ],
+                        max_length=50,
+                        verbose_name="分类",
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(help_text="描述工具的功能，AI会根据此决定是否调用", verbose_name="工具描述"),
+                ),
+                (
+                    "parameters",
+                    models.JSONField(help_text="JSON Schema格式定义工具参数", verbose_name="参数定义"),
+                ),
+                (
+                    "handler_path",
+                    models.CharField(
+                        help_text="如: apps.ai_assistant.tools.sales.SearchCustomerTool",
+                        max_length=200,
+                        verbose_name="处理器路径",
+                    ),
+                ),
+                (
+                    "requires_approval",
+                    models.BooleanField(
+                        default=False, help_text="高风险操作需要用户确认", verbose_name="需要审批"
+                    ),
+                ),
+                (
+                    "required_permissions",
+                    models.JSONField(default=list, help_text="用户需要的权限列表", verbose_name="所需权限"),
+                ),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                ("call_count", models.IntegerField(default=0, verbose_name="调用次数")),
+                ("success_count", models.IntegerField(default=0, verbose_name="成功次数")),
+                (
+                    "last_called_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="最后调用时间"),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'AI工具定义',
-                'verbose_name_plural': 'AI工具定义',
-                'db_table': 'ai_tool',
-                'ordering': ['category', 'tool_name'],
+                "verbose_name": "AI工具定义",
+                "verbose_name_plural": "AI工具定义",
+                "db_table": "ai_tool",
+                "ordering": ["category", "tool_name"],
             },
         ),
         migrations.CreateModel(
-            name='AIConversation',
+            name="AIConversation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('conversation_id', models.CharField(db_index=True, max_length=100, unique=True, verbose_name='会话ID')),
-                ('channel', models.CharField(choices=[('web', 'Web界面'), ('wechat', '微信'), ('dingtalk', '钉钉')], max_length=20, verbose_name='渠道')),
-                ('channel_user_id', models.CharField(blank=True, help_text='微信openid或钉钉userid', max_length=200, verbose_name='渠道用户ID')),
-                ('status', models.CharField(choices=[('active', '活跃'), ('ended', '已结束')], default='active', max_length=20, verbose_name='状态')),
-                ('title', models.CharField(blank=True, max_length=200, verbose_name='会话标题')),
-                ('context_summary', models.TextField(blank=True, help_text='用于上下文压缩', verbose_name='上下文摘要')),
-                ('message_count', models.IntegerField(default=0, verbose_name='消息数')),
-                ('last_message_at', models.DateTimeField(blank=True, null=True, verbose_name='最后消息时间')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ai_conversations', to=settings.AUTH_USER_MODEL, verbose_name='用户')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "conversation_id",
+                    models.CharField(
+                        db_index=True, max_length=100, unique=True, verbose_name="会话ID"
+                    ),
+                ),
+                (
+                    "channel",
+                    models.CharField(
+                        choices=[("web", "Web界面"), ("wechat", "微信"), ("dingtalk", "钉钉")],
+                        max_length=20,
+                        verbose_name="渠道",
+                    ),
+                ),
+                (
+                    "channel_user_id",
+                    models.CharField(
+                        blank=True,
+                        help_text="微信openid或钉钉userid",
+                        max_length=200,
+                        verbose_name="渠道用户ID",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("active", "活跃"), ("ended", "已结束")],
+                        default="active",
+                        max_length=20,
+                        verbose_name="状态",
+                    ),
+                ),
+                ("title", models.CharField(blank=True, max_length=200, verbose_name="会话标题")),
+                (
+                    "context_summary",
+                    models.TextField(blank=True, help_text="用于上下文压缩", verbose_name="上下文摘要"),
+                ),
+                ("message_count", models.IntegerField(default=0, verbose_name="消息数")),
+                (
+                    "last_message_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="最后消息时间"),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ai_conversations",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="用户",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'AI对话会话',
-                'verbose_name_plural': 'AI对话会话',
-                'db_table': 'ai_conversation',
-                'ordering': ['-last_message_at'],
+                "verbose_name": "AI对话会话",
+                "verbose_name_plural": "AI对话会话",
+                "db_table": "ai_conversation",
+                "ordering": ["-last_message_at"],
             },
         ),
         migrations.CreateModel(
-            name='AIMessage',
+            name="AIMessage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('role', models.CharField(choices=[('user', '用户'), ('assistant', 'AI助手'), ('system', '系统'), ('tool', '工具调用')], max_length=20, verbose_name='角色')),
-                ('content', models.TextField(verbose_name='消息内容')),
-                ('content_type', models.CharField(choices=[('text', '文本'), ('image', '图片'), ('file', '文件')], default='text', max_length=20, verbose_name='内容类型')),
-                ('tool_calls', models.JSONField(blank=True, help_text='记录AI调用的工具和参数', null=True, verbose_name='工具调用')),
-                ('tool_results', models.JSONField(blank=True, null=True, verbose_name='工具结果')),
-                ('tokens_used', models.IntegerField(default=0, verbose_name='消耗Token数')),
-                ('response_time', models.DecimalField(blank=True, decimal_places=3, max_digits=10, null=True, verbose_name='响应时间(秒)')),
-                ('conversation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='ai_assistant.aiconversation', verbose_name='会话')),
-                ('model_config', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='ai_assistant.aimodelconfig', verbose_name='使用的模型')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[
+                            ("user", "用户"),
+                            ("assistant", "AI助手"),
+                            ("system", "系统"),
+                            ("tool", "工具调用"),
+                        ],
+                        max_length=20,
+                        verbose_name="角色",
+                    ),
+                ),
+                ("content", models.TextField(verbose_name="消息内容")),
+                (
+                    "content_type",
+                    models.CharField(
+                        choices=[("text", "文本"), ("image", "图片"), ("file", "文件")],
+                        default="text",
+                        max_length=20,
+                        verbose_name="内容类型",
+                    ),
+                ),
+                (
+                    "tool_calls",
+                    models.JSONField(
+                        blank=True, help_text="记录AI调用的工具和参数", null=True, verbose_name="工具调用"
+                    ),
+                ),
+                ("tool_results", models.JSONField(blank=True, null=True, verbose_name="工具结果")),
+                ("tokens_used", models.IntegerField(default=0, verbose_name="消耗Token数")),
+                (
+                    "response_time",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=3,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="响应时间(秒)",
+                    ),
+                ),
+                (
+                    "conversation",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="messages",
+                        to="ai_assistant.aiconversation",
+                        verbose_name="会话",
+                    ),
+                ),
+                (
+                    "model_config",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="ai_assistant.aimodelconfig",
+                        verbose_name="使用的模型",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'AI对话消息',
-                'verbose_name_plural': 'AI对话消息',
-                'db_table': 'ai_message',
-                'ordering': ['created_at'],
+                "verbose_name": "AI对话消息",
+                "verbose_name_plural": "AI对话消息",
+                "db_table": "ai_message",
+                "ordering": ["created_at"],
             },
         ),
         migrations.AddIndex(
-            model_name='aiconversation',
-            index=models.Index(fields=['user', 'channel', 'status'], name='ai_conversa_user_id_d9cb9e_idx'),
+            model_name="aiconversation",
+            index=models.Index(
+                fields=["user", "channel", "status"], name="ai_conversa_user_id_d9cb9e_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='aiconversation',
-            index=models.Index(fields=['conversation_id'], name='ai_conversa_convers_7e3ee7_idx'),
+            model_name="aiconversation",
+            index=models.Index(fields=["conversation_id"], name="ai_conversa_convers_7e3ee7_idx"),
         ),
         migrations.AddIndex(
-            model_name='aimessage',
-            index=models.Index(fields=['conversation', 'created_at'], name='ai_message_convers_1d68f2_idx'),
+            model_name="aimessage",
+            index=models.Index(
+                fields=["conversation", "created_at"], name="ai_message_convers_1d68f2_idx"
+            ),
         ),
     ]

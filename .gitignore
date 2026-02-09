@@ -1,5 +1,5 @@
 # ============================================
-# Python / Django
+# Python
 # ============================================
 __pycache__/
 *.py[cod]
@@ -18,40 +18,60 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
-*.manifest
-*.spec
 
+# ============================================
 # Django
+# ============================================
 *.log
-*.pot
-*.pyc
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-*.db
-*.db-journal
-media/
-staticfiles/
-backups/
-logs/
-celerybeat-schedule
-celerybeat.pid
+/media
+/staticfiles
+/static_root
 
-# Environments
+# ============================================
+# 环境变量
+# ============================================
 .env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+.env.local
+.env.*.local
+.env.production
+.env.staging
+.env.development
 
-# Unit test / coverage reports
+# ============================================
+# IDE
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
+.vscode/
+*.code-workspace
+.history/
+
+# ============================================
+# 测试和覆盖率
+# ============================================
 htmlcov/
 .tox/
 .nox/
@@ -61,153 +81,149 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
 .hypothesis/
 .pytest_cache/
-cover/
-pytest.ini
-.coveragerc
+.pytest_cache/
+.pytest_cache/
 
 # ============================================
-# IDE 和工具配置
+# Celery
 # ============================================
-.bmad-core/
-.claude/
-.spec-workflow/
-.trae/documents/
-_bmad_/
-.idea/
-.spyderproject
-.spyproject
-.ropeproject
-.pybuilder/
-target/
-.ipynb_checkpoints/
+celerybeat-schedule
+celerybeat.pid
+*.pid
+*.pid
+
+# ============================================
+# Docker
+# ============================================
+.dockerignore
+
+# ============================================
+# 备份文件
+# ============================================
+backups/
+*.bak
+*.backup
+*.old
+
+# ============================================
+# 临时文件
+# ============================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ============================================
+# OS生成的文件
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ============================================
+# 项目特定
+# ============================================
+# 静态文件压缩版本
+*.min.css.map
+*.min.js.map
+
+# 上传的文件
+uploads/
+user_uploads/
+
+# 日志文件
+logs/
+*.log
+
+# Session文件
+sessions/
+
+# Lock文件
+*.lock
+
+# ============================================
+# Node.js (如果有前端构建)
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ============================================
+# 数据库
+# ============================================
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# ============================================
+# 敏感信息
+# ============================================
+secrets/
+*.key
+*.pem
+*.crt
+*.cer
+
+# ============================================
+# 开发工具
+# ============================================
+.pytest_cache/
 .mypy_cache/
 .dmypy.json
 dmypy.json
 .pyre/
 .pytype/
-cython_debug/
-.ruff_cache/
-
-# LSP config files
-pyrightconfig.json
 
 # ============================================
-# Node.js / 前端
-# ============================================
-node_modules/
-
-# ============================================
-# macOS
-# ============================================
-.DS_Store
-.AppleDouble
-.LSOverride
-Icon
-._*
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-*.icloud
-
-# ============================================
-# 临时文件
-# ============================================
-*.bak
-*.old
-*.span.bak
-*_report.json
-
-# ============================================
-# 临时脚本（保留有用脚本在 scripts/ 中）
-# ============================================
-add_missing_fields.py
-check_template*.py
-delete_*.py
-fix_*.py
-init_*.py
-scan_templates.py
-test_*.py
-locustfile.py
-diagnose_*.py
-
-# ============================================
-# 临时报告文档
-# ============================================
-*_REPORT.md
-*_ROADMAP.md
-*_DEPLOYMENT.md
-*_GUIDE.md
-*_PLAN.md
-SUMMARY.md
-IFLOW.md
-*_ANALYSIS.md
-*_CATALOG.md
-*_FIX.md
-
-# ============================================
-# 不需要追踪的文档和配置
-# ============================================
-CHANGELOG.md
-QUICKSTART.md
-.dockerignore
-VERIFICATION_GUIDE.md
-
-# ============================================
-# 文档构建输出
+# 文档生成
 # ============================================
 docs/_build/
-docs/template_archives/
-docs/reports/
+site/
+
+ Sphinx
+_docs/
 
 # ============================================
 # 其他
 # ============================================
-legacy_data/
-poetry.toml
-pdm.lock
-.pdm.toml
+# 本地配置文件
+local_settings.py
+local_settings.py.bak
 
-# 备份目录
-.backups/
+# 数据库备份
+database_backups/
 
-# ============================================
-# 项目特定 - 新目录结构
-# ============================================
-# 环境配置（已迁移至 config/environment/）
-config/environment/.env
+# 统计和分析
+.scout/
+.prof
 
-# 临时文件和缓存
-temp/
-.tmp/
-*.tmp
+# 模板缓存
+*.pyc
 
-# 数据库文件（开发环境）
-*.sqlite3
-*.sqlite3-journal
-*.db
-*.db-journal
+# Redis dump
+dump.rdb
 
-# 静态文件收集结果
-staticfiles/
-staticfiles_collected/
+# Locust
+locust-stats/
+
+# Sentry
+.sentryclirc
 
 # ============================================
-# 注意事项
+# 生产环境特定
 # ============================================
-# - 所有 Django 应用已迁移至 apps/ 目录
-# - 共享代码已整合至 common/ 目录
-# - 配置文件已集中至 config/ 目录
-# - 脚本文件已统一至 scripts/ 目录
-# - 备份文件统一存放于 .backups/ 目录
+# 取消注释以下行（如果使用）
+# debug.log
+# error.log
+# access.log
+/.backups/

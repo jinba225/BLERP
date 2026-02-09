@@ -11,7 +11,7 @@ import json
 register = template.Library()
 
 
-@register.filter(name='mul')
+@register.filter(name="mul")
 def multiply(value, arg):
     """
     Multiply the value by the argument.
@@ -25,7 +25,7 @@ def multiply(value, arg):
         return 0
 
 
-@register.filter(name='div')
+@register.filter(name="div")
 def divide(value, arg):
     """
     Divide the value by the argument.
@@ -39,7 +39,7 @@ def divide(value, arg):
         return 0
 
 
-@register.filter(name='percentage')
+@register.filter(name="percentage")
 def percentage(value, decimals=2):
     """
     Format value as percentage.
@@ -53,7 +53,7 @@ def percentage(value, decimals=2):
         return "0%"
 
 
-@register.filter(name='days_until')
+@register.filter(name="days_until")
 def days_until(target_date):
     """
     Calculate days until target date from today.
@@ -75,7 +75,7 @@ def days_until(target_date):
         return 0
 
 
-@register.filter(name='days_between')
+@register.filter(name="days_between")
 def days_between(start_date, end_date):
     try:
         if not start_date or not end_date:
@@ -92,7 +92,7 @@ def days_between(start_date, end_date):
         return 0
 
 
-@register.filter(name='abs')
+@register.filter(name="abs")
 def absolute_value(value):
     """
     Return the absolute value of the number.
@@ -104,7 +104,7 @@ def absolute_value(value):
         return value
 
 
-@register.filter(name='js')
+@register.filter(name="js")
 def to_javascript(value):
     """
     Convert Python value to JavaScript-compatible JSON string.
@@ -116,4 +116,4 @@ def to_javascript(value):
         # 使用mark_safe防止HTML转义
         return mark_safe(json.dumps(value, cls=DjangoJSONEncoder))
     except (TypeError, ValueError):
-        return mark_safe('{}')
+        return mark_safe("{}")

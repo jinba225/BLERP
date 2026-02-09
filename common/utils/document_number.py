@@ -73,77 +73,77 @@ class DocumentNumberGenerator:
 
     # 前缀配置键名映射表
     PREFIX_CONFIG_MAP = {
-        'quotation': 'document_prefix_quotation',
-        'sales_order': 'document_prefix_sales_order',
-        'delivery': 'document_prefix_delivery',
-        'sales_return': 'document_prefix_sales_return',
-        'sales_loan': 'document_prefix_sales_loan',  # 销售借用单
-        'purchase_request': 'document_prefix_purchase_request',  # 采购申请单
-        'purchase_inquiry': 'document_prefix_purchase_inquiry',
-        'purchase_order': 'document_prefix_purchase_order',
-        'receipt': 'document_prefix_receipt',
-        'purchase_return': 'document_prefix_purchase_return',
-        'borrow': 'document_prefix_borrow',  # 采购借用单
-        'stock_in': 'document_prefix_stock_in',
-        'stock_out': 'document_prefix_stock_out',
-        'stock_transfer': 'document_prefix_stock_transfer',
-        'stock_picking': 'document_prefix_stock_picking',
-        'stock_adjustment': 'document_prefix_stock_adjustment',
-        'quality_inspection': 'document_prefix_quality_inspection',
-        'sales_contract': 'document_prefix_sales_contract',
-        'purchase_contract': 'document_prefix_purchase_contract',
-        'loan_contract': 'document_prefix_loan_contract',
-        'production_plan': 'document_prefix_production_plan',
-        'work_order': 'document_prefix_work_order',
-        'material_requisition': 'document_prefix_material_requisition',
-        'material_return': 'document_prefix_material_return',
-        'payment_receipt': 'document_prefix_payment_receipt',
-        'payment': 'document_prefix_payment',
-        'invoice': 'document_prefix_invoice',
-        'refund': 'document_prefix_refund',
-        'expense': 'document_prefix_expense',
-        'account_detail': 'document_prefix_account_detail',  # 应付明细/应收明细
-        'supplier_account': 'document_prefix_supplier_account',  # 应付主单
+        "quotation": "document_prefix_quotation",
+        "sales_order": "document_prefix_sales_order",
+        "delivery": "document_prefix_delivery",
+        "sales_return": "document_prefix_sales_return",
+        "sales_loan": "document_prefix_sales_loan",  # 销售借用单
+        "purchase_request": "document_prefix_purchase_request",  # 采购申请单
+        "purchase_inquiry": "document_prefix_purchase_inquiry",
+        "purchase_order": "document_prefix_purchase_order",
+        "receipt": "document_prefix_receipt",
+        "purchase_return": "document_prefix_purchase_return",
+        "borrow": "document_prefix_borrow",  # 采购借用单
+        "stock_in": "document_prefix_stock_in",
+        "stock_out": "document_prefix_stock_out",
+        "stock_transfer": "document_prefix_stock_transfer",
+        "stock_picking": "document_prefix_stock_picking",
+        "stock_adjustment": "document_prefix_stock_adjustment",
+        "quality_inspection": "document_prefix_quality_inspection",
+        "sales_contract": "document_prefix_sales_contract",
+        "purchase_contract": "document_prefix_purchase_contract",
+        "loan_contract": "document_prefix_loan_contract",
+        "production_plan": "document_prefix_production_plan",
+        "work_order": "document_prefix_work_order",
+        "material_requisition": "document_prefix_material_requisition",
+        "material_return": "document_prefix_material_return",
+        "payment_receipt": "document_prefix_payment_receipt",
+        "payment": "document_prefix_payment",
+        "invoice": "document_prefix_invoice",
+        "refund": "document_prefix_refund",
+        "expense": "document_prefix_expense",
+        "account_detail": "document_prefix_account_detail",  # 应付明细/应收明细
+        "supplier_account": "document_prefix_supplier_account",  # 应付主单
     }
 
     # 旧前缀到配置键名的映射（兼容性）
     LEGACY_PREFIX_MAP = {
-        'QT': 'quotation',
-        'SQ': 'quotation',  # 新的报价单前缀
-        'SO': 'sales_order',
-        'SD': 'delivery',  # 旧的发货单前缀
-        'DL': 'delivery',  # 另一种旧的发货单前缀
-        'SR': 'sales_return',
-        'LO': 'sales_loan',  # 销售借用单
-        'PR': 'purchase_request',  # 采购申请单
-        'PI': 'purchase_inquiry',
-        'RFQ': 'purchase_inquiry',  # Odoo 标准
-        'PO': 'purchase_order',
-        'IN': 'receipt',  # 收货单
-        'PT': 'purchase_return',
-        'BO': 'borrow',  # 采购借用单
-        'SI': 'stock_in',
-        'ST': 'stock_out',
-        'SA': 'stock_adjustment',
-        'INT': 'stock_transfer',
-        'SP': 'stock_picking',
-        'QI': 'quality_inspection',
-        'QC': 'quality_inspection',
-        'SC': 'sales_contract',
-        'PC': 'purchase_contract',
-        'LC': 'loan_contract',
-        'PP': 'production_plan',
-        'WO': 'work_order',
-        'MO': 'work_order',  # Odoo 标准
-        'MR': 'material_requisition',
-        'MT': 'material_return',
-        'MTR': 'material_return',
-        'PM': 'payment_receipt',
-        'PY': 'payment',
-        'IV': 'invoice',
-        'EX': 'expense',
-        'RF': 'refund',
-        'RINV': 'refund',
+        "QT": "quotation",
+        "SQ": "quotation",  # 新的报价单前缀
+        "SO": "sales_order",
+        "SD": "delivery",  # 旧的发货单前缀
+        "DL": "delivery",  # 另一种旧的发货单前缀
+        "SR": "sales_return",
+        "LO": "sales_loan",  # 销售借用单
+        "PR": "purchase_request",  # 采购申请单
+        "PI": "purchase_inquiry",
+        "RFQ": "purchase_inquiry",  # Odoo 标准
+        "PO": "purchase_order",
+        "IN": "receipt",  # 收货单
+        "PT": "purchase_return",
+        "BO": "borrow",  # 采购借用单
+        "SI": "stock_in",
+        "ST": "stock_out",
+        "SA": "stock_adjustment",
+        "INT": "stock_transfer",
+        "SP": "stock_picking",
+        "QI": "quality_inspection",
+        "QC": "quality_inspection",
+        "SC": "sales_contract",
+        "PC": "purchase_contract",
+        "LC": "loan_contract",
+        "PP": "production_plan",
+        "WO": "work_order",
+        "MO": "work_order",  # Odoo 标准
+        "MR": "material_requisition",
+        "MT": "material_return",
+        "MTR": "material_return",
+        "PM": "payment_receipt",
+        "PY": "payment",
+        "IV": "invoice",
+        "EX": "expense",
+        "RF": "refund",
+        "RINV": "refund",
     }
 
     @staticmethod
@@ -205,14 +205,11 @@ class DocumentNumberGenerator:
         from core.models import SystemConfig
 
         try:
-            config = SystemConfig.objects.get(
-                key='document_number_date_format',
-                is_active=True
-            )
+            config = SystemConfig.objects.get(key="document_number_date_format", is_active=True)
             return config.value
         except SystemConfig.DoesNotExist:
             # Default to YYMMDD if not configured
-            return 'YYMMDD'
+            return "YYMMDD"
 
     @staticmethod
     def get_sequence_digits():
@@ -229,10 +226,7 @@ class DocumentNumberGenerator:
         from core.models import SystemConfig
 
         try:
-            config = SystemConfig.objects.get(
-                key='document_number_sequence_digits',
-                is_active=True
-            )
+            config = SystemConfig.objects.get(key="document_number_sequence_digits", is_active=True)
             return int(config.value)
         except (SystemConfig.DoesNotExist, ValueError):
             # Default to 3 digits if not configured or invalid
@@ -259,15 +253,15 @@ class DocumentNumberGenerator:
             >>> DocumentNumberGenerator.format_date(date(2025, 11, 8), 'YYMM')
             '2511'
         """
-        if date_format == 'YYYYMMDD':
-            return date_value.strftime('%Y%m%d')
-        elif date_format == 'YYMMDD':
-            return date_value.strftime('%y%m%d')
-        elif date_format == 'YYMM':
-            return date_value.strftime('%y%m')
+        if date_format == "YYYYMMDD":
+            return date_value.strftime("%Y%m%d")
+        elif date_format == "YYMMDD":
+            return date_value.strftime("%y%m%d")
+        elif date_format == "YYMM":
+            return date_value.strftime("%y%m")
         else:
             # Default to YYMMDD
-            return date_value.strftime('%y%m%d')
+            return date_value.strftime("%y%m%d")
 
     @staticmethod
     def generate(prefix_key, date_value=None):
@@ -330,10 +324,11 @@ class DocumentNumberGenerator:
 
         with transaction.atomic():
             # Get or create sequence record with database lock
-            sequence_obj, created = DocumentNumberSequence.objects.select_for_update().get_or_create(
-                prefix=prefix,
-                date_str=date_str,
-                defaults={'current_number': 0}
+            (
+                sequence_obj,
+                created,
+            ) = DocumentNumberSequence.objects.select_for_update().get_or_create(
+                prefix=prefix, date_str=date_str, defaults={"current_number": 0}
             )
 
             # Increment and save
@@ -367,7 +362,7 @@ class DocumentNumberGenerator:
             return False
 
         # Get the part after prefix
-        number_part = document_number[len(prefix):]
+        number_part = document_number[len(prefix) :]
 
         # Must be all digits
         if not number_part.isdigit():
@@ -411,27 +406,27 @@ class DocumentNumberGenerator:
 
         # Determine date length based on format
         date_lengths = {
-            'YYYYMMDD': 8,
-            'YYMMDD': 6,
-            'YYMM': 4,
+            "YYYYMMDD": 8,
+            "YYMMDD": 6,
+            "YYMM": 4,
         }
         date_length = date_lengths.get(date_format, 6)
 
         # Extract date and sequence parts
-        date_str = document_number[len(prefix):len(prefix)+date_length]
-        sequence_str = document_number[len(prefix)+date_length:]
+        date_str = document_number[len(prefix) : len(prefix) + date_length]
+        sequence_str = document_number[len(prefix) + date_length :]
 
         try:
             # Parse date based on format
-            if date_format == 'YYYYMMDD':
+            if date_format == "YYYYMMDD":
                 year = int(date_str[0:4])
                 month = int(date_str[4:6])
                 day = int(date_str[6:8])
-            elif date_format == 'YYMMDD':
+            elif date_format == "YYMMDD":
                 year = 2000 + int(date_str[0:2])
                 month = int(date_str[2:4])
                 day = int(date_str[4:6])
-            elif date_format == 'YYMM':
+            elif date_format == "YYMM":
                 year = 2000 + int(date_str[0:2])
                 month = int(date_str[2:4])
                 day = 1  # Default to 1st day of month
@@ -442,9 +437,9 @@ class DocumentNumberGenerator:
             sequence = int(sequence_str)
 
             return {
-                'prefix': prefix,
-                'date': document_date,
-                'sequence': sequence,
+                "prefix": prefix,
+                "date": document_date,
+                "sequence": sequence,
             }
         except (ValueError, TypeError):
             return None

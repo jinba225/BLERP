@@ -11,13 +11,24 @@ class SupplierResource(resources.ModelResource):
     class Meta:
         model = Supplier
         fields = (
-            'id', 'name', 'code', 'supplier_type', 'rating',
-            'contact_person', 'phone', 'email', 'website',
-            'address', 'payment_terms', 'tax_number',
-            'is_active', 'created_at', 'updated_at'
+            "id",
+            "name",
+            "code",
+            "supplier_type",
+            "rating",
+            "contact_person",
+            "phone",
+            "email",
+            "website",
+            "address",
+            "payment_terms",
+            "tax_number",
+            "is_active",
+            "created_at",
+            "updated_at",
         )
         export_order = fields
-        import_id_fields = ['code']
+        import_id_fields = ["code"]
         skip_unchanged = True
         report_skipped = True
 
@@ -28,11 +39,19 @@ class SupplierContactResource(resources.ModelResource):
     class Meta:
         model = SupplierContact
         fields = (
-            'id', 'supplier', 'name', 'position', 'department',
-            'phone', 'mobile', 'email', 'is_primary',
-            'created_at', 'updated_at'
+            "id",
+            "supplier",
+            "name",
+            "position",
+            "department",
+            "phone",
+            "mobile",
+            "email",
+            "is_primary",
+            "created_at",
+            "updated_at",
         )
         export_order = fields
-        import_id_fields = ['id']
+        import_id_fields = ["id"]
         skip_unchanged = True
         report_skipped = True

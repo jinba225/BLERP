@@ -16,6 +16,7 @@ class TimezoneMiddleware(MiddlewareMixin):
     """
     Middleware to set timezone based on user preferences.
     """
+
     def process_request(self, request):
         if request.user.is_authenticated:
             try:
@@ -48,8 +49,7 @@ class AIAssistantErrorHandlingMiddleware(MiddlewareMixin):
             JsonResponse或None
         """
         # 只处理 AI 助手相关的请求
-        if not (request.path.startswith('/ai_assistant/') or
-                request.path.startswith('/webhook/')):
+        if not (request.path.startswith("/ai_assistant/") or request.path.startswith("/webhook/")):
             return None
 
         # 记录详细错误信息
@@ -62,8 +62,11 @@ class AIAssistantErrorHandlingMiddleware(MiddlewareMixin):
         )
 
         # 返回友好的错误响应
-        return JsonResponse({
-            'success': False,
-            'error': str(exception),
-            'error_type': type(exception).__name__,
-        }, status=500)
+        return JsonResponse(
+            {
+                "success": False,
+                "error": str(exception),
+                "error_type": type(exception).__name__,
+            },
+            status=500,
+        )

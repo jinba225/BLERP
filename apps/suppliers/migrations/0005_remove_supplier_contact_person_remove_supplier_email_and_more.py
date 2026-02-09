@@ -4,30 +4,29 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('suppliers', '0004_remove_supplier_suppliers_s_supplie_c9bf31_idx_and_more'),
+        ("suppliers", "0004_remove_supplier_suppliers_s_supplie_c9bf31_idx_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='supplier',
-            name='contact_person',
+            model_name="supplier",
+            name="contact_person",
         ),
         migrations.RemoveField(
-            model_name='supplier',
-            name='email',
+            model_name="supplier",
+            name="email",
         ),
         migrations.RemoveField(
-            model_name='supplier',
-            name='fax',
+            model_name="supplier",
+            name="fax",
         ),
         migrations.RemoveField(
-            model_name='supplier',
-            name='mobile',
+            model_name="supplier",
+            name="mobile",
         ),
         migrations.RemoveField(
-            model_name='supplier',
-            name='phone',
+            model_name="supplier",
+            name="phone",
         ),
     ]

@@ -5,156 +5,337 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Supplier',
+            name="Supplier",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=200, verbose_name='供应商名称')),
-                ('code', models.CharField(max_length=100, unique=True, verbose_name='供应商编码')),
-                ('supplier_type', models.CharField(choices=[('manufacturer', '生产商'), ('distributor', '经销商'), ('wholesaler', '批发商'), ('service', '服务商'), ('other', '其他')], default='manufacturer', max_length=20, verbose_name='供应商类型')),
-                ('level', models.CharField(choices=[('A', 'A级供应商'), ('B', 'B级供应商'), ('C', 'C级供应商'), ('D', 'D级供应商')], default='C', max_length=1, verbose_name='供应商等级')),
-                ('contact_person', models.CharField(blank=True, max_length=100, verbose_name='联系人')),
-                ('phone', models.CharField(blank=True, max_length=20, validators=[django.core.validators.RegexValidator(message='请输入有效的电话号码', regex='^\\+?1?\\d{9,15}$')], verbose_name='电话')),
-                ('mobile', models.CharField(blank=True, max_length=20, validators=[django.core.validators.RegexValidator(message='请输入有效的手机号码', regex='^\\+?1?\\d{9,15}$')], verbose_name='手机')),
-                ('email', models.EmailField(blank=True, max_length=254, verbose_name='邮箱')),
-                ('fax', models.CharField(blank=True, max_length=20, verbose_name='传真')),
-                ('website', models.URLField(blank=True, verbose_name='网站')),
-                ('address', models.TextField(blank=True, verbose_name='地址')),
-                ('city', models.CharField(blank=True, max_length=100, verbose_name='城市')),
-                ('province', models.CharField(blank=True, max_length=100, verbose_name='省份')),
-                ('country', models.CharField(default='中国', max_length=100, verbose_name='国家')),
-                ('postal_code', models.CharField(blank=True, max_length=20, verbose_name='邮政编码')),
-                ('tax_number', models.CharField(blank=True, max_length=100, verbose_name='税号')),
-                ('registration_number', models.CharField(blank=True, max_length=100, verbose_name='注册号')),
-                ('legal_representative', models.CharField(blank=True, max_length=100, verbose_name='法定代表人')),
-                ('business_license', models.FileField(blank=True, upload_to='suppliers/licenses/', verbose_name='营业执照')),
-                ('payment_terms', models.CharField(blank=True, max_length=200, verbose_name='付款条件')),
-                ('currency', models.CharField(default='CNY', max_length=10, verbose_name='币种')),
-                ('bank_name', models.CharField(blank=True, max_length=100, verbose_name='开户银行')),
-                ('bank_account', models.CharField(blank=True, max_length=50, verbose_name='银行账号')),
-                ('lead_time', models.PositiveIntegerField(default=0, verbose_name='交货周期(天)')),
-                ('min_order_amount', models.DecimalField(decimal_places=2, default=0, max_digits=12, verbose_name='最小订单金额')),
-                ('quality_rating', models.DecimalField(decimal_places=1, default=0, help_text='0-10分', max_digits=3, verbose_name='质量评级')),
-                ('delivery_rating', models.DecimalField(decimal_places=1, default=0, help_text='0-10分', max_digits=3, verbose_name='交货评级')),
-                ('service_rating', models.DecimalField(decimal_places=1, default=0, help_text='0-10分', max_digits=3, verbose_name='服务评级')),
-                ('certifications', models.TextField(blank=True, verbose_name='认证资质')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('is_approved', models.BooleanField(default=False, verbose_name='是否已审核')),
-                ('notes', models.TextField(blank=True, verbose_name='备注')),
-                ('first_order_date', models.DateField(blank=True, null=True, verbose_name='首次采购日期')),
-                ('last_order_date', models.DateField(blank=True, null=True, verbose_name='最后采购日期')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("name", models.CharField(max_length=200, verbose_name="供应商名称")),
+                ("code", models.CharField(max_length=100, unique=True, verbose_name="供应商编码")),
+                (
+                    "supplier_type",
+                    models.CharField(
+                        choices=[
+                            ("manufacturer", "生产商"),
+                            ("distributor", "经销商"),
+                            ("wholesaler", "批发商"),
+                            ("service", "服务商"),
+                            ("other", "其他"),
+                        ],
+                        default="manufacturer",
+                        max_length=20,
+                        verbose_name="供应商类型",
+                    ),
+                ),
+                (
+                    "level",
+                    models.CharField(
+                        choices=[("A", "A级供应商"), ("B", "B级供应商"), ("C", "C级供应商"), ("D", "D级供应商")],
+                        default="C",
+                        max_length=1,
+                        verbose_name="供应商等级",
+                    ),
+                ),
+                (
+                    "contact_person",
+                    models.CharField(blank=True, max_length=100, verbose_name="联系人"),
+                ),
+                (
+                    "phone",
+                    models.CharField(
+                        blank=True,
+                        max_length=20,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                message="请输入有效的电话号码", regex="^\\+?1?\\d{9,15}$"
+                            )
+                        ],
+                        verbose_name="电话",
+                    ),
+                ),
+                (
+                    "mobile",
+                    models.CharField(
+                        blank=True,
+                        max_length=20,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                message="请输入有效的手机号码", regex="^\\+?1?\\d{9,15}$"
+                            )
+                        ],
+                        verbose_name="手机",
+                    ),
+                ),
+                ("email", models.EmailField(blank=True, max_length=254, verbose_name="邮箱")),
+                ("fax", models.CharField(blank=True, max_length=20, verbose_name="传真")),
+                ("website", models.URLField(blank=True, verbose_name="网站")),
+                ("address", models.TextField(blank=True, verbose_name="地址")),
+                ("city", models.CharField(blank=True, max_length=100, verbose_name="城市")),
+                ("province", models.CharField(blank=True, max_length=100, verbose_name="省份")),
+                ("country", models.CharField(default="中国", max_length=100, verbose_name="国家")),
+                ("postal_code", models.CharField(blank=True, max_length=20, verbose_name="邮政编码")),
+                ("tax_number", models.CharField(blank=True, max_length=100, verbose_name="税号")),
+                (
+                    "registration_number",
+                    models.CharField(blank=True, max_length=100, verbose_name="注册号"),
+                ),
+                (
+                    "legal_representative",
+                    models.CharField(blank=True, max_length=100, verbose_name="法定代表人"),
+                ),
+                (
+                    "business_license",
+                    models.FileField(
+                        blank=True, upload_to="suppliers/licenses/", verbose_name="营业执照"
+                    ),
+                ),
+                (
+                    "payment_terms",
+                    models.CharField(blank=True, max_length=200, verbose_name="付款条件"),
+                ),
+                ("currency", models.CharField(default="CNY", max_length=10, verbose_name="币种")),
+                ("bank_name", models.CharField(blank=True, max_length=100, verbose_name="开户银行")),
+                ("bank_account", models.CharField(blank=True, max_length=50, verbose_name="银行账号")),
+                ("lead_time", models.PositiveIntegerField(default=0, verbose_name="交货周期(天)")),
+                (
+                    "min_order_amount",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=12, verbose_name="最小订单金额"
+                    ),
+                ),
+                (
+                    "quality_rating",
+                    models.DecimalField(
+                        decimal_places=1,
+                        default=0,
+                        help_text="0-10分",
+                        max_digits=3,
+                        verbose_name="质量评级",
+                    ),
+                ),
+                (
+                    "delivery_rating",
+                    models.DecimalField(
+                        decimal_places=1,
+                        default=0,
+                        help_text="0-10分",
+                        max_digits=3,
+                        verbose_name="交货评级",
+                    ),
+                ),
+                (
+                    "service_rating",
+                    models.DecimalField(
+                        decimal_places=1,
+                        default=0,
+                        help_text="0-10分",
+                        max_digits=3,
+                        verbose_name="服务评级",
+                    ),
+                ),
+                ("certifications", models.TextField(blank=True, verbose_name="认证资质")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                ("is_approved", models.BooleanField(default=False, verbose_name="是否已审核")),
+                ("notes", models.TextField(blank=True, verbose_name="备注")),
+                (
+                    "first_order_date",
+                    models.DateField(blank=True, null=True, verbose_name="首次采购日期"),
+                ),
+                ("last_order_date", models.DateField(blank=True, null=True, verbose_name="最后采购日期")),
             ],
             options={
-                'verbose_name': '供应商',
-                'verbose_name_plural': '供应商',
-                'db_table': 'suppliers_supplier',
+                "verbose_name": "供应商",
+                "verbose_name_plural": "供应商",
+                "db_table": "suppliers_supplier",
             },
         ),
         migrations.CreateModel(
-            name='SupplierCategory',
+            name="SupplierCategory",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=100, unique=True, verbose_name='分类名称')),
-                ('code', models.CharField(max_length=50, unique=True, verbose_name='分类代码')),
-                ('description', models.TextField(blank=True, verbose_name='分类描述')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("name", models.CharField(max_length=100, unique=True, verbose_name="分类名称")),
+                ("code", models.CharField(max_length=50, unique=True, verbose_name="分类代码")),
+                ("description", models.TextField(blank=True, verbose_name="分类描述")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
             ],
             options={
-                'verbose_name': '供应商分类',
-                'verbose_name_plural': '供应商分类',
-                'db_table': 'suppliers_category',
+                "verbose_name": "供应商分类",
+                "verbose_name_plural": "供应商分类",
+                "db_table": "suppliers_category",
             },
         ),
         migrations.CreateModel(
-            name='SupplierContact',
+            name="SupplierContact",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=100, verbose_name='姓名')),
-                ('position', models.CharField(blank=True, max_length=100, verbose_name='职位')),
-                ('contact_type', models.CharField(choices=[('primary', '主要联系人'), ('finance', '财务联系人'), ('technical', '技术联系人'), ('sales', '销售联系人'), ('other', '其他')], default='other', max_length=20, verbose_name='联系人类型')),
-                ('phone', models.CharField(blank=True, max_length=20, verbose_name='电话')),
-                ('mobile', models.CharField(blank=True, max_length=20, verbose_name='手机')),
-                ('email', models.EmailField(blank=True, max_length=254, verbose_name='邮箱')),
-                ('qq', models.CharField(blank=True, max_length=20, verbose_name='QQ')),
-                ('wechat', models.CharField(blank=True, max_length=50, verbose_name='微信')),
-                ('notes', models.TextField(blank=True, verbose_name='备注')),
-                ('is_primary', models.BooleanField(default=False, verbose_name='是否主要联系人')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("name", models.CharField(max_length=100, verbose_name="姓名")),
+                ("position", models.CharField(blank=True, max_length=100, verbose_name="职位")),
+                (
+                    "contact_type",
+                    models.CharField(
+                        choices=[
+                            ("primary", "主要联系人"),
+                            ("finance", "财务联系人"),
+                            ("technical", "技术联系人"),
+                            ("sales", "销售联系人"),
+                            ("other", "其他"),
+                        ],
+                        default="other",
+                        max_length=20,
+                        verbose_name="联系人类型",
+                    ),
+                ),
+                ("phone", models.CharField(blank=True, max_length=20, verbose_name="电话")),
+                ("mobile", models.CharField(blank=True, max_length=20, verbose_name="手机")),
+                ("email", models.EmailField(blank=True, max_length=254, verbose_name="邮箱")),
+                ("qq", models.CharField(blank=True, max_length=20, verbose_name="QQ")),
+                ("wechat", models.CharField(blank=True, max_length=50, verbose_name="微信")),
+                ("notes", models.TextField(blank=True, verbose_name="备注")),
+                ("is_primary", models.BooleanField(default=False, verbose_name="是否主要联系人")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
             ],
             options={
-                'verbose_name': '供应商联系人',
-                'verbose_name_plural': '供应商联系人',
-                'db_table': 'suppliers_contact',
+                "verbose_name": "供应商联系人",
+                "verbose_name_plural": "供应商联系人",
+                "db_table": "suppliers_contact",
             },
         ),
         migrations.CreateModel(
-            name='SupplierEvaluation',
+            name="SupplierEvaluation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('evaluation_period', models.CharField(choices=[('monthly', '月度评估'), ('quarterly', '季度评估'), ('annual', '年度评估')], max_length=20, verbose_name='评估周期')),
-                ('year', models.PositiveIntegerField(verbose_name='年份')),
-                ('quarter', models.PositiveIntegerField(blank=True, null=True, verbose_name='季度')),
-                ('month', models.PositiveIntegerField(blank=True, null=True, verbose_name='月份')),
-                ('quality_score', models.DecimalField(decimal_places=2, default=0, max_digits=5, verbose_name='质量得分')),
-                ('delivery_score', models.DecimalField(decimal_places=2, default=0, max_digits=5, verbose_name='交货得分')),
-                ('service_score', models.DecimalField(decimal_places=2, default=0, max_digits=5, verbose_name='服务得分')),
-                ('price_score', models.DecimalField(decimal_places=2, default=0, max_digits=5, verbose_name='价格得分')),
-                ('strengths', models.TextField(blank=True, verbose_name='优势')),
-                ('weaknesses', models.TextField(blank=True, verbose_name='不足')),
-                ('recommendations', models.TextField(blank=True, verbose_name='改进建议')),
-                ('overall_score', models.DecimalField(decimal_places=2, default=0, max_digits=5, verbose_name='综合得分')),
-                ('is_approved', models.BooleanField(default=True, verbose_name='是否通过评估')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "evaluation_period",
+                    models.CharField(
+                        choices=[("monthly", "月度评估"), ("quarterly", "季度评估"), ("annual", "年度评估")],
+                        max_length=20,
+                        verbose_name="评估周期",
+                    ),
+                ),
+                ("year", models.PositiveIntegerField(verbose_name="年份")),
+                ("quarter", models.PositiveIntegerField(blank=True, null=True, verbose_name="季度")),
+                ("month", models.PositiveIntegerField(blank=True, null=True, verbose_name="月份")),
+                (
+                    "quality_score",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=5, verbose_name="质量得分"
+                    ),
+                ),
+                (
+                    "delivery_score",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=5, verbose_name="交货得分"
+                    ),
+                ),
+                (
+                    "service_score",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=5, verbose_name="服务得分"
+                    ),
+                ),
+                (
+                    "price_score",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=5, verbose_name="价格得分"
+                    ),
+                ),
+                ("strengths", models.TextField(blank=True, verbose_name="优势")),
+                ("weaknesses", models.TextField(blank=True, verbose_name="不足")),
+                ("recommendations", models.TextField(blank=True, verbose_name="改进建议")),
+                (
+                    "overall_score",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=5, verbose_name="综合得分"
+                    ),
+                ),
+                ("is_approved", models.BooleanField(default=True, verbose_name="是否通过评估")),
             ],
             options={
-                'verbose_name': '供应商评估',
-                'verbose_name_plural': '供应商评估',
-                'db_table': 'suppliers_evaluation',
+                "verbose_name": "供应商评估",
+                "verbose_name_plural": "供应商评估",
+                "db_table": "suppliers_evaluation",
             },
         ),
         migrations.CreateModel(
-            name='SupplierProduct',
+            name="SupplierProduct",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('supplier_product_code', models.CharField(blank=True, max_length=100, verbose_name='供应商产品编码')),
-                ('supplier_product_name', models.CharField(blank=True, max_length=200, verbose_name='供应商产品名称')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='采购价格')),
-                ('currency', models.CharField(default='CNY', max_length=10, verbose_name='币种')),
-                ('min_order_qty', models.DecimalField(decimal_places=2, default=1, max_digits=12, verbose_name='最小订购量')),
-                ('lead_time', models.PositiveIntegerField(default=0, verbose_name='交货周期(天)')),
-                ('is_preferred', models.BooleanField(default=False, verbose_name='是否首选供应商')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "supplier_product_code",
+                    models.CharField(blank=True, max_length=100, verbose_name="供应商产品编码"),
+                ),
+                (
+                    "supplier_product_name",
+                    models.CharField(blank=True, max_length=200, verbose_name="供应商产品名称"),
+                ),
+                (
+                    "price",
+                    models.DecimalField(decimal_places=2, max_digits=12, verbose_name="采购价格"),
+                ),
+                ("currency", models.CharField(default="CNY", max_length=10, verbose_name="币种")),
+                (
+                    "min_order_qty",
+                    models.DecimalField(
+                        decimal_places=2, default=1, max_digits=12, verbose_name="最小订购量"
+                    ),
+                ),
+                ("lead_time", models.PositiveIntegerField(default=0, verbose_name="交货周期(天)")),
+                ("is_preferred", models.BooleanField(default=False, verbose_name="是否首选供应商")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
             ],
             options={
-                'verbose_name': '供应商产品',
-                'verbose_name_plural': '供应商产品',
-                'db_table': 'suppliers_product',
+                "verbose_name": "供应商产品",
+                "verbose_name_plural": "供应商产品",
+                "db_table": "suppliers_product",
             },
         ),
     ]

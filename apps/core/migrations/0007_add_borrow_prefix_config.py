@@ -5,32 +5,31 @@ from django.db import migrations
 
 def add_borrow_prefix_config(apps, schema_editor):
     """添加借用单前缀配置"""
-    SystemConfig = apps.get_model('core', 'SystemConfig')
+    SystemConfig = apps.get_model("core", "SystemConfig")
 
     # 创建借用单前缀配置
     SystemConfig.objects.get_or_create(
-        key='document_prefix_borrow',
+        key="document_prefix_borrow",
         defaults={
-            'value': 'BO',
-            'config_type': 'business',
-            'description': '借用单前缀',
-            'is_active': True,
-        }
+            "value": "BO",
+            "config_type": "business",
+            "description": "借用单前缀",
+            "is_active": True,
+        },
     )
 
 
 def remove_borrow_prefix_config(apps, schema_editor):
     """删除借用单前缀配置（回滚操作）"""
-    SystemConfig = apps.get_model('core', 'SystemConfig')
+    SystemConfig = apps.get_model("core", "SystemConfig")
 
     # 删除借用单前缀配置
-    SystemConfig.objects.filter(key='document_prefix_borrow').delete()
+    SystemConfig.objects.filter(key="document_prefix_borrow").delete()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0006_load_initial_choice_options'),
+        ("core", "0006_load_initial_choice_options"),
     ]
 
     operations = [

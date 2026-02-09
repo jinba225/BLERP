@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0010_platform_shop_and_more'),
+        ("core", "0010_platform_shop_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='company',
-            name='description_en',
-            field=models.TextField(blank=True, help_text='英文公司描述', verbose_name='Company Description (English)'),
+            model_name="company",
+            name="description_en",
+            field=models.TextField(
+                blank=True, help_text="英文公司描述", verbose_name="Company Description (English)"
+            ),
         ),
     ]

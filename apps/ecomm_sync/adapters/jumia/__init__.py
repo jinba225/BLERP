@@ -1,3 +1,3 @@
 from .adapter import JumiaAdapter
 
-__all__ = ['JumiaAdapter']
+__all__ = ["JumiaAdapter"]

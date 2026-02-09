@@ -8,17 +8,17 @@ from .translator import (
     BaiduTranslator,
     TranslatorFactory,
     translate_text,
-    translate_product_data
+    translate_product_data,
 )
 
 __all__ = [
-    'ImageDownloader',
-    'ImageConverter',
-    'download_product_images',
-    'BaseTranslator',
-    'GoogleTranslator',
-    'BaiduTranslator',
-    'TranslatorFactory',
-    'translate_text',
-    'translate_product_data',
+    "ImageDownloader",
+    "ImageConverter",
+    "download_product_images",
+    "BaseTranslator",
+    "GoogleTranslator",
+    "BaiduTranslator",
+    "TranslatorFactory",
+    "translate_text",
+    "translate_product_data",
 ]

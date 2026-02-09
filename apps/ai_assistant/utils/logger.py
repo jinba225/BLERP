@@ -46,8 +46,7 @@ class AIAssistantLogger:
 
         # 创建格式化器
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
         )
         console_handler.setFormatter(formatter)
 
@@ -60,11 +59,9 @@ class AIAssistantLogger:
         return logger
 
 
-def log_channel_message(logger: logging.Logger,
-                        channel: str,
-                        user_id: str,
-                        message: str,
-                        direction: str = "incoming"):
+def log_channel_message(
+    logger: logging.Logger, channel: str, user_id: str, message: str, direction: str = "incoming"
+):
     """
     记录渠道消息
 
@@ -76,16 +73,20 @@ def log_channel_message(logger: logging.Logger,
         direction: 方向（incoming/outgoing）
     """
     arrow = "➡️" if direction == "incoming" else "⬅️"
-    logger.info(f"{arrow} [{channel}] User {user_id}: {message[:100]}{'...' if len(message) > 100 else ''}")
+    logger.info(
+        f"{arrow} [{channel}] User {user_id}: {message[:100]}{'...' if len(message) > 100 else ''}"
+    )
 
 
-def log_tool_execution(logger: logging.Logger,
-                       tool_name: str,
-                       user: str,
-                       params: Dict[str, Any],
-                       success: bool,
-                       execution_time: float,
-                       error: Optional[str] = None):
+def log_tool_execution(
+    logger: logging.Logger,
+    tool_name: str,
+    user: str,
+    params: Dict[str, Any],
+    success: bool,
+    execution_time: float,
+    error: Optional[str] = None,
+):
     """
     记录工具执行
 
@@ -108,12 +109,14 @@ def log_tool_execution(logger: logging.Logger,
         logger.error(f"   Error: {error}")
 
 
-def log_ai_request(logger: logging.Logger,
-                   provider: str,
-                   model: str,
-                   user: str,
-                   message_length: int,
-                   tools_count: int = 0):
+def log_ai_request(
+    logger: logging.Logger,
+    provider: str,
+    model: str,
+    user: str,
+    message_length: int,
+    tools_count: int = 0,
+):
     """
     记录AI请求
 
@@ -125,14 +128,15 @@ def log_ai_request(logger: logging.Logger,
         message_length: 消息长度
         tools_count: 可用工具数量
     """
-    logger.info(f"🤖 AI Request | Provider: {provider} | Model: {model} | "
-               f"User: {user} | Msg Len: {message_length} | Tools: {tools_count}")
+    logger.info(
+        f"🤖 AI Request | Provider: {provider} | Model: {model} | "
+        f"User: {user} | Msg Len: {message_length} | Tools: {tools_count}"
+    )
 
 
-def log_ai_response(logger: logging.Logger,
-                    tokens_used: int,
-                    response_time: float,
-                    has_tool_calls: bool = False):
+def log_ai_response(
+    logger: logging.Logger, tokens_used: int, response_time: float, has_tool_calls: bool = False
+):
     """
     记录AI响应
 
@@ -143,13 +147,12 @@ def log_ai_response(logger: logging.Logger,
         has_tool_calls: 是否包含工具调用
     """
     tool_indicator = "🔧" if has_tool_calls else ""
-    logger.info(f"💬 AI Response | Tokens: {tokens_used} | "
-               f"Time: {response_time:.2f}s {tool_indicator}")
+    logger.info(
+        f"💬 AI Response | Tokens: {tokens_used} | " f"Time: {response_time:.2f}s {tool_indicator}"
+    )
 
 
-def log_error(logger: logging.Logger,
-              error: Exception,
-              context: Optional[Dict[str, Any]] = None):
+def log_error(logger: logging.Logger, error: Exception, context: Optional[Dict[str, Any]] = None):
     """
     记录错误
 
@@ -165,13 +168,11 @@ def log_error(logger: logging.Logger,
 
     # 记录完整的堆栈跟踪
     import traceback
+
     logger.debug(f"   Traceback:\n{traceback.format_exc()}")
 
 
-def log_webhook_request(logger: logging.Logger,
-                        channel: str,
-                        method: str,
-                        verified: bool):
+def log_webhook_request(logger: logging.Logger, channel: str, method: str, verified: bool):
     """
     记录Webhook请求
 

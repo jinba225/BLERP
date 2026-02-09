@@ -25,16 +25,10 @@ class ApproveDeliveryTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "delivery_id": {
-                    "type": "integer",
-                    "description": "发货单ID"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "审核备注"
-                }
+                "delivery_id": {"type": "integer", "description": "发货单ID"},
+                "notes": {"type": "string", "description": "审核备注"},
             },
-            "required": ["delivery_id"]
+            "required": ["delivery_id"],
         }
 
     def execute(self, delivery_id: int, notes: str = "", **kwargs) -> ToolResult:
@@ -51,7 +45,7 @@ class ApproveDeliveryTool(BaseTool):
                 entity_id=delivery.id,
                 entity_number=delivery.delivery_number,
                 requester=self.user,
-                description=f"审核发货单 {delivery.delivery_number}"
+                description=f"审核发货单 {delivery.delivery_number}",
             )
 
             success, message, data = ApprovalService.approve_request(request, self.user, notes)
@@ -80,16 +74,10 @@ class ApproveSalesReturnTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "return_id": {
-                    "type": "integer",
-                    "description": "退货单ID"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "审核备注"
-                }
+                "return_id": {"type": "integer", "description": "退货单ID"},
+                "notes": {"type": "string", "description": "审核备注"},
             },
-            "required": ["return_id"]
+            "required": ["return_id"],
         }
 
     def execute(self, return_id: int, notes: str = "", **kwargs) -> ToolResult:
@@ -107,7 +95,7 @@ class ApproveSalesReturnTool(BaseTool):
                 entity_number=sales_return.return_number,
                 amount=float(sales_return.refund_amount) if sales_return.refund_amount else 0,
                 requester=self.user,
-                description=f"审核退货单 {sales_return.return_number}"
+                description=f"审核退货单 {sales_return.return_number}",
             )
 
             success, message, data = ApprovalService.approve_request(request, self.user, notes)
@@ -136,23 +124,16 @@ class ConfirmShipmentTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "delivery_id": {
-                    "type": "integer",
-                    "description": "发货单ID"
-                },
-                "tracking_number": {
-                    "type": "string",
-                    "description": "快递单号"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "备注"
-                }
+                "delivery_id": {"type": "integer", "description": "发货单ID"},
+                "tracking_number": {"type": "string", "description": "快递单号"},
+                "notes": {"type": "string", "description": "备注"},
             },
-            "required": ["delivery_id"]
+            "required": ["delivery_id"],
         }
 
-    def execute(self, delivery_id: int, tracking_number: str = "", notes: str = "", **kwargs) -> ToolResult:
+    def execute(
+        self, delivery_id: int, tracking_number: str = "", notes: str = "", **kwargs
+    ) -> ToolResult:
         """执行确认发货"""
         try:
             from sales.models import Delivery
@@ -169,7 +150,7 @@ class ConfirmShipmentTool(BaseTool):
                 action=WorkflowAction.COMPLETE,
                 entity_type="delivery",
                 entity_id=delivery.id,
-                notes=notes
+                notes=notes,
             )
 
             success, message, data = WorkflowManager.execute_workflow_action(context)
@@ -198,16 +179,10 @@ class ApprovePurchaseReceiptTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "receipt_id": {
-                    "type": "integer",
-                    "description": "收货单ID"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "审核备注"
-                }
+                "receipt_id": {"type": "integer", "description": "收货单ID"},
+                "notes": {"type": "string", "description": "审核备注"},
             },
-            "required": ["receipt_id"]
+            "required": ["receipt_id"],
         }
 
     def execute(self, receipt_id: int, notes: str = "", **kwargs) -> ToolResult:
@@ -224,7 +199,7 @@ class ApprovePurchaseReceiptTool(BaseTool):
                 entity_id=receipt.id,
                 entity_number=receipt.receipt_number,
                 requester=self.user,
-                description=f"审核收货单 {receipt.receipt_number}"
+                description=f"审核收货单 {receipt.receipt_number}",
             )
 
             success, message, data = ApprovalService.approve_request(request, self.user, notes)
@@ -253,16 +228,10 @@ class ConfirmReceiptTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "receipt_id": {
-                    "type": "integer",
-                    "description": "收货单ID"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "备注"
-                }
+                "receipt_id": {"type": "integer", "description": "收货单ID"},
+                "notes": {"type": "string", "description": "备注"},
             },
-            "required": ["receipt_id"]
+            "required": ["receipt_id"],
         }
 
     def execute(self, receipt_id: int, notes: str = "", **kwargs) -> ToolResult:
@@ -278,7 +247,7 @@ class ConfirmReceiptTool(BaseTool):
                 action=WorkflowAction.COMPLETE,
                 entity_type="purchase_receipt",
                 entity_id=receipt.id,
-                notes=notes
+                notes=notes,
             )
 
             success, message, data = WorkflowManager.execute_workflow_action(context)
@@ -307,16 +276,10 @@ class ApproveExpenseTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "expense_id": {
-                    "type": "integer",
-                    "description": "费用报销单ID"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "审批备注"
-                }
+                "expense_id": {"type": "integer", "description": "费用报销单ID"},
+                "notes": {"type": "string", "description": "审批备注"},
             },
-            "required": ["expense_id"]
+            "required": ["expense_id"],
         }
 
     def execute(self, expense_id: int, notes: str = "", **kwargs) -> ToolResult:
@@ -334,7 +297,7 @@ class ApproveExpenseTool(BaseTool):
                 entity_number=expense.expense_number,
                 amount=float(expense.amount) if expense.amount else 0,
                 requester=self.user,
-                description=f"审批费用报销 {expense.expense_number}"
+                description=f"审批费用报销 {expense.expense_number}",
             )
 
             success, message, data = ApprovalService.approve_request(request, self.user, notes)
@@ -363,16 +326,10 @@ class ApproveJournalTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "journal_id": {
-                    "type": "integer",
-                    "description": "会计凭证ID"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "审核备注"
-                }
+                "journal_id": {"type": "integer", "description": "会计凭证ID"},
+                "notes": {"type": "string", "description": "审核备注"},
             },
-            "required": ["journal_id"]
+            "required": ["journal_id"],
         }
 
     def execute(self, journal_id: int, notes: str = "", **kwargs) -> ToolResult:
@@ -389,7 +346,7 @@ class ApproveJournalTool(BaseTool):
                 entity_id=journal.id,
                 entity_number=journal.journal_number,
                 requester=self.user,
-                description=f"审核会计凭证 {journal.journal_number}"
+                description=f"审核会计凭证 {journal.journal_number}",
             )
 
             success, message, data = ApprovalService.approve_request(request, self.user, notes)
@@ -418,16 +375,10 @@ class ShipTransferTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "transfer_id": {
-                    "type": "integer",
-                    "description": "调拨单ID"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "备注"
-                }
+                "transfer_id": {"type": "integer", "description": "调拨单ID"},
+                "notes": {"type": "string", "description": "备注"},
             },
-            "required": ["transfer_id"]
+            "required": ["transfer_id"],
         }
 
     def execute(self, transfer_id: int, notes: str = "", **kwargs) -> ToolResult:
@@ -437,20 +388,20 @@ class ShipTransferTool(BaseTool):
 
             transfer = StockTransfer.objects.get(id=transfer_id, is_deleted=False)
 
-            if transfer.status != 'pending':
+            if transfer.status != "pending":
                 return ToolResult(
-                    success=False,
-                    error=f"调拨单状态为 {transfer.get_status_display()}，不能发货"
+                    success=False, error=f"调拨单状态为 {transfer.get_status_display()}，不能发货"
                 )
 
             # 使用工作流管理器执行发货
             from ..services.workflow_manager import ExecutionContext
+
             context = ExecutionContext(
                 user=self.user,
                 action=WorkflowAction.COMPLETE,
                 entity_type="stock_transfer",
                 entity_id=transfer.id,
-                notes=notes
+                notes=notes,
             )
 
             success, message, data = WorkflowManager.execute_workflow_action(context)
@@ -479,16 +430,10 @@ class ReceiveTransferTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "transfer_id": {
-                    "type": "integer",
-                    "description": "调拨单ID"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "备注"
-                }
+                "transfer_id": {"type": "integer", "description": "调拨单ID"},
+                "notes": {"type": "string", "description": "备注"},
             },
-            "required": ["transfer_id"]
+            "required": ["transfer_id"],
         }
 
     def execute(self, transfer_id: int, notes: str = "", **kwargs) -> ToolResult:
@@ -498,20 +443,20 @@ class ReceiveTransferTool(BaseTool):
 
             transfer = StockTransfer.objects.get(id=transfer_id, is_deleted=False)
 
-            if transfer.status != 'shipped':
+            if transfer.status != "shipped":
                 return ToolResult(
-                    success=False,
-                    error=f"调拨单状态为 {transfer.get_status_display()}，不能收货"
+                    success=False, error=f"调拨单状态为 {transfer.get_status_display()}，不能收货"
                 )
 
             # 使用工作流管理器执行收货
             from ..services.workflow_manager import ExecutionContext
+
             context = ExecutionContext(
                 user=self.user,
                 action=WorkflowAction.COMPLETE,
                 entity_type="stock_transfer",
                 entity_id=transfer.id,
-                notes=notes
+                notes=notes,
             )
 
             success, message, data = WorkflowManager.execute_workflow_action(context)

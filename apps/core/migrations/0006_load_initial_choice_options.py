@@ -7,8 +7,8 @@ def load_initial_choice_options(apps, schema_editor):
     """导入初始选项数据"""
     from core.fixtures.choice_options_initial import INITIAL_CHOICE_OPTIONS
 
-    ChoiceOption = apps.get_model('core', 'ChoiceOption')
-    User = apps.get_model('users', 'User')
+    ChoiceOption = apps.get_model("core", "ChoiceOption")
+    User = apps.get_model("users", "User")
 
     # 获取第一个超级用户作为创建人（如果存在）
     try:
@@ -20,15 +20,15 @@ def load_initial_choice_options(apps, schema_editor):
     choice_options = []
     for data in INITIAL_CHOICE_OPTIONS:
         choice_option = ChoiceOption(
-            category=data['category'],
-            code=data['code'],
-            label=data['label'],
-            description=data.get('description', ''),
-            sort_order=data.get('sort_order', 0),
+            category=data["category"],
+            code=data["code"],
+            label=data["label"],
+            description=data.get("description", ""),
+            sort_order=data.get("sort_order", 0),
             is_active=True,
-            is_system=data.get('is_system', False),
-            color=data.get('color', ''),
-            icon=data.get('icon', ''),
+            is_system=data.get("is_system", False),
+            color=data.get("color", ""),
+            icon=data.get("icon", ""),
             created_by=admin_user,
         )
         choice_options.append(choice_option)
@@ -41,17 +41,16 @@ def load_initial_choice_options(apps, schema_editor):
 
 def reverse_load(apps, schema_editor):
     """回滚操作：删除所有系统内置选项"""
-    ChoiceOption = apps.get_model('core', 'ChoiceOption')
+    ChoiceOption = apps.get_model("core", "ChoiceOption")
     count = ChoiceOption.objects.filter(is_system=True).count()
     ChoiceOption.objects.filter(is_system=True).delete()
     print(f"✅ 已删除 {count} 个系统内置选项")
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0005_choiceoptiongroup_choiceoption'),
-        ('users', '0001_initial'),  # 确保User模型已创建
+        ("core", "0005_choiceoptiongroup_choiceoption"),
+        ("users", "0001_initial"),  # 确保User模型已创建
     ]
 
     operations = [

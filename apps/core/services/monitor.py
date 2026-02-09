@@ -44,7 +44,7 @@ class MonitorService:
         """
         self.redis_client = redis_client or cache
         self.config = MONITOR_CONFIG
-        self.percentiles = self.config['percentiles']
+        self.percentiles = self.config["percentiles"]
 
         logger.debug("初始化监控服务")
 
@@ -54,7 +54,7 @@ class MonitorService:
         endpoint: str,
         success: bool,
         duration: float,
-        error_code: Optional[str] = None
+        error_code: Optional[str] = None,
     ):
         """
         记录API调用（同步版本）
@@ -80,7 +80,7 @@ class MonitorService:
             duration_ms = int(duration * 1000)
 
             # 生成键名
-            today = datetime.now().strftime('%Y-%m-%d')
+            today = datetime.now().strftime("%Y-%m-%d")
             key = f"metrics:{platform}:{endpoint}:{today}"
 
             # 使用Lua脚本保证原子性
@@ -118,7 +118,7 @@ class MonitorService:
                 1 if success else 0,  # success_count
                 0 if success else 1,  # error_count
                 duration_ms,  # total_duration
-                str(duration_ms)  # duration
+                str(duration_ms),  # duration
             )
 
             logger.debug(
@@ -135,7 +135,7 @@ class MonitorService:
         endpoint: str,
         success: bool,
         duration: float,
-        error_code: Optional[str] = None
+        error_code: Optional[str] = None,
     ):
         """
         记录API调用（异步版本）
@@ -150,16 +150,13 @@ class MonitorService:
         # 异步版本使用相同的逻辑
         # 在实际使用中，可以使用asyncio.to_thread在线程池中执行
         import asyncio
+
         await asyncio.to_thread(
-            self.record_api_call,
-            platform, endpoint, success, duration, error_code
+            self.record_api_call, platform, endpoint, success, duration, error_code
         )
 
     def get_metrics(
-        self,
-        platform: str,
-        endpoint: Optional[str] = None,
-        time_range: str = '1h'
+        self, platform: str, endpoint: Optional[str] = None, time_range: str = "1h"
     ) -> Dict:
         """
         获取监控指标
@@ -192,18 +189,18 @@ class MonitorService:
             # 计算时间范围
             days = self._parse_time_range(time_range)
             metrics = {
-                'platform': platform,
-                'time_range': time_range,
-                'count': 0,
-                'success_count': 0,
-                'error_count': 0,
-                'total_duration': 0,
-                'durations': [],
+                "platform": platform,
+                "time_range": time_range,
+                "count": 0,
+                "success_count": 0,
+                "error_count": 0,
+                "total_duration": 0,
+                "durations": [],
             }
 
             # 聚合多天的数据
             for i in range(days):
-                date = (datetime.now() - timedelta(days=i)).strftime('%Y-%m-%d')
+                date = (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
 
                 if endpoint:
                     # 特定端点
@@ -220,44 +217,44 @@ class MonitorService:
                     data = self._get_metrics_data(key)
                 else:
                     # 聚合所有端点
-                    data = {'count': 0, 'success_count': 0, 'error_count': 0, 'total_duration': 0}
+                    data = {"count": 0, "success_count": 0, "error_count": 0, "total_duration": 0}
                     for k in keys:
                         d = self._get_metrics_data(k)
-                        data['count'] += d['count']
-                        data['success_count'] += d['success_count']
-                        data['error_count'] += d['error_count']
-                        data['total_duration'] += d['total_duration']
+                        data["count"] += d["count"]
+                        data["success_count"] += d["success_count"]
+                        data["error_count"] += d["error_count"]
+                        data["total_duration"] += d["total_duration"]
 
-                metrics['count'] += data['count']
-                metrics['success_count'] += data['success_count']
-                metrics['error_count'] += data['error_count']
-                metrics['total_duration'] += data['total_duration']
+                metrics["count"] += data["count"]
+                metrics["success_count"] += data["success_count"]
+                metrics["error_count"] += data["error_count"]
+                metrics["total_duration"] += data["total_duration"]
 
             # 计算衍生指标
-            if metrics['count'] > 0:
-                metrics['success_rate'] = metrics['success_count'] / metrics['count']
-                metrics['error_rate'] = metrics['error_count'] / metrics['count']
-                metrics['avg_duration'] = metrics['total_duration'] / metrics['count']
+            if metrics["count"] > 0:
+                metrics["success_rate"] = metrics["success_count"] / metrics["count"]
+                metrics["error_rate"] = metrics["error_count"] / metrics["count"]
+                metrics["avg_duration"] = metrics["total_duration"] / metrics["count"]
 
                 # 获取延迟列表并计算分位数
                 if endpoint:
                     durations = self._get_durations(platform, endpoint, days)
                     if durations:
-                        metrics['p50_duration'] = self._percentile(durations, 50)
-                        metrics['p95_duration'] = self._percentile(durations, 95)
-                        metrics['p99_duration'] = self._percentile(durations, 99)
+                        metrics["p50_duration"] = self._percentile(durations, 50)
+                        metrics["p95_duration"] = self._percentile(durations, 95)
+                        metrics["p99_duration"] = self._percentile(durations, 99)
             else:
-                metrics['success_rate'] = 0
-                metrics['error_rate'] = 0
-                metrics['avg_duration'] = 0
+                metrics["success_rate"] = 0
+                metrics["error_rate"] = 0
+                metrics["avg_duration"] = 0
 
             return metrics
 
         except Exception as e:
             logger.error(f"获取监控指标失败: {e}")
             return {
-                'platform': platform,
-                'error': str(e),
+                "platform": platform,
+                "error": str(e),
             }
 
     def get_alert_status(self) -> List[Dict]:
@@ -290,46 +287,52 @@ class MonitorService:
 
             for platform in platforms:
                 # 获取最近1小时的指标
-                metrics = self.get_metrics(platform, time_range='1h')
+                metrics = self.get_metrics(platform, time_range="1h")
 
-                if 'error' in metrics:
+                if "error" in metrics:
                     continue
 
                 # 检查告警规则
-                thresholds = self.config['alert_thresholds']
+                thresholds = self.config["alert_thresholds"]
 
                 # 错误率告警
-                if metrics.get('error_rate', 0) > thresholds['error_rate']:
-                    alerts.append({
-                        'platform': platform,
-                        'alert_type': 'high_error_rate',
-                        'severity': 'critical',
-                        'value': metrics['error_rate'],
-                        'threshold': thresholds['error_rate'],
-                        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    })
+                if metrics.get("error_rate", 0) > thresholds["error_rate"]:
+                    alerts.append(
+                        {
+                            "platform": platform,
+                            "alert_type": "high_error_rate",
+                            "severity": "critical",
+                            "value": metrics["error_rate"],
+                            "threshold": thresholds["error_rate"],
+                            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        }
+                    )
 
                 # P95延迟告警
-                if metrics.get('p95_duration', 0) > thresholds['p95_latency']:
-                    alerts.append({
-                        'platform': platform,
-                        'alert_type': 'slow_response',
-                        'severity': 'warning',
-                        'value': metrics['p95_duration'],
-                        'threshold': thresholds['p95_latency'],
-                        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    })
+                if metrics.get("p95_duration", 0) > thresholds["p95_latency"]:
+                    alerts.append(
+                        {
+                            "platform": platform,
+                            "alert_type": "slow_response",
+                            "severity": "warning",
+                            "value": metrics["p95_duration"],
+                            "threshold": thresholds["p95_latency"],
+                            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        }
+                    )
 
                 # 成功率告警
-                if metrics.get('success_rate', 1) < thresholds['success_rate']:
-                    alerts.append({
-                        'platform': platform,
-                        'alert_type': 'low_success_rate',
-                        'severity': 'critical',
-                        'value': metrics['success_rate'],
-                        'threshold': thresholds['success_rate'],
-                        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    })
+                if metrics.get("success_rate", 1) < thresholds["success_rate"]:
+                    alerts.append(
+                        {
+                            "platform": platform,
+                            "alert_type": "low_success_rate",
+                            "severity": "critical",
+                            "value": metrics["success_rate"],
+                            "threshold": thresholds["success_rate"],
+                            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        }
+                    )
 
             return alerts
 
@@ -348,10 +351,10 @@ class MonitorService:
             int: 天数
         """
         mapping = {
-            '1h': 1,
-            '1d': 1,
-            '7d': 7,
-            '30d': 30,
+            "1h": 1,
+            "1d": 1,
+            "7d": 7,
+            "30d": 30,
         }
         return mapping.get(time_range, 1)
 
@@ -367,23 +370,22 @@ class MonitorService:
         """
         try:
             data = self.redis_client.hmget(
-                key,
-                'count', 'success_count', 'error_count', 'total_duration'
+                key, "count", "success_count", "error_count", "total_duration"
             )
 
             return {
-                'count': int(data[0]) if data[0] else 0,
-                'success_count': int(data[1]) if data[1] else 0,
-                'error_count': int(data[2]) if data[2] else 0,
-                'total_duration': int(data[3]) if data[3] else 0,
+                "count": int(data[0]) if data[0] else 0,
+                "success_count": int(data[1]) if data[1] else 0,
+                "error_count": int(data[2]) if data[2] else 0,
+                "total_duration": int(data[3]) if data[3] else 0,
             }
         except Exception as e:
             logger.error(f"获取指标数据失败: {e}")
             return {
-                'count': 0,
-                'success_count': 0,
-                'error_count': 0,
-                'total_duration': 0,
+                "count": 0,
+                "success_count": 0,
+                "error_count": 0,
+                "total_duration": 0,
             }
 
     def _get_durations(self, platform: str, endpoint: str, days: int) -> List[int]:
@@ -401,7 +403,7 @@ class MonitorService:
         durations = []
 
         for i in range(days):
-            date = (datetime.now() - timedelta(days=i)).strftime('%Y-%m-%d')
+            date = (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
             key = f"metrics:{platform}:{endpoint}:{date}:durations"
 
             try:
@@ -466,6 +468,7 @@ class MonitorService:
         """
         # 从配置中获取平台列表
         from ..config import PLATFORM_RATE_LIMITS
+
         return list(PLATFORM_RATE_LIMITS.keys())
 
 

@@ -45,7 +45,7 @@ class BatchOperationOptimizer:
         self,
         adapter: BaseAdapter,
         batch_size: Optional[int] = None,
-        max_concurrent: Optional[int] = None
+        max_concurrent: Optional[int] = None,
     ):
         """
         初始化批量操作优化器
@@ -61,9 +61,9 @@ class BatchOperationOptimizer:
         # 从配置读取批量操作参数
         from core.config import BATCH_OPERATION_CONFIG
 
-        self.batch_sizes = BATCH_OPERATION_CONFIG['batch_sizes']
-        self.max_concurrent = max_concurrent or BATCH_OPERATION_CONFIG['max_concurrent_batches']
-        self.max_retries = BATCH_OPERATION_CONFIG['max_retries_per_item']
+        self.batch_sizes = BATCH_OPERATION_CONFIG["batch_sizes"]
+        self.max_concurrent = max_concurrent or BATCH_OPERATION_CONFIG["max_concurrent_batches"]
+        self.max_retries = BATCH_OPERATION_CONFIG["max_retries_per_item"]
 
         # 缓存管理器
         self.cache_manager = get_cache_manager()
@@ -80,9 +80,7 @@ class BatchOperationOptimizer:
         )
 
     async def batch_create_products(
-        self,
-        products: List[Dict],
-        batch_size: Optional[int] = None
+        self, products: List[Dict], batch_size: Optional[int] = None
     ) -> List[Dict]:
         """
         批量创建商品
@@ -100,7 +98,7 @@ class BatchOperationOptimizer:
             >>> results = await optimizer.batch_create_products(products)
             >>> print(f"成功: {len([r for r in results if r['success']])}")
         """
-        batch_size = batch_size or self.batch_sizes.get('product_create', 50)
+        batch_size = batch_size or self.batch_sizes.get("product_create", 50)
 
         logger.info(f"开始批量创建商品: 总数={len(products)}, 批次大小={batch_size}")
 
@@ -109,7 +107,7 @@ class BatchOperationOptimizer:
 
         # 分批处理
         for i in range(0, len(products), batch_size):
-            batch = products[i:i + batch_size]
+            batch = products[i : i + batch_size]
 
             # 记录监控
             batch_start = time.time()
@@ -128,10 +126,7 @@ class BatchOperationOptimizer:
                 duration = time.time() - batch_start
                 if self.monitor:
                     self.monitor.record_api_call(
-                        self.platform,
-                        '/products/batch_create',
-                        success=True,
-                        duration=duration
+                        self.platform, "/products/batch_create", success=True, duration=duration
                     )
 
                 logger.info(
@@ -152,16 +147,16 @@ class BatchOperationOptimizer:
                 if self.monitor:
                     self.monitor.record_api_call(
                         self.platform,
-                        '/products/batch_create',
+                        "/products/batch_create",
                         success=False,
                         duration=duration,
-                        error_code=type(e).__name__
+                        error_code=type(e).__name__,
                     )
 
         # 统计结果
         total_duration = time.time() - start_time
-        success_count = len([r for r in all_results if r['success']])
-        fail_count = len([r for r in all_results if not r['success']])
+        success_count = len([r for r in all_results if r["success"]])
+        fail_count = len([r for r in all_results if not r["success"]])
 
         logger.info(
             f"批量创建完成: 总数={len(products)}, "
@@ -172,9 +167,7 @@ class BatchOperationOptimizer:
         return all_results
 
     async def batch_update_products(
-        self,
-        products: List[Dict],
-        batch_size: Optional[int] = None
+        self, products: List[Dict], batch_size: Optional[int] = None
     ) -> List[Dict]:
         """
         批量更新商品
@@ -186,7 +179,7 @@ class BatchOperationOptimizer:
         Returns:
             list: 更新结果列表
         """
-        batch_size = batch_size or self.batch_sizes.get('product_update', 100)
+        batch_size = batch_size or self.batch_sizes.get("product_update", 100)
 
         logger.info(f"开始批量更新商品: 总数={len(products)}, 批次大小={batch_size}")
 
@@ -194,7 +187,7 @@ class BatchOperationOptimizer:
         start_time = time.time()
 
         for i in range(0, len(products), batch_size):
-            batch = products[i:i + batch_size]
+            batch = products[i : i + batch_size]
             batch_start = time.time()
 
             try:
@@ -208,7 +201,7 @@ class BatchOperationOptimizer:
 
                 # 失效缓存
                 for product in batch:
-                    product_id = product.get('product_id')
+                    product_id = product.get("product_id")
                     if product_id:
                         await self.cache_manager.invalidate_pattern(
                             f"product:{self.platform}:{product_id}"
@@ -217,10 +210,7 @@ class BatchOperationOptimizer:
                 duration = time.time() - batch_start
                 if self.monitor:
                     self.monitor.record_api_call(
-                        self.platform,
-                        '/products/batch_update',
-                        success=True,
-                        duration=duration
+                        self.platform, "/products/batch_update", success=True, duration=duration
                     )
 
                 logger.info(f"批次 {i//batch_size + 1} 更新完成")
@@ -234,15 +224,15 @@ class BatchOperationOptimizer:
                 if self.monitor:
                     self.monitor.record_api_call(
                         self.platform,
-                        '/products/batch_update',
+                        "/products/batch_update",
                         success=False,
                         duration=duration,
-                        error_code=type(e).__name__
+                        error_code=type(e).__name__,
                     )
 
         total_duration = time.time() - start_time
-        success_count = len([r for r in all_results if r['success']])
-        fail_count = len([r for r in all_results if not r['success']])
+        success_count = len([r for r in all_results if r["success"]])
+        fail_count = len([r for r in all_results if not r["success"]])
 
         logger.info(
             f"批量更新完成: 总数={len(products)}, "
@@ -253,9 +243,7 @@ class BatchOperationOptimizer:
         return all_results
 
     async def batch_update_inventory(
-        self,
-        updates: List[Dict],
-        batch_size: Optional[int] = None
+        self, updates: List[Dict], batch_size: Optional[int] = None
     ) -> List[Dict]:
         """
         批量更新库存
@@ -275,7 +263,7 @@ class BatchOperationOptimizer:
             ... ]
             >>> results = await optimizer.batch_update_inventory(updates)
         """
-        batch_size = batch_size or self.batch_sizes.get('inventory_update', 200)
+        batch_size = batch_size or self.batch_sizes.get("inventory_update", 200)
 
         logger.info(f"开始批量更新库存: 总数={len(updates)}, 批次大小={batch_size}")
 
@@ -283,7 +271,7 @@ class BatchOperationOptimizer:
         start_time = time.time()
 
         for i in range(0, len(updates), batch_size):
-            batch = updates[i:i + batch_size]
+            batch = updates[i : i + batch_size]
             batch_start = time.time()
 
             try:
@@ -297,7 +285,7 @@ class BatchOperationOptimizer:
 
                 # 失效库存缓存
                 for update in batch:
-                    sku = update.get('sku')
+                    sku = update.get("sku")
                     if sku:
                         await self.cache_manager.invalidate_pattern(
                             f"inventory:{self.platform}:{sku}"
@@ -306,10 +294,7 @@ class BatchOperationOptimizer:
                 duration = time.time() - batch_start
                 if self.monitor:
                     self.monitor.record_api_call(
-                        self.platform,
-                        '/inventory/batch_update',
-                        success=True,
-                        duration=duration
+                        self.platform, "/inventory/batch_update", success=True, duration=duration
                     )
 
                 logger.info(f"批次 {i//batch_size + 1} 库存更新完成")
@@ -323,15 +308,15 @@ class BatchOperationOptimizer:
                 if self.monitor:
                     self.monitor.record_api_call(
                         self.platform,
-                        '/inventory/batch_update',
+                        "/inventory/batch_update",
                         success=False,
                         duration=duration,
-                        error_code=type(e).__name__
+                        error_code=type(e).__name__,
                     )
 
         total_duration = time.time() - start_time
-        success_count = len([r for r in all_results if r['success']])
-        fail_count = len([r for r in all_results if not r['success']])
+        success_count = len([r for r in all_results if r["success"]])
+        fail_count = len([r for r in all_results if not r["success"]])
 
         logger.info(
             f"批量库存更新完成: 总数={len(updates)}, "
@@ -353,7 +338,7 @@ class BatchOperationOptimizer:
         """
         try:
             # 尝试调用平台的批量创建API
-            if hasattr(self.adapter, 'batch_create_products'):
+            if hasattr(self.adapter, "batch_create_products"):
                 # 平台支持批量创建
                 return await self.adapter.batch_create_products(products)
             else:
@@ -363,9 +348,9 @@ class BatchOperationOptimizer:
                 for product in products:
                     try:
                         result = await self.adapter.create_product(product)
-                        results.append({'success': True, 'product_id': result.get('id')})
+                        results.append({"success": True, "product_id": result.get("id")})
                     except Exception as e:
-                        results.append({'success': False, 'error': str(e)})
+                        results.append({"success": False, "error": str(e)})
                 return results
 
         except Exception as e:
@@ -384,7 +369,7 @@ class BatchOperationOptimizer:
         """
         try:
             # 尝试调用平台的批量更新API
-            if hasattr(self.adapter, 'batch_update_products'):
+            if hasattr(self.adapter, "batch_update_products"):
                 return await self.adapter.batch_update_products(products)
             else:
                 # 逐个更新
@@ -392,11 +377,11 @@ class BatchOperationOptimizer:
                 results = []
                 for product in products:
                     try:
-                        product_id = product.pop('product_id')
+                        product_id = product.pop("product_id")
                         result = await self.adapter.update_product(product_id, product)
-                        results.append({'success': True, 'product_id': product_id})
+                        results.append({"success": True, "product_id": product_id})
                     except Exception as e:
-                        results.append({'success': False, 'error': str(e)})
+                        results.append({"success": False, "error": str(e)})
                 return results
 
         except Exception as e:
@@ -415,7 +400,7 @@ class BatchOperationOptimizer:
         """
         try:
             # 尝试调用平台的批量库存更新API
-            if hasattr(self.adapter, 'batch_update_inventory'):
+            if hasattr(self.adapter, "batch_update_inventory"):
                 return await self.adapter.batch_update_inventory(updates)
             else:
                 # 逐个更新
@@ -423,12 +408,14 @@ class BatchOperationOptimizer:
                 results = []
                 for update in updates:
                     try:
-                        sku = update['sku']
-                        quantity = update['quantity']
+                        sku = update["sku"]
+                        quantity = update["quantity"]
                         result = await self.adapter.update_inventory(sku, quantity)
-                        results.append({'success': True, 'sku': sku})
+                        results.append({"success": True, "sku": sku})
                     except Exception as e:
-                        results.append({'success': False, 'error': str(e), 'sku': update.get('sku')})
+                        results.append(
+                            {"success": False, "error": str(e), "sku": update.get("sku")}
+                        )
                 return results
 
         except Exception as e:
@@ -451,13 +438,13 @@ class BatchOperationOptimizer:
             for attempt in range(self.max_retries):
                 try:
                     result = await self.adapter.create_product(product)
-                    results.append({'success': True, 'product_id': result.get('id')})
+                    results.append({"success": True, "product_id": result.get("id")})
                     break
                 except Exception as e:
                     if attempt == self.max_retries - 1:
-                        results.append({'success': False, 'error': str(e)})
+                        results.append({"success": False, "error": str(e)})
                     else:
-                        await asyncio.sleep(2 ** attempt)
+                        await asyncio.sleep(2**attempt)
 
         return results
 
@@ -474,17 +461,17 @@ class BatchOperationOptimizer:
         results = []
 
         for product in products:
-            product_id = product.get('product_id')
+            product_id = product.get("product_id")
             for attempt in range(self.max_retries):
                 try:
                     result = await self.adapter.update_product(product_id, product)
-                    results.append({'success': True, 'product_id': product_id})
+                    results.append({"success": True, "product_id": product_id})
                     break
                 except Exception as e:
                     if attempt == self.max_retries - 1:
-                        results.append({'success': False, 'error': str(e)})
+                        results.append({"success": False, "error": str(e)})
                     else:
-                        await asyncio.sleep(2 ** attempt)
+                        await asyncio.sleep(2**attempt)
 
         return results
 
@@ -501,19 +488,19 @@ class BatchOperationOptimizer:
         results = []
 
         for update in updates:
-            sku = update.get('sku')
-            quantity = update.get('quantity')
+            sku = update.get("sku")
+            quantity = update.get("quantity")
 
             for attempt in range(self.max_retries):
                 try:
                     result = await self.adapter.update_inventory(sku, quantity)
-                    results.append({'success': True, 'sku': sku})
+                    results.append({"success": True, "sku": sku})
                     break
                 except Exception as e:
                     if attempt == self.max_retries - 1:
-                        results.append({'success': False, 'error': str(e), 'sku': sku})
+                        results.append({"success": False, "error": str(e), "sku": sku})
                     else:
-                        await asyncio.sleep(2 ** attempt)
+                        await asyncio.sleep(2**attempt)
 
         return results
 

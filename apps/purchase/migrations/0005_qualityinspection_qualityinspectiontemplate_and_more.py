@@ -6,131 +6,438 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('products', '0002_initial'),
+        ("products", "0002_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('purchase', '0004_purchaseinquiry_purchaseinquiryitem_and_more'),
+        ("purchase", "0004_purchaseinquiry_purchaseinquiryitem_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='QualityInspection',
+            name="QualityInspection",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('inspection_number', models.CharField(max_length=100, unique=True, verbose_name='质检单号')),
-                ('source_type', models.CharField(choices=[('purchase_receipt', '采购收货'), ('inbound_order', '入库单'), ('production', '生产入库')], max_length=20, verbose_name='来源类型')),
-                ('source_id', models.IntegerField(verbose_name='来源单据ID')),
-                ('source_number', models.CharField(max_length=100, verbose_name='来源单号')),
-                ('inspection_date', models.DateField(verbose_name='质检日期')),
-                ('status', models.CharField(choices=[('pending', '待检'), ('in_progress', '检验中'), ('passed', '合格'), ('failed', '不合格'), ('conditional', '让步接收')], default='pending', max_length=20, verbose_name='质检状态')),
-                ('batch_number', models.CharField(blank=True, max_length=100, verbose_name='批次号')),
-                ('quantity', models.DecimalField(decimal_places=4, max_digits=12, verbose_name='质检数量')),
-                ('passed_quantity', models.DecimalField(decimal_places=4, default=0, max_digits=12, verbose_name='合格数量')),
-                ('failed_quantity', models.DecimalField(decimal_places=4, default=0, max_digits=12, verbose_name='不合格数量')),
-                ('pass_rate', models.DecimalField(decimal_places=2, default=0, max_digits=5, verbose_name='合格率(%)')),
-                ('result', models.CharField(blank=True, max_length=200, verbose_name='质检结论')),
-                ('notes', models.TextField(blank=True, verbose_name='质检备注')),
-                ('approved_at', models.DateTimeField(blank=True, null=True, verbose_name='审批时间')),
-                ('approved_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='approved_quality_inspections', to=settings.AUTH_USER_MODEL, verbose_name='审批人')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('inspector', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='quality_inspections', to=settings.AUTH_USER_MODEL, verbose_name='质检员')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='products.product', verbose_name='产品')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "inspection_number",
+                    models.CharField(max_length=100, unique=True, verbose_name="质检单号"),
+                ),
+                (
+                    "source_type",
+                    models.CharField(
+                        choices=[
+                            ("purchase_receipt", "采购收货"),
+                            ("inbound_order", "入库单"),
+                            ("production", "生产入库"),
+                        ],
+                        max_length=20,
+                        verbose_name="来源类型",
+                    ),
+                ),
+                ("source_id", models.IntegerField(verbose_name="来源单据ID")),
+                ("source_number", models.CharField(max_length=100, verbose_name="来源单号")),
+                ("inspection_date", models.DateField(verbose_name="质检日期")),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "待检"),
+                            ("in_progress", "检验中"),
+                            ("passed", "合格"),
+                            ("failed", "不合格"),
+                            ("conditional", "让步接收"),
+                        ],
+                        default="pending",
+                        max_length=20,
+                        verbose_name="质检状态",
+                    ),
+                ),
+                ("batch_number", models.CharField(blank=True, max_length=100, verbose_name="批次号")),
+                (
+                    "quantity",
+                    models.DecimalField(decimal_places=4, max_digits=12, verbose_name="质检数量"),
+                ),
+                (
+                    "passed_quantity",
+                    models.DecimalField(
+                        decimal_places=4, default=0, max_digits=12, verbose_name="合格数量"
+                    ),
+                ),
+                (
+                    "failed_quantity",
+                    models.DecimalField(
+                        decimal_places=4, default=0, max_digits=12, verbose_name="不合格数量"
+                    ),
+                ),
+                (
+                    "pass_rate",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=5, verbose_name="合格率(%)"
+                    ),
+                ),
+                ("result", models.CharField(blank=True, max_length=200, verbose_name="质检结论")),
+                ("notes", models.TextField(blank=True, verbose_name="质检备注")),
+                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="审批时间")),
+                (
+                    "approved_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="approved_quality_inspections",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="审批人",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "inspector",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="quality_inspections",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="质检员",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="products.product",
+                        verbose_name="产品",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '质检单',
-                'verbose_name_plural': '质检单',
-                'db_table': 'quality_inspection',
-                'ordering': ['-inspection_date', '-created_at'],
+                "verbose_name": "质检单",
+                "verbose_name_plural": "质检单",
+                "db_table": "quality_inspection",
+                "ordering": ["-inspection_date", "-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='QualityInspectionTemplate',
+            name="QualityInspectionTemplate",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=200, verbose_name='模板名称')),
-                ('items', models.JSONField(default=list, help_text='格式: [{"name": "外观检查", "standard": "无划痕", "method": "目视"}]', verbose_name='质检项目配置')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('description', models.TextField(blank=True, verbose_name='模板说明')),
-                ('category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='products.productcategory', verbose_name='产品分类')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("name", models.CharField(max_length=200, verbose_name="模板名称")),
+                (
+                    "items",
+                    models.JSONField(
+                        default=list,
+                        help_text='格式: [{"name": "外观检查", "standard": "无划痕", "method": "目视"}]',
+                        verbose_name="质检项目配置",
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                ("description", models.TextField(blank=True, verbose_name="模板说明")),
+                (
+                    "category",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="products.productcategory",
+                        verbose_name="产品分类",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '质检模板',
-                'verbose_name_plural': '质检模板',
-                'db_table': 'quality_inspection_template',
-                'ordering': ['name'],
+                "verbose_name": "质检模板",
+                "verbose_name_plural": "质检模板",
+                "db_table": "quality_inspection_template",
+                "ordering": ["name"],
             },
         ),
         migrations.CreateModel(
-            name='QualityInspectionItem',
+            name="QualityInspectionItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('item_name', models.CharField(max_length=200, verbose_name='检验项目')),
-                ('standard', models.CharField(max_length=500, verbose_name='检验标准')),
-                ('method', models.CharField(blank=True, max_length=200, verbose_name='检验方法')),
-                ('result', models.CharField(choices=[('pass', '合格'), ('fail', '不合格'), ('na', '不适用')], default='pass', max_length=10, verbose_name='检验结果')),
-                ('actual_value', models.CharField(blank=True, max_length=200, verbose_name='实际值')),
-                ('notes', models.TextField(blank=True, verbose_name='备注')),
-                ('sort_order', models.PositiveIntegerField(default=0, verbose_name='排序')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('inspection', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='purchase.qualityinspection', verbose_name='质检单')),
-                ('inspection_item', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='purchase.qualityinspectiontemplate', verbose_name='质检模板项目')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("item_name", models.CharField(max_length=200, verbose_name="检验项目")),
+                ("standard", models.CharField(max_length=500, verbose_name="检验标准")),
+                ("method", models.CharField(blank=True, max_length=200, verbose_name="检验方法")),
+                (
+                    "result",
+                    models.CharField(
+                        choices=[("pass", "合格"), ("fail", "不合格"), ("na", "不适用")],
+                        default="pass",
+                        max_length=10,
+                        verbose_name="检验结果",
+                    ),
+                ),
+                ("actual_value", models.CharField(blank=True, max_length=200, verbose_name="实际值")),
+                ("notes", models.TextField(blank=True, verbose_name="备注")),
+                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="排序")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "inspection",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="items",
+                        to="purchase.qualityinspection",
+                        verbose_name="质检单",
+                    ),
+                ),
+                (
+                    "inspection_item",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="purchase.qualityinspectiontemplate",
+                        verbose_name="质检模板项目",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '质检项目明细',
-                'verbose_name_plural': '质检项目明细',
-                'db_table': 'quality_inspection_item',
-                'ordering': ['sort_order'],
+                "verbose_name": "质检项目明细",
+                "verbose_name_plural": "质检项目明细",
+                "db_table": "quality_inspection_item",
+                "ordering": ["sort_order"],
             },
         ),
         migrations.CreateModel(
-            name='NonConformingProduct',
+            name="NonConformingProduct",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('ncp_number', models.CharField(max_length=100, unique=True, verbose_name='不合格品单号')),
-                ('quantity', models.DecimalField(decimal_places=4, max_digits=12, verbose_name='不合格数量')),
-                ('defect_description', models.TextField(verbose_name='缺陷描述')),
-                ('handling_method', models.CharField(choices=[('return', '退货'), ('rework', '返工'), ('scrap', '报废'), ('conditional_accept', '让步接收')], max_length=20, verbose_name='处理方式')),
-                ('handling_date', models.DateField(blank=True, null=True, verbose_name='处理日期')),
-                ('handling_result', models.TextField(blank=True, verbose_name='处理结果')),
-                ('status', models.CharField(choices=[('pending', '待处理'), ('in_progress', '处理中'), ('completed', '已完成')], default='pending', max_length=20, verbose_name='处理状态')),
-                ('handling_cost', models.DecimalField(decimal_places=2, default=0, max_digits=12, verbose_name='处理成本')),
-                ('notes', models.TextField(blank=True, verbose_name='备注')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('handler', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='handled_ncps', to=settings.AUTH_USER_MODEL, verbose_name='处理人')),
-                ('inspection', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ncp_records', to='purchase.qualityinspection', verbose_name='质检单')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='products.product', verbose_name='产品')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "ncp_number",
+                    models.CharField(max_length=100, unique=True, verbose_name="不合格品单号"),
+                ),
+                (
+                    "quantity",
+                    models.DecimalField(decimal_places=4, max_digits=12, verbose_name="不合格数量"),
+                ),
+                ("defect_description", models.TextField(verbose_name="缺陷描述")),
+                (
+                    "handling_method",
+                    models.CharField(
+                        choices=[
+                            ("return", "退货"),
+                            ("rework", "返工"),
+                            ("scrap", "报废"),
+                            ("conditional_accept", "让步接收"),
+                        ],
+                        max_length=20,
+                        verbose_name="处理方式",
+                    ),
+                ),
+                ("handling_date", models.DateField(blank=True, null=True, verbose_name="处理日期")),
+                ("handling_result", models.TextField(blank=True, verbose_name="处理结果")),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("pending", "待处理"), ("in_progress", "处理中"), ("completed", "已完成")],
+                        default="pending",
+                        max_length=20,
+                        verbose_name="处理状态",
+                    ),
+                ),
+                (
+                    "handling_cost",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=12, verbose_name="处理成本"
+                    ),
+                ),
+                ("notes", models.TextField(blank=True, verbose_name="备注")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "handler",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="handled_ncps",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="处理人",
+                    ),
+                ),
+                (
+                    "inspection",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ncp_records",
+                        to="purchase.qualityinspection",
+                        verbose_name="质检单",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="products.product",
+                        verbose_name="产品",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '不合格品处理',
-                'verbose_name_plural': '不合格品处理',
-                'db_table': 'non_conforming_product',
-                'ordering': ['-created_at'],
+                "verbose_name": "不合格品处理",
+                "verbose_name_plural": "不合格品处理",
+                "db_table": "non_conforming_product",
+                "ordering": ["-created_at"],
             },
         ),
     ]

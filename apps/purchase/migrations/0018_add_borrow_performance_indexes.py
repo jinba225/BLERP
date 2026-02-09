@@ -4,20 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('purchase', '0017_add_borrow_indexes'),
+        ("purchase", "0017_add_borrow_indexes"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='borrow',
-            name='borrow_date',
-            field=models.DateField(db_index=True, verbose_name='借用日期'),
+            model_name="borrow",
+            name="borrow_date",
+            field=models.DateField(db_index=True, verbose_name="借用日期"),
         ),
         migrations.AlterField(
-            model_name='borrow',
-            name='status',
-            field=models.CharField(choices=[('draft', '草稿'), ('borrowed', '借用中'), ('completed', '已完成')], db_index=True, default='draft', max_length=20, verbose_name='状态'),
+            model_name="borrow",
+            name="status",
+            field=models.CharField(
+                choices=[("draft", "草稿"), ("borrowed", "借用中"), ("completed", "已完成")],
+                db_index=True,
+                default="draft",
+                max_length=20,
+                verbose_name="状态",
+            ),
         ),
     ]

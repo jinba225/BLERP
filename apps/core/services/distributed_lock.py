@@ -36,7 +36,7 @@ class DistributedLock:
         lock_key: str,
         ttl: Optional[int] = None,
         auto_renewal: Optional[bool] = None,
-        redis_client=None
+        redis_client=None,
     ):
         """
         初始化分布式锁
@@ -60,17 +60,16 @@ class DistributedLock:
 
         # 配置参数
         config = DISTRIBUTED_LOCK_CONFIG
-        self.ttl = ttl or config['default_ttl']
-        self.auto_renewal = auto_renewal if auto_renewal is not None else config['auto_renewal']
-        self.renewal_interval = config['renewal_interval']
-        self.max_lock_time = config['max_lock_time']
+        self.ttl = ttl or config["default_ttl"]
+        self.auto_renewal = auto_renewal if auto_renewal is not None else config["auto_renewal"]
+        self.renewal_interval = config["renewal_interval"]
+        self.max_lock_time = config["max_lock_time"]
 
         # Redis客户端
         self.redis_client = redis_client or cache
 
         logger.debug(
-            f"初始化分布式锁: key={lock_key}, ttl={self.ttl}, "
-            f"auto_renewal={self.auto_renewal}"
+            f"初始化分布式锁: key={lock_key}, ttl={self.ttl}, " f"auto_renewal={self.auto_renewal}"
         )
 
     async def __aenter__(self):
@@ -119,10 +118,7 @@ class DistributedLock:
             try:
                 # 使用SET NX EX原子操作获取锁
                 acquired = self.redis_client.set(
-                    self.lock_key,
-                    self._lock_value,
-                    nx=True,  # 仅当键不存在时设置
-                    ex=self.ttl  # 过期时间（秒）
+                    self.lock_key, self._lock_value, nx=True, ex=self.ttl  # 仅当键不存在时设置  # 过期时间（秒）
                 )
 
                 if acquired:
@@ -170,10 +166,7 @@ class DistributedLock:
 
             try:
                 acquired = self.redis_client.set(
-                    self.lock_key,
-                    self._lock_value,
-                    nx=True,
-                    ex=self.ttl
+                    self.lock_key, self._lock_value, nx=True, ex=self.ttl
                 )
 
                 if acquired:
@@ -216,12 +209,7 @@ class DistributedLock:
             end
             """
 
-            result = self.redis_client.eval(
-                lua_script,
-                1,
-                self.lock_key,
-                self._lock_value
-            )
+            result = self.redis_client.eval(lua_script, 1, self.lock_key, self._lock_value)
 
             if result:
                 logger.info(f"成功释放锁: {self.lock_key}")
@@ -248,12 +236,7 @@ class DistributedLock:
             end
             """
 
-            result = self.redis_client.eval(
-                lua_script,
-                1,
-                self.lock_key,
-                self._lock_value
-            )
+            result = self.redis_client.eval(lua_script, 1, self.lock_key, self._lock_value)
 
             if result:
                 logger.info(f"成功释放锁: {self.lock_key}")
@@ -267,6 +250,7 @@ class DistributedLock:
 
     def _start_renewal_task(self):
         """启动自动续期任务"""
+
         async def renewal_loop():
             while self._locked:
                 try:
@@ -292,11 +276,7 @@ class DistributedLock:
             """
 
             result = self.redis_client.eval(
-                lua_script,
-                1,
-                self.lock_key,
-                self._lock_value,
-                self.ttl
+                lua_script, 1, self.lock_key, self._lock_value, self.ttl
             )
 
             if result:
@@ -328,25 +308,21 @@ class DistributedLock:
             value = self.redis_client.get(self.lock_key)
 
             return {
-                'lock_key': self.lock_key,
-                'locked': self._locked,
-                'ttl': ttl,
-                'is_owner': value == self._lock_value if value else False,
+                "lock_key": self.lock_key,
+                "locked": self._locked,
+                "ttl": ttl,
+                "is_owner": value == self._lock_value if value else False,
             }
         except Exception as e:
             logger.error(f"获取锁信息失败: {e}")
             return {
-                'lock_key': self.lock_key,
-                'error': str(e),
+                "lock_key": self.lock_key,
+                "error": str(e),
             }
 
 
 @contextmanager
-def distributed_lock(
-    lock_key: str,
-    ttl: Optional[int] = None,
-    timeout: Optional[float] = None
-):
+def distributed_lock(lock_key: str, ttl: Optional[int] = None, timeout: Optional[float] = None):
     """
     分布式锁上下文管理器（同步版本）
 
@@ -374,9 +350,7 @@ def distributed_lock(
 
 
 async def async_distributed_lock(
-    lock_key: str,
-    ttl: Optional[int] = None,
-    timeout: Optional[float] = None
+    lock_key: str, ttl: Optional[int] = None, timeout: Optional[float] = None
 ):
     """
     分布式锁上下文管理器（异步版本）

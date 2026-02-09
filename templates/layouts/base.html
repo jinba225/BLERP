@@ -1653,6 +1653,16 @@
             </header> <!-- Page Content -->
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
                 <div class="container mx-auto px-6 py-8">
+                    <!-- 调试信息 -->
+                    {% if debug %}
+                    <div class="mb-2 p-2 bg-blue-50 text-blue-700 text-xs rounded">
+                        <strong>Messages调试:</strong> 共有 {{ messages|length }} 条消息
+                        {% for message in messages %}
+                            <br>- [{{ message.tags }}] {{ message }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
                     {% if messages %}
                     <div class="mb-6 space-y-2">
                         {% for message in messages %}

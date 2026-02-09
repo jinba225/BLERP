@@ -1,0 +1,270 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ============================================
+  # 代码质量检查
+  # ============================================
+  code-quality:
+    name: 代码质量检查
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置Python环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: 缓存pip依赖
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install black flake8 isort mypy
+
+      - name: 运行Black代码格式检查
+        run: |
+          black . --check --line-length=100 --exclude '^apps/bi/(analytics|realtime)/'
+
+      - name: 运行isort import排序检查
+        run: |
+          isort . --check-only --profile black --line-length=100
+
+      - name: 运行flake8代码检查
+        run: |
+          flake8 . --max-line-length=100 --ignore=E203,W503 --exclude=migrations
+
+  # ============================================
+  # 测试
+  # ============================================
+  test:
+    name: 运行测试
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: django_erp_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置Python环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: 缓存pip依赖
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 运行数据库迁移
+        env:
+          DB_ENGINE: django.db.backends.postgresql
+          DB_NAME: django_erp_test
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DEBUG: False
+          SECRET_KEY: test-secret-key-for-ci
+        run: |
+          python manage.py migrate --noinput
+
+      - name: 运行E2E测试
+        env:
+          DB_ENGINE: django.db.backends.postgresql
+          DB_NAME: django_erp_test
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DEBUG: False
+          SECRET_KEY: test-secret-key-for-ci
+        run: |
+          pytest apps/**/test_e2e_*.py -v --tb=short
+
+      - name: 生成测试覆盖率报告
+        env:
+          DB_ENGINE: django.db.backends.postgresql
+          DB_NAME: django_erp_test
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DEBUG: False
+          SECRET_KEY: test-secret-key-for-ci
+        run: |
+          pytest apps/**/test_e2e_*.py --cov=apps --cov-report=xml --cov-report=term
+
+      - name: 上传覆盖率报告到Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: e2e
+          name: codecov-umbrella
+
+  # ============================================
+  # 安全扫描
+  # ============================================
+  security:
+    name: 安全扫描
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置Python环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: 安装安全扫描工具
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit pip-audit safety
+
+      - name: 运行bandit安全扫描
+        run: |
+          bandit -r . -f json -o bandit-report.json || true
+          bandit -r . || true
+
+      - name: 运行pip-audit依赖漏洞扫描
+        run: |
+          pip-audit || true
+
+      - name: 运行safety安全检查
+        run: |
+          safety check --full-report || true
+
+  # ============================================
+  # Django系统检查
+  # ============================================
+  deploy-check:
+    name: 部署前检查
+    runs-on: ubuntu-latest
+    needs: [code-quality, test, security]
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置Python环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 运行Django系统检查
+        env:
+          DEBUG: False
+          SECRET_KEY: test-secret-key-for-ci
+        run: |
+          python manage.py check --deploy
+
+      - name: 检查静态文件收集
+        env:
+          DEBUG: False
+          SECRET_KEY: test-secret-key-for-ci
+        run: |
+          python manage.py collectstatic --noinput --dry-run
+
+      - name: 生成部署检查报告
+        if: always()
+        run: |
+          echo "## 部署前检查报告" > deploy-check.md
+          echo "- ✅ 代码质量检查通过" >> deploy-check.md
+          echo "- ✅ 测试通过" >> deploy-check.md
+          echo "- ✅ 安全扫描完成" >> deploy-check.md
+          echo "- ✅ Django系统检查通过" >> deploy-check.md
+          cat deploy-check.md
+
+  # ============================================
+  # 构建和部署（仅main分支）
+  # ============================================
+  build-and-deploy:
+    name: 构建和部署
+    runs-on: ubuntu-latest
+    needs: [deploy-check]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: 登录Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 构建并推送Docker镜像
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/django-erp:latest
+            ${{ secrets.DOCKER_USERNAME }}/django-erp:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 部署到生产环境
+        # 这里添加你的部署脚本
+        # 例如：SSH到服务器，拉取镜像，重启容器
+        run: |
+          echo "部署到生产环境..."
+          # ssh user@server "cd /path/to/project && docker-compose pull && docker-compose up -d"

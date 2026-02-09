@@ -1,0 +1,689 @@
+{
+  "metadata": {
+    "project_name": "BetterLaser ERP",
+    "project_type": "Django ERP System",
+    "last_scan": "2026-02-02T00:00:00Z",
+    "scan_version": "1.0.0",
+    "total_modules": 15,
+    "scanned_modules": 13,
+    "pending_modules": 2
+  },
+  "root": {
+    "path": "/Users/janjung/Code_Projects/django_erp",
+    "documentation": "CLAUDE.md",
+    "readme": "README.md",
+    "agents_guide": "AGENTS.md",
+    "python_version": "3.13.5",
+    "django_version": "5.0.9",
+    "drf_version": "3.15.2"
+  },
+  "modules": [
+    {
+      "name": "core",
+      "path": "apps/core",
+      "description": "核心基础设施：BaseModel、审计日志、通知系统、单据号生成",
+      "status": "complete",
+      "documentation": "core/CLAUDE.md",
+      "models": [
+        "BaseModel",
+        "TimeStampedModel",
+        "SoftDeleteModel",
+        "Company",
+        "SystemConfig",
+        "Attachment",
+        "AuditLog",
+        "DocumentNumberSequence",
+        "Notification"
+      ],
+      "key_files": [
+        "models.py",
+        "views.py",
+        "utils/__init__.py",
+        "middleware.py"
+      ],
+      "test_coverage": {
+        "total": 34,
+        "passed": 34,
+        "failed": 0,
+        "percentage": 100
+      },
+      "api_endpoints": [
+        "/api/core/",
+        "/login/",
+        "/logout/",
+        "/"
+      ]
+    },
+    {
+      "name": "users",
+      "path": "apps/users",
+      "description": "用户管理：用户、角色、权限、操作日志",
+      "status": "complete",
+      "documentation": "users/CLAUDE.md",
+      "models": [
+        "User",
+        "Role",
+        "Permission"
+      ],
+      "key_files": [
+        "models.py",
+        "views.py",
+        "permissions.py",
+        "serializers.py"
+      ],
+      "test_coverage": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "percentage": 0
+      },
+      "api_endpoints": [
+        "/api/users/",
+        "/users/"
+      ]
+    },
+    {
+      "name": "authentication",
+      "path": "apps/authentication",
+      "description": "认证授权：JWT/Session 认证、RBAC、API 文档",
+      "status": "complete",
+      "documentation": "authentication/CLAUDE.md",
+      "models": [],
+      "key_files": [
+        "authentication.py",
+        "permissions.py",
+        "serializers.py",
+        "spectacular.py"
+      ],
+      "test_coverage": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "percentage": 0
+      },
+      "api_endpoints": [
+        "/api/auth/",
+        "/api/schema/",
+        "/api/docs/"
+      ]
+    },
+    {
+      "name": "departments",
+      "path": "apps/departments",
+      "description": "部门管理：组织架构、人员分配",
+      "status": "complete",
+      "documentation": "departments/CLAUDE.md",
+      "models": [
+        "Department"
+      ],
+      "key_files": [
+        "models.py",
+        "views.py"
+      ],
+      "test_coverage": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "percentage": 0
+      },
+      "api_endpoints": [
+        "/departments/"
+      ]
+    },
+    {
+      "name": "sales",
+      "path": "apps/sales",
+      "description": "销售管理：报价、订单、发货、退货、打印模板",
+      "status": "complete",
+      "documentation": "sales/CLAUDE.md",
+      "models": [
+        "Quote",
+        "QuoteItem",
+        "SalesOrder",
+        "SalesOrderItem",
+        "Delivery",
+        "DeliveryItem",
+        "SalesReturn",
+        "SalesReturnItem"
+      ],
+      "key_files": [
+        "models.py",
+        "views.py",
+        "urls.py",
+        "services/",
+        "tests/"
+      ],
+      "test_coverage": {
+        "total": 45,
+        "passed": 45,
+        "failed": 0,
+        "percentage": 100
+      },
+      "api_endpoints": [
+        "/sales/",
+        "/sales/quotes/",
+        "/sales/orders/",
+        "/sales/deliveries/",
+        "/sales/returns/"
+      ],
+      "features": [
+        "报价转订单",
+        "部分交付",
+        "退货流程",
+        "打印模板系统",
+        "HiPrint集成"
+      ]
+    },
+    {
+      "name": "purchase",
+      "path": "apps/purchase",
+      "description": "采购管理：询价、订单、收货、借用、质检",
+      "status": "complete",
+      "documentation": "purchase/CLAUDE.md",
+      "models": [
+        "PurchaseInquiry",
+        "PurchaseInquiryItem",
+        "SupplierQuotation",
+        "SupplierQuotationItem",
+        "PurchaseOrder",
+        "PurchaseOrderItem",
+        "PurchaseReceipt",
+        "PurchaseReceiptItem",
+        "PurchaseReturn",
+        "BorrowOrder",
+        "BorrowItem",
+        "BorrowReturn",
+        "BorrowReturnItem"
+      ],
+      "key_files": [
+        "models.py",
+        "views.py",
+        "urls.py",
+        "services/",
+        "tests/"
+      ],
+      "test_coverage": {
+        "total": 36,
+        "passed": 36,
+        "failed": 0,
+        "percentage": 100
+      },
+      "api_endpoints": [
+        "/purchase/",
+        "/purchase/inquiries/",
+        "/purchase/orders/",
+        "/purchase/receipts/",
+        "/purchase/borrows/"
+      ],
+      "features": [
+        "询价转订单",
+        "供应商报价对比",
+        "采购借用",
+        "质检流程",
+        "不合格品处理"
+      ]
+    },
+    {
+      "name": "inventory",
+      "path": "apps/inventory",
+      "description": "库存管理：仓库、出入库、调拨、盘点、库存调整",
+      "status": "complete",
+      "documentation": "inventory/CLAUDE.md",
+      "models": [
+        "Warehouse",
+        "Location",
+        "InventoryStock",
+        "StockMovement",
+        "StockIn",
+        "StockInItem",
+        "StockOut",
+        "StockOutItem",
+        "StockTransfer",
+        "StockAdjustment",
+        "StockCount"
+      ],
+      "key_files": [
+        "models.py",
+        "views.py",
+        "urls.py",
+        "services/",
+        "tests/"
+      ],
+      "test_coverage": {
+        "total": 60,
+        "passed": 60,
+        "failed": 0,
+        "percentage": 100
+      },
+      "api_endpoints": [
+        "/inventory/",
+        "/inventory/warehouses/",
+        "/inventory/inbound/",
+        "/inventory/outbound/",
+        "/inventory/transfer/",
+        "/inventory/adjustment/",
+        "/inventory/count/"
+      ],
+      "features": [
+        "多仓库管理",
+        "库存事务",
+        "库存调整",
+        "库存盘点",
+        "库存流水"
+      ]
+    },
+    {
+      "name": "finance",
+      "path": "apps/finance",
+      "description": "财务管理：应收应付、收付款、费用、会计核算、报表",
+      "status": "complete",
+      "documentation": "finance/CLAUDE.md",
+      "models": [
+        "Account",
+        "Journal",
+        "JournalEntry",
+        "PaymentRecord",
+        "Invoice",
+        "Expense",
+        "AccountBalance"
+      ],
+      "key_files": [
+        "models.py",
+        "views_expense.py",
+        "report_generator.py",
+        "tests/"
+      ],
+      "test_coverage": {
+        "total": 24,
+        "passed": 24,
+        "failed": 0,
+        "percentage": 100
+      },
+      "api_endpoints": [
+        "/finance/",
+        "/finance/expenses/",
+        "/finance/payments/",
+        "/finance/invoices/",
+        "/finance/reports/"
+      ],
+      "features": [
+        "费用报销",
+        "应收应付",
+        "收付款管理",
+        "会计核算",
+        "财务报表"
+      ]
+    },
+    {
+      "name": "customers",
+      "path": "apps/customers",
+      "description": "客户管理：客户信息、联系人、价格表、往来账务",
+      "status": "complete",
+      "documentation": "customers/CLAUDE.md",
+      "models": [
+        "Customer",
+        "Contact",
+        "CustomerPrice"
+      ],
+      "key_files": [
+        "models.py",
+        "views.py",
+        "urls.py",
+        "resources.py"
+      ],
+      "test_coverage": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "percentage": 0
+      },
+      "api_endpoints": [
+        "/customers/",
+        "/api/customers/"
+      ],
+      "features": [
+        "客户信息管理",
+        "联系人管理",
+        "价格表",
+        "往来账务",
+        "数据导出"
+      ]
+    },
+    {
+      "name": "suppliers",
+      "path": "apps/suppliers",
+      "description": "供应商管理：供应商信息、产品目录、评估、往来账务",
+      "status": "complete",
+      "documentation": "suppliers/CLAUDE.md",
+      "models": [
+        "Supplier",
+        "SupplierProduct",
+        "SupplierEvaluation"
+      ],
+      "key_files": [
+        "models.py",
+        "views.py",
+        "urls.py"
+      ],
+      "test_coverage": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "percentage": 0
+      },
+      "api_endpoints": [
+        "/suppliers/",
+        "/api/suppliers/"
+      ],
+      "features": [
+        "供应商信息管理",
+        "产品目录",
+        "供应商评估",
+        "往来账务"
+      ]
+    },
+    {
+      "name": "products",
+      "path": "apps/products",
+      "description": "产品管理：产品、分类、品牌、单位、BOM、价格",
+      "status": "complete",
+      "documentation": "products/CLAUDE.md",
+      "models": [
+        "Product",
+        "Category",
+        "Brand",
+        "Unit",
+        "BOM"
+      ],
+      "key_files": [
+        "models.py",
+        "views.py",
+        "urls.py"
+      ],
+      "test_coverage": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "percentage": 0
+      },
+      "api_endpoints": [
+        "/products/",
+        "/api/products/"
+      ],
+      "features": [
+        "产品信息管理",
+        "多级分类",
+        "品牌管理",
+        "计量单位",
+        "BOM管理",
+        "库存预警"
+      ]
+    },
+    {
+      "name": "ai_assistant",
+      "path": "apps/ai_assistant",
+      "description": "AI 智能助手：多渠道集成（钉钉、微信、Telegram）",
+      "status": "complete",
+      "documentation": null,
+      "models": [
+        "Conversation",
+        "Message",
+        "ToolExecution"
+      ],
+      "key_files": [
+        "models.py",
+        "services/",
+        "providers/",
+        "channels/",
+        "tools/"
+      ],
+      "test_coverage": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "percentage": 0
+      },
+      "api_endpoints": [
+        "/ai/",
+        "/ai/webhook/"
+      ],
+      "features": [
+        "自然语言查询",
+        "智能检索",
+        "工具集成",
+        "对话管理"
+      ]
+    },
+    {
+      "name": "ecomm_sync",
+      "path": "apps/ecomm_sync",
+      "description": "电商同步：6 大平台适配器、Listing 管理、订单同步",
+      "status": "complete",
+      "documentation": null,
+      "models": [
+        "PlatformAccount",
+        "Listing",
+        "OrderSync"
+      ],
+      "key_files": [
+        "models.py",
+        "admin.py",
+        "adapters/",
+        "services/"
+      ],
+      "test_coverage": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "percentage": 0
+      },
+      "api_endpoints": [
+        "/ecomm/",
+        "/api/ecomm/"
+      ],
+      "features": [
+        "淘宝",
+        "京东",
+        "拼多多",
+        "抖音",
+        "快手",
+        "1688",
+        "Listing管理",
+        "订单同步",
+        "库存同步"
+      ]
+    },
+    {
+      "name": "collect",
+      "path": "apps/collect",
+      "description": "采集管理：电商数据采集统一管理",
+      "status": "complete",
+      "documentation": null,
+      "models": [
+        "CollectionTask"
+      ],
+      "key_files": [
+        "models.py",
+        "admin.py",
+        "apps.py"
+      ],
+      "test_coverage": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "percentage": 0
+      },
+      "api_endpoints": [
+        "/collect/"
+      ],
+      "features": [
+        "统一管理界面",
+        "任务配置",
+        "数据同步"
+      ]
+    },
+    {
+      "name": "logistics",
+      "path": "apps/logistics",
+      "description": "物流管理：物流跟踪、配送管理",
+      "status": "planned",
+      "documentation": null,
+      "models": [],
+      "key_files": [],
+      "test_coverage": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "percentage": 0
+      },
+      "api_endpoints": [],
+      "features": []
+    },
+    {
+      "name": "bi",
+      "path": "apps/bi",
+      "description": "商业智能：数据分析、报表、BI",
+      "status": "planned",
+      "documentation": null,
+      "models": [],
+      "key_files": [],
+      "test_coverage": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "percentage": 0
+      },
+      "api_endpoints": [],
+      "features": []
+    }
+  ],
+  "coverage": {
+    "total_modules": 15,
+    "documented_modules": 10,
+    "pending_modules": 5,
+    "planned_modules": 2,
+    "overall_percentage": 67
+  },
+  "test_summary": {
+    "total_tests": 177,
+    "passed_tests": 177,
+    "failed_tests": 0,
+    "overall_percentage": 100,
+    "by_module": {
+      "core": 34,
+      "sales": 45,
+      "purchase": 36,
+      "inventory": 60,
+      "finance": 24
+    }
+  },
+  "ignore_rules": [
+    "__pycache__/**",
+    "*.pyc",
+    ".git/**",
+    ".github/**",
+    "node_modules/**",
+    "staticfiles/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    "*.log",
+    "media/**",
+    "backups/**",
+    "logs/**",
+    "celerybeat-schedule",
+    ".venv/**",
+    "venv/**",
+    "env/**",
+    "ENV/**",
+    ".env",
+    ".DS_Store",
+    "*.bak",
+    "*.old",
+    "*.span.bak",
+    "_report.json",
+    "htmlcov/**",
+    ".tox/**",
+    ".nox/**",
+    ".coverage",
+    ".cache",
+    ".pytest_cache/**",
+    "cover/**",
+    ".idea/**",
+    ".spyderproject",
+    ".ropeproject",
+    ".mypy_cache/**",
+    "dmypy.json",
+    ".pyre/**",
+    ".pytype/**",
+    "cython_debug/**",
+    ".ruff_cache/**",
+    "pyrightconfig.json",
+    "*.egg-info/**",
+    ".spec-workflow/**",
+    "_bmad_/**",
+    ".bmad-core/**",
+    ".trae/**",
+    "docs/_build/**",
+    "docs/template_archives/**",
+    "docs/reports/**",
+    "*.icloud",
+    "poetry.toml",
+    "pdm.lock",
+    ".pdm.toml",
+    ".sisyphus/**"
+  ],
+  "next_steps": [
+    "生成 ai_assistant 模块文档",
+    "生成 ecomm_sync 模块文档",
+    "生成 collect 模块文档",
+    "实现 logistics 模块",
+    "实现 bi 模块",
+    "补充 users、customers、suppliers、products 模块的测试用例"
+  ],
+  "gaps": [
+    {
+      "module": "users",
+      "missing": "测试用例"
+    },
+    {
+      "module": "customers",
+      "missing": "测试用例"
+    },
+    {
+      "module": "suppliers",
+      "missing": "测试用例"
+    },
+    {
+      "module": "products",
+      "missing": "测试用例"
+    },
+    {
+      "module": "ai_assistant",
+      "missing": "模块文档"
+    },
+    {
+      "module": "ecomm_sync",
+      "missing": "模块文档、测试用例"
+    },
+    {
+      "module": "collect",
+      "missing": "模块文档、测试用例"
+    },
+    {
+      "module": "logistics",
+      "missing": "完整实现、文档、测试"
+    },
+    {
+      "module": "bi",
+      "missing": "完整实现、文档、测试"
+    }
+  ],
+  "recommendations": [
+    "优先补齐缺失的测试用例，确保代码质量",
+    "为新增模块（ai_assistant、ecomm_sync、collect）生成文档",
+    "规划 logistics 和 bi 模块的实现方案",
+    "建立持续集成（CI）流程，自动运行测试",
+    "定期更新 index.json，保持文档与代码同步"
+  ]
+}

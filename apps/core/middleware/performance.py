@@ -9,7 +9,7 @@ from django.db import connection
 from django.utils.deprecation import MiddlewareMixin
 from django.conf import settings
 
-logger = logging.getLogger('django_erp.performance')
+logger = logging.getLogger("django_erp.performance")
 
 
 class PerformanceMonitoringMiddleware(MiddlewareMixin):
@@ -30,7 +30,7 @@ class PerformanceMonitoringMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
         """请求结束时计算性能指标"""
         # 只有在设置了start_time的请求上才执行
-        if not hasattr(request, 'start_time'):
+        if not hasattr(request, "start_time"):
             return response
 
         # 计算响应时间
@@ -42,19 +42,18 @@ class PerformanceMonitoringMiddleware(MiddlewareMixin):
         # 记录慢请求（超过1秒）
         if duration > 1.0:
             logger.warning(
-                f'慢请求检测: {request.method} {request.path} '
-                f'耗时 {duration:.2f}s | 查询次数: {query_count}'
+                f"慢请求检测: {request.method} {request.path} "
+                f"耗时 {duration:.2f}s | 查询次数: {query_count}"
             )
 
         # 在开发环境下添加性能响应头
         if settings.DEBUG:
-            response['X-Page-Generation-Time'] = f'{duration:.3f}s'
-            response['X-DB-Query-Count'] = str(query_count)
+            response["X-Page-Generation-Time"] = f"{duration:.3f}s"
+            response["X-DB-Query-Count"] = str(query_count)
 
         # 记录所有请求的性能数据（info级别）
         logger.info(
-            f'{request.method} {request.path} - '
-            f'{duration:.3f}s | {query_count} queries'
+            f"{request.method} {request.path} - " f"{duration:.3f}s | {query_count} queries"
         )
 
         return response

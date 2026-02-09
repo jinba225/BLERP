@@ -5,19 +5,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory', '0007_inventorystock_is_low_stock_flag_and_more'),
+        ("inventory", "0007_inventorystock_is_low_stock_flag_and_more"),
     ]
 
     operations = [
         # InventoryStock索引 - 优化低库存查询性能
         # 用于优化: filter(is_low_stock_flag=True).filter(warehouse=X)
         migrations.AddIndex(
-            model_name='inventorystock',
+            model_name="inventorystock",
             index=models.Index(
-                fields=['is_low_stock_flag', 'warehouse'],
-                name='inventory_stock_low_stock_warehouse_idx'
+                fields=["is_low_stock_flag", "warehouse"],
+                name="inventory_stock_low_stock_warehouse_idx",
             ),
         ),
     ]

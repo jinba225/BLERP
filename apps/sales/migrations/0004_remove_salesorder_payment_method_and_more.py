@@ -4,24 +4,47 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sales', '0003_alter_quote_subtotal_alter_quote_tax_amount_and_more'),
+        ("sales", "0003_alter_quote_subtotal_alter_quote_tax_amount_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='salesorder',
-            name='payment_method',
+            model_name="salesorder",
+            name="payment_method",
         ),
         migrations.AlterField(
-            model_name='quote',
-            name='payment_terms',
-            field=models.CharField(blank=True, choices=[('tt_100', 'T/T 100%'), ('net_30', 'NET 30 EOM.'), ('net_60', 'NET 60 EOM.'), ('30_70', '30% Adv,70% B4 SHPT.30%+70%'), ('cash', 'Cash'), ('be', 'B/E')], max_length=50, verbose_name='付款方式'),
+            model_name="quote",
+            name="payment_terms",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("tt_100", "T/T 100%"),
+                    ("net_30", "NET 30 EOM."),
+                    ("net_60", "NET 60 EOM."),
+                    ("30_70", "30% Adv,70% B4 SHPT.30%+70%"),
+                    ("cash", "Cash"),
+                    ("be", "B/E"),
+                ],
+                max_length=50,
+                verbose_name="付款方式",
+            ),
         ),
         migrations.AlterField(
-            model_name='salesorder',
-            name='payment_terms',
-            field=models.CharField(blank=True, choices=[('tt_100', 'T/T 100%'), ('net_30', 'NET 30 EOM.'), ('net_60', 'NET 60 EOM.'), ('30_70', '30% Adv,70% B4 SHPT.30%+70%'), ('cash', 'Cash'), ('be', 'B/E')], max_length=50, verbose_name='付款方式'),
+            model_name="salesorder",
+            name="payment_terms",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("tt_100", "T/T 100%"),
+                    ("net_30", "NET 30 EOM."),
+                    ("net_60", "NET 60 EOM."),
+                    ("30_70", "30% Adv,70% B4 SHPT.30%+70%"),
+                    ("cash", "Cash"),
+                    ("be", "B/E"),
+                ],
+                max_length=50,
+                verbose_name="付款方式",
+            ),
         ),
     ]

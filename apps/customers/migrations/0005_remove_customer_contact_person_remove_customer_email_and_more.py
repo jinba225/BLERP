@@ -4,30 +4,29 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('customers', '0004_remove_customer_customer_type'),
+        ("customers", "0004_remove_customer_customer_type"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='customer',
-            name='contact_person',
+            model_name="customer",
+            name="contact_person",
         ),
         migrations.RemoveField(
-            model_name='customer',
-            name='email',
+            model_name="customer",
+            name="email",
         ),
         migrations.RemoveField(
-            model_name='customer',
-            name='fax',
+            model_name="customer",
+            name="fax",
         ),
         migrations.RemoveField(
-            model_name='customer',
-            name='mobile',
+            model_name="customer",
+            name="mobile",
         ),
         migrations.RemoveField(
-            model_name='customer',
-            name='phone',
+            model_name="customer",
+            name="phone",
         ),
     ]

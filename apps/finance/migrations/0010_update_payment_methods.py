@@ -4,15 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('finance', '0009_expense'),
+        ("finance", "0009_expense"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='payment',
-            name='payment_method',
-            field=models.CharField(choices=[('cash', '现金'), ('bank_transfer', '电汇'), ('acceptance_draft', '承兑汇票'), ('other', '其它')], max_length=20, verbose_name='付款方式'),
+            model_name="payment",
+            name="payment_method",
+            field=models.CharField(
+                choices=[
+                    ("cash", "现金"),
+                    ("bank_transfer", "电汇"),
+                    ("acceptance_draft", "承兑汇票"),
+                    ("other", "其它"),
+                ],
+                max_length=20,
+                verbose_name="付款方式",
+            ),
         ),
     ]

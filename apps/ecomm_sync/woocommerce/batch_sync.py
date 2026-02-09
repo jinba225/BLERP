@@ -22,9 +22,9 @@ class WooCommerceBatchSync:
         """
         self.api = api or WooCommerceAPI.get_active()
         if not self.api:
-            raise ValueError('未配置WooCommerce API')
+            raise ValueError("未配置WooCommerce API")
 
-    def sync_single_product(self, ecomm_product: EcommProduct, update_type: str = 'full') -> dict:
+    def sync_single_product(self, ecomm_product: EcommProduct, update_type: str = "full") -> dict:
         """
         同步单个产品到WooCommerce
 
@@ -36,65 +36,51 @@ class WooCommerceBatchSync:
             同步结果
         """
         try:
-            if update_type == 'full':
+            if update_type == "full":
                 woo_data = WooCommerceMapper.map_to_woo(ecomm_product)
-                
+
                 if ecomm_product.woo_product_id:
-                    result = self.api.update_product(
-                        ecomm_product.woo_product_id,
-                        woo_data
-                    )
-                    logger.info(f'更新产品: {ecomm_product.product.name}')
+                    result = self.api.update_product(ecomm_product.woo_product_id, woo_data)
+                    logger.info(f"更新产品: {ecomm_product.product.name}")
                 else:
                     result = self.api.create_product(woo_data)
-                    ecomm_product.woo_product_id = result['id']
-                    ecomm_product.sync_status = 'synced'
-                    logger.info(f'创建产品: {ecomm_product.product.name}')
-                
-            elif update_type == 'price':
+                    ecomm_product.woo_product_id = result["id"]
+                    ecomm_product.sync_status = "synced"
+                    logger.info(f"创建产品: {ecomm_product.product.name}")
+
+            elif update_type == "price":
                 woo_data = WooCommerceMapper.extract_price_update(ecomm_product)
-                result = self.api.update_product(
-                    ecomm_product.woo_product_id,
-                    woo_data
-                )
-                
-            elif update_type == 'stock':
+                result = self.api.update_product(ecomm_product.woo_product_id, woo_data)
+
+            elif update_type == "stock":
                 woo_data = WooCommerceMapper.extract_stock_update(ecomm_product)
-                result = self.api.update_product(
-                    ecomm_product.woo_product_id,
-                    woo_data
-                )
-                
-            elif update_type == 'status':
+                result = self.api.update_product(ecomm_product.woo_product_id, woo_data)
+
+            elif update_type == "status":
                 woo_data = WooCommerceMapper.extract_status_update(ecomm_product)
-                result = self.api.update_product(
-                    ecomm_product.woo_product_id,
-                    woo_data
-                )
+                result = self.api.update_product(ecomm_product.woo_product_id, woo_data)
             else:
-                raise ValueError(f'不支持的更新类型: {update_type}')
+                raise ValueError(f"不支持的更新类型: {update_type}")
 
             ecomm_product.last_synced_at = timezone.now()
             ecomm_product.save()
 
             return {
-                'success': True,
-                'woo_product_id': result['id'],
-                'ecomm_product_id': ecomm_product.id,
+                "success": True,
+                "woo_product_id": result["id"],
+                "ecomm_product_id": ecomm_product.id,
             }
 
         except Exception as e:
-            logger.error(f'同步产品失败: {ecomm_product.id}, 错误: {e}')
+            logger.error(f"同步产品失败: {ecomm_product.id}, 错误: {e}")
             return {
-                'success': False,
-                'error': str(e),
-                'ecomm_product_id': ecomm_product.id,
+                "success": False,
+                "error": str(e),
+                "ecomm_product_id": ecomm_product.id,
             }
 
     def sync_batch_products(
-        self, 
-        ecomm_products: List[EcommProduct],
-        update_type: str = 'full'
+        self, ecomm_products: List[EcommProduct], update_type: str = "full"
     ) -> Dict:
         """
         批量同步产品
@@ -106,21 +92,16 @@ class WooCommerceBatchSync:
         Returns:
             批量同步结果
         """
-        results = {
-            'total': len(ecomm_products),
-            'succeeded': 0,
-            'failed': 0,
-            'errors': []
-        }
+        results = {"total": len(ecomm_products), "succeeded": 0, "failed": 0, "errors": []}
 
         for ecomm_product in ecomm_products:
             result = self.sync_single_product(ecomm_product, update_type)
-            
-            if result['success']:
-                results['succeeded'] += 1
+
+            if result["success"]:
+                results["succeeded"] += 1
             else:
-                results['failed'] += 1
-                results['errors'].append(result['error'])
+                results["failed"] += 1
+                results["errors"].append(result["error"])
 
         return results
 
@@ -136,21 +117,14 @@ class WooCommerceBatchSync:
         """
         try:
             result = self.api.batch_update_products(updates)
-            
-            logger.info(f'批量更新完成: {len(updates)} 个产品')
-            
-            return {
-                'success': True,
-                'updated': len(result.get('update', [])),
-                'data': result
-            }
-            
+
+            logger.info(f"批量更新完成: {len(updates)} 个产品")
+
+            return {"success": True, "updated": len(result.get("update", [])), "data": result}
+
         except Exception as e:
-            logger.error(f'批量同步失败: {e}')
-            return {
-                'success': False,
-                'error': str(e)
-            }
+            logger.error(f"批量同步失败: {e}")
+            return {"success": False, "error": str(e)}
 
     def sync_change_logs(self, change_logs: List[ProductChangeLog]) -> Dict:
         """
@@ -162,38 +136,34 @@ class WooCommerceBatchSync:
         Returns:
             同步结果
         """
-        results = {
-            'total': len(change_logs),
-            'succeeded': 0,
-            'failed': 0,
-            'errors': []
-        }
+        results = {"total": len(change_logs), "succeeded": 0, "failed": 0, "errors": []}
 
         grouped_changes = self._group_changes_by_product(change_logs)
 
         for ecomm_product, changes in grouped_changes.items():
             update_type = self._determine_update_type(changes)
-            
+
             result = self.sync_single_product(ecomm_product, update_type)
-            
-            if result['success']:
-                results['succeeded'] += 1
-                
+
+            if result["success"]:
+                results["succeeded"] += 1
+
                 with transaction.atomic():
                     for change in changes:
                         change.synced_to_woo = True
                         change.woo_synced_at = timezone.now()
                         change.save()
             else:
-                results['failed'] += 1
-                results['errors'].append({
-                    'ecomm_product_id': ecomm_product.id,
-                    'error': result['error']
-                })
+                results["failed"] += 1
+                results["errors"].append(
+                    {"ecomm_product_id": ecomm_product.id, "error": result["error"]}
+                )
 
         return results
 
-    def _group_changes_by_product(self, change_logs: List[ProductChangeLog]) -> Dict[EcommProduct, List]:
+    def _group_changes_by_product(
+        self, change_logs: List[ProductChangeLog]
+    ) -> Dict[EcommProduct, List]:
         """按产品分组变更"""
         grouped = {}
         for change_log in change_logs:
@@ -205,17 +175,17 @@ class WooCommerceBatchSync:
     def _determine_update_type(self, changes: List[ProductChangeLog]) -> str:
         """确定更新类型"""
         change_types = {change.change_type for change in changes}
-        
+
         if len(change_types) == 1:
             change_type = list(change_types)[0]
             type_map = {
-                'price': 'price',
-                'stock': 'stock',
-                'status': 'status',
+                "price": "price",
+                "stock": "stock",
+                "status": "status",
             }
-            return type_map.get(change_type, 'full')
-        
-        return 'full'
+            return type_map.get(change_type, "full")
+
+        return "full"
 
     def sync_pending_products(self, limit: int = None) -> Dict:
         """
@@ -228,14 +198,13 @@ class WooCommerceBatchSync:
             同步结果
         """
         pending_products = EcommProduct.objects.filter(
-            sync_status='pending',
-            product__isnull=False
-        ).select_related('product', 'platform')
+            sync_status="pending", product__isnull=False
+        ).select_related("product", "platform")
 
         if limit:
             pending_products = pending_products[:limit]
 
-        return self.sync_batch_products(list(pending_products), update_type='full')
+        return self.sync_batch_products(list(pending_products), update_type="full")
 
     def sync_changes_batch(self, limit: int = 100) -> Dict:
         """
@@ -247,9 +216,9 @@ class WooCommerceBatchSync:
         Returns:
             同步结果
         """
-        unsynced_changes = ProductChangeLog.objects.filter(
-            synced_to_woo=False
-        ).select_related('ecomm_product__product')[:limit]
+        unsynced_changes = ProductChangeLog.objects.filter(synced_to_woo=False).select_related(
+            "ecomm_product__product"
+        )[:limit]
 
         return self.sync_change_logs(list(unsynced_changes))
 
@@ -265,11 +234,7 @@ class WooCommerceBatchSync:
         Returns:
             同步日志实例
         """
-        return SyncLog.objects.create(
-            log_type=log_type,
-            platform=platform,
-            status='running'
-        )
+        return SyncLog.objects.create(log_type=log_type, platform=platform, status="running")
 
     @staticmethod
     def update_sync_log(
@@ -278,8 +243,8 @@ class WooCommerceBatchSync:
         records_processed: int,
         records_succeeded: int,
         records_failed: int,
-        error_message: str = '',
-        execution_time: float = 0
+        error_message: str = "",
+        execution_time: float = 0,
     ):
         """
         更新同步日志

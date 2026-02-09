@@ -37,19 +37,20 @@ def process_message_async(self, message_data: dict, user_id: int):
             user = User.objects.get(id=user_id, is_deleted=False)
         except User.DoesNotExist:
             logger.error(f"用户不存在: user_id={user_id}")
-            return {'success': False, 'error': '用户不存在'}
+            return {"success": False, "error": "用户不存在"}
 
         # 重建 IncomingMessage 对象
         message = IncomingMessage(
-            message_id=message_data.get('message_id', ''),
-            channel=message_data.get('channel', ''),
-            external_user_id=message_data.get('external_user_id', ''),
-            content=message_data.get('content', ''),
-            timestamp=datetime.fromisoformat(message_data.get('timestamp'))
-            if message_data.get('timestamp') else timezone.now(),
-            message_type=message_data.get('message_type', 'text'),
-            conversation_id=message_data.get('conversation_id'),
-            raw_data=message_data.get('raw_data', {})
+            message_id=message_data.get("message_id", ""),
+            channel=message_data.get("channel", ""),
+            external_user_id=message_data.get("external_user_id", ""),
+            content=message_data.get("content", ""),
+            timestamp=datetime.fromisoformat(message_data.get("timestamp"))
+            if message_data.get("timestamp")
+            else timezone.now(),
+            message_type=message_data.get("message_type", "text"),
+            conversation_id=message_data.get("conversation_id"),
+            raw_data=message_data.get("raw_data", {}),
         )
 
         # 处理消息
@@ -59,9 +60,9 @@ def process_message_async(self, message_data: dict, user_id: int):
         logger.info(f"异步消息处理成功: message_id={message.message_id}")
 
         return {
-            'success': True,
-            'response_content': response.content,
-            'message_type': response.message_type
+            "success": True,
+            "response_content": response.content,
+            "message_type": response.message_type,
         }
 
     except Exception as e:
@@ -72,7 +73,7 @@ def process_message_async(self, message_data: dict, user_id: int):
             self.retry(exc=e)
         except self.MaxRetriesExceededError:
             logger.error(f"消息处理达到最大重试次数: message_id={message_data.get('message_id')}")
-            return {'success': False, 'error': str(e)}
+            return {"success": False, "error": str(e)}
 
 
 @shared_task(bind=True, max_retries=2)
@@ -99,13 +100,13 @@ def execute_tool_async(self, tool_name: str, user_id: int, parameters: dict):
             user = User.objects.get(id=user_id, is_deleted=False)
         except User.DoesNotExist:
             logger.error(f"用户不存在: user_id={user_id}")
-            return {'success': False, 'error': '用户不存在'}
+            return {"success": False, "error": "用户不存在"}
 
         # 获取工具
         tool = ToolRegistry.get_tool(tool_name, user)
         if not tool:
             logger.error(f"工具不存在: tool_name={tool_name}")
-            return {'success': False, 'error': f'工具 {tool_name} 不存在'}
+            return {"success": False, "error": f"工具 {tool_name} 不存在"}
 
         # 执行工具
         result = tool.run(**parameters)
@@ -122,7 +123,7 @@ def execute_tool_async(self, tool_name: str, user_id: int, parameters: dict):
             self.retry(exc=e)
         except self.MaxRetriesExceededError:
             logger.error(f"工具执行达到最大重试次数: tool={tool_name}")
-            return {'success': False, 'error': str(e)}
+            return {"success": False, "error": str(e)}
 
 
 @shared_task
@@ -140,26 +141,24 @@ def cleanup_expired_conversations():
 
         # 查找过期会话
         expired_conversations = AIConversation.objects.filter(
-            last_message_at__lt=expire_time,
-            status='active',
-            is_deleted=False
+            last_message_at__lt=expire_time, status="active", is_deleted=False
         )
 
         count = expired_conversations.count()
 
         # 软删除过期会话
         for conversation in expired_conversations:
-            conversation.status = 'ended'
+            conversation.status = "ended"
             conversation.save()
             conversation.delete()  # 软删除
 
         logger.info(f"清理了 {count} 个过期会话")
 
-        return {'success': True, 'count': count}
+        return {"success": True, "count": count}
 
     except Exception as e:
         logger.error(f"清理过期会话失败: {str(e)}", exc_info=True)
-        return {'success': False, 'error': str(e)}
+        return {"success": False, "error": str(e)}
 
 
 @shared_task
@@ -176,10 +175,7 @@ def cleanup_old_logs():
         expire_time = timezone.now() - timedelta(days=90)
 
         # 查找旧日志
-        old_logs = AIToolExecutionLog.objects.filter(
-            executed_at__lt=expire_time,
-            is_deleted=False
-        )
+        old_logs = AIToolExecutionLog.objects.filter(executed_at__lt=expire_time, is_deleted=False)
 
         count = old_logs.count()
 
@@ -189,11 +185,11 @@ def cleanup_old_logs():
 
         logger.info(f"清理了 {count} 条旧日志")
 
-        return {'success': True, 'count': count}
+        return {"success": True, "count": count}
 
     except Exception as e:
         logger.error(f"清理旧日志失败: {str(e)}", exc_info=True)
-        return {'success': False, 'error': str(e)}
+        return {"success": False, "error": str(e)}
 
 
 @shared_task
@@ -215,8 +211,8 @@ def refresh_access_token(channel: str, app_id: str):
 
         logger.info(f"已触发Access Token刷新: channel={channel}, app_id={app_id}")
 
-        return {'success': True}
+        return {"success": True}
 
     except Exception as e:
         logger.error(f"刷新Access Token失败: {str(e)}", exc_info=True)
-        return {'success': False, 'error': str(e)}
+        return {"success": False, "error": str(e)}

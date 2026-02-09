@@ -5,19 +5,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('finance', '0012_add_prepayment_consolidation_fields'),
+        ("finance", "0012_add_prepayment_consolidation_fields"),
     ]
 
     operations = [
         # SupplierAccount索引 - 优化供应商账款列表查询性能
         # 用于优化: filter(supplier=X, status=Y).filter(due_date__lt=)
         migrations.AddIndex(
-            model_name='supplieraccount',
+            model_name="supplieraccount",
             index=models.Index(
-                fields=['supplier', 'status', 'due_date'],
-                name='supplier_account_sup_status_due_idx'
+                fields=["supplier", "status", "due_date"],
+                name="supplier_account_sup_status_due_idx",
             ),
         ),
     ]

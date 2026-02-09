@@ -6,57 +6,77 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('purchase', '0007_alter_purchaseinquiry_options_and_more'),
+        ("purchase", "0007_alter_purchaseinquiry_options_and_more"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='borrowitem',
-            options={'ordering': ['sort_order', 'id'], 'verbose_name': '借用明细', 'verbose_name_plural': '借用明细'},
+            name="borrowitem",
+            options={
+                "ordering": ["sort_order", "id"],
+                "verbose_name": "借用明细",
+                "verbose_name_plural": "借用明细",
+            },
         ),
         migrations.RemoveField(
-            model_name='borrow',
-            name='conversion_approved_at',
+            model_name="borrow",
+            name="conversion_approved_at",
         ),
         migrations.RemoveField(
-            model_name='borrow',
-            name='conversion_approved_by',
+            model_name="borrow",
+            name="conversion_approved_by",
         ),
         migrations.RemoveField(
-            model_name='borrow',
-            name='conversion_notes',
+            model_name="borrow",
+            name="conversion_notes",
         ),
         migrations.AddField(
-            model_name='borrow',
-            name='approved_at',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='审核时间'),
+            model_name="borrow",
+            name="approved_at",
+            field=models.DateTimeField(blank=True, null=True, verbose_name="审核时间"),
         ),
         migrations.AddField(
-            model_name='borrow',
-            name='approved_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='approved_borrows', to=settings.AUTH_USER_MODEL, verbose_name='审核人'),
+            model_name="borrow",
+            name="approved_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="approved_borrows",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="审核人",
+            ),
         ),
         migrations.AddField(
-            model_name='borrowitem',
-            name='sort_order',
-            field=models.PositiveIntegerField(default=0, verbose_name='排序'),
+            model_name="borrowitem",
+            name="sort_order",
+            field=models.PositiveIntegerField(default=0, verbose_name="排序"),
         ),
         migrations.AddField(
-            model_name='purchaseorderitem',
-            name='specifications',
-            field=models.TextField(blank=True, verbose_name='规格要求'),
+            model_name="purchaseorderitem",
+            name="specifications",
+            field=models.TextField(blank=True, verbose_name="规格要求"),
         ),
         migrations.AlterField(
-            model_name='borrow',
-            name='status',
-            field=models.CharField(choices=[('draft', '草稿'), ('approved', '已审核')], default='draft', max_length=20, verbose_name='状态'),
+            model_name="borrow",
+            name="status",
+            field=models.CharField(
+                choices=[("draft", "草稿"), ("approved", "已审核")],
+                default="draft",
+                max_length=20,
+                verbose_name="状态",
+            ),
         ),
         migrations.AlterField(
-            model_name='purchaserequest',
-            name='status',
-            field=models.CharField(choices=[('draft', '草稿'), ('approved', '已审核')], default='draft', max_length=20, verbose_name='状态'),
+            model_name="purchaserequest",
+            name="status",
+            field=models.CharField(
+                choices=[("draft", "草稿"), ("approved", "已审核")],
+                default="draft",
+                max_length=20,
+                verbose_name="状态",
+            ),
         ),
     ]

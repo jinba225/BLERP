@@ -34,7 +34,7 @@ class RateLimiter:
         platform: str,
         rate: Optional[int] = None,
         burst: Optional[int] = None,
-        redis_client=None
+        redis_client=None,
     ):
         """
         初始化限流器
@@ -49,8 +49,8 @@ class RateLimiter:
 
         # 从配置读取限流参数
         config = PLATFORM_RATE_LIMITS.get(platform, DEFAULT_RATE_LIMIT)
-        self.rate = rate or config['rate']
-        self.burst = burst or config['burst']
+        self.rate = rate or config["rate"]
+        self.burst = burst or config["burst"]
 
         # Redis客户端（支持传入自定义client）
         self.redis_client = redis_client
@@ -59,11 +59,9 @@ class RateLimiter:
             self.redis_client = cache
 
         # Redis键前缀
-        self._key_prefix = f'rate_limiter:{platform}'
+        self._key_prefix = f"rate_limiter:{platform}"
 
-        logger.info(
-            f"初始化限流器: platform={platform}, rate={self.rate}, burst={self.burst}"
-        )
+        logger.info(f"初始化限流器: platform={platform}, rate={self.rate}, burst={self.burst}")
 
     async def acquire(self, tokens: int = 1, timeout: Optional[float] = None) -> bool:
         """
@@ -90,9 +88,7 @@ class RateLimiter:
             success, wait_time = self._try_acquire(tokens)
 
             if success:
-                logger.debug(
-                    f"限流器获取成功: platform={self.platform}, tokens={tokens}"
-                )
+                logger.debug(f"限流器获取成功: platform={self.platform}, tokens={tokens}")
                 return True
 
             # 检查是否超时
@@ -100,8 +96,7 @@ class RateLimiter:
                 elapsed = time.time() - start_time
                 if elapsed >= timeout:
                     logger.warning(
-                        f"限流器获取超时: platform={self.platform}, "
-                        f"tokens={tokens}, timeout={timeout}"
+                        f"限流器获取超时: platform={self.platform}, " f"tokens={tokens}, timeout={timeout}"
                     )
                     return False
 
@@ -194,8 +189,7 @@ class RateLimiter:
         try:
             # 执行Lua脚本
             result = self.redis_client.eval(
-                lua_script, 1, key,
-                tokens, self.rate, self.burst, current_time
+                lua_script, 1, key, tokens, self.rate, self.burst, current_time
             )
 
             success = bool(result[0])
@@ -218,7 +212,7 @@ class RateLimiter:
         key = f"{self._key_prefix}:bucket"
 
         try:
-            bucket = self.redis_client.hmget(key, 'tokens', 'last_refill')
+            bucket = self.redis_client.hmget(key, "tokens", "last_refill")
             current_tokens = float(bucket[0]) if bucket[0] else self.burst
             last_refill = float(bucket[1]) if bucket[1] else time.time()
 
@@ -226,22 +220,22 @@ class RateLimiter:
             usage_rate = (self.burst - current_tokens) / self.burst
 
             return {
-                'platform': self.platform,
-                'rate': self.rate,
-                'burst': self.burst,
-                'current_tokens': current_tokens,
-                'available_tokens': int(current_tokens),
-                'usage_rate': round(usage_rate * 100, 2),  # 百分比
-                'last_refill': last_refill,
+                "platform": self.platform,
+                "rate": self.rate,
+                "burst": self.burst,
+                "current_tokens": current_tokens,
+                "available_tokens": int(current_tokens),
+                "usage_rate": round(usage_rate * 100, 2),  # 百分比
+                "last_refill": last_refill,
             }
 
         except Exception as e:
             logger.error(f"获取限流器状态失败: {e}")
             return {
-                'platform': self.platform,
-                'rate': self.rate,
-                'burst': self.burst,
-                'error': str(e),
+                "platform": self.platform,
+                "rate": self.rate,
+                "burst": self.burst,
+                "error": str(e),
             }
 
     def reset(self):
@@ -269,10 +263,7 @@ class RateLimiter:
         # 重置限流器（使新配置生效）
         self.reset()
 
-        logger.info(
-            f"限流器配置已更新: platform={self.platform}, "
-            f"rate={self.rate}, burst={self.burst}"
-        )
+        logger.info(f"限流器配置已更新: platform={self.platform}, " f"rate={self.rate}, burst={self.burst}")
 
 
 class RateLimiterFactory:

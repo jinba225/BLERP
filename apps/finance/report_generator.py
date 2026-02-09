@@ -47,12 +47,12 @@ class FinancialReportGenerator:
         try:
             account = Account.objects.get(code=account_code, is_deleted=False)
         except Account.DoesNotExist:
-            logger.warning(f'Account {account_code} not found')
+            logger.warning(f"Account {account_code} not found")
             return {
-                'opening_balance': Decimal('0'),
-                'debit': Decimal('0'),
-                'credit': Decimal('0'),
-                'ending_balance': Decimal('0')
+                "opening_balance": Decimal("0"),
+                "debit": Decimal("0"),
+                "credit": Decimal("0"),
+                "ending_balance": Decimal("0"),
             }
 
         # 获取期初余额
@@ -61,9 +61,9 @@ class FinancialReportGenerator:
         # 计算发生额（只统计已过账的凭证）
         entries = JournalEntry.objects.filter(
             account=account,
-            journal__status='posted',
+            journal__status="posted",
             journal__journal_date__lte=report_date,
-            is_deleted=False
+            is_deleted=False,
         )
 
         # 如果指定了开始日期，只统计期间内的发生额
@@ -71,26 +71,25 @@ class FinancialReportGenerator:
             entries = entries.filter(journal__journal_date__gte=start_date)
 
         aggregation = entries.aggregate(
-            total_debit=Sum('debit_amount'),
-            total_credit=Sum('credit_amount')
+            total_debit=Sum("debit_amount"), total_credit=Sum("credit_amount")
         )
 
-        debit = aggregation['total_debit'] or Decimal('0')
-        credit = aggregation['total_credit'] or Decimal('0')
+        debit = aggregation["total_debit"] or Decimal("0")
+        credit = aggregation["total_credit"] or Decimal("0")
 
         # 计算期末余额
         # 资产类、费用类、成本类：余额在借方，借增贷减
         # 负债类、权益类、收入类：余额在贷方，贷增借减
-        if account.account_type in ['asset', 'expense', 'cost']:
+        if account.account_type in ["asset", "expense", "cost"]:
             ending_balance = opening_balance + debit - credit
         else:  # liability, equity, revenue
             ending_balance = opening_balance + credit - debit
 
         return {
-            'opening_balance': opening_balance,
-            'debit': debit,
-            'credit': credit,
-            'ending_balance': ending_balance
+            "opening_balance": opening_balance,
+            "debit": debit,
+            "credit": credit,
+            "ending_balance": ending_balance,
         }
 
     def get_accounts_by_type(self, account_type):
@@ -104,10 +103,7 @@ class FinancialReportGenerator:
             QuerySet: 科目查询集
         """
         return Account.objects.filter(
-            account_type=account_type,
-            is_leaf=True,  # 只获取末级科目
-            is_active=True,
-            is_deleted=False
+            account_type=account_type, is_leaf=True, is_active=True, is_deleted=False  # 只获取末级科目
         )
 
     def save_report(self, report_type, report_date, report_data, user=None, **kwargs):
@@ -129,11 +125,11 @@ class FinancialReportGenerator:
             report_date=report_date,
             report_data=report_data,
             generated_by=user,
-            **kwargs
+            **kwargs,
         )
 
         logger.info(
-            f'Financial report generated: {report.get_report_type_display()} '
+            f"Financial report generated: {report.get_report_type_display()} "
             f'for date {report_date} by user {user.username if user else "System"}'
         )
 
@@ -159,7 +155,7 @@ class BalanceSheetGenerator(FinancialReportGenerator):
         Returns:
             FinancialReport: 生成的报表对象
         """
-        logger.info(f'Generating Balance Sheet for date {report_date}')
+        logger.info(f"Generating Balance Sheet for date {report_date}")
 
         # 1. 资产
         assets = self._calculate_assets(report_date)
@@ -171,68 +167,64 @@ class BalanceSheetGenerator(FinancialReportGenerator):
         equity = self._calculate_equity(report_date)
 
         # 4. 验证平衡
-        total_assets = assets['total']
-        total_liabilities = liabilities['total']
-        total_equity = equity['total']
+        total_assets = assets["total"]
+        total_liabilities = liabilities["total"]
+        total_equity = equity["total"]
         total_liabilities_and_equity = total_liabilities + total_equity
 
-        is_balanced = abs(total_assets - total_liabilities_and_equity) < Decimal('0.01')
+        is_balanced = abs(total_assets - total_liabilities_and_equity) < Decimal("0.01")
 
         if not is_balanced:
             logger.warning(
-                f'Balance Sheet not balanced! Assets: {total_assets}, '
-                f'Liabilities + Equity: {total_liabilities_and_equity}'
+                f"Balance Sheet not balanced! Assets: {total_assets}, "
+                f"Liabilities + Equity: {total_liabilities_and_equity}"
             )
 
         # 5. 构建报表数据
         report_data = {
-            'assets': assets,
-            'liabilities': liabilities,
-            'equity': equity,
-            'is_balanced': is_balanced,
-            'balance_difference': float(total_assets - total_liabilities_and_equity)
+            "assets": assets,
+            "liabilities": liabilities,
+            "equity": equity,
+            "is_balanced": is_balanced,
+            "balance_difference": float(total_assets - total_liabilities_and_equity),
         }
 
         # 6. 保存报表
         report = self.save_report(
-            report_type='balance_sheet',
+            report_type="balance_sheet",
             report_date=report_date,
             report_data=report_data,
             user=user,
             total_assets=total_assets,
             total_liabilities=total_liabilities,
-            total_equity=total_equity
+            total_equity=total_equity,
         )
 
         return report
 
     def _calculate_assets(self, report_date):
         """计算资产"""
-        accounts = self.get_accounts_by_type('asset')
+        accounts = self.get_accounts_by_type("asset")
 
         current_assets = []  # 流动资产
         fixed_assets = []  # 固定资产
         other_assets = []  # 其他资产
 
-        total = Decimal('0')
+        total = Decimal("0")
 
         for account in accounts:
             balance_data = self.get_account_balance(account.code, report_date)
-            ending_balance = balance_data['ending_balance']
+            ending_balance = balance_data["ending_balance"]
 
             if ending_balance == 0:
                 continue  # 跳过余额为0的科目
 
-            item = {
-                'code': account.code,
-                'name': account.name,
-                'amount': float(ending_balance)
-            }
+            item = {"code": account.code, "name": account.name, "amount": float(ending_balance)}
 
             # 根据科目分类归类
-            if account.category == 'current_asset':
+            if account.category == "current_asset":
                 current_assets.append(item)
-            elif account.category == 'fixed_asset':
+            elif account.category == "fixed_asset":
                 fixed_assets.append(item)
             else:
                 other_assets.append(item)
@@ -240,41 +232,39 @@ class BalanceSheetGenerator(FinancialReportGenerator):
             total += ending_balance
 
         return {
-            'current_assets': current_assets,
-            'current_assets_total': float(sum(Decimal(str(item['amount'])) for item in current_assets)),
-            'fixed_assets': fixed_assets,
-            'fixed_assets_total': float(sum(Decimal(str(item['amount'])) for item in fixed_assets)),
-            'other_assets': other_assets,
-            'other_assets_total': float(sum(Decimal(str(item['amount'])) for item in other_assets)),
-            'total': float(total)
+            "current_assets": current_assets,
+            "current_assets_total": float(
+                sum(Decimal(str(item["amount"])) for item in current_assets)
+            ),
+            "fixed_assets": fixed_assets,
+            "fixed_assets_total": float(sum(Decimal(str(item["amount"])) for item in fixed_assets)),
+            "other_assets": other_assets,
+            "other_assets_total": float(sum(Decimal(str(item["amount"])) for item in other_assets)),
+            "total": float(total),
         }
 
     def _calculate_liabilities(self, report_date):
         """计算负债"""
-        accounts = self.get_accounts_by_type('liability')
+        accounts = self.get_accounts_by_type("liability")
 
         current_liabilities = []  # 流动负债
         long_term_liabilities = []  # 长期负债
         other_liabilities = []  # 其他负债
 
-        total = Decimal('0')
+        total = Decimal("0")
 
         for account in accounts:
             balance_data = self.get_account_balance(account.code, report_date)
-            ending_balance = balance_data['ending_balance']
+            ending_balance = balance_data["ending_balance"]
 
             if ending_balance == 0:
                 continue
 
-            item = {
-                'code': account.code,
-                'name': account.name,
-                'amount': float(ending_balance)
-            }
+            item = {"code": account.code, "name": account.name, "amount": float(ending_balance)}
 
-            if account.category == 'current_liability':
+            if account.category == "current_liability":
                 current_liabilities.append(item)
-            elif account.category == 'long_term_liability':
+            elif account.category == "long_term_liability":
                 long_term_liabilities.append(item)
             else:
                 other_liabilities.append(item)
@@ -282,41 +272,42 @@ class BalanceSheetGenerator(FinancialReportGenerator):
             total += ending_balance
 
         return {
-            'current_liabilities': current_liabilities,
-            'current_liabilities_total': float(sum(Decimal(str(item['amount'])) for item in current_liabilities)),
-            'long_term_liabilities': long_term_liabilities,
-            'long_term_liabilities_total': float(sum(Decimal(str(item['amount'])) for item in long_term_liabilities)),
-            'other_liabilities': other_liabilities,
-            'other_liabilities_total': float(sum(Decimal(str(item['amount'])) for item in other_liabilities)),
-            'total': float(total)
+            "current_liabilities": current_liabilities,
+            "current_liabilities_total": float(
+                sum(Decimal(str(item["amount"])) for item in current_liabilities)
+            ),
+            "long_term_liabilities": long_term_liabilities,
+            "long_term_liabilities_total": float(
+                sum(Decimal(str(item["amount"])) for item in long_term_liabilities)
+            ),
+            "other_liabilities": other_liabilities,
+            "other_liabilities_total": float(
+                sum(Decimal(str(item["amount"])) for item in other_liabilities)
+            ),
+            "total": float(total),
         }
 
     def _calculate_equity(self, report_date):
         """计算所有者权益"""
-        accounts = self.get_accounts_by_type('equity')
+        accounts = self.get_accounts_by_type("equity")
 
         items = []
-        total = Decimal('0')
+        total = Decimal("0")
 
         for account in accounts:
             balance_data = self.get_account_balance(account.code, report_date)
-            ending_balance = balance_data['ending_balance']
+            ending_balance = balance_data["ending_balance"]
 
             if ending_balance == 0:
                 continue
 
-            items.append({
-                'code': account.code,
-                'name': account.name,
-                'amount': float(ending_balance)
-            })
+            items.append(
+                {"code": account.code, "name": account.name, "amount": float(ending_balance)}
+            )
 
             total += ending_balance
 
-        return {
-            'items': items,
-            'total': float(total)
-        }
+        return {"items": items, "total": float(total)}
 
 
 class IncomeStatementGenerator(FinancialReportGenerator):
@@ -339,7 +330,7 @@ class IncomeStatementGenerator(FinancialReportGenerator):
         Returns:
             FinancialReport: 生成的报表对象
         """
-        logger.info(f'Generating Income Statement from {start_date} to {end_date}')
+        logger.info(f"Generating Income Statement from {start_date} to {end_date}")
 
         # 1. 营业收入
         revenue = self._calculate_revenue(start_date, end_date)
@@ -351,116 +342,95 @@ class IncomeStatementGenerator(FinancialReportGenerator):
         expenses = self._calculate_expenses(start_date, end_date)
 
         # 4. 计算利润
-        gross_profit = revenue['total'] - cost['total']  # 毛利润
-        operating_profit = gross_profit - expenses['total']  # 营业利润
+        gross_profit = revenue["total"] - cost["total"]  # 毛利润
+        operating_profit = gross_profit - expenses["total"]  # 营业利润
         net_profit = operating_profit  # 净利润（简化版，未考虑营业外收支和所得税）
 
         # 5. 构建报表数据
         report_data = {
-            'revenue': revenue,
-            'cost': cost,
-            'expenses': expenses,
-            'gross_profit': float(gross_profit),
-            'operating_profit': float(operating_profit),
-            'net_profit': float(net_profit)
+            "revenue": revenue,
+            "cost": cost,
+            "expenses": expenses,
+            "gross_profit": float(gross_profit),
+            "operating_profit": float(operating_profit),
+            "net_profit": float(net_profit),
         }
 
         # 6. 保存报表
         report = self.save_report(
-            report_type='income_statement',
+            report_type="income_statement",
             report_date=end_date,
             start_date=start_date,
             end_date=end_date,
             report_data=report_data,
             user=user,
-            net_profit=net_profit
+            net_profit=net_profit,
         )
 
         return report
 
     def _calculate_revenue(self, start_date, end_date):
         """计算收入"""
-        accounts = self.get_accounts_by_type('revenue')
+        accounts = self.get_accounts_by_type("revenue")
 
         items = []
-        total = Decimal('0')
+        total = Decimal("0")
 
         for account in accounts:
             balance_data = self.get_account_balance(account.code, end_date, start_date)
             # 收入类科目，贷方表示收入增加
-            amount = balance_data['credit'] - balance_data['debit']
+            amount = balance_data["credit"] - balance_data["debit"]
 
             if amount == 0:
                 continue
 
-            items.append({
-                'code': account.code,
-                'name': account.name,
-                'amount': float(amount)
-            })
+            items.append({"code": account.code, "name": account.name, "amount": float(amount)})
 
             total += amount
 
-        return {
-            'items': items,
-            'total': float(total)
-        }
+        return {"items": items, "total": float(total)}
 
     def _calculate_cost(self, start_date, end_date):
         """计算成本"""
-        accounts = self.get_accounts_by_type('cost')
+        accounts = self.get_accounts_by_type("cost")
 
         items = []
-        total = Decimal('0')
+        total = Decimal("0")
 
         for account in accounts:
             balance_data = self.get_account_balance(account.code, end_date, start_date)
             # 成本类科目，借方表示成本增加
-            amount = balance_data['debit'] - balance_data['credit']
+            amount = balance_data["debit"] - balance_data["credit"]
 
             if amount == 0:
                 continue
 
-            items.append({
-                'code': account.code,
-                'name': account.name,
-                'amount': float(amount)
-            })
+            items.append({"code": account.code, "name": account.name, "amount": float(amount)})
 
             total += amount
 
-        return {
-            'items': items,
-            'total': float(total)
-        }
+        return {"items": items, "total": float(total)}
 
     def _calculate_expenses(self, start_date, end_date):
         """计算费用"""
-        accounts = self.get_accounts_by_type('expense')
+        accounts = self.get_accounts_by_type("expense")
 
         items = []
-        total = Decimal('0')
+        total = Decimal("0")
 
         for account in accounts:
             balance_data = self.get_account_balance(account.code, end_date, start_date)
             # 费用类科目，借方表示费用增加
-            amount = balance_data['debit'] - balance_data['credit']
+            amount = balance_data["debit"] - balance_data["credit"]
 
             if amount == 0:
                 continue
 
-            items.append({
-                'code': account.code,
-                'name': account.name,
-                'amount': float(amount)
-            })
+            items.append({"code": account.code, "name": account.name, "amount": float(amount)})
 
             total += amount
 
-        return {
-            'items': items,
-            'total': float(total)
-        }
+        return {"items": items, "total": float(total)}
 
 
 class CashFlowGenerator(FinancialReportGenerator):
@@ -483,36 +453,38 @@ class CashFlowGenerator(FinancialReportGenerator):
         Returns:
             FinancialReport: 生成的报表对象
         """
-        logger.info(f'Generating Cash Flow Statement from {start_date} to {end_date}')
+        logger.info(f"Generating Cash Flow Statement from {start_date} to {end_date}")
 
         # 简化版：只计算现金类科目的变动
         # 完整版需要根据凭证的业务类型分类到不同活动
 
         # 1. 获取现金类科目（库存现金、银行存款）
         cash_accounts = Account.objects.filter(
-            Q(code__startswith='1001') | Q(code__startswith='1002'),  # 库存现金、银行存款
+            Q(code__startswith="1001") | Q(code__startswith="1002"),  # 库存现金、银行存款
             is_deleted=False,
-            is_active=True
+            is_active=True,
         )
 
-        total_cash_inflow = Decimal('0')
-        total_cash_outflow = Decimal('0')
+        total_cash_inflow = Decimal("0")
+        total_cash_outflow = Decimal("0")
 
         cash_items = []
 
         for account in cash_accounts:
             balance_data = self.get_account_balance(account.code, end_date, start_date)
 
-            cash_inflow = balance_data['debit']  # 现金流入
-            cash_outflow = balance_data['credit']  # 现金流出
+            cash_inflow = balance_data["debit"]  # 现金流入
+            cash_outflow = balance_data["credit"]  # 现金流出
 
-            cash_items.append({
-                'code': account.code,
-                'name': account.name,
-                'inflow': float(cash_inflow),
-                'outflow': float(cash_outflow),
-                'net': float(cash_inflow - cash_outflow)
-            })
+            cash_items.append(
+                {
+                    "code": account.code,
+                    "name": account.name,
+                    "inflow": float(cash_inflow),
+                    "outflow": float(cash_outflow),
+                    "net": float(cash_inflow - cash_outflow),
+                }
+            )
 
             total_cash_inflow += cash_inflow
             total_cash_outflow += cash_outflow
@@ -521,21 +493,21 @@ class CashFlowGenerator(FinancialReportGenerator):
 
         # 构建报表数据（简化版）
         report_data = {
-            'cash_items': cash_items,
-            'total_inflow': float(total_cash_inflow),
-            'total_outflow': float(total_cash_outflow),
-            'net_cash_flow': float(net_cash_flow),
-            'note': '简化版现金流量表，仅统计现金类科目变动'
+            "cash_items": cash_items,
+            "total_inflow": float(total_cash_inflow),
+            "total_outflow": float(total_cash_outflow),
+            "net_cash_flow": float(net_cash_flow),
+            "note": "简化版现金流量表，仅统计现金类科目变动",
         }
 
         # 保存报表
         report = self.save_report(
-            report_type='cash_flow',
+            report_type="cash_flow",
             report_date=end_date,
             start_date=start_date,
             end_date=end_date,
             report_data=report_data,
-            user=user
+            user=user,
         )
 
         return report
@@ -560,62 +532,67 @@ class TrialBalanceGenerator(FinancialReportGenerator):
         Returns:
             FinancialReport: 生成的报表对象
         """
-        logger.info(f'Generating Trial Balance from {start_date} to {end_date}')
+        logger.info(f"Generating Trial Balance from {start_date} to {end_date}")
 
         # 获取所有末级科目
-        accounts = Account.objects.filter(
-            is_leaf=True,
-            is_active=True,
-            is_deleted=False
-        ).order_by('code')
+        accounts = Account.objects.filter(is_leaf=True, is_active=True, is_deleted=False).order_by(
+            "code"
+        )
 
         items = []
-        total_opening_debit = Decimal('0')
-        total_opening_credit = Decimal('0')
-        total_debit = Decimal('0')
-        total_credit = Decimal('0')
-        total_ending_debit = Decimal('0')
-        total_ending_credit = Decimal('0')
+        total_opening_debit = Decimal("0")
+        total_opening_credit = Decimal("0")
+        total_debit = Decimal("0")
+        total_credit = Decimal("0")
+        total_ending_debit = Decimal("0")
+        total_ending_credit = Decimal("0")
 
         for account in accounts:
             balance_data = self.get_account_balance(account.code, end_date, start_date)
 
-            opening_balance = balance_data['opening_balance']
-            debit = balance_data['debit']
-            credit = balance_data['credit']
-            ending_balance = balance_data['ending_balance']
+            opening_balance = balance_data["opening_balance"]
+            debit = balance_data["debit"]
+            credit = balance_data["credit"]
+            ending_balance = balance_data["ending_balance"]
 
             # 判断借贷方向
-            if account.account_type in ['asset', 'expense', 'cost']:
+            if account.account_type in ["asset", "expense", "cost"]:
                 # 借方余额
-                opening_debit = max(opening_balance, Decimal('0'))
-                opening_credit = Decimal('0')
-                ending_debit = max(ending_balance, Decimal('0'))
-                ending_credit = Decimal('0')
+                opening_debit = max(opening_balance, Decimal("0"))
+                opening_credit = Decimal("0")
+                ending_debit = max(ending_balance, Decimal("0"))
+                ending_credit = Decimal("0")
             else:
                 # 贷方余额
-                opening_debit = Decimal('0')
-                opening_credit = max(opening_balance, Decimal('0'))
-                ending_debit = Decimal('0')
-                ending_credit = max(ending_balance, Decimal('0'))
+                opening_debit = Decimal("0")
+                opening_credit = max(opening_balance, Decimal("0"))
+                ending_debit = Decimal("0")
+                ending_credit = max(ending_balance, Decimal("0"))
 
             # 如果全部为0，跳过
-            if (opening_debit == 0 and opening_credit == 0 and
-                debit == 0 and credit == 0 and
-                ending_debit == 0 and ending_credit == 0):
+            if (
+                opening_debit == 0
+                and opening_credit == 0
+                and debit == 0
+                and credit == 0
+                and ending_debit == 0
+                and ending_credit == 0
+            ):
                 continue
 
-            items.append({
-                'code': account.code,
-                'name': account.name,
-                'account_type': account.get_account_type_display(),
-                'opening_debit': float(opening_debit),
-                'opening_credit': float(opening_credit),
-                'debit': float(debit),
-                'credit': float(credit),
-                'ending_debit': float(ending_debit),
-                'ending_credit': float(ending_credit)
-            })
+            items.append(
+                {
+                    "code": account.code,
+                    "name": account.name,
+                    "account_type": account.get_account_type_display(),
+                    "opening_debit": float(opening_debit),
+                    "opening_credit": float(opening_credit),
+                    "debit": float(debit),
+                    "credit": float(credit),
+                    "ending_debit": float(ending_debit),
+                    "ending_credit": float(ending_credit),
+                }
+            )
 
             total_opening_debit += opening_debit
             total_opening_credit += opening_credit
@@ -626,25 +603,25 @@ class TrialBalanceGenerator(FinancialReportGenerator):
 
         # 构建报表数据
         report_data = {
-            'items': items,
-            'totals': {
-                'opening_debit': float(total_opening_debit),
-                'opening_credit': float(total_opening_credit),
-                'debit': float(total_debit),
-                'credit': float(total_credit),
-                'ending_debit': float(total_ending_debit),
-                'ending_credit': float(total_ending_credit)
-            }
+            "items": items,
+            "totals": {
+                "opening_debit": float(total_opening_debit),
+                "opening_credit": float(total_opening_credit),
+                "debit": float(total_debit),
+                "credit": float(total_credit),
+                "ending_debit": float(total_ending_debit),
+                "ending_credit": float(total_ending_credit),
+            },
         }
 
         # 保存报表
         report = self.save_report(
-            report_type='trial_balance',
+            report_type="trial_balance",
             report_date=end_date,
             start_date=start_date,
             end_date=end_date,
             report_data=report_data,
-            user=user
+            user=user,
         )
 
         return report

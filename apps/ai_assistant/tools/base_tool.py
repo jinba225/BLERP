@@ -17,6 +17,7 @@ User = get_user_model()
 @dataclass
 class ToolResult:
     """工具执行结果"""
+
     success: bool
     data: Any = None
     message: str = ""
@@ -102,21 +103,22 @@ class BaseTool(ABC):
     def check_permission(self) -> bool:
         """
         检查用户权限
-        
+
         Returns:
             是否有权限
         """
         # 如果不需要特殊权限，默认允许
         if not self.require_permission:
             return True
-        
+
         # 超级用户总是有权限
         if self.user.is_superuser:
             return True
-        
+
         # 使用自定义权限检查
         try:
             from ai_assistant.utils.permissions import has_custom_permission
+
             return has_custom_permission(self.user, self.require_permission)
         except Exception as e:
             # 如果权限检查失败，返回 False（安全第一）
@@ -170,29 +172,19 @@ class BaseTool(ABC):
         """
         # 1. 检查权限
         if not self.check_permission():
-            return ToolResult(
-                success=False,
-                error=f"权限不足：需要权限 {self.require_permission or '未知'}"
-            )
+            return ToolResult(success=False, error=f"权限不足：需要权限 {self.require_permission or '未知'}")
 
         # 2. 验证参数
         valid, error_msg = self.validate_parameters(**kwargs)
         if not valid:
-            return ToolResult(
-                success=False,
-                error=f"参数验证失败: {error_msg}"
-            )
+            return ToolResult(success=False, error=f"参数验证失败: {error_msg}")
 
         # 3. 检查是否需要审核
         if self.require_approval:
             # TODO: 实现审核流程
             # 现在暂时允许超级用户直接执行
             if not self.user.is_superuser:
-                return ToolResult(
-                    success=False,
-                    message="此操作需要审核",
-                    data={"pending_approval": True}
-                )
+                return ToolResult(success=False, message="此操作需要审核", data={"pending_approval": True})
 
         # 4. 执行工具
         try:
@@ -204,10 +196,7 @@ class BaseTool(ABC):
             return result
 
         except Exception as e:
-            error_result = ToolResult(
-                success=False,
-                error=f"工具执行失败: {str(e)}"
-            )
+            error_result = ToolResult(success=False, error=f"工具执行失败: {str(e)}")
 
             # 记录错误日志
             self._log_execution(kwargs, error_result)
@@ -232,7 +221,7 @@ class BaseTool(ABC):
                 result=result.to_dict(),
                 success=result.success,
                 executed_at=timezone.now(),
-                created_by=self.user
+                created_by=self.user,
             )
         except Exception as e:
             # 日志记录失败不应影响主流程
@@ -250,8 +239,8 @@ class BaseTool(ABC):
             "function": {
                 "name": self.name,
                 "description": self.description,
-                "parameters": self.get_parameters_schema()
-            }
+                "parameters": self.get_parameters_schema(),
+            },
         }
 
     def to_anthropic_tool(self) -> Dict[str, Any]:
@@ -264,7 +253,7 @@ class BaseTool(ABC):
         return {
             "name": self.name,
             "description": self.description,
-            "input_schema": self.get_parameters_schema()
+            "input_schema": self.get_parameters_schema(),
         }
 
     def __str__(self):

@@ -22,46 +22,36 @@ class StockSyncService:
 
         stock = ProductStock.objects.filter(product__code=sku).first()
         if not stock:
-            return {'success': False, 'error': '库存不存在'}
+            return {"success": False, "error": "库存不存在"}
 
         total_stock = stock.qty_in_stock
 
-        listings = ProductListing.objects.filter(
-            product__code=sku,
-            sync_enabled=True
-        )
+        listings = ProductListing.objects.filter(product__code=sku, sync_enabled=True)
 
-        results = {
-            'total': listings.count(),
-            'success': 0,
-            'failed': 0
-        }
+        results = {"total": listings.count(), "success": 0, "failed": 0}
 
         for listing in listings:
             try:
                 adapter = get_adapter(listing.account)
 
-                success = adapter.update_inventory(
-                    sku=listing.platform_sku,
-                    quantity=total_stock
-                )
+                success = adapter.update_inventory(sku=listing.platform_sku, quantity=total_stock)
 
                 if success:
-                    results['success'] += 1
+                    results["success"] += 1
                     listing.quantity = total_stock
                     listing.last_synced_at = timezone.now()
-                    listing.sync_error = ''
+                    listing.sync_error = ""
                     listing.save()
 
                     logger.info(f"库存同步成功: {sku} -> {listing.platform.name}, 数量: {total_stock}")
                 else:
-                    results['failed'] += 1
-                    listing.sync_error = '更新失败'
+                    results["failed"] += 1
+                    listing.sync_error = "更新失败"
                     listing.save()
 
             except Exception as e:
                 logger.error(f"库存同步失败: {sku} -> {listing.platform.name}, 错误: {e}")
-                results['failed'] += 1
+                results["failed"] += 1
                 listing.sync_error = str(e)
                 listing.save()
 
@@ -84,7 +74,7 @@ class StockSyncService:
         platform = PlatformAccount.objects.get(id=platform_id).platform
         accounts = PlatformAccount.objects.filter(platform=platform, is_active=True)
 
-        results = {'total': 0, 'success': 0, 'failed': 0}
+        results = {"total": 0, "success": 0, "failed": 0}
 
         for account in accounts:
             try:
@@ -92,24 +82,24 @@ class StockSyncService:
                 products = adapter.get_products()
 
                 for product_data in products:
-                    sku = product_data['sku']
-                    quantity = product_data['stock']
+                    sku = product_data["sku"]
+                    quantity = product_data["stock"]
 
                     queue = StockSyncQueue(
                         product__code=sku,
                         platform=platform,
                         account=account,
-                        sync_type='pull',
+                        sync_type="pull",
                         quantity=quantity,
-                        status='pending'
+                        status="pending",
                     )
                     queue.save()
 
-                    results['total'] += 1
+                    results["total"] += 1
 
             except Exception as e:
                 logger.error(f"从平台拉取库存失败: {e}")
-                results['failed'] += 1
+                results["failed"] += 1
 
         return results
 
@@ -126,72 +116,67 @@ class StockSyncService:
         from ecomm_sync.adapters import get_adapter
         from inventory.models import ProductStock
 
-        queues = StockSyncQueue.objects.filter(
-            status='pending'
-        ).select_for_update().order_by('created_at')[:limit]
+        queues = (
+            StockSyncQueue.objects.filter(status="pending")
+            .select_for_update()
+            .order_by("created_at")[:limit]
+        )
 
-        results = {
-            'total': queues.count(),
-            'success': 0,
-            'failed': 0
-        }
+        results = {"total": queues.count(), "success": 0, "failed": 0}
 
         for queue in queues:
             try:
-                queue.status = 'processing'
+                queue.status = "processing"
                 queue.save()
 
-                if queue.sync_type == 'push':
+                if queue.sync_type == "push":
                     stock = ProductStock.objects.filter(product__code=queue.product.code).first()
                     if not stock:
-                        queue.status = 'failed'
-                        queue.error_message = '库存不存在'
+                        queue.status = "failed"
+                        queue.error_message = "库存不存在"
                         queue.save()
                         continue
 
                     listings = ProductListing.objects.filter(
-                        product=queue.product,
-                        platform=queue.platform,
-                        sync_enabled=True
+                        product=queue.product, platform=queue.platform, sync_enabled=True
                     )
 
                     for listing in listings:
                         adapter = get_adapter(listing.account)
                         success = adapter.update_inventory(
-                            sku=listing.platform_sku,
-                            quantity=queue.quantity
+                            sku=listing.platform_sku, quantity=queue.quantity
                         )
 
                         if success:
                             listing.quantity = queue.quantity
                             listing.last_synced_at = timezone.now()
                             listing.save()
-                            results['success'] += 1
+                            results["success"] += 1
                         else:
-                            results['failed'] += 1
+                            results["failed"] += 1
 
-                elif queue.sync_type == 'pull':
+                elif queue.sync_type == "pull":
                     stock = ProductStock.objects.filter(product__code=queue.product.code).first()
                     if stock:
                         stock.qty_in_stock = queue.quantity
                         stock.save()
-                        results['success'] += 1
+                        results["success"] += 1
                     else:
-                        results['failed'] += 1
+                        results["failed"] += 1
 
-                queue.status = 'success'
+                queue.status = "success"
                 queue.processed_at = timezone.now()
                 queue.save()
 
             except Exception as e:
                 logger.error(f"处理库存同步队列失败: {queue.id}, 错误: {e}")
-                queue.status = 'failed'
+                queue.status = "failed"
                 queue.error_message = str(e)
                 queue.retry_count += 1
                 queue.save()
 
                 if queue.retry_count >= queue.max_retries:
-                    results['failed'] += 1
+                    results["failed"] += 1
 
         return results
 
@@ -210,4 +195,4 @@ class StockSyncService:
             product = Product.objects.get(id=product_id)
             return self.sync_to_platforms(product.code)
         except Product.DoesNotExist:
-            return {'success': False, 'error': '产品不存在'}
+            return {"success": False, "error": "产品不存在"}

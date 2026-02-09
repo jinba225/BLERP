@@ -2,6 +2,6 @@ from django.apps import AppConfig
 
 
 class DepartmentsConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'departments'
-    verbose_name = '组织架构 - 部门'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "departments"
+    verbose_name = "组织架构 - 部门"

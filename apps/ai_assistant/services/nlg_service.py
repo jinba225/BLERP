@@ -25,9 +25,9 @@ class NLGGenerator:
         """
         self.user = user
 
-    def generate_response(self, tool_result: Dict[str, Any],
-                         tool_name: str = "",
-                         verbose: bool = True) -> str:
+    def generate_response(
+        self, tool_result: Dict[str, Any], tool_name: str = "", verbose: bool = True
+    ) -> str:
         """
         生成自然语言响应
 
@@ -60,9 +60,7 @@ class NLGGenerator:
             return f"❌ 执行 {tool_name} 失败：{error}"
         return f"❌ 操作失败：{error}"
 
-    def _format_detailed_response(self, message: str,
-                                  data: Dict[str, Any],
-                                  tool_name: str) -> str:
+    def _format_detailed_response(self, message: str, data: Dict[str, Any], tool_name: str) -> str:
         """格式化详细响应"""
         response_parts = [message]
 
@@ -108,8 +106,13 @@ class NLGGenerator:
         """格式化单个项"""
         # 优先显示关键字段
         priority_fields = [
-            "order_number", "delivery_number", "receipt_number",
-            "expense_number", "journal_number", "name", "code"
+            "order_number",
+            "delivery_number",
+            "receipt_number",
+            "expense_number",
+            "journal_number",
+            "name",
+            "code",
         ]
 
         for field in priority_fields:
@@ -151,8 +154,7 @@ class NLGGenerator:
 
         return " | ".join(summary_parts) if summary_parts else None
 
-    def generate_summary(self, data: List[Dict[str, Any]],
-                        summary_type: str = "default") -> str:
+    def generate_summary(self, data: List[Dict[str, Any]], summary_type: str = "default") -> str:
         """
         生成数据摘要
 
@@ -208,8 +210,7 @@ class NLGGenerator:
 
         return "，".join(summary_parts)
 
-    def format_report(self, report_data: Dict[str, Any],
-                     report_type: str = "table") -> str:
+    def format_report(self, report_data: Dict[str, Any], report_type: str = "table") -> str:
         """
         格式化报表
 
@@ -248,9 +249,7 @@ class NLGGenerator:
         lines = []
 
         # 表头
-        header_line = " | ".join(
-            str(h).ljust(w) for h, w in zip(headers, col_widths)
-        )
+        header_line = " | ".join(str(h).ljust(w) for h, w in zip(headers, col_widths))
         lines.append(header_line)
 
         # 分隔线
@@ -330,8 +329,7 @@ class NLGGenerator:
 
         return "\n".join(lines)
 
-    def format_confirmation(self, action: str, entity: str,
-                           details: Dict[str, Any]) -> str:
+    def format_confirmation(self, action: str, entity: str, details: Dict[str, Any]) -> str:
         """
         格式化确认提示
 
@@ -343,14 +341,7 @@ class NLGGenerator:
         Returns:
             确认提示文本
         """
-        lines = [
-            f"⚠️ 请确认操作",
-            f"",
-            f"操作：{action}",
-            f"对象：{entity}",
-            f"",
-            f"详细信息："
-        ]
+        lines = [f"⚠️ 请确认操作", f"", f"操作：{action}", f"对象：{entity}", f"", f"详细信息："]
 
         for key, value in details.items():
             lines.append(f"  • {key}: {value}")
@@ -360,8 +351,7 @@ class NLGGenerator:
 
         return "\n".join(lines)
 
-    def format_progress(self, current: int, total: int,
-                       description: str = "") -> str:
+    def format_progress(self, current: int, total: int, description: str = "") -> str:
         """
         格式化进度信息
 
@@ -379,10 +369,7 @@ class NLGGenerator:
 
         bar = "█" * filled + "░" * (bar_length - filled)
 
-        lines = [
-            f"进度：{bar} {percentage:.1f}%",
-            f"{current}/{total} {description}"
-        ]
+        lines = [f"进度：{bar} {percentage:.1f}%", f"{current}/{total} {description}"]
 
         return "\n".join(lines)
 
@@ -405,7 +392,6 @@ class NLGGenerator:
             "rejected": "已拒绝",
             "cancelled": "已取消",
             "completed": "已完成",
-
             # 订单状态
             "draft": "草稿",
             "confirmed": "已确认",
@@ -414,11 +400,9 @@ class NLGGenerator:
             "shipped": "已发货",
             "delivered": "已交付",
             "returned": "已退货",
-
             # 发货状态
             "packed": "已打包",
             "partial_shipped": "部分发货",
-
             # 收货状态
             "inspecting": "检验中",
             "received": "已收货",
@@ -496,8 +480,7 @@ class NLGGenerator:
         """
         return f"{value:.{decimalsf}}%"
 
-    def generate_multi_language_response(self, data: Dict[str, Any],
-                                        language: str = "zh") -> str:
+    def generate_multi_language_response(self, data: Dict[str, Any], language: str = "zh") -> str:
         """
         生成多语言响应（预留接口）
 

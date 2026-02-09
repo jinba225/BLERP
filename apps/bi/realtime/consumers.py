@@ -87,7 +87,11 @@ class DashboardConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_add(f'dashboard:{dashboard_id}', self.channel_name)
             
         except Exception as e:
-            await self.send(text_data=json.dumps({'type': 'error', 'message': f'Subscription failed: {str(e)}'}))
+            await self.send(
+                text_data=json.dumps(
+                    {"type": "error", "message": f"Subscription failed: {str(e)}"}
+                )
+            )
     
     async def unsubscribe(self, data):
         """取消订阅大屏数据"""

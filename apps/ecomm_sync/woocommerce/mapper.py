@@ -20,26 +20,26 @@ class WooCommerceMapper:
         """
         product = ecomm_product.product
         if not product:
-            raise ValueError('未关联ERP产品')
+            raise ValueError("未关联ERP产品")
 
         data = {
-            'name': product.name,
-            'slug': slugify(product.name),
-            'type': 'simple',
-            'status': WooCommerceMapper._map_status(product.status),
-            'catalog_visibility': 'visible',
-            'description': WooCommerceMapper._map_description(product, raw_data),
-            'short_description': product.description or '',
-            'sku': product.code,
-            'regular_price': str(product.selling_price),
-            'manage_stock': product.track_inventory,
-            'stock_quantity': str(product.min_stock),
-            'backorders': 'notify' if product.track_inventory else 'no',
-            'sold_individually': True,
-            'categories': WooCommerceMapper._map_categories(product),
-            'images': WooCommerceMapper._map_images(product),
-            'attributes': WooCommerceMapper._map_attributes(product),
-            'meta_data': WooCommerceMapper._map_metadata(ecomm_product),
+            "name": product.name,
+            "slug": slugify(product.name),
+            "type": "simple",
+            "status": WooCommerceMapper._map_status(product.status),
+            "catalog_visibility": "visible",
+            "description": WooCommerceMapper._map_description(product, raw_data),
+            "short_description": product.description or "",
+            "sku": product.code,
+            "regular_price": str(product.selling_price),
+            "manage_stock": product.track_inventory,
+            "stock_quantity": str(product.min_stock),
+            "backorders": "notify" if product.track_inventory else "no",
+            "sold_individually": True,
+            "categories": WooCommerceMapper._map_categories(product),
+            "images": WooCommerceMapper._map_images(product),
+            "attributes": WooCommerceMapper._map_attributes(product),
+            "meta_data": WooCommerceMapper._map_metadata(ecomm_product),
         }
 
         return data
@@ -48,26 +48,26 @@ class WooCommerceMapper:
     def _map_status(status: str) -> str:
         """映射产品状态"""
         status_map = {
-            'active': 'publish',
-            'inactive': 'draft',
-            'discontinued': 'private',
-            'development': 'draft',
+            "active": "publish",
+            "inactive": "draft",
+            "discontinued": "private",
+            "development": "draft",
         }
-        return status_map.get(status, 'draft')
+        return status_map.get(status, "draft")
 
     @staticmethod
     def _map_description(product, raw_data: dict = None) -> str:
         """映射产品描述"""
-        if raw_data and 'description' in raw_data:
-            return raw_data['description']
-        
+        if raw_data and "description" in raw_data:
+            return raw_data["description"]
+
         desc_parts = []
         if product.description:
             desc_parts.append(product.description)
         if product.specifications:
             desc_parts.append(f"## 规格\n{product.specifications}")
-        
-        return '\n\n'.join(desc_parts)
+
+        return "\n\n".join(desc_parts)
 
     @staticmethod
     def _map_categories(product) -> List[dict]:
@@ -75,9 +75,13 @@ class WooCommerceMapper:
         categories = []
 
         if product.category:
-            categories.append({
-                'id': product.category.woo_category_id if hasattr(product.category, 'woo_category_id') else None
-            })
+            categories.append(
+                {
+                    "id": product.category.woo_category_id
+                    if hasattr(product.category, "woo_category_id")
+                    else None
+                }
+            )
 
         return categories
 
@@ -87,19 +91,23 @@ class WooCommerceMapper:
         images = []
 
         if product.main_image:
-            images.append({
-                'src': product.main_image.url if product.main_image else '',
-                'alt': f"{product.name} - 主图",
-                'name': f"{product.name} - 主图",
-            })
+            images.append(
+                {
+                    "src": product.main_image.url if product.main_image else "",
+                    "alt": f"{product.name} - 主图",
+                    "name": f"{product.name} - 主图",
+                }
+            )
 
-        for product_image in product.images.filter(is_main=False).order_by('sort_order')[:5]:
+        for product_image in product.images.filter(is_main=False).order_by("sort_order")[:5]:
             if product_image.image:
-                images.append({
-                    'src': product_image.image.url,
-                    'alt': product_image.title or f"{product.name} - 图片",
-                    'name': product_image.title or f"{product.name} - 图片",
-                })
+                images.append(
+                    {
+                        "src": product_image.image.url,
+                        "alt": product_image.title or f"{product.name} - 图片",
+                        "name": product_image.title or f"{product.name} - 图片",
+                    }
+                )
 
         return images
 
@@ -110,14 +118,16 @@ class WooCommerceMapper:
 
         for attr_value in product.attribute_values.all():
             attr = attr_value.attribute
-            attributes.append({
-                'id': None,
-                'name': attr.name,
-                'position': 0,
-                'visible': attr.is_filterable,
-                'variation': False,
-                'options': [attr_value.value]
-            })
+            attributes.append(
+                {
+                    "id": None,
+                    "name": attr.name,
+                    "position": 0,
+                    "visible": attr.is_filterable,
+                    "variation": False,
+                    "options": [attr_value.value],
+                }
+            )
 
         return attributes
 
@@ -125,35 +135,17 @@ class WooCommerceMapper:
     def _map_metadata(ecomm_product) -> List[dict]:
         """映射元数据"""
         metadata = [
-            {
-                'key': 'external_url',
-                'value': ecomm_product.external_url
-            },
-            {
-                'key': 'platform',
-                'value': ecomm_product.platform.platform_type
-            },
-            {
-                'key': 'external_id',
-                'value': ecomm_product.external_id
-            },
-            {
-                'key': 'ecomm_product_id',
-                'value': str(ecomm_product.id)
-            }
+            {"key": "external_url", "value": ecomm_product.external_url},
+            {"key": "platform", "value": ecomm_product.platform.platform_type},
+            {"key": "external_id", "value": ecomm_product.external_id},
+            {"key": "ecomm_product_id", "value": str(ecomm_product.id)},
         ]
 
         if ecomm_product.raw_data:
-            if 'brand' in ecomm_product.raw_data:
-                metadata.append({
-                    'key': 'brand',
-                    'value': ecomm_product.raw_data.get('brand')
-                })
-            if 'model' in ecomm_product.raw_data:
-                metadata.append({
-                    'key': 'model',
-                    'value': ecomm_product.raw_data.get('model')
-                })
+            if "brand" in ecomm_product.raw_data:
+                metadata.append({"key": "brand", "value": ecomm_product.raw_data.get("brand")})
+            if "model" in ecomm_product.raw_data:
+                metadata.append({"key": "model", "value": ecomm_product.raw_data.get("model")})
 
         return metadata
 
@@ -170,12 +162,12 @@ class WooCommerceMapper:
             WooCommerce分类数据字典
         """
         return {
-            'name': product_category.name,
-            'slug': slugify(product_category.name),
-            'parent': parent_id,
-            'description': product_category.description or '',
-            'display': 'default',
-            'menu_order': product_category.sort_order,
+            "name": product_category.name,
+            "slug": slugify(product_category.name),
+            "parent": parent_id,
+            "description": product_category.description or "",
+            "display": "default",
+            "menu_order": product_category.sort_order,
         }
 
     @staticmethod
@@ -191,10 +183,10 @@ class WooCommerceMapper:
         """
         product = ecomm_product.product
         if not product:
-            raise ValueError('未关联ERP产品')
+            raise ValueError("未关联ERP产品")
 
         return {
-            'regular_price': str(product.selling_price),
+            "regular_price": str(product.selling_price),
         }
 
     @staticmethod
@@ -210,12 +202,12 @@ class WooCommerceMapper:
         """
         product = ecomm_product.product
         if not product:
-            raise ValueError('未关联ERP产品')
+            raise ValueError("未关联ERP产品")
 
         return {
-            'manage_stock': product.track_inventory,
-            'stock_quantity': str(product.min_stock),
-            'stock_status': 'instock' if product.min_stock > 0 else 'outofstock',
+            "manage_stock": product.track_inventory,
+            "stock_quantity": str(product.min_stock),
+            "stock_status": "instock" if product.min_stock > 0 else "outofstock",
         }
 
     @staticmethod
@@ -231,16 +223,16 @@ class WooCommerceMapper:
         """
         product = ecomm_product.product
         if not product:
-            raise ValueError('未关联ERP产品')
+            raise ValueError("未关联ERP产品")
 
         status = WooCommerceMapper._map_status(product.status)
-        
+
         return {
-            'status': status,
+            "status": status,
         }
 
     @staticmethod
-    def create_batch_updates(ecomm_products, update_type: str = 'full') -> List[dict]:
+    def create_batch_updates(ecomm_products, update_type: str = "full") -> List[dict]:
         """
         创建批量更新数据
 
@@ -257,15 +249,15 @@ class WooCommerceMapper:
             if not ecomm_product.woo_product_id:
                 continue
 
-            update = {'id': ecomm_product.woo_product_id}
+            update = {"id": ecomm_product.woo_product_id}
 
-            if update_type == 'full':
+            if update_type == "full":
                 update.update(WooCommerceMapper.map_to_woo(ecomm_product))
-            elif update_type == 'price':
+            elif update_type == "price":
                 update.update(WooCommerceMapper.extract_price_update(ecomm_product))
-            elif update_type == 'stock':
+            elif update_type == "stock":
                 update.update(WooCommerceMapper.extract_stock_update(ecomm_product))
-            elif update_type == 'status':
+            elif update_type == "status":
                 update.update(WooCommerceMapper.extract_status_update(ecomm_product))
 
             updates.append(update)

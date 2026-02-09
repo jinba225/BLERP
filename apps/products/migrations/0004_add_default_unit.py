@@ -4,19 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('products', '0003_product_track_inventory'),
+        ("products", "0003_product_track_inventory"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='unit',
-            name='is_default',
-            field=models.BooleanField(default=False, help_text='是否作为系统的默认计量单位', verbose_name='是否默认'),
+            model_name="unit",
+            name="is_default",
+            field=models.BooleanField(
+                default=False, help_text="是否作为系统的默认计量单位", verbose_name="是否默认"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='unit',
-            constraint=models.UniqueConstraint(condition=models.Q(('is_default', True)), fields=('is_default',), name='single_default_unit', violation_error_message='只能有一个默认单位'),
+            model_name="unit",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("is_default", True)),
+                fields=("is_default",),
+                name="single_default_unit",
+                violation_error_message="只能有一个默认单位",
+            ),
         ),
     ]

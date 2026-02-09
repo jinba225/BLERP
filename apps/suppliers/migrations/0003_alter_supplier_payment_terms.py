@@ -4,15 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('suppliers', '0002_initial'),
+        ("suppliers", "0002_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='supplier',
-            name='payment_terms',
-            field=models.CharField(blank=True, choices=[('tt_100', 'T/T 100%'), ('net_30', 'NET 30 EOM.'), ('net_60', 'NET 60 EOM.'), ('30_70', '30% Adv,70% B4 SHPT.30%+70%'), ('cash', 'Cash'), ('be', 'B/E')], max_length=50, verbose_name='付款方式'),
+            model_name="supplier",
+            name="payment_terms",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("tt_100", "T/T 100%"),
+                    ("net_30", "NET 30 EOM."),
+                    ("net_60", "NET 60 EOM."),
+                    ("30_70", "30% Adv,70% B4 SHPT.30%+70%"),
+                    ("cash", "Cash"),
+                    ("be", "B/E"),
+                ],
+                max_length=50,
+                verbose_name="付款方式",
+            ),
         ),
     ]

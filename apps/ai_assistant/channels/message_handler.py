@@ -12,12 +12,7 @@ import json
 from .base_channel import IncomingMessage, OutgoingMessage
 from ..services import AIService
 from ..tools import ToolRegistry
-from ..utils.logger import (
-    AIAssistantLogger,
-    log_channel_message,
-    log_tool_execution,
-    log_error
-)
+from ..utils.logger import AIAssistantLogger, log_channel_message, log_tool_execution, log_error
 
 User = get_user_model()
 
@@ -54,7 +49,7 @@ class MessageHandler:
                 message.channel,
                 message.external_user_id,
                 message.content,
-                direction="incoming"
+                direction="incoming",
             )
 
             # 初始化AI服务
@@ -70,7 +65,7 @@ class MessageHandler:
                 message=message.content,
                 conversation_id=conversation_id,
                 channel=message.channel,
-                tools=tools if tools else None
+                tools=tools if tools else None,
             )
 
             # 检查是否需要调用工具
@@ -94,7 +89,7 @@ class MessageHandler:
                     final_response = ai_service.chat(
                         message=tool_message,
                         conversation_id=conversation_id,
-                        channel=message.channel
+                        channel=message.channel,
                     )
 
                     content = final_response.content
@@ -105,32 +100,26 @@ class MessageHandler:
 
             # 记录出站消息
             log_channel_message(
-                logger,
-                message.channel,
-                message.external_user_id,
-                content,
-                direction="outgoing"
+                logger, message.channel, message.external_user_id, content, direction="outgoing"
             )
 
-            return OutgoingMessage(
-                content=content,
-                message_type="text"
-            )
+            return OutgoingMessage(content=content, message_type="text")
 
         except Exception as e:
             # 记录错误
-            log_error(logger, e, context={
-                'channel': message.channel,
-                'user_id': message.external_user_id,
-                'message_id': message.message_id
-            })
+            log_error(
+                logger,
+                e,
+                context={
+                    "channel": message.channel,
+                    "user_id": message.external_user_id,
+                    "message_id": message.message_id,
+                },
+            )
 
             # 错误处理
             error_message = f"处理消息时出错: {str(e)} (>_<)"
-            return OutgoingMessage(
-                content=error_message,
-                message_type="text"
-            )
+            return OutgoingMessage(content=error_message, message_type="text")
 
     def _generate_conversation_id(self, message: IncomingMessage) -> str:
         """
@@ -156,18 +145,21 @@ class MessageHandler:
             工具执行结果
         """
         import time
+
         start_time = time.time()
 
         try:
             # 解析工具调用
-            tool_name = tool_call.get('function', {}).get('name')
-            arguments_str = tool_call.get('function', {}).get('arguments', '{}')
+            tool_name = tool_call.get("function", {}).get("name")
+            arguments_str = tool_call.get("function", {}).get("arguments", "{}")
 
             logger.info(f"🔧 Executing tool: {tool_name}")
 
             # 解析参数
             try:
-                arguments = json.loads(arguments_str) if isinstance(arguments_str, str) else arguments_str
+                arguments = (
+                    json.loads(arguments_str) if isinstance(arguments_str, str) else arguments_str
+                )
             except json.JSONDecodeError as e:
                 execution_time = time.time() - start_time
                 error_msg = f"参数解析失败: {arguments_str}"
@@ -175,18 +167,15 @@ class MessageHandler:
 
                 log_tool_execution(
                     logger,
-                    tool_name or 'unknown',
+                    tool_name or "unknown",
                     self.user.username,
                     {},
                     success=False,
                     execution_time=execution_time,
-                    error=error_msg
+                    error=error_msg,
                 )
 
-                return {
-                    "success": False,
-                    "error": error_msg
-                }
+                return {"success": False, "error": error_msg}
 
             # 获取工具实例
             tool = ToolRegistry.get_tool(tool_name, self.user)
@@ -197,18 +186,15 @@ class MessageHandler:
 
                 log_tool_execution(
                     logger,
-                    tool_name or 'unknown',
+                    tool_name or "unknown",
                     self.user.username,
                     arguments,
                     success=False,
                     execution_time=execution_time,
-                    error=error_msg
+                    error=error_msg,
                 )
 
-                return {
-                    "success": False,
-                    "error": error_msg
-                }
+                return {"success": False, "error": error_msg}
 
             # 执行工具
             logger.debug(f"Tool params: {arguments}")
@@ -224,7 +210,7 @@ class MessageHandler:
                 arguments,
                 success=result.success,
                 execution_time=execution_time,
-                error=result.error if not result.success else None
+                error=result.error if not result.success else None,
             )
 
             return result.to_dict()
@@ -234,22 +220,19 @@ class MessageHandler:
             error_msg = f"工具执行失败: {str(e)}"
 
             logger.error(f"❌ Tool execution error: {str(e)}")
-            log_error(logger, e, context={'tool_call': tool_call})
+            log_error(logger, e, context={"tool_call": tool_call})
 
             log_tool_execution(
                 logger,
-                tool_name if 'tool_name' in locals() else 'unknown',
+                tool_name if "tool_name" in locals() else "unknown",
                 self.user.username,
-                arguments if 'arguments' in locals() else {},
+                arguments if "arguments" in locals() else {},
                 success=False,
                 execution_time=execution_time,
-                error=error_msg
+                error=error_msg,
             )
 
-            return {
-                "success": False,
-                "error": error_msg
-            }
+            return {"success": False, "error": error_msg}
 
     def _format_tool_results(self, tool_results: list) -> str:
         """
@@ -263,10 +246,12 @@ class MessageHandler:
         """
         messages = []
         for result in tool_results:
-            if result.get('success'):
+            if result.get("success"):
                 messages.append(f"✅ 操作成功: {result.get('message', '')}")
-                if result.get('data'):
-                    messages.append(f"结果: {json.dumps(result['data'], ensure_ascii=False, indent=2)}")
+                if result.get("data"):
+                    messages.append(
+                        f"结果: {json.dumps(result['data'], ensure_ascii=False, indent=2)}"
+                    )
             else:
                 messages.append(f"❌ 操作失败: {result.get('error', '未知错误')}")
 

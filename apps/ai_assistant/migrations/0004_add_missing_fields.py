@@ -6,218 +6,210 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('ai_assistant', '0003_add_telegram_and_mapping'),
+        ("ai_assistant", "0003_add_telegram_and_mapping"),
     ]
 
     operations = [
         # AIModelConfig 添加缺失字段
         migrations.AddField(
-            model_name='aimodelconfig',
-            name='updated_by',
+            model_name="aimodelconfig",
+            name="updated_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='aimodelconfig_updated',
+                related_name="aimodelconfig_updated",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='更新人'
+                verbose_name="更新人",
             ),
         ),
         migrations.AddField(
-            model_name='aimodelconfig',
-            name='deleted_by',
+            model_name="aimodelconfig",
+            name="deleted_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='aimodelconfig_deleted',
+                related_name="aimodelconfig_deleted",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='删除人'
+                verbose_name="删除人",
             ),
         ),
-
         # AIConversation 添加缺失字段
         migrations.AddField(
-            model_name='aiconversation',
-            name='updated_by',
+            model_name="aiconversation",
+            name="updated_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='aiconversation_updated',
+                related_name="aiconversation_updated",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='更新人'
+                verbose_name="更新人",
             ),
         ),
         migrations.AddField(
-            model_name='aiconversation',
-            name='deleted_by',
+            model_name="aiconversation",
+            name="deleted_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='aiconversation_deleted',
+                related_name="aiconversation_deleted",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='删除人'
+                verbose_name="删除人",
             ),
         ),
-
         # AIMessage 添加缺失字段
         migrations.AddField(
-            model_name='aimessage',
-            name='updated_by',
+            model_name="aimessage",
+            name="updated_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='aimessage_updated',
+                related_name="aimessage_updated",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='更新人'
+                verbose_name="更新人",
             ),
         ),
         migrations.AddField(
-            model_name='aimessage',
-            name='deleted_by',
+            model_name="aimessage",
+            name="deleted_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='aimessage_deleted',
+                related_name="aimessage_deleted",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='删除人'
+                verbose_name="删除人",
             ),
         ),
-
         # AITool 添加缺失字段
         migrations.AddField(
-            model_name='aitool',
-            name='updated_by',
+            model_name="aitool",
+            name="updated_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='aitool_updated',
+                related_name="aitool_updated",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='更新人'
+                verbose_name="更新人",
             ),
         ),
         migrations.AddField(
-            model_name='aitool',
-            name='deleted_by',
+            model_name="aitool",
+            name="deleted_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='aitool_deleted',
+                related_name="aitool_deleted",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='删除人'
+                verbose_name="删除人",
             ),
         ),
-
         # WeChatConfig 添加缺失字段
         migrations.AddField(
-            model_name='wechatconfig',
-            name='updated_by',
+            model_name="wechatconfig",
+            name="updated_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='wechatconfig_updated',
+                related_name="wechatconfig_updated",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='更新人'
+                verbose_name="更新人",
             ),
         ),
         migrations.AddField(
-            model_name='wechatconfig',
-            name='deleted_by',
+            model_name="wechatconfig",
+            name="deleted_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='wechatconfig_deleted',
+                related_name="wechatconfig_deleted",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='删除人'
+                verbose_name="删除人",
             ),
         ),
-
         # DingTalkConfig 添加缺失字段
         migrations.AddField(
-            model_name='dingtalkconfig',
-            name='updated_by',
+            model_name="dingtalkconfig",
+            name="updated_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='dingtalkconfig_updated',
+                related_name="dingtalkconfig_updated",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='更新人'
+                verbose_name="更新人",
             ),
         ),
         migrations.AddField(
-            model_name='dingtalkconfig',
-            name='deleted_by',
+            model_name="dingtalkconfig",
+            name="deleted_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='dingtalkconfig_deleted',
+                related_name="dingtalkconfig_deleted",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='删除人'
+                verbose_name="删除人",
             ),
         ),
-
         # TelegramConfig 添加缺失字段
         migrations.AddField(
-            model_name='telegramconfig',
-            name='updated_by',
+            model_name="telegramconfig",
+            name="updated_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='telegramconfig_updated',
+                related_name="telegramconfig_updated",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='更新人'
+                verbose_name="更新人",
             ),
         ),
         migrations.AddField(
-            model_name='telegramconfig',
-            name='deleted_by',
+            model_name="telegramconfig",
+            name="deleted_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='telegramconfig_deleted',
+                related_name="telegramconfig_deleted",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='删除人'
+                verbose_name="删除人",
             ),
         ),
-
         # ChannelUserMapping 添加缺失字段
         migrations.AddField(
-            model_name='channelusermapping',
-            name='updated_by',
+            model_name="channelusermapping",
+            name="updated_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='channelusermapping_updated',
+                related_name="channelusermapping_updated",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='更新人'
+                verbose_name="更新人",
             ),
         ),
         migrations.AddField(
-            model_name='channelusermapping',
-            name='deleted_by',
+            model_name="channelusermapping",
+            name="deleted_by",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name='channelusermapping_deleted',
+                related_name="channelusermapping_deleted",
                 to=settings.AUTH_USER_MODEL,
-                verbose_name='删除人'
+                verbose_name="删除人",
             ),
         ),
     ]

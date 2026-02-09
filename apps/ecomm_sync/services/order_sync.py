@@ -8,13 +8,11 @@ logger = logging.getLogger(__name__)
 class OrderSyncService:
     """订单同步服务"""
 
-    def __init__(self, platform: 'EcommPlatform'):
+    def __init__(self, platform: "EcommPlatform"):
         self.platform = platform
         from ecomm_sync.models import PlatformAccount
-        self.accounts = PlatformAccount.objects.filter(
-            platform=platform,
-            is_active=True
-        )
+
+        self.accounts = PlatformAccount.objects.filter(platform=platform, is_active=True)
 
     def sync_new_orders(self, hours: int = 24) -> dict:
         """同步新订单
@@ -28,12 +26,7 @@ class OrderSyncService:
         from ecomm_sync.models import PlatformOrder, PlatformOrderItem
         from ecomm_sync.adapters import get_adapter
 
-        results = {
-            'total': 0,
-            'success': 0,
-            'failed': 0,
-            'errors': []
-        }
+        results = {"total": 0, "success": 0, "failed": 0, "errors": []}
 
         start_date = timezone.now() - timedelta(hours=hours)
 
@@ -42,12 +35,11 @@ class OrderSyncService:
                 adapter = get_adapter(account)
 
                 orders = adapter.get_orders(
-                    start_date=start_date,
-                    order_statuses=['paid', 'processing']
+                    start_date=start_date, order_statuses=["paid", "processing"]
                 )
 
                 for order_data in orders:
-                    order_id = order_data['order_id']
+                    order_id = order_data["order_id"]
 
                     existing_order = PlatformOrder.objects.filter(
                         platform_order_id=order_id
@@ -60,46 +52,43 @@ class OrderSyncService:
                         platform=self.platform,
                         account=account,
                         platform_order_id=order_id,
-                        order_status=order_data['status'],
-                        order_amount=order_data['amount'],
-                        currency=order_data.get('currency', 'CNY'),
-                        buyer_email=order_data.get('buyer_email'),
-                        buyer_name=order_data.get('buyer_name'),
-                        shipping_address={'address': order_data.get('buyer_name')},
+                        order_status=order_data["status"],
+                        order_amount=order_data["amount"],
+                        currency=order_data.get("currency", "CNY"),
+                        buyer_email=order_data.get("buyer_email"),
+                        buyer_name=order_data.get("buyer_name"),
+                        shipping_address={"address": order_data.get("buyer_name")},
                         raw_data=order_data,
-                        sync_status='synced',
+                        sync_status="synced",
                         synced_to_erp=False,
-                        synced_to_platform=True
+                        synced_to_platform=True,
                     )
                     order.save()
 
-                    for item_data in order_data.get('items', []):
+                    for item_data in order_data.get("items", []):
                         item = PlatformOrderItem(
                             order=order,
-                            sku=item_data['sku'],
-                            product_name=item_data['product_name'],
-                            quantity=item_data['quantity'],
-                            unit_price=item_data['unit_price'],
-                            total_price=item_data['unit_price'] * item_data['quantity'],
-                            platform_product_id=item_data.get('product_id'),
-                            raw_data=item_data
+                            sku=item_data["sku"],
+                            product_name=item_data["product_name"],
+                            quantity=item_data["quantity"],
+                            unit_price=item_data["unit_price"],
+                            total_price=item_data["unit_price"] * item_data["quantity"],
+                            platform_product_id=item_data.get("product_id"),
+                            raw_data=item_data,
                         )
                         item.save()
 
-                    results['success'] += 1
+                    results["success"] += 1
 
-                results['total'] += len(orders)
+                results["total"] += len(orders)
 
                 account.last_synced_at = timezone.now()
                 account.save()
 
             except Exception as e:
                 logger.error(f"订单同步失败: {account.account_name}, 错误: {e}")
-                results['failed'] += 1
-                results['errors'].append({
-                    'account': account.account_name,
-                    'error': str(e)
-                })
+                results["failed"] += 1
+                results["errors"].append({"account": account.account_name, "error": str(e)})
                 account.last_error = str(e)
                 account.save()
 
@@ -125,7 +114,7 @@ class OrderSyncService:
             # 这里应该调用ERP订单导入逻辑
             # 暂时标记为已同步
             order.synced_to_erp = True
-            order.sync_status = 'synced'
+            order.sync_status = "synced"
             order.save()
 
             logger.info(f"订单 {platform_order_id} 同步到ERP成功")
@@ -135,7 +124,9 @@ class OrderSyncService:
             logger.error(f"订单 {platform_order_id} 同步到ERP失败: {e}")
             return False
 
-    def update_order_status(self, platform_order_id: str, status: str, tracking_number: str = None) -> bool:
+    def update_order_status(
+        self, platform_order_id: str, status: str, tracking_number: str = None
+    ) -> bool:
         """更新订单状态到平台
 
         Args:

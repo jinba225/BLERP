@@ -5,20 +5,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory', '0005_stocktransfer_is_auto_generated_and_more'),
-        ('products', '0004_add_default_unit'),
+        ("inventory", "0005_stocktransfer_is_auto_generated_and_more"),
+        ("products", "0004_add_default_unit"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddIndex(
-            model_name='inventorystock',
-            index=models.Index(fields=['quantity'], name='inventory_s_quantit_287c3e_idx'),
+            model_name="inventorystock",
+            index=models.Index(fields=["quantity"], name="inventory_s_quantit_287c3e_idx"),
         ),
         migrations.AddIndex(
-            model_name='inventorystock',
-            index=models.Index(fields=['-created_at'], name='inventory_s_created_103d57_idx'),
+            model_name="inventorystock",
+            index=models.Index(fields=["-created_at"], name="inventory_s_created_103d57_idx"),
         ),
     ]

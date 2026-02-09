@@ -14,9 +14,9 @@ class AIAssistantCache:
     """AI助手缓存管理器"""
 
     # 缓存键前缀
-    PREFIX_ACCESS_TOKEN = 'ai_assistant:access_token'
-    PREFIX_CONVERSATION = 'ai_assistant:conversation'
-    PREFIX_AI_CONFIG = 'ai_assistant:ai_config'
+    PREFIX_ACCESS_TOKEN = "ai_assistant:access_token"
+    PREFIX_CONVERSATION = "ai_assistant:conversation"
+    PREFIX_AI_CONFIG = "ai_assistant:ai_config"
 
     # 默认过期时间
     DEFAULT_TIMEOUT = 300  # 5分钟
@@ -55,13 +55,7 @@ class AIAssistantCache:
         return cache.get(key)
 
     @classmethod
-    def set_access_token(
-        cls,
-        channel: str,
-        app_id: str,
-        token: str,
-        timeout: Optional[int] = None
-    ):
+    def set_access_token(cls, channel: str, app_id: str, token: str, timeout: Optional[int] = None):
         """
         缓存Access Token
 
@@ -111,12 +105,7 @@ class AIAssistantCache:
         return None
 
     @classmethod
-    def set_conversation(
-        cls,
-        conversation_id: str,
-        data: dict,
-        timeout: Optional[int] = None
-    ):
+    def set_conversation(cls, conversation_id: str, data: dict, timeout: Optional[int] = None):
         """
         缓存会话数据
 
@@ -166,12 +155,7 @@ class AIAssistantCache:
         return None
 
     @classmethod
-    def set_ai_config(
-        cls,
-        user_id: int,
-        config_data: dict,
-        timeout: Optional[int] = None
-    ):
+    def set_ai_config(cls, user_id: int, config_data: dict, timeout: Optional[int] = None):
         """
         缓存AI配置
 
@@ -270,11 +254,11 @@ class AIAssistantCache:
                 client = cache._cache
                 info = client.info()
                 return {
-                    'used_memory': info.get('used_memory_human'),
-                    'connected_clients': info.get('connected_clients'),
-                    'total_commands_processed': info.get('total_commands_processed'),
+                    "used_memory": info.get("used_memory_human"),
+                    "connected_clients": info.get("connected_clients"),
+                    "total_commands_processed": info.get("total_commands_processed"),
                 }
         except Exception:
             pass
 
-        return {'backend': 'locmem', 'stats': 'not available'}
+        return {"backend": "locmem", "stats": "not available"}

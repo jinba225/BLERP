@@ -1,229 +1,129 @@
-# BLERP 项目文档索引
+# Django ERP 文档索引
 
-## 项目概述
+## 📚 项目文档
 
-- **项目名称**: BLERP (BetterLaser ERP)
-- **项目类型**: Django Backend ERP System
-- **主要语言**: Python 3.8+ / JavaScript
-- **架构风格**: Monolith Backend with Layered Architecture
-- **开发状态**: Production Ready
+- [主项目文档](../README.md) - 项目概述和快速开始
+- [变更日志](../CHANGELOG.md) - 版本变更记录
+- [贡献指南](../CONTRIBUTING.md) - 如何贡献代码
+- [许可证](../LICENSE) - MIT许可证
 
----
+## 📖 用户指南
 
-## 📚 快速导航
+- [快速开始指南](guides/QUICK_START_GUIDE.md)
+- [部署清单](guides/DEPLOYMENT_CHECKLIST.md)
+- [运维指南](guides/OPERATIONS_GUIDE.md)
+- [故障排查](guides/DJANGO_DEV_TROUBLESHOOTING.md)
+- [迁移指南](guides/MIGRATION_GUIDE.md)
 
-### 🎯 入门文档
+## 🔧 开发文档
 
-- **[项目概览](./project-overview.md)** - 项目简介、技术栈、核心功能
-- **[快速开始](./installation.md)** - 安装配置和环境设置  
-- **[用户指南](./user-guide.md)** - 系统使用说明
+- [项目结构](development/PROJECT_STRUCTURE.md)
+- [测试指南](development/TESTING.md)
+- [重载指南](development/RELOAD_GUIDE.md)
+- [自动重载指南](development/AUTORELOAD_GUIDE.md)
 
-### 🏗️ 技术架构
+## 📊 报告
 
-- **[系统架构](./architecture.md)** - 详细架构设计和分层说明
-- **[源代码树分析](./source-tree-analysis.md)** - 完整目录结构和文件组织
-- **[数据库设计](./database-schema-analysis.md)** - (待生成) 数据模型和关系
+### 阶段总结
+- [第一阶段总结](reports/PHASE1_COMPLETION_SUMMARY.md)
+- [第二阶段总结](reports/PHASE2_COMPLETION_SUMMARY.md)
+- [第三阶段总结](reports/PHASE3_COMPLETION_SUMMARY.md)
+- [第四阶段总结](reports/PHASE4_SUMMARY.md)
+- [第四阶段完成报告](reports/PHASE4_COMPLETION_SUMMARY.md)
 
-### 🛠️ 开发文档
+### 测试报告
+- [E2E测试总结](reports/E2E_TEST_SUMMARY_FINAL.md)
+- [E2E测试快速开始](reports/E2E_TEST_QUICK_START.md)
+- [E2E测试成功报告](reports/E2E_TEST_SUCCESS.md)
+- [E2E测试状态报告](reports/E2E_TEST_STATUS_REPORT.md)
+- [E2E测试实施总结](reports/E2E_TEST_IMPLEMENTATION_SUMMARY.md)
+- [最终测试报告](reports/FINAL_TEST_REPORT.md)
+- [最终测试总结](reports/FINAL_TEST_SUMMARY.md)
+- [测试执行总结](reports/TEST_EXECUTION_SUMMARY.md)
+- [测试报告](reports/TEST_REPORT.md)
+- [E2E测试报告](reports/E2E_TEST_FINAL_REPORT.md)
 
-- **[开发指南](./development-guide.md)** - 开发环境设置和最佳实践
-- **[API 文档](./api-endpoints-catalog.md)** - (待生成) REST API 接口文档
-- **[测试指南](./testing-guide.md)** - (待生成) 测试策略和规范
+### 实施报告
+- [生产就绪报告](reports/PRODUCTION_READINESS_REPORT.md)
+- [最终实施报告](reports/FINAL_IMPLEMENTATION_REPORT.md)
+- [最终实施总结](reports/FINAL_IMPLEMENTATION_SUMMARY.md)
+- [会话总结](reports/SESSION_SUMMARY.md)
+- [项目完成总结](reports/PROJECT_COMPLETION_SUMMARY.md)
+- [项目状态](reports/PROJECT_STATUS.md)
+- [退货约束实施总结](reports/RETURN_CONSTRAINTS_IMPLEMENTATION_SUMMARY.md)
 
-### 🚀 部署运维
+## ✨ 功能文档
 
-- **[部署指南](./deployment.md)** - 生产环境部署详细说明
-- **[故障排除](./troubleshooting.md)** - (待生成) 常见问题解决方案
-- **[备份恢复](./backup-restore.md)** - (待生成) 数据备份和恢复策略
+### 预付款管理
+- [预付款合并功能](reports/PREPAYMENT_CONSOLIDATION_FEATURE.md)
+- [预付款自动合并](reports/PREPAYMENT_AUTO_CONSOLIDATION.md)
+- [预付款编辑删除功能](reports/PREPAYMENT_EDIT_DELETE_FEATURE.md)
+- [预付款自动刷新功能](reports/PREPAYMENT_AUTO_REFRESH_FEATURE.md)
+- [预付款字段修复](reports/PREPAYMENT_FIELD_FIX.md)
+- [预付款列表一致性修复](reports/PREPAYMENT_LIST_CONSISTENCY_FIX.md)
+- [预付款列表全部带筛选](reports/PREPAYMENT_LIST_ALL_WITH_FILTER.md)
+- [供应商预付款自动合并](reports/SUPPLIER_PREPAYMENT_AUTO_CONSOLIDATION.md)
+- [删除供应商预付款统计](reports/REMOVE_SUPPLIER_PREPAYMENT_STATS.md)
 
-### 📖 技术参考
+### 核销管理
+- [核销逻辑修复](reports/WRITEOFF_LOGIC_FIX.md)
+- [核销逻辑优化](reports/WRITEOFF_LOGIC_OPTIMIZATION.md)
+- [恢复手动核销按钮](reports/RESTORE_MANUAL_WRITEOFF_BUTTON.md)
 
-- **[技术分析报告](./DJANGO_ERP_TECHNICAL_ANALYSIS.md)** - 全面的技术分析报告
-- **[CLAUDE.md](../CLAUDE.md)** - Claude Code 开发指导文档
-- **[变更日志](../CHANGELOG.md)** - 项目更新历史
+### 缓存优化
+- [缓存实现总结](reports/CACHE_IMPLEMENTATION_SUMMARY.md)
+- [缓存修复报告](reports/CACHE_FIX_REPORT.md)
+- [缓存修复总结](reports/CACHE_FIX_SUMMARY.md)
+- [ETag缓存总结](reports/ETAG_CACHE_SUMMARY.md)
+- [最终缓存报告](reports/FINAL_CACHE_REPORT.md)
 
----
+### 性能优化
+- [性能优化总结](reports/PERFORMANCE_OPTIMIZATION_SUMMARY.md)
+- [性能优化报告](reports/PERFORMANCE_OPTIMIZATION_REPORT.md)
 
-## 🎯 项目信息
+### 账户管理
+- [账户列表缓存修复](reports/ACCOUNT_LIST_CACHE_FIX.md)
+- [财务账户列表修复](reports/FINANCE_ACCOUNT_LIST_FIX.md)
+- [供应商账户修复总结](reports/SUPPLIER_ACCOUNT_FIX_SUMMARY.md)
+- [供应商账户按供应商分组](reports/SUPPLIER_ACCOUNT_GROUP_BY_SUPPLIER.md)
 
-### 技术栈
+### 采购管理
+- [采购借用修复总结](reports/PURCHASE_BORROW_FIX_SUMMARY.md)
+- [采购已收数量修复](reports/PURCHASE_RECEIVED_QUANTITY_FIX.md)
+- [采购订单默认值](reports/PURCHASE_ORDER_DEFAULTS.md)
 
-**后端**:
-- Django 5.0 + Django REST Framework 3.15
-- Python 3.8+
-- MySQL 8.0 (生产) / SQLite (开发)
-- Redis 6.0+ (缓存)
-- Celery (异步任务)
+### 模板管理
+- [模板路径修复总结](reports/TEMPLATE_PATH_FIX_SUMMARY.md)
+- [模板批量修复报告](reports/TEMPLATE_BATCH_FIX_REPORT.md)
+- [模板语法错误修复](reports/TEMPLATE_SYNTAX_ERROR_FIX.md)
 
-**前端**:
-- Tailwind CSS 3.3+
-- Alpine.js + 原生 JavaScript
-- Django Template Language
-- HiPrint (打印引擎)
+### 页面刷新
+- [页面刷新实施](reports/PAGE_REFRESH_IMPLEMENTATION.md)
+- [页面刷新快速开始](reports/PAGE_REFRESH_QUICK_START.md)
+- [页面刷新进度报告](reports/PAGE_REFRESH_PROGRESS_REPORT.md)
+- [页面刷新第四阶段进度](reports/PAGE_REFRESH_STAGE4_PROGRESS.md)
+- [页面刷新完成](reports/PAGE_REFRESH_COMPLETE.md)
+- [页面刷新最终总结](reports/PAGE_REFRESH_FINAL_SUMMARY.md)
 
-**基础设施**:
-- Nginx (反向代理)
-- Gunicorn (WSGI 服务器)
-- Docker + Docker Compose (容器化)
+### AI助手
+- [AI助手README](reports/AI_ASSISTANT_README.md)
 
-### 核心特性
+### Telegram机器人
+- [Telegram机器人快速指南](reports/TELEGRAM_BOT_QUICK_GUIDE.md)
+- [Telegram机器人修复总结](reports/TELEGRAM_BOT_FIX_SUMMARY.md)
 
-- ✅ **模块化设计**: 12个独立业务模块
-- ✅ **统一基类**: BaseModel 提供基础功能
-- ✅ **含税价格体系**: 符合中国税务实务
-- ✅ **软删除机制**: 数据安全保护
-- ✅ **完整业务流程**: 销售、采购、库存、财务闭环
-- ✅ **AI 智能助手**: 多渠道 AI 集成
-- ✅ **可视化打印**: HiPrint 模板设计
+### 其他功能
+- [GET到POST问题](reports/GET_TO_POST_ISSUES.md)
+- [快速开始修复](reports/QUICK_START_FIX.md)
+- [E2E测试README](reports/README_E2E_TESTS.md)
+- [模型字段修复总结](reports/MODEL_FIELD_FIX_SUMMARY.md)
 
----
+## 🔗 相关资源
 
-## 📊 项目规模
-
-- **代码量**: 31,805+ 行核心业务代码
-- **业务模块**: 12 个独立应用
-- **数据模型**: 80+ 个数据表
-- **API 接口**: 350+ 个 REST 端点
-- **测试文件**: 27 个测试用例
-
----
-
-## 🚀 快速开始
-
-### 开发环境启动
-
-```bash
-# 1. 激活虚拟环境
-source venv/bin/activate
-
-# 2. 安装依赖
-pip install -r requirements.txt
-npm install
-
-# 3. 数据库迁移
-python manage.py migrate
-
-# 4. 创建超级用户
-python manage.py createsuperuser
-
-# 5. 构建前端资源
-npm run build
-
-# 6. 启动开发服务器
-python manage.py runserver
-```
-
-### 生产环境部署
-
-```bash
-# 使用 Docker Compose
-docker-compose up -d
-
-# 或使用部署脚本
-./deploy.sh
-```
-
----
-
-## 📁 核心目录结构
-
-```
-django_erp/
-├── better_laser_erp/    # Django 项目配置
-├── apps/                # 业务模块（12个应用）
-├── templates/           # Django 模板
-├── static/              # 静态资源
-├── media/               # 用户上传文件
-├── docs/                # 项目文档
-├── logs/                # 日志文件
-└── manage.py            # Django 管理脚本
-```
+- [GitHub仓库](https://github.com/your-org/django-erp)
+- [问题跟踪](https://github.com/your-org/django-erp/issues)
+- [讨论区](https://github.com/your-org/django-erp/discussions)
 
 ---
 
-## 🔧 常用命令
-
-### 开发命令
-
-```bash
-# 启动开发服务器
-python manage.py runserver
-
-# 数据库迁移
-python manage.py makemigrations
-python manage.py migrate
-
-# 创建超级用户
-python manage.py createsuperuser
-
-# 收集静态文件
-python manage.py collectstatic
-
-# 运行测试
-python manage.py test
-```
-
-### 维护命令
-
-```bash
-# 数据库备份
-python manage.py dbbackup
-
-# 系统检查
-python manage.py check
-
-# 启动 Celery
-celery -A better_laser_erp worker -l info
-
-# 前端构建
-npm run build
-```
-
----
-
-## 📞 支持资源
-
-### 官方文档
-- [Django 官方文档](https://docs.djangoproject.com/)
-- [DRF 文档](https://www.django-rest-framework.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-
-### 项目相关
-- **GitHub 仓库**: https://github.com/jinba225/BLERP
-- **问题反馈**: GitHub Issues
-- **技术支持**: 查看项目文档或联系开发团队
-
----
-
-## 📝 文档更新记录
-
-- **2026-01-24**: 完成项目文档化，生成完整的技术文档体系
-- **2024-12-18**: 更新 CLAUDE.md 指导文档
-- **2024-11-07**: 添加技术指南文档
-
----
-
-## 🎯 下一步行动
-
-如果您是：
-
-### 新用户
-1. 阅读 [项目概览](./project-overview.md) 了解系统
-2. 按照 [安装指南](./installation.md) 设置环境
-3. 参考 [用户指南](./user-guide.md) 学习使用
-
-### 开发者
-1. 阅读 [开发指南](./development-guide.md) 设置开发环境
-2. 查看 [系统架构](./architecture.md) 理解设计
-3. 学习 [源代码树分析](./source-tree-analysis.md) 了解代码组织
-
-### 运维人员
-1. 参考 [部署指南](./deployment.md) 进行部署
-2. 配置监控和日志
-3. 设置备份策略
-
----
-
-**本文档持续更新中，如有问题请及时反馈。**
-
-*最后更新: 2026-01-24*
+*最后更新：2026-02-09*

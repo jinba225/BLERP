@@ -4,216 +4,464 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='InventoryStock',
+            name="InventoryStock",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('quantity', models.DecimalField(decimal_places=4, default=0, max_digits=12, verbose_name='库存数量')),
-                ('reserved_quantity', models.DecimalField(decimal_places=4, default=0, max_digits=12, verbose_name='预留数量')),
-                ('cost_price', models.DecimalField(decimal_places=2, default=0, max_digits=12, verbose_name='成本价')),
-                ('last_in_date', models.DateTimeField(blank=True, null=True, verbose_name='最后入库时间')),
-                ('last_out_date', models.DateTimeField(blank=True, null=True, verbose_name='最后出库时间')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "quantity",
+                    models.DecimalField(
+                        decimal_places=4, default=0, max_digits=12, verbose_name="库存数量"
+                    ),
+                ),
+                (
+                    "reserved_quantity",
+                    models.DecimalField(
+                        decimal_places=4, default=0, max_digits=12, verbose_name="预留数量"
+                    ),
+                ),
+                (
+                    "cost_price",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=12, verbose_name="成本价"
+                    ),
+                ),
+                (
+                    "last_in_date",
+                    models.DateTimeField(blank=True, null=True, verbose_name="最后入库时间"),
+                ),
+                (
+                    "last_out_date",
+                    models.DateTimeField(blank=True, null=True, verbose_name="最后出库时间"),
+                ),
             ],
             options={
-                'verbose_name': '库存',
-                'verbose_name_plural': '库存',
-                'db_table': 'inventory_stock',
+                "verbose_name": "库存",
+                "verbose_name_plural": "库存",
+                "db_table": "inventory_stock",
             },
         ),
         migrations.CreateModel(
-            name='InventoryTransaction',
+            name="InventoryTransaction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('transaction_type', models.CharField(choices=[('in', '入库'), ('out', '出库'), ('transfer', '调拨'), ('adjustment', '调整'), ('return', '退货'), ('scrap', '报废')], max_length=20, verbose_name='交易类型')),
-                ('quantity', models.DecimalField(decimal_places=4, max_digits=12, verbose_name='数量')),
-                ('unit_cost', models.DecimalField(decimal_places=2, default=0, max_digits=12, verbose_name='单位成本')),
-                ('total_cost', models.DecimalField(decimal_places=2, default=0, max_digits=12, verbose_name='总成本')),
-                ('reference_type', models.CharField(blank=True, choices=[('purchase_order', '采购订单'), ('sales_order', '销售订单'), ('production_order', '生产订单'), ('transfer_order', '调拨单'), ('adjustment', '库存调整'), ('return', '退货单'), ('manual', '手工录入')], max_length=20, verbose_name='关联类型')),
-                ('reference_id', models.CharField(blank=True, max_length=100, verbose_name='关联单据ID')),
-                ('reference_number', models.CharField(blank=True, max_length=100, verbose_name='关联单据号')),
-                ('batch_number', models.CharField(blank=True, max_length=100, verbose_name='批次号')),
-                ('serial_number', models.CharField(blank=True, max_length=100, verbose_name='序列号')),
-                ('expiry_date', models.DateField(blank=True, null=True, verbose_name='过期日期')),
-                ('transaction_date', models.DateTimeField(auto_now_add=True, verbose_name='交易时间')),
-                ('notes', models.TextField(blank=True, verbose_name='备注')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "transaction_type",
+                    models.CharField(
+                        choices=[
+                            ("in", "入库"),
+                            ("out", "出库"),
+                            ("transfer", "调拨"),
+                            ("adjustment", "调整"),
+                            ("return", "退货"),
+                            ("scrap", "报废"),
+                        ],
+                        max_length=20,
+                        verbose_name="交易类型",
+                    ),
+                ),
+                (
+                    "quantity",
+                    models.DecimalField(decimal_places=4, max_digits=12, verbose_name="数量"),
+                ),
+                (
+                    "unit_cost",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=12, verbose_name="单位成本"
+                    ),
+                ),
+                (
+                    "total_cost",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=12, verbose_name="总成本"
+                    ),
+                ),
+                (
+                    "reference_type",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("purchase_order", "采购订单"),
+                            ("sales_order", "销售订单"),
+                            ("production_order", "生产订单"),
+                            ("transfer_order", "调拨单"),
+                            ("adjustment", "库存调整"),
+                            ("return", "退货单"),
+                            ("manual", "手工录入"),
+                        ],
+                        max_length=20,
+                        verbose_name="关联类型",
+                    ),
+                ),
+                (
+                    "reference_id",
+                    models.CharField(blank=True, max_length=100, verbose_name="关联单据ID"),
+                ),
+                (
+                    "reference_number",
+                    models.CharField(blank=True, max_length=100, verbose_name="关联单据号"),
+                ),
+                ("batch_number", models.CharField(blank=True, max_length=100, verbose_name="批次号")),
+                ("serial_number", models.CharField(blank=True, max_length=100, verbose_name="序列号")),
+                ("expiry_date", models.DateField(blank=True, null=True, verbose_name="过期日期")),
+                ("transaction_date", models.DateTimeField(auto_now_add=True, verbose_name="交易时间")),
+                ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
-                'verbose_name': '库存交易',
-                'verbose_name_plural': '库存交易',
-                'db_table': 'inventory_transaction',
-                'ordering': ['-transaction_date'],
+                "verbose_name": "库存交易",
+                "verbose_name_plural": "库存交易",
+                "db_table": "inventory_transaction",
+                "ordering": ["-transaction_date"],
             },
         ),
         migrations.CreateModel(
-            name='Location',
+            name="Location",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('code', models.CharField(max_length=50, verbose_name='库位编码')),
-                ('name', models.CharField(max_length=100, verbose_name='库位名称')),
-                ('aisle', models.CharField(blank=True, max_length=20, verbose_name='通道')),
-                ('shelf', models.CharField(blank=True, max_length=20, verbose_name='货架')),
-                ('level', models.CharField(blank=True, max_length=20, verbose_name='层级')),
-                ('position', models.CharField(blank=True, max_length=20, verbose_name='位置')),
-                ('capacity', models.DecimalField(blank=True, decimal_places=2, max_digits=12, null=True, verbose_name='容量')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("code", models.CharField(max_length=50, verbose_name="库位编码")),
+                ("name", models.CharField(max_length=100, verbose_name="库位名称")),
+                ("aisle", models.CharField(blank=True, max_length=20, verbose_name="通道")),
+                ("shelf", models.CharField(blank=True, max_length=20, verbose_name="货架")),
+                ("level", models.CharField(blank=True, max_length=20, verbose_name="层级")),
+                ("position", models.CharField(blank=True, max_length=20, verbose_name="位置")),
+                (
+                    "capacity",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=12, null=True, verbose_name="容量"
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
             ],
             options={
-                'verbose_name': '库位',
-                'verbose_name_plural': '库位',
-                'db_table': 'inventory_location',
+                "verbose_name": "库位",
+                "verbose_name_plural": "库位",
+                "db_table": "inventory_location",
             },
         ),
         migrations.CreateModel(
-            name='StockAdjustment',
+            name="StockAdjustment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('adjustment_number', models.CharField(max_length=100, unique=True, verbose_name='调整单号')),
-                ('adjustment_type', models.CharField(choices=[('increase', '增加'), ('decrease', '减少'), ('correction', '纠正')], max_length=20, verbose_name='调整类型')),
-                ('reason', models.CharField(choices=[('count_error', '盘点差异'), ('damage', '损坏'), ('theft', '丢失'), ('expiry', '过期'), ('system_error', '系统错误'), ('other', '其他')], max_length=20, verbose_name='调整原因')),
-                ('original_quantity', models.DecimalField(decimal_places=4, max_digits=12, verbose_name='原数量')),
-                ('adjusted_quantity', models.DecimalField(decimal_places=4, max_digits=12, verbose_name='调整后数量')),
-                ('difference', models.DecimalField(decimal_places=4, max_digits=12, verbose_name='差异数量')),
-                ('is_approved', models.BooleanField(default=False, verbose_name='是否审核')),
-                ('approved_at', models.DateTimeField(blank=True, null=True, verbose_name='审核时间')),
-                ('notes', models.TextField(blank=True, verbose_name='备注')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "adjustment_number",
+                    models.CharField(max_length=100, unique=True, verbose_name="调整单号"),
+                ),
+                (
+                    "adjustment_type",
+                    models.CharField(
+                        choices=[("increase", "增加"), ("decrease", "减少"), ("correction", "纠正")],
+                        max_length=20,
+                        verbose_name="调整类型",
+                    ),
+                ),
+                (
+                    "reason",
+                    models.CharField(
+                        choices=[
+                            ("count_error", "盘点差异"),
+                            ("damage", "损坏"),
+                            ("theft", "丢失"),
+                            ("expiry", "过期"),
+                            ("system_error", "系统错误"),
+                            ("other", "其他"),
+                        ],
+                        max_length=20,
+                        verbose_name="调整原因",
+                    ),
+                ),
+                (
+                    "original_quantity",
+                    models.DecimalField(decimal_places=4, max_digits=12, verbose_name="原数量"),
+                ),
+                (
+                    "adjusted_quantity",
+                    models.DecimalField(decimal_places=4, max_digits=12, verbose_name="调整后数量"),
+                ),
+                (
+                    "difference",
+                    models.DecimalField(decimal_places=4, max_digits=12, verbose_name="差异数量"),
+                ),
+                ("is_approved", models.BooleanField(default=False, verbose_name="是否审核")),
+                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="审核时间")),
+                ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
-                'verbose_name': '库存调整',
-                'verbose_name_plural': '库存调整',
-                'db_table': 'inventory_adjustment',
+                "verbose_name": "库存调整",
+                "verbose_name_plural": "库存调整",
+                "db_table": "inventory_adjustment",
             },
         ),
         migrations.CreateModel(
-            name='StockCount',
+            name="StockCount",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('count_number', models.CharField(max_length=100, unique=True, verbose_name='盘点单号')),
-                ('count_type', models.CharField(choices=[('full', '全盘'), ('cycle', '循环盘点'), ('spot', '抽盘')], max_length=20, verbose_name='盘点类型')),
-                ('status', models.CharField(choices=[('planned', '计划中'), ('in_progress', '进行中'), ('completed', '已完成'), ('cancelled', '已取消')], default='planned', max_length=20, verbose_name='状态')),
-                ('planned_date', models.DateField(verbose_name='计划日期')),
-                ('start_date', models.DateTimeField(blank=True, null=True, verbose_name='开始时间')),
-                ('end_date', models.DateTimeField(blank=True, null=True, verbose_name='结束时间')),
-                ('notes', models.TextField(blank=True, verbose_name='备注')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "count_number",
+                    models.CharField(max_length=100, unique=True, verbose_name="盘点单号"),
+                ),
+                (
+                    "count_type",
+                    models.CharField(
+                        choices=[("full", "全盘"), ("cycle", "循环盘点"), ("spot", "抽盘")],
+                        max_length=20,
+                        verbose_name="盘点类型",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("planned", "计划中"),
+                            ("in_progress", "进行中"),
+                            ("completed", "已完成"),
+                            ("cancelled", "已取消"),
+                        ],
+                        default="planned",
+                        max_length=20,
+                        verbose_name="状态",
+                    ),
+                ),
+                ("planned_date", models.DateField(verbose_name="计划日期")),
+                ("start_date", models.DateTimeField(blank=True, null=True, verbose_name="开始时间")),
+                ("end_date", models.DateTimeField(blank=True, null=True, verbose_name="结束时间")),
+                ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
-                'verbose_name': '库存盘点',
-                'verbose_name_plural': '库存盘点',
-                'db_table': 'inventory_count',
+                "verbose_name": "库存盘点",
+                "verbose_name_plural": "库存盘点",
+                "db_table": "inventory_count",
             },
         ),
         migrations.CreateModel(
-            name='StockCountItem',
+            name="StockCountItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('system_quantity', models.DecimalField(decimal_places=4, max_digits=12, verbose_name='系统数量')),
-                ('counted_quantity', models.DecimalField(blank=True, decimal_places=4, max_digits=12, null=True, verbose_name='盘点数量')),
-                ('difference', models.DecimalField(decimal_places=4, default=0, max_digits=12, verbose_name='差异数量')),
-                ('batch_number', models.CharField(blank=True, max_length=100, verbose_name='批次号')),
-                ('expiry_date', models.DateField(blank=True, null=True, verbose_name='过期日期')),
-                ('count_time', models.DateTimeField(blank=True, null=True, verbose_name='盘点时间')),
-                ('notes', models.TextField(blank=True, verbose_name='备注')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "system_quantity",
+                    models.DecimalField(decimal_places=4, max_digits=12, verbose_name="系统数量"),
+                ),
+                (
+                    "counted_quantity",
+                    models.DecimalField(
+                        blank=True, decimal_places=4, max_digits=12, null=True, verbose_name="盘点数量"
+                    ),
+                ),
+                (
+                    "difference",
+                    models.DecimalField(
+                        decimal_places=4, default=0, max_digits=12, verbose_name="差异数量"
+                    ),
+                ),
+                ("batch_number", models.CharField(blank=True, max_length=100, verbose_name="批次号")),
+                ("expiry_date", models.DateField(blank=True, null=True, verbose_name="过期日期")),
+                ("count_time", models.DateTimeField(blank=True, null=True, verbose_name="盘点时间")),
+                ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
-                'verbose_name': '盘点明细',
-                'verbose_name_plural': '盘点明细',
-                'db_table': 'inventory_count_item',
+                "verbose_name": "盘点明细",
+                "verbose_name_plural": "盘点明细",
+                "db_table": "inventory_count_item",
             },
         ),
         migrations.CreateModel(
-            name='StockTransfer',
+            name="StockTransfer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('transfer_number', models.CharField(max_length=100, unique=True, verbose_name='调拨单号')),
-                ('status', models.CharField(choices=[('draft', '草稿'), ('pending', '待审核'), ('approved', '已审核'), ('in_transit', '在途'), ('completed', '已完成'), ('cancelled', '已取消')], default='draft', max_length=20, verbose_name='状态')),
-                ('transfer_date', models.DateField(verbose_name='调拨日期')),
-                ('expected_arrival_date', models.DateField(blank=True, null=True, verbose_name='预计到达日期')),
-                ('actual_arrival_date', models.DateField(blank=True, null=True, verbose_name='实际到达日期')),
-                ('approved_at', models.DateTimeField(blank=True, null=True, verbose_name='审核时间')),
-                ('notes', models.TextField(blank=True, verbose_name='备注')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "transfer_number",
+                    models.CharField(max_length=100, unique=True, verbose_name="调拨单号"),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("draft", "草稿"),
+                            ("pending", "待审核"),
+                            ("approved", "已审核"),
+                            ("in_transit", "在途"),
+                            ("completed", "已完成"),
+                            ("cancelled", "已取消"),
+                        ],
+                        default="draft",
+                        max_length=20,
+                        verbose_name="状态",
+                    ),
+                ),
+                ("transfer_date", models.DateField(verbose_name="调拨日期")),
+                (
+                    "expected_arrival_date",
+                    models.DateField(blank=True, null=True, verbose_name="预计到达日期"),
+                ),
+                (
+                    "actual_arrival_date",
+                    models.DateField(blank=True, null=True, verbose_name="实际到达日期"),
+                ),
+                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="审核时间")),
+                ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
-                'verbose_name': '库存调拨',
-                'verbose_name_plural': '库存调拨',
-                'db_table': 'inventory_transfer',
+                "verbose_name": "库存调拨",
+                "verbose_name_plural": "库存调拨",
+                "db_table": "inventory_transfer",
             },
         ),
         migrations.CreateModel(
-            name='StockTransferItem',
+            name="StockTransferItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('requested_quantity', models.DecimalField(decimal_places=4, max_digits=12, verbose_name='申请数量')),
-                ('shipped_quantity', models.DecimalField(decimal_places=4, default=0, max_digits=12, verbose_name='发货数量')),
-                ('received_quantity', models.DecimalField(decimal_places=4, default=0, max_digits=12, verbose_name='收货数量')),
-                ('unit_cost', models.DecimalField(decimal_places=2, default=0, max_digits=12, verbose_name='单位成本')),
-                ('batch_number', models.CharField(blank=True, max_length=100, verbose_name='批次号')),
-                ('expiry_date', models.DateField(blank=True, null=True, verbose_name='过期日期')),
-                ('notes', models.TextField(blank=True, verbose_name='备注')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "requested_quantity",
+                    models.DecimalField(decimal_places=4, max_digits=12, verbose_name="申请数量"),
+                ),
+                (
+                    "shipped_quantity",
+                    models.DecimalField(
+                        decimal_places=4, default=0, max_digits=12, verbose_name="发货数量"
+                    ),
+                ),
+                (
+                    "received_quantity",
+                    models.DecimalField(
+                        decimal_places=4, default=0, max_digits=12, verbose_name="收货数量"
+                    ),
+                ),
+                (
+                    "unit_cost",
+                    models.DecimalField(
+                        decimal_places=2, default=0, max_digits=12, verbose_name="单位成本"
+                    ),
+                ),
+                ("batch_number", models.CharField(blank=True, max_length=100, verbose_name="批次号")),
+                ("expiry_date", models.DateField(blank=True, null=True, verbose_name="过期日期")),
+                ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
-                'verbose_name': '调拨明细',
-                'verbose_name_plural': '调拨明细',
-                'db_table': 'inventory_transfer_item',
+                "verbose_name": "调拨明细",
+                "verbose_name_plural": "调拨明细",
+                "db_table": "inventory_transfer_item",
             },
         ),
         migrations.CreateModel(
-            name='Warehouse',
+            name="Warehouse",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=100, verbose_name='仓库名称')),
-                ('code', models.CharField(max_length=50, unique=True, verbose_name='仓库编码')),
-                ('warehouse_type', models.CharField(choices=[('main', '主仓库'), ('branch', '分仓库'), ('virtual', '虚拟仓库'), ('transit', '在途仓库'), ('damaged', '残次品仓库')], default='main', max_length=20, verbose_name='仓库类型')),
-                ('address', models.TextField(blank=True, verbose_name='仓库地址')),
-                ('phone', models.CharField(blank=True, max_length=20, verbose_name='联系电话')),
-                ('capacity', models.DecimalField(blank=True, decimal_places=2, max_digits=12, null=True, verbose_name='仓库容量')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("name", models.CharField(max_length=100, verbose_name="仓库名称")),
+                ("code", models.CharField(max_length=50, unique=True, verbose_name="仓库编码")),
+                (
+                    "warehouse_type",
+                    models.CharField(
+                        choices=[
+                            ("main", "主仓库"),
+                            ("branch", "分仓库"),
+                            ("virtual", "虚拟仓库"),
+                            ("transit", "在途仓库"),
+                            ("damaged", "残次品仓库"),
+                        ],
+                        default="main",
+                        max_length=20,
+                        verbose_name="仓库类型",
+                    ),
+                ),
+                ("address", models.TextField(blank=True, verbose_name="仓库地址")),
+                ("phone", models.CharField(blank=True, max_length=20, verbose_name="联系电话")),
+                (
+                    "capacity",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=12, null=True, verbose_name="仓库容量"
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
             ],
             options={
-                'verbose_name': '仓库',
-                'verbose_name_plural': '仓库',
-                'db_table': 'inventory_warehouse',
+                "verbose_name": "仓库",
+                "verbose_name_plural": "仓库",
+                "db_table": "inventory_warehouse",
             },
         ),
     ]

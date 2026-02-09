@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sales', '0009_quoteitem_specifications'),
+        ("sales", "0009_quoteitem_specifications"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='quoteitem',
-            name='unit',
-            field=models.CharField(blank=True, help_text='产品单位', max_length=50, verbose_name='单位'),
+            model_name="quoteitem",
+            name="unit",
+            field=models.CharField(blank=True, help_text="产品单位", max_length=50, verbose_name="单位"),
         ),
     ]

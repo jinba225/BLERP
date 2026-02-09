@@ -24,14 +24,12 @@ class RolePermission(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
 
-        required_roles = getattr(view, 'required_roles', None)
+        required_roles = getattr(view, "required_roles", None)
         if not required_roles:
             return True
 
         user_roles = UserRole.objects.filter(
-            user=request.user,
-            role__code__in=required_roles,
-            is_active=True
+            user=request.user, role__code__in=required_roles, is_active=True
         )
 
         return user_roles.exists()
@@ -48,7 +46,7 @@ class PermissionCodePermission(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
 
-        required_permissions = getattr(view, 'required_permissions', None)
+        required_permissions = getattr(view, "required_permissions", None)
         if not required_permissions:
             return True
 
@@ -56,8 +54,8 @@ class PermissionCodePermission(permissions.BasePermission):
             userrole__user=request.user,
             userrole__is_active=True,
             role__permissions__code__in=required_permissions,
-            is_active=True
-        ).select_related('role')
+            is_active=True,
+        ).select_related("role")
 
         return user_permissions.exists()
 
@@ -83,45 +81,39 @@ class DepartmentDataPermission(permissions.BasePermission):
 
     def _can_read(self, request, obj):
         """Check if user can read the object."""
-        admin_roles = ['admin', 'superadmin', 'manager']
+        admin_roles = ["admin", "superadmin", "manager"]
         has_admin_role = UserRole.objects.filter(
-            user=request.user,
-            role__code__in=admin_roles,
-            is_active=True
+            user=request.user, role__code__in=admin_roles, is_active=True
         ).exists()
 
         if has_admin_role:
             return True
 
-        if hasattr(obj, 'user'):
+        if hasattr(obj, "user"):
             return obj.user == request.user
 
-        if hasattr(obj, 'department'):
+        if hasattr(obj, "department"):
             return obj.department == request.user.department
 
         return False
 
     def _can_write(self, request, obj):
         """Check if user can modify the object."""
-        admin_roles = ['admin', 'superadmin']
+        admin_roles = ["admin", "superadmin"]
         has_admin_role = UserRole.objects.filter(
-            user=request.user,
-            role__code__in=admin_roles,
-            is_active=True
+            user=request.user, role__code__in=admin_roles, is_active=True
         ).exists()
 
         if has_admin_role:
             return True
 
-        if hasattr(obj, 'user'):
+        if hasattr(obj, "user"):
             return obj.user == request.user
 
-        if hasattr(obj, 'department'):
-            manager_roles = ['manager', 'department_manager']
+        if hasattr(obj, "department"):
+            manager_roles = ["manager", "department_manager"]
             is_manager = UserRole.objects.filter(
-                user=request.user,
-                role__code__in=manager_roles,
-                is_active=True
+                user=request.user, role__code__in=manager_roles, is_active=True
             ).exists()
 
             if is_manager and obj.department == request.user.department:
@@ -142,11 +134,9 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return request.user.is_authenticated
 
-        admin_roles = ['admin', 'superadmin']
+        admin_roles = ["admin", "superadmin"]
         has_admin_role = UserRole.objects.filter(
-            user=request.user,
-            role__code__in=admin_roles,
-            is_active=True
+            user=request.user, role__code__in=admin_roles, is_active=True
         ).exists()
 
         return has_admin_role
@@ -162,11 +152,11 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        if hasattr(obj, 'user'):
+        if hasattr(obj, "user"):
             return obj.user == request.user
-        elif hasattr(obj, 'owner'):
+        elif hasattr(obj, "owner"):
             return obj.owner == request.user
-        elif hasattr(obj, 'created_by'):
+        elif hasattr(obj, "created_by"):
             return obj.created_by == request.user
 
         return False

@@ -4,20 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sales', '0013_alter_salesorder_invoice_status'),
+        ("sales", "0013_alter_salesorder_invoice_status"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='quote',
-            name='tax_rate',
-            field=models.DecimalField(decimal_places=2, default=13, max_digits=5, verbose_name='税率(%)'),
+            model_name="quote",
+            name="tax_rate",
+            field=models.DecimalField(
+                decimal_places=2, default=13, max_digits=5, verbose_name="税率(%)"
+            ),
         ),
         migrations.AlterField(
-            model_name='salesorder',
-            name='tax_rate',
-            field=models.DecimalField(decimal_places=2, default=13, max_digits=5, verbose_name='税率(%)'),
+            model_name="salesorder",
+            name="tax_rate",
+            field=models.DecimalField(
+                decimal_places=2, default=13, max_digits=5, verbose_name="税率(%)"
+            ),
         ),
     ]

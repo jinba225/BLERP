@@ -69,24 +69,24 @@ except ImportError:
 
 __all__ = [
     # 基础类
-    'BaseAIProvider',
-    'AIResponse',
-    'ProviderException',
+    "BaseAIProvider",
+    "AIResponse",
+    "ProviderException",
     # 原有的 Provider
-    'OpenAIProvider',
-    'AnthropicProvider',
-    'BaiduProvider',
-    'MockAIProvider',
-    'DeepSeekProvider',
+    "OpenAIProvider",
+    "AnthropicProvider",
+    "BaiduProvider",
+    "MockAIProvider",
+    "DeepSeekProvider",
     # 新增 Provider
-    'GoogleProvider',
-    'AzureProvider',
+    "GoogleProvider",
+    "AzureProvider",
     # 'AWSBedrockProvider',  # 已禁用
-    'GroqProvider',
-    'HuggingFaceProvider',
+    "GroqProvider",
+    "HuggingFaceProvider",
     # 'CohereProvider',  # 已禁用
-    'MistralProvider',
-    'PerplexityProvider',
-    'TogetherProvider',
-    'OpenRouterProvider',
+    "MistralProvider",
+    "PerplexityProvider",
+    "TogetherProvider",
+    "OpenRouterProvider",
 ]

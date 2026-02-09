@@ -6,12 +6,7 @@
 from django.db.models import QuerySet
 
 
-def get_optimized_choices(
-    queryset,
-    value_field='id',
-    label_field='name',
-    filter_kwargs=None
-):
+def get_optimized_choices(queryset, value_field="id", label_field="name", filter_kwargs=None):
     """
     优化的下拉框数据查询 - 只查询必要字段
 
@@ -36,19 +31,14 @@ def get_optimized_choices(
         queryset = queryset.filter(**filter_kwargs)
 
     return list(
-        queryset
-        .filter(is_deleted=False)
+        queryset.filter(is_deleted=False)
         .only(value_field, label_field)
         .values_list(value_field, label_field)
     )
 
 
 def get_optimized_choices_with_order(
-    queryset,
-    value_field='id',
-    label_field='name',
-    order_by=None,
-    filter_kwargs=None
+    queryset, value_field="id", label_field="name", order_by=None, filter_kwargs=None
 ):
     """
     优化的下拉框数据查询 - 支持自定义排序
@@ -105,10 +95,7 @@ def batch_fetch_related(queryset, *relations):
 
 
 def optimize_queryset_for_list(
-    queryset,
-    select_related_fields=None,
-    prefetch_related_fields=None,
-    only_fields=None
+    queryset, select_related_fields=None, prefetch_related_fields=None, only_fields=None
 ):
     """
     综合优化QuerySet用于列表展示

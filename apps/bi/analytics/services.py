@@ -114,7 +114,7 @@ class TrendPredictionService:
             
             # 库存状态
             stock_status = 'out' if predicted_stock == 0 else 'low' if predicted_stock < 10 else 'normal'
-            days_of_stock = int(current_stock / avg_daily_sales) if avg_daily_sales > 0 else 999)
+            days_of_stock = int(current_stock / avg_daily_sales) if avg_daily_sales > 0 else 999
             
             prediction = self._create_trend_prediction(
                 platform=shop.platform if hasattr(shop, 'platform') else None,
@@ -441,7 +441,7 @@ class ReportTemplateService:
                 {'field': 'safety_stock', 'label': '安全库存'},
                 {'field': 'days_of_stock', 'label': '可销天数'},
                 {'field': 'turnover_days', 'label': '周转天数'},
-                {'field': 'stock_value', label': '库存价值'},
+                {"field": "stock_value", "label": "库存价值"},
             ],
             group_by=['stock_status'],
             sort_by=['-stock_value'],
@@ -564,9 +564,10 @@ class ReportTemplateService:
                 'total_amount',
                 'avg_order_value',
                 'report_date'
-            ])
-            
-        elif template.report_type == 'inventory':
+            ]
+        )
+
+        elif template.report_type == "inventory":
             from .services import InventoryReportService
             service = InventoryReportService()
             

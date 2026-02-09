@@ -4,15 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sales', '0012_remove_print_templates_moved_to_core'),
+        ("sales", "0012_remove_print_templates_moved_to_core"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='salesorder',
-            name='invoice_status',
-            field=models.CharField(choices=[('not_invoiced', '未开票'), ('partial_invoiced', '部分开票'), ('invoiced', '已开票'), ('red_flushed', '红冲')], default='not_invoiced', max_length=20, verbose_name='开票状态'),
+            model_name="salesorder",
+            name="invoice_status",
+            field=models.CharField(
+                choices=[
+                    ("not_invoiced", "未开票"),
+                    ("partial_invoiced", "部分开票"),
+                    ("invoiced", "已开票"),
+                    ("red_flushed", "红冲"),
+                ],
+                default="not_invoiced",
+                max_length=20,
+                verbose_name="开票状态",
+            ),
         ),
     ]

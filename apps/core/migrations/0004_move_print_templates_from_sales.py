@@ -7,11 +7,10 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0003_notification'),
-        ('sales', '0011_defaulttemplatemapping_alter_printtemplate_options_and_more'),
+        ("core", "0003_notification"),
+        ("sales", "0011_defaulttemplatemapping_alter_printtemplate_options_and_more"),
     ]
 
     operations = [
@@ -19,60 +18,239 @@ class Migration(migrations.Migration):
             state_operations=[
                 # State: 告诉 Django 这些模型现在在 core app 中
                 migrations.CreateModel(
-                    name='PrintTemplate',
+                    name="PrintTemplate",
                     fields=[
-                        ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                        ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                        ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                        ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                        ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                        ('name', models.CharField(max_length=100, verbose_name='模板名称')),
-                        ('template_category', models.CharField(choices=[('sales', '📊 销售类'), ('purchase', '🛒 采购类'), ('inventory', '📦 库存类'), ('finance', '💰 财务类'), ('other', '📋 其他类')], db_index=True, default='sales', help_text='模板所属的大类，同类别的模板可以共享使用', max_length=20, verbose_name='模板类别')),
-                        ('suitable_for', models.JSONField(blank=True, default=list, help_text='JSON数组格式，例如：["quote", "sales_order"]。用于在打印时优先显示更相关的模板', verbose_name='适用单据类型')),
-                        ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                        ('company_name', models.CharField(default='BetterLaser 激光科技有限公司', max_length=200, verbose_name='公司名称')),
-                        ('company_address', models.CharField(blank=True, max_length=500, verbose_name='公司地址')),
-                        ('company_phone', models.CharField(blank=True, max_length=50, verbose_name='联系电话')),
-                        ('company_email', models.CharField(blank=True, max_length=100, verbose_name='电子邮箱')),
-                        ('company_logo', models.ImageField(blank=True, null=True, upload_to='print_templates/logos/', verbose_name='公司Logo')),
-                        ('layout_config', models.JSONField(default=dict, verbose_name='布局配置')),
-                        ('custom_css', models.TextField(blank=True, help_text='自定义CSS样式', verbose_name='自定义样式')),
-                        ('notes', models.TextField(blank=True, verbose_name='备注')),
-                        ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                        ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                        ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        (
+                            "created_at",
+                            models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                        ),
+                        ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                        ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                        (
+                            "deleted_at",
+                            models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                        ),
+                        ("name", models.CharField(max_length=100, verbose_name="模板名称")),
+                        (
+                            "template_category",
+                            models.CharField(
+                                choices=[
+                                    ("sales", "📊 销售类"),
+                                    ("purchase", "🛒 采购类"),
+                                    ("inventory", "📦 库存类"),
+                                    ("finance", "💰 财务类"),
+                                    ("other", "📋 其他类"),
+                                ],
+                                db_index=True,
+                                default="sales",
+                                help_text="模板所属的大类，同类别的模板可以共享使用",
+                                max_length=20,
+                                verbose_name="模板类别",
+                            ),
+                        ),
+                        (
+                            "suitable_for",
+                            models.JSONField(
+                                blank=True,
+                                default=list,
+                                help_text='JSON数组格式，例如：["quote", "sales_order"]。用于在打印时优先显示更相关的模板',
+                                verbose_name="适用单据类型",
+                            ),
+                        ),
+                        ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                        (
+                            "company_name",
+                            models.CharField(
+                                default="BetterLaser 激光科技有限公司", max_length=200, verbose_name="公司名称"
+                            ),
+                        ),
+                        (
+                            "company_address",
+                            models.CharField(blank=True, max_length=500, verbose_name="公司地址"),
+                        ),
+                        (
+                            "company_phone",
+                            models.CharField(blank=True, max_length=50, verbose_name="联系电话"),
+                        ),
+                        (
+                            "company_email",
+                            models.CharField(blank=True, max_length=100, verbose_name="电子邮箱"),
+                        ),
+                        (
+                            "company_logo",
+                            models.ImageField(
+                                blank=True,
+                                null=True,
+                                upload_to="print_templates/logos/",
+                                verbose_name="公司Logo",
+                            ),
+                        ),
+                        ("layout_config", models.JSONField(default=dict, verbose_name="布局配置")),
+                        (
+                            "custom_css",
+                            models.TextField(
+                                blank=True, help_text="自定义CSS样式", verbose_name="自定义样式"
+                            ),
+                        ),
+                        ("notes", models.TextField(blank=True, verbose_name="备注")),
+                        (
+                            "created_by",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                related_name="%(class)s_created",
+                                to=settings.AUTH_USER_MODEL,
+                                verbose_name="创建人",
+                            ),
+                        ),
+                        (
+                            "deleted_by",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                related_name="%(class)s_deleted",
+                                to=settings.AUTH_USER_MODEL,
+                                verbose_name="删除人",
+                            ),
+                        ),
+                        (
+                            "updated_by",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                related_name="%(class)s_updated",
+                                to=settings.AUTH_USER_MODEL,
+                                verbose_name="更新人",
+                            ),
+                        ),
                     ],
                     options={
-                        'verbose_name': '打印模板',
-                        'verbose_name_plural': '打印模板',
-                        'db_table': 'core_print_template',
-                        'ordering': ['template_category', 'name'],
+                        "verbose_name": "打印模板",
+                        "verbose_name_plural": "打印模板",
+                        "db_table": "core_print_template",
+                        "ordering": ["template_category", "name"],
                     },
                 ),
                 migrations.CreateModel(
-                    name='DefaultTemplateMapping',
+                    name="DefaultTemplateMapping",
                     fields=[
-                        ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                        ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                        ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                        ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                        ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                        ('document_type', models.CharField(choices=[('quote_domestic', '报价单-国内'), ('quote_overseas', '报价单-海外'), ('sales_order', '销售订单'), ('delivery', '发货单'), ('sales_return', '销售退货'), ('purchase_order', '采购订单'), ('purchase_receipt', '采购入库'), ('purchase_return', '采购退货'), ('stock_in', '入库单'), ('stock_out', '出库单'), ('stock_transfer', '调拨单'), ('stock_check', '盘点单'), ('invoice', '发票'), ('payment', '付款单'), ('receipt', '收款单')], db_index=True, help_text='为该单据类型设置默认打印模板', max_length=50, unique=True, verbose_name='单据类型')),
-                        ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                        ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                        ('template', models.ForeignKey(blank=True, help_text='该单据类型的默认模板，打印时自动选中', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='default_for_documents', to='core.printtemplate', verbose_name='默认模板')),
-                        ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        (
+                            "created_at",
+                            models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                        ),
+                        ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                        ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                        (
+                            "deleted_at",
+                            models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                        ),
+                        (
+                            "document_type",
+                            models.CharField(
+                                choices=[
+                                    ("quote_domestic", "报价单-国内"),
+                                    ("quote_overseas", "报价单-海外"),
+                                    ("sales_order", "销售订单"),
+                                    ("delivery", "发货单"),
+                                    ("sales_return", "销售退货"),
+                                    ("purchase_order", "采购订单"),
+                                    ("purchase_receipt", "采购入库"),
+                                    ("purchase_return", "采购退货"),
+                                    ("stock_in", "入库单"),
+                                    ("stock_out", "出库单"),
+                                    ("stock_transfer", "调拨单"),
+                                    ("stock_check", "盘点单"),
+                                    ("invoice", "发票"),
+                                    ("payment", "付款单"),
+                                    ("receipt", "收款单"),
+                                ],
+                                db_index=True,
+                                help_text="为该单据类型设置默认打印模板",
+                                max_length=50,
+                                unique=True,
+                                verbose_name="单据类型",
+                            ),
+                        ),
+                        (
+                            "created_by",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                related_name="%(class)s_created",
+                                to=settings.AUTH_USER_MODEL,
+                                verbose_name="创建人",
+                            ),
+                        ),
+                        (
+                            "deleted_by",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                related_name="%(class)s_deleted",
+                                to=settings.AUTH_USER_MODEL,
+                                verbose_name="删除人",
+                            ),
+                        ),
+                        (
+                            "template",
+                            models.ForeignKey(
+                                blank=True,
+                                help_text="该单据类型的默认模板，打印时自动选中",
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                related_name="default_for_documents",
+                                to="core.printtemplate",
+                                verbose_name="默认模板",
+                            ),
+                        ),
+                        (
+                            "updated_by",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                related_name="%(class)s_updated",
+                                to=settings.AUTH_USER_MODEL,
+                                verbose_name="更新人",
+                            ),
+                        ),
                     ],
                     options={
-                        'verbose_name': '默认模板配置',
-                        'verbose_name_plural': '默认模板配置',
-                        'db_table': 'core_default_template_mapping',
-                        'ordering': ['document_type'],
+                        "verbose_name": "默认模板配置",
+                        "verbose_name_plural": "默认模板配置",
+                        "db_table": "core_default_template_mapping",
+                        "ordering": ["document_type"],
                     },
                 ),
                 migrations.AddIndex(
-                    model_name='printtemplate',
-                    index=models.Index(fields=['template_category', 'is_active'], name='core_print__templat_e92d33_idx'),
+                    model_name="printtemplate",
+                    index=models.Index(
+                        fields=["template_category", "is_active"],
+                        name="core_print__templat_e92d33_idx",
+                    ),
                 ),
             ],
             database_operations=[

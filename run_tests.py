@@ -20,13 +20,14 @@ BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 
 # 添加 apps/ 到路径
-APPS_DIR = BASE_DIR / 'apps'
+APPS_DIR = BASE_DIR / "apps"
 sys.path.insert(0, str(APPS_DIR))
 
 # 设置 Django 环境
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_erp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 
 import django
+
 django.setup()
 
 import unittest
@@ -55,27 +56,15 @@ def run_tests(test_labels=None, verbosity=2, keepdb=False):
     return failures
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='Django ERP 测试运行器')
+    parser = argparse.ArgumentParser(description="Django ERP 测试运行器")
+    parser.add_argument("labels", nargs="*", help="测试标签（应用名、模块名或测试类名）")
     parser.add_argument(
-        'labels',
-        nargs='*',
-        help='测试标签（应用名、模块名或测试类名）'
+        "-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3], help="输出详细程度"
     )
-    parser.add_argument(
-        '-v', '--verbosity',
-        type=int,
-        default=2,
-        choices=[0, 1, 2, 3],
-        help='输出详细程度'
-    )
-    parser.add_argument(
-        '-k', '--keepdb',
-        action='store_true',
-        help='保留测试数据库'
-    )
+    parser.add_argument("-k", "--keepdb", action="store_true", help="保留测试数据库")
 
     args = parser.parse_args()
 
@@ -85,7 +74,7 @@ if __name__ == '__main__':
     test_labels = []
     for label in args.labels:
         # 移除 'apps.' 前缀（如果有）
-        if label.startswith('apps.'):
+        if label.startswith("apps."):
             label = label[5:]
         test_labels.append(label)
 
@@ -93,10 +82,6 @@ if __name__ == '__main__':
     print(f"📂 应用目录: {APPS_DIR}")
     print()
 
-    failures = run_tests(
-        test_labels=test_labels,
-        verbosity=args.verbosity,
-        keepdb=args.keepdb
-    )
+    failures = run_tests(test_labels=test_labels, verbosity=args.verbosity, keepdb=args.keepdb)
 
     sys.exit(bool(failures))

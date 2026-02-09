@@ -7,7 +7,7 @@ from decimal import Decimal
 register = template.Library()
 
 
-@register.filter(name='mul')
+@register.filter(name="mul")
 def multiply(value, arg):
     """
     Multiply the value by the argument.
@@ -21,7 +21,7 @@ def multiply(value, arg):
         return 0
 
 
-@register.filter(name='div')
+@register.filter(name="div")
 def divide(value, arg):
     """
     Divide the value by the argument.
@@ -35,7 +35,7 @@ def divide(value, arg):
         return 0
 
 
-@register.filter(name='percentage')
+@register.filter(name="percentage")
 def percentage(value, decimals=2):
     """
     Format value as percentage.

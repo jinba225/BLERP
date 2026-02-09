@@ -11,11 +11,11 @@ from .dingtalk_channel import DingTalkChannel
 from .telegram_channel import TelegramChannel
 
 __all__ = [
-    'BaseChannel',
-    'IncomingMessage',
-    'OutgoingMessage',
-    'ChannelAdapter',
-    'WeChatChannel',
-    'DingTalkChannel',
-    'TelegramChannel',
+    "BaseChannel",
+    "IncomingMessage",
+    "OutgoingMessage",
+    "ChannelAdapter",
+    "WeChatChannel",
+    "DingTalkChannel",
+    "TelegramChannel",
 ]

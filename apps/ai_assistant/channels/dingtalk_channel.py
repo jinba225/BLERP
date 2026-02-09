@@ -52,8 +52,8 @@ class DingTalkChannel(BaseChannel):
         """
         try:
             # 钉钉使用HMAC-SHA256签名验证
-            timestamp = request.GET.get('timestamp', '')
-            sign = request.GET.get('sign', '')
+            timestamp = request.GET.get("timestamp", "")
+            sign = request.GET.get("sign", "")
 
             # 简化验证
             return bool(timestamp and sign)
@@ -74,32 +74,32 @@ class DingTalkChannel(BaseChannel):
         """
         try:
             # 解析请求体
-            body = json.loads(request.body.decode('utf-8'))
+            body = json.loads(request.body.decode("utf-8"))
 
             # 获取消息内容
-            text = body.get('text', {}).get('content', '')
+            text = body.get("text", {}).get("content", "")
             if not text:
                 return None
 
             # 获取发送者信息
-            sender_id = body.get('senderId', '')
-            sender_nick = body.get('senderNick', 'Unknown')
+            sender_id = body.get("senderId", "")
+            sender_nick = body.get("senderNick", "Unknown")
 
             # 获取会话ID
-            conversation_id = body.get('conversationId', f"dingtalk_{sender_id}")
+            conversation_id = body.get("conversationId", f"dingtalk_{sender_id}")
 
             return IncomingMessage(
-                message_id=body.get('msgId', ''),
+                message_id=body.get("msgId", ""),
                 channel=self.channel_name,
                 external_user_id=sender_id,
                 content=text,
-                timestamp=datetime.fromtimestamp(body.get('createAt', 0) / 1000),
+                timestamp=datetime.fromtimestamp(body.get("createAt", 0) / 1000),
                 message_type="text",
                 conversation_id=conversation_id,
                 raw_data={
-                    'sender_nick': sender_nick,
-                    'conversation_type': body.get('conversationType', ''),
-                }
+                    "sender_nick": sender_nick,
+                    "conversation_type": body.get("conversationType", ""),
+                },
             )
 
         except Exception as e:
@@ -129,24 +129,17 @@ class DingTalkChannel(BaseChannel):
             data = {
                 "agent_id": self.agent_id,
                 "userid_list": external_user_id,
-                "msg": {
-                    "msgtype": "text",
-                    "text": {
-                        "content": message.content
-                    }
-                }
+                "msg": {"msgtype": "text", "text": {"content": message.content}},
             }
 
-            params = {
-                "access_token": access_token
-            }
+            params = {"access_token": access_token}
 
             # 发送请求
             response = requests.post(url, json=data, params=params, timeout=10)
             response.raise_for_status()
 
             result = response.json()
-            return result.get('errcode') == 0
+            return result.get("errcode") == 0
 
         except Exception as e:
             print(f"发送钉钉消息失败: {str(e)}")
@@ -161,32 +154,26 @@ class DingTalkChannel(BaseChannel):
         """
         try:
             # 从Redis缓存中获取
-            cached_token = AIAssistantCache.get_access_token('dingtalk', self.app_key)
+            cached_token = AIAssistantCache.get_access_token("dingtalk", self.app_key)
             if cached_token:
                 return cached_token
 
             # 缓存中没有，请求新token
             url = "https://oapi.dingtalk.com/gettoken"
-            params = {
-                "appkey": self.app_key,
-                "appsecret": self.app_secret
-            }
+            params = {"appkey": self.app_key, "appsecret": self.app_secret}
 
             response = requests.get(url, params=params, timeout=10)
             response.raise_for_status()
 
             result = response.json()
-            if result.get('errcode') == 0:
-                access_token = result.get('access_token')
-                expires_in = result.get('expires_in', 7200)
+            if result.get("errcode") == 0:
+                access_token = result.get("access_token")
+                expires_in = result.get("expires_in", 7200)
 
                 # 存入Redis缓存（提前5分钟过期）
                 cache_timeout = expires_in - 300
                 AIAssistantCache.set_access_token(
-                    'dingtalk',
-                    self.app_key,
-                    access_token,
-                    timeout=cache_timeout
+                    "dingtalk", self.app_key, access_token, timeout=cache_timeout
                 )
 
                 return access_token

@@ -5,28 +5,50 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('customers', '0003_alter_customer_payment_terms'),
-        ('sales', '0013_alter_salesorder_invoice_status'),
-        ('suppliers', '0003_alter_supplier_payment_terms'),
-        ('finance', '0007_supplierprepayment_customerprepayment'),
+        ("customers", "0003_alter_customer_payment_terms"),
+        ("sales", "0013_alter_salesorder_invoice_status"),
+        ("suppliers", "0003_alter_supplier_payment_terms"),
+        ("finance", "0007_supplierprepayment_customerprepayment"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='supplieraccount',
-            name='customer',
-            field=models.ForeignKey(blank=True, help_text='销售退货退款时使用', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='refund_accounts', to='customers.customer', verbose_name='客户（退款）'),
+            model_name="supplieraccount",
+            name="customer",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="销售退货退款时使用",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="refund_accounts",
+                to="customers.customer",
+                verbose_name="客户（退款）",
+            ),
         ),
         migrations.AddField(
-            model_name='supplieraccount',
-            name='sales_return',
-            field=models.ForeignKey(blank=True, help_text='销售退货退款时使用', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='supplier_accounts', to='sales.salesreturn', verbose_name='销售退货单'),
+            model_name="supplieraccount",
+            name="sales_return",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="销售退货退款时使用",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="supplier_accounts",
+                to="sales.salesreturn",
+                verbose_name="销售退货单",
+            ),
         ),
         migrations.AlterField(
-            model_name='supplieraccount',
-            name='supplier',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='accounts', to='suppliers.supplier', verbose_name='供应商'),
+            model_name="supplieraccount",
+            name="supplier",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="accounts",
+                to="suppliers.supplier",
+                verbose_name="供应商",
+            ),
         ),
     ]

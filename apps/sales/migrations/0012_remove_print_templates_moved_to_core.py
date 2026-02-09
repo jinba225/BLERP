@@ -5,10 +5,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sales', '0011_defaulttemplatemapping_alter_printtemplate_options_and_more'),
-        ('core', '0004_move_print_templates_from_sales'),
+        ("sales", "0011_defaulttemplatemapping_alter_printtemplate_options_and_more"),
+        ("core", "0004_move_print_templates_from_sales"),
     ]
 
     operations = [
@@ -16,22 +15,22 @@ class Migration(migrations.Migration):
             state_operations=[
                 # State: 从 sales app 的状态中移除这两个模型
                 migrations.RemoveField(
-                    model_name='printtemplate',
-                    name='created_by',
+                    model_name="printtemplate",
+                    name="created_by",
                 ),
                 migrations.RemoveField(
-                    model_name='printtemplate',
-                    name='deleted_by',
+                    model_name="printtemplate",
+                    name="deleted_by",
                 ),
                 migrations.RemoveField(
-                    model_name='printtemplate',
-                    name='updated_by',
+                    model_name="printtemplate",
+                    name="updated_by",
                 ),
                 migrations.DeleteModel(
-                    name='DefaultTemplateMapping',
+                    name="DefaultTemplateMapping",
                 ),
                 migrations.DeleteModel(
-                    name='PrintTemplate',
+                    name="PrintTemplate",
                 ),
             ],
             database_operations=[

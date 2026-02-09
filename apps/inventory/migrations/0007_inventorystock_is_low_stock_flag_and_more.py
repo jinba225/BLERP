@@ -5,21 +5,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory', '0006_inventorystock_inventory_s_quantit_287c3e_idx_and_more'),
-        ('products', '0004_add_default_unit'),
+        ("inventory", "0006_inventorystock_inventory_s_quantit_287c3e_idx_and_more"),
+        ("products", "0004_add_default_unit"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='inventorystock',
-            name='is_low_stock_flag',
-            field=models.BooleanField(db_index=True, default=False, help_text='冗余字段，用于优化查询性能', verbose_name='是否低库存'),
+            model_name="inventorystock",
+            name="is_low_stock_flag",
+            field=models.BooleanField(
+                db_index=True, default=False, help_text="冗余字段，用于优化查询性能", verbose_name="是否低库存"
+            ),
         ),
         migrations.AddIndex(
-            model_name='inventorystock',
-            index=models.Index(fields=['is_low_stock_flag'], name='inventory_s_is_low__fdb1c3_idx'),
+            model_name="inventorystock",
+            index=models.Index(fields=["is_low_stock_flag"], name="inventory_s_is_low__fdb1c3_idx"),
         ),
     ]

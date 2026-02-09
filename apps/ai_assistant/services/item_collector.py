@@ -11,14 +11,16 @@ from enum import Enum
 
 class CollectionStatus(Enum):
     """收集状态"""
+
     COLLECTING = "collecting"  # 收集中
-    COMPLETED = "completed"    # 已完成
-    CANCELLED = "cancelled"    # 已取消
+    COMPLETED = "completed"  # 已完成
+    CANCELLED = "cancelled"  # 已取消
 
 
 @dataclass
 class ItemLine:
     """明细行"""
+
     product_id: Optional[int] = None
     product_name: Optional[str] = None
     quantity: Optional[float] = None
@@ -28,11 +30,7 @@ class ItemLine:
 
     def is_valid(self) -> bool:
         """验证明细行是否完整"""
-        return (
-            self.product_id is not None and
-            self.quantity is not None and
-            self.quantity > 0
-        )
+        return self.product_id is not None and self.quantity is not None and self.quantity > 0
 
     def to_dict(self) -> Dict[str, Any]:
         """转换为字典"""
@@ -103,8 +101,11 @@ class ItemCollector:
             product_name=item_dict.get("product_name"),
             quantity=item_dict.get("quantity"),
             unit_price=item_dict.get("unit_price"),
-            extra_data={k: v for k, v in item_dict.items()
-                       if k not in ["product_id", "product_name", "quantity", "unit_price"]}
+            extra_data={
+                k: v
+                for k, v in item_dict.items()
+                if k not in ["product_id", "product_name", "quantity", "unit_price"]
+            },
         )
         return self.add_item(item)
 
@@ -206,7 +207,9 @@ class ItemCollector:
         }
 
     @classmethod
-    def from_context(cls, context_data: Dict[str, Any], context_key: str = "item_collection") -> 'ItemCollector':
+    def from_context(
+        cls, context_data: Dict[str, Any], context_key: str = "item_collection"
+    ) -> "ItemCollector":
         """
         从上下文字典恢复收集器
 
@@ -227,8 +230,11 @@ class ItemCollector:
                     product_name=item.get("product_name"),
                     quantity=item.get("quantity"),
                     unit_price=item.get("unit_price"),
-                    extra_data={k: v for k, v in item.items()
-                               if k not in ["product_id", "product_name", "quantity", "unit_price"]}
+                    extra_data={
+                        k: v
+                        for k, v in item.items()
+                        if k not in ["product_id", "product_name", "quantity", "unit_price"]
+                    },
                 )
                 for item in context_data.get("items", [])
             ]
@@ -240,8 +246,11 @@ class ItemCollector:
                     product_name=current_item_data.get("product_name"),
                     quantity=current_item_data.get("quantity"),
                     unit_price=current_item_data.get("unit_price"),
-                    extra_data={k: v for k, v in current_item_data.items()
-                               if k not in ["product_id", "product_name", "quantity", "unit_price"]}
+                    extra_data={
+                        k: v
+                        for k, v in current_item_data.items()
+                        if k not in ["product_id", "product_name", "quantity", "unit_price"]
+                    },
                 )
 
         return collector
@@ -270,13 +279,13 @@ class ItemCollectionHelper:
         result = {}
 
         # 提取数量
-        quantity_pattern = r'(\d+(?:\.\d+)?)\s*(个|台|件|套|箱|kg|千克)'
+        quantity_pattern = r"(\d+(?:\.\d+)?)\s*(个|台|件|套|箱|kg|千克)"
         quantity_match = re.search(quantity_pattern, user_input)
         if quantity_match:
             result["quantity"] = float(quantity_match.group(1))
 
         # 提取单价
-        price_pattern = r'(?:@|单价|价格)\s*:?(\d+(?:\.\d+)?)\s*(元|块|USD)?'
+        price_pattern = r"(?:@|单价|价格)\s*:?(\d+(?:\.\d+)?)\s*(元|块|USD)?"
         price_match = re.search(price_pattern, user_input)
         if price_match:
             result["unit_price"] = float(price_match.group(1))
@@ -291,7 +300,9 @@ class ItemCollectionHelper:
         return result
 
     @staticmethod
-    def validate_items(items: List[Dict[str, Any]], required_fields: List[str] = None) -> tuple[bool, str]:
+    def validate_items(
+        items: List[Dict[str, Any]], required_fields: List[str] = None
+    ) -> tuple[bool, str]:
         """
         验证明细列表
 

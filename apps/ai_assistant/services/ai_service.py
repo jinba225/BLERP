@@ -31,10 +31,10 @@ class AIService:
 
     # Provider映射表
     PROVIDER_MAP = {
-        'openai': OpenAIProvider,
-        'anthropic': AnthropicProvider,
-        'baidu': BaiduProvider,
-        'mock': MockAIProvider,  # 测试用Mock Provider
+        "openai": OpenAIProvider,
+        "anthropic": AnthropicProvider,
+        "baidu": BaiduProvider,
+        "mock": MockAIProvider,  # 测试用Mock Provider
         # 其他Provider可以后续添加
     }
 
@@ -59,10 +59,11 @@ class AIService:
 
     def _get_default_model_config(self) -> AIModelConfig:
         """获取默认的模型配置"""
-        config = AIModelConfig.objects.filter(
-            is_active=True,
-            is_deleted=False
-        ).order_by('-is_default', '-priority').first()
+        config = (
+            AIModelConfig.objects.filter(is_active=True, is_deleted=False)
+            .order_by("-is_default", "-priority")
+            .first()
+        )
 
         if not config:
             raise ValueError("没有可用的AI模型配置，请先在系统中添加配置")
@@ -77,8 +78,8 @@ class AIService:
             raise ValueError(f"不支持的Provider类型: {self.model_config.provider}")
 
         # Mock Provider 不需要解密API Key
-        if self.model_config.provider == 'mock':
-            api_key = 'mock-api-key'
+        if self.model_config.provider == "mock":
+            api_key = "mock-api-key"
         else:
             # 解密API Key
             try:
@@ -96,10 +97,13 @@ class AIService:
             timeout=self.model_config.timeout,
         )
 
-    def chat(self, message: str,
-             conversation_id: Optional[str] = None,
-             channel: str = 'web',
-             tools: Optional[List[Dict[str, Any]]] = None) -> AIResponse:
+    def chat(
+        self,
+        message: str,
+        conversation_id: Optional[str] = None,
+        channel: str = "web",
+        tools: Optional[List[Dict[str, Any]]] = None,
+    ) -> AIResponse:
         """
         发送对话消息
 
@@ -116,11 +120,7 @@ class AIService:
         conversation = self._get_or_create_conversation(conversation_id, channel)
 
         # 记录用户消息
-        self._save_message(
-            conversation=conversation,
-            role='user',
-            content=message
-        )
+        self._save_message(conversation=conversation, role="user", content=message)
 
         # 获取上下文消息
         context_messages = self._get_context_messages(conversation)
@@ -136,11 +136,11 @@ class AIService:
         # 记录AI响应
         self._save_message(
             conversation=conversation,
-            role='assistant',
+            role="assistant",
             content=response.content,
             tool_calls=response.tool_calls,
             tokens_used=response.tokens_used,
-            response_time=response_time
+            response_time=response_time,
         )
 
         # 更新会话信息
@@ -156,10 +156,13 @@ class AIService:
 
         return response
 
-    def stream_chat(self, message: str,
-                   conversation_id: Optional[str] = None,
-                   channel: str = 'web',
-                   tools: Optional[List[Dict[str, Any]]] = None) -> Iterator[str]:
+    def stream_chat(
+        self,
+        message: str,
+        conversation_id: Optional[str] = None,
+        channel: str = "web",
+        tools: Optional[List[Dict[str, Any]]] = None,
+    ) -> Iterator[str]:
         """
         流式对话
 
@@ -176,11 +179,7 @@ class AIService:
         conversation = self._get_or_create_conversation(conversation_id, channel)
 
         # 记录用户消息
-        self._save_message(
-            conversation=conversation,
-            role='user',
-            content=message
-        )
+        self._save_message(conversation=conversation, role="user", content=message)
 
         # 获取上下文消息
         context_messages = self._get_context_messages(conversation)
@@ -199,9 +198,9 @@ class AIService:
         # 记录完整的AI响应
         self._save_message(
             conversation=conversation,
-            role='assistant',
+            role="assistant",
             content=full_response,
-            response_time=response_time
+            response_time=response_time,
         )
 
         # 更新会话信息
@@ -214,15 +213,14 @@ class AIService:
         self.model_config.last_used_at = timezone.now()
         self.model_config.save()
 
-    def _get_or_create_conversation(self, conversation_id: Optional[str],
-                                    channel: str) -> AIConversation:
+    def _get_or_create_conversation(
+        self, conversation_id: Optional[str], channel: str
+    ) -> AIConversation:
         """获取或创建会话"""
         if conversation_id:
             # 尝试获取现有会话
             conversation = AIConversation.objects.filter(
-                conversation_id=conversation_id,
-                user=self.user,
-                is_deleted=False
+                conversation_id=conversation_id, user=self.user, is_deleted=False
             ).first()
 
             if conversation:
@@ -234,8 +232,8 @@ class AIService:
             conversation_id=conversation_id,
             user=self.user,
             channel=channel,
-            status='active',
-            created_by=self.user
+            status="active",
+            created_by=self.user,
         )
 
         return conversation
@@ -244,8 +242,9 @@ class AIService:
         """生成会话ID"""
         return f"conv_{uuid.uuid4().hex[:16]}"
 
-    def _get_context_messages(self, conversation: AIConversation,
-                             limit: int = 10) -> List[Dict[str, str]]:
+    def _get_context_messages(
+        self, conversation: AIConversation, limit: int = 10
+    ) -> List[Dict[str, str]]:
         """
         获取上下文消息
 
@@ -256,9 +255,7 @@ class AIService:
         Returns:
             消息列表
         """
-        messages = conversation.messages.filter(
-            is_deleted=False
-        ).order_by('-created_at')[:limit]
+        messages = conversation.messages.filter(is_deleted=False).order_by("-created_at")[:limit]
 
         # 反转顺序（最早的在前）
         messages = list(reversed(messages))
@@ -266,29 +263,32 @@ class AIService:
         context = []
         for msg in messages:
             # 跳过最后一条用户消息（因为会在外部添加）
-            if msg == messages[-1] and msg.role == 'user':
+            if msg == messages[-1] and msg.role == "user":
                 continue
 
-            context.append({
-                "role": msg.role,
-                "content": msg.content
-            })
+            context.append({"role": msg.role, "content": msg.content})
 
         return context
 
-    def _save_message(self, conversation: AIConversation, role: str,
-                     content: str, tool_calls: Optional[List] = None,
-                     tokens_used: int = 0, response_time: float = None):
+    def _save_message(
+        self,
+        conversation: AIConversation,
+        role: str,
+        content: str,
+        tool_calls: Optional[List] = None,
+        tokens_used: int = 0,
+        response_time: float = None,
+    ):
         """保存消息到数据库"""
         AIMessage.objects.create(
             conversation=conversation,
             role=role,
             content=content,
             tool_calls=tool_calls,
-            model_config=self.model_config if role == 'assistant' else None,
+            model_config=self.model_config if role == "assistant" else None,
             tokens_used=tokens_used,
             response_time=response_time,
-            created_by=self.user
+            created_by=self.user,
         )
 
     @classmethod

@@ -8,22 +8,19 @@ class PurchaseOrderService:
     @staticmethod
     @transaction.atomic
     def create_order(user, order_data, items_data):
-        if 'order_number' not in order_data:
-            order_data['order_number'] = DocumentNumberGenerator.generate('PO')
+        if "order_number" not in order_data:
+            order_data["order_number"] = DocumentNumberGenerator.generate("PO")
 
         order = PurchaseOrder(**order_data)
         order.created_by = user
         order.save()
 
         for idx, item_data in enumerate(items_data):
-            if not item_data.get('product_id') and not item_data.get('product'):
+            if not item_data.get("product_id") and not item_data.get("product"):
                 continue
 
             PurchaseOrderItem.objects.create(
-                purchase_order=order,
-                created_by=user,
-                sort_order=idx,
-                **item_data
+                purchase_order=order, created_by=user, sort_order=idx, **item_data
             )
 
         order.calculate_totals()
@@ -43,14 +40,11 @@ class PurchaseOrderService:
         if items_data is not None:
             order.items.all().delete()
             for idx, item_data in enumerate(items_data):
-                if not item_data.get('product_id') and not item_data.get('product'):
+                if not item_data.get("product_id") and not item_data.get("product"):
                     continue
 
                 PurchaseOrderItem.objects.create(
-                    purchase_order=order,
-                    created_by=user,
-                    sort_order=idx,
-                    **item_data
+                    purchase_order=order, created_by=user, sort_order=idx, **item_data
                 )
 
         order.calculate_totals()

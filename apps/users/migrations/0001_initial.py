@@ -10,172 +10,496 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('departments', '0001_initial'),
-        ('auth', '0012_alter_user_first_name_max_length'),
+        ("departments", "0001_initial"),
+        ("auth", "0012_alter_user_first_name_max_length"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.', max_length=150, unique=True, validators=[django.contrib.auth.validators.UnicodeUsernameValidator()], verbose_name='username')),
-                ('first_name', models.CharField(blank=True, max_length=150, verbose_name='first name')),
-                ('last_name', models.CharField(blank=True, max_length=150, verbose_name='last name')),
-                ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
-                ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
-                ('email', models.EmailField(max_length=254, unique=True, verbose_name='邮箱')),
-                ('phone', models.CharField(blank=True, max_length=20, validators=[django.core.validators.RegexValidator(message='请输入有效的手机号', regex='^\\+?1?\\d{9,15}$')], verbose_name='手机号')),
-                ('avatar', models.ImageField(blank=True, upload_to='avatars/', verbose_name='头像')),
-                ('gender', models.CharField(blank=True, choices=[('M', '男'), ('F', '女'), ('O', '其他')], max_length=1, verbose_name='性别')),
-                ('birth_date', models.DateField(blank=True, null=True, verbose_name='出生日期')),
-                ('employee_id', models.CharField(blank=True, max_length=50, null=True, unique=True, verbose_name='员工编号')),
-                ('hire_date', models.DateField(blank=True, null=True, verbose_name='入职日期')),
-                ('position', models.CharField(blank=True, max_length=100, verbose_name='职位')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否激活')),
-                ('last_login_ip', models.GenericIPAddressField(blank=True, null=True, verbose_name='最后登录IP')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('department', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='departments.department', verbose_name='部门')),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
-                ('manager', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL, verbose_name='直属上级')),
-                ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "last_login",
+                    models.DateTimeField(blank=True, null=True, verbose_name="last login"),
+                ),
+                (
+                    "is_superuser",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates that this user has all permissions without explicitly assigning them.",
+                        verbose_name="superuser status",
+                    ),
+                ),
+                (
+                    "username",
+                    models.CharField(
+                        error_messages={"unique": "A user with that username already exists."},
+                        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.",
+                        max_length=150,
+                        unique=True,
+                        validators=[django.contrib.auth.validators.UnicodeUsernameValidator()],
+                        verbose_name="username",
+                    ),
+                ),
+                (
+                    "first_name",
+                    models.CharField(blank=True, max_length=150, verbose_name="first name"),
+                ),
+                (
+                    "last_name",
+                    models.CharField(blank=True, max_length=150, verbose_name="last name"),
+                ),
+                (
+                    "is_staff",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates whether the user can log into this admin site.",
+                        verbose_name="staff status",
+                    ),
+                ),
+                (
+                    "date_joined",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now, verbose_name="date joined"
+                    ),
+                ),
+                ("email", models.EmailField(max_length=254, unique=True, verbose_name="邮箱")),
+                (
+                    "phone",
+                    models.CharField(
+                        blank=True,
+                        max_length=20,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                message="请输入有效的手机号", regex="^\\+?1?\\d{9,15}$"
+                            )
+                        ],
+                        verbose_name="手机号",
+                    ),
+                ),
+                ("avatar", models.ImageField(blank=True, upload_to="avatars/", verbose_name="头像")),
+                (
+                    "gender",
+                    models.CharField(
+                        blank=True,
+                        choices=[("M", "男"), ("F", "女"), ("O", "其他")],
+                        max_length=1,
+                        verbose_name="性别",
+                    ),
+                ),
+                ("birth_date", models.DateField(blank=True, null=True, verbose_name="出生日期")),
+                (
+                    "employee_id",
+                    models.CharField(
+                        blank=True, max_length=50, null=True, unique=True, verbose_name="员工编号"
+                    ),
+                ),
+                ("hire_date", models.DateField(blank=True, null=True, verbose_name="入职日期")),
+                ("position", models.CharField(blank=True, max_length=100, verbose_name="职位")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否激活")),
+                (
+                    "last_login_ip",
+                    models.GenericIPAddressField(blank=True, null=True, verbose_name="最后登录IP"),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                (
+                    "department",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="departments.department",
+                        verbose_name="部门",
+                    ),
+                ),
+                (
+                    "groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.group",
+                        verbose_name="groups",
+                    ),
+                ),
+                (
+                    "manager",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="直属上级",
+                    ),
+                ),
+                (
+                    "user_permissions",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="Specific permissions for this user.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.permission",
+                        verbose_name="user permissions",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '用户',
-                'verbose_name_plural': '用户',
-                'db_table': 'users_user',
+                "verbose_name": "用户",
+                "verbose_name_plural": "用户",
+                "db_table": "users_user",
             },
             managers=[
-                ('objects', django.contrib.auth.models.UserManager()),
+                ("objects", django.contrib.auth.models.UserManager()),
             ],
         ),
         migrations.CreateModel(
-            name='Role',
+            name="Role",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=100, unique=True, verbose_name='角色名称')),
-                ('code', models.CharField(max_length=50, unique=True, verbose_name='角色代码')),
-                ('description', models.TextField(blank=True, verbose_name='角色描述')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('permissions', models.ManyToManyField(blank=True, to='auth.permission', verbose_name='权限')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("name", models.CharField(max_length=100, unique=True, verbose_name="角色名称")),
+                ("code", models.CharField(max_length=50, unique=True, verbose_name="角色代码")),
+                ("description", models.TextField(blank=True, verbose_name="角色描述")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "permissions",
+                    models.ManyToManyField(blank=True, to="auth.permission", verbose_name="权限"),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '角色',
-                'verbose_name_plural': '角色',
-                'db_table': 'users_role',
+                "verbose_name": "角色",
+                "verbose_name_plural": "角色",
+                "db_table": "users_role",
             },
         ),
         migrations.CreateModel(
-            name='UserProfile',
+            name="UserProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('id_card', models.CharField(blank=True, max_length=18, verbose_name='身份证号')),
-                ('address', models.TextField(blank=True, verbose_name='地址')),
-                ('emergency_contact', models.CharField(blank=True, max_length=100, verbose_name='紧急联系人')),
-                ('emergency_phone', models.CharField(blank=True, max_length=20, verbose_name='紧急联系电话')),
-                ('salary', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True, verbose_name='薪资')),
-                ('bank_account', models.CharField(blank=True, max_length=50, verbose_name='银行账号')),
-                ('bank_name', models.CharField(blank=True, max_length=100, verbose_name='开户银行')),
-                ('language', models.CharField(default='zh-hans', max_length=10, verbose_name='语言偏好')),
-                ('timezone', models.CharField(default='Asia/Shanghai', max_length=50, verbose_name='时区')),
-                ('theme', models.CharField(default='light', max_length=20, verbose_name='主题')),
-                ('email_notifications', models.BooleanField(default=True, verbose_name='邮件通知')),
-                ('sms_notifications', models.BooleanField(default=False, verbose_name='短信通知')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='用户')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("id_card", models.CharField(blank=True, max_length=18, verbose_name="身份证号")),
+                ("address", models.TextField(blank=True, verbose_name="地址")),
+                (
+                    "emergency_contact",
+                    models.CharField(blank=True, max_length=100, verbose_name="紧急联系人"),
+                ),
+                (
+                    "emergency_phone",
+                    models.CharField(blank=True, max_length=20, verbose_name="紧急联系电话"),
+                ),
+                (
+                    "salary",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True, verbose_name="薪资"
+                    ),
+                ),
+                ("bank_account", models.CharField(blank=True, max_length=50, verbose_name="银行账号")),
+                ("bank_name", models.CharField(blank=True, max_length=100, verbose_name="开户银行")),
+                (
+                    "language",
+                    models.CharField(default="zh-hans", max_length=10, verbose_name="语言偏好"),
+                ),
+                (
+                    "timezone",
+                    models.CharField(default="Asia/Shanghai", max_length=50, verbose_name="时区"),
+                ),
+                ("theme", models.CharField(default="light", max_length=20, verbose_name="主题")),
+                ("email_notifications", models.BooleanField(default=True, verbose_name="邮件通知")),
+                ("sms_notifications", models.BooleanField(default=False, verbose_name="短信通知")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="用户",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '用户资料',
-                'verbose_name_plural': '用户资料',
-                'db_table': 'users_user_profile',
+                "verbose_name": "用户资料",
+                "verbose_name_plural": "用户资料",
+                "db_table": "users_user_profile",
             },
         ),
         migrations.CreateModel(
-            name='Permission',
+            name="Permission",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=100, verbose_name='权限名称')),
-                ('code', models.CharField(max_length=100, unique=True, verbose_name='权限代码')),
-                ('permission_type', models.CharField(choices=[('menu', '菜单权限'), ('data', '数据权限'), ('operation', '操作权限'), ('field', '字段权限')], max_length=20, verbose_name='权限类型')),
-                ('module', models.CharField(max_length=50, verbose_name='所属模块')),
-                ('description', models.TextField(blank=True, verbose_name='权限描述')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("name", models.CharField(max_length=100, verbose_name="权限名称")),
+                ("code", models.CharField(max_length=100, unique=True, verbose_name="权限代码")),
+                (
+                    "permission_type",
+                    models.CharField(
+                        choices=[
+                            ("menu", "菜单权限"),
+                            ("data", "数据权限"),
+                            ("operation", "操作权限"),
+                            ("field", "字段权限"),
+                        ],
+                        max_length=20,
+                        verbose_name="权限类型",
+                    ),
+                ),
+                ("module", models.CharField(max_length=50, verbose_name="所属模块")),
+                ("description", models.TextField(blank=True, verbose_name="权限描述")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '权限',
-                'verbose_name_plural': '权限',
-                'db_table': 'users_permission',
+                "verbose_name": "权限",
+                "verbose_name_plural": "权限",
+                "db_table": "users_permission",
             },
         ),
         migrations.CreateModel(
-            name='LoginLog',
+            name="LoginLog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('login_type', models.CharField(choices=[('web', 'Web登录'), ('mobile', '移动端登录'), ('api', 'API登录')], default='web', max_length=20, verbose_name='登录类型')),
-                ('ip_address', models.GenericIPAddressField(verbose_name='IP地址')),
-                ('user_agent', models.TextField(blank=True, verbose_name='用户代理')),
-                ('location', models.CharField(blank=True, max_length=200, verbose_name='登录地点')),
-                ('is_successful', models.BooleanField(default=True, verbose_name='是否成功')),
-                ('failure_reason', models.CharField(blank=True, max_length=200, verbose_name='失败原因')),
-                ('login_time', models.DateTimeField(auto_now_add=True, verbose_name='登录时间')),
-                ('logout_time', models.DateTimeField(blank=True, null=True, verbose_name='登出时间')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='用户')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "login_type",
+                    models.CharField(
+                        choices=[("web", "Web登录"), ("mobile", "移动端登录"), ("api", "API登录")],
+                        default="web",
+                        max_length=20,
+                        verbose_name="登录类型",
+                    ),
+                ),
+                ("ip_address", models.GenericIPAddressField(verbose_name="IP地址")),
+                ("user_agent", models.TextField(blank=True, verbose_name="用户代理")),
+                ("location", models.CharField(blank=True, max_length=200, verbose_name="登录地点")),
+                ("is_successful", models.BooleanField(default=True, verbose_name="是否成功")),
+                (
+                    "failure_reason",
+                    models.CharField(blank=True, max_length=200, verbose_name="失败原因"),
+                ),
+                ("login_time", models.DateTimeField(auto_now_add=True, verbose_name="登录时间")),
+                ("logout_time", models.DateTimeField(blank=True, null=True, verbose_name="登出时间")),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="用户",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '登录日志',
-                'verbose_name_plural': '登录日志',
-                'db_table': 'users_login_log',
-                'ordering': ['-login_time'],
+                "verbose_name": "登录日志",
+                "verbose_name_plural": "登录日志",
+                "db_table": "users_login_log",
+                "ordering": ["-login_time"],
             },
         ),
         migrations.CreateModel(
-            name='UserRole',
+            name="UserRole",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.role', verbose_name='角色')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='用户')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "role",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="users.role",
+                        verbose_name="角色",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="用户",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '用户角色',
-                'verbose_name_plural': '用户角色',
-                'db_table': 'users_user_role',
-                'unique_together': {('user', 'role')},
+                "verbose_name": "用户角色",
+                "verbose_name_plural": "用户角色",
+                "db_table": "users_user_role",
+                "unique_together": {("user", "role")},
             },
         ),
     ]

@@ -64,19 +64,19 @@ class BaseScraper(abc.ABC):
             try:
                 delay = random.uniform(2, 5) * (attempt + 1)
                 await asyncio.sleep(delay)
-                
+
                 data = await self.scrape_product(external_id)
                 self.failure_count = 0
                 return data
-                
+
             except Exception as e:
                 self.failure_count += 1
                 logger.warning(
-                    f'采集失败 (尝试 {attempt + 1}/{self.max_retries}): {external_id}, 错误: {e}'
+                    f"采集失败 (尝试 {attempt + 1}/{self.max_retries}): {external_id}, 错误: {e}"
                 )
-                
+
                 if attempt == self.max_retries - 1:
-                    raise Exception(f'采集失败，已达最大重试次数: {str(e)}')
+                    raise Exception(f"采集失败，已达最大重试次数: {str(e)}")
 
     def _extract_price(self, price_str: str) -> float:
         """
@@ -90,9 +90,9 @@ class BaseScraper(abc.ABC):
         """
         if not price_str:
             return 0.0
-        
-        price_str = str(price_str).replace('¥', '').replace(',', '').replace('元', '').strip()
-        
+
+        price_str = str(price_str).replace("¥", "").replace(",", "").replace("元", "").strip()
+
         try:
             return float(price_str)
         except ValueError:
@@ -110,16 +110,16 @@ class BaseScraper(abc.ABC):
         """
         if not stock_str:
             return 0
-        
+
         stock_str = str(stock_str).strip().lower()
-        
-        if '有货' in stock_str or '库存' in stock_str:
+
+        if "有货" in stock_str or "库存" in stock_str:
             return 999
-        elif '无货' in stock_str or '缺货' in stock_str:
+        elif "无货" in stock_str or "缺货" in stock_str:
             return 0
-        elif '件' in stock_str:
+        elif "件" in stock_str:
             try:
-                return int(''.join(filter(str.isdigit, stock_str)))
+                return int("".join(filter(str.isdigit, stock_str)))
             except ValueError:
                 return 0
         else:
@@ -136,23 +136,23 @@ class BaseScraper(abc.ABC):
             ERP状态
         """
         if not status_str:
-            return 'inactive'
-        
+            return "inactive"
+
         status_str = str(status_str).strip().lower()
-        
+
         status_map = {
-            'onsale': ['在售', '销售中', '有货', 'active'],
-            'offshelf': ['下架', '已下架', 'offshelf', 'inactive', 'discontinued'],
+            "onsale": ["在售", "销售中", "有货", "active"],
+            "offshelf": ["下架", "已下架", "offshelf", "inactive", "discontinued"],
         }
-        
+
         for erp_status, keywords in status_map.items():
             for keyword in keywords:
                 if keyword in status_str:
                     return erp_status
-        
-        return 'inactive'
 
-    def _format_description(self, title: str, description: str = '') -> str:
+        return "inactive"
+
+    def _format_description(self, title: str, description: str = "") -> str:
         """
         格式化描述
 
@@ -165,8 +165,8 @@ class BaseScraper(abc.ABC):
         """
         if description:
             return description
-        
-        return title or ''
+
+        return title or ""
 
     def _normalize_images(self, images: List[str]) -> List[str]:
         """
@@ -180,22 +180,22 @@ class BaseScraper(abc.ABC):
         """
         normalized = []
         seen = set()
-        
+
         for img in images:
             if not img:
                 continue
-                
+
             img_url = str(img).strip()
-            
+
             if img_url in seen:
                 continue
             seen.add(img_url)
-            
-            if not img_url.startswith('http'):
+
+            if not img_url.startswith("http"):
                 continue
-                
+
             normalized.append(img_url)
-        
+
         return normalized[:6]
 
     def _create_mock_data(self, external_id: str) -> Dict:
@@ -209,20 +209,20 @@ class BaseScraper(abc.ABC):
             模拟产品数据
         """
         return {
-            'id': external_id,
-            'title': f'测试产品 {external_id}',
-            'price': f'{random.uniform(50, 500):.2f}',
-            'stock': random.randint(0, 100),
-            'description': '这是一个测试产品描述',
-            'images': [
-                'https://via.placeholder.com/400x400.png',
-                'https://via.placeholder.com/400x400.png',
+            "id": external_id,
+            "title": f"测试产品 {external_id}",
+            "price": f"{random.uniform(50, 500):.2f}",
+            "stock": random.randint(0, 100),
+            "description": "这是一个测试产品描述",
+            "images": [
+                "https://via.placeholder.com/400x400.png",
+                "https://via.placeholder.com/400x400.png",
             ],
-            'category': '测试分类',
-            'brand': '测试品牌',
-            'model': f'TEST-{external_id}',
-            'specifications': '测试规格',
-            'status': 'onsale',
+            "category": "测试分类",
+            "brand": "测试品牌",
+            "model": f"TEST-{external_id}",
+            "specifications": "测试规格",
+            "status": "onsale",
         }
 
     @staticmethod
@@ -237,13 +237,13 @@ class BaseScraper(abc.ABC):
             爬虫实例
         """
         from .hybrid import HybridScraper
-        
+
         if not platform:
-            raise ValueError('平台不能为空')
-        
+            raise ValueError("平台不能为空")
+
         return HybridScraper(platform)
 
-    def is_rate_limited(self, response_status: int = None, error_msg: str = '') -> bool:
+    def is_rate_limited(self, response_status: int = None, error_msg: str = "") -> bool:
         """
         判断是否被限流
 
@@ -256,14 +256,18 @@ class BaseScraper(abc.ABC):
         """
         if response_status == 429:
             return True
-        
+
         rate_limit_keywords = [
-            'rate limit', '频率限制', '访问频率',
-            'too many requests', '请求过多',
-            '限流', '访问过快'
+            "rate limit",
+            "频率限制",
+            "访问频率",
+            "too many requests",
+            "请求过多",
+            "限流",
+            "访问过快",
         ]
-        
+
         if error_msg:
             return any(keyword in error_msg.lower() for keyword in rate_limit_keywords)
-        
+
         return False

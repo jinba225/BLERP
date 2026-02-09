@@ -16,26 +16,29 @@ User = get_user_model()
 
 class WorkflowStatus(Enum):
     """工作流状态"""
-    PENDING = "pending"           # 待处理
-    IN_PROGRESS = "in_progress"   # 处理中
-    APPROVED = "approved"         # 已批准
-    REJECTED = "rejected"         # 已拒绝
-    CANCELLED = "cancelled"       # 已取消
-    COMPLETED = "completed"       # 已完成
+
+    PENDING = "pending"  # 待处理
+    IN_PROGRESS = "in_progress"  # 处理中
+    APPROVED = "approved"  # 已批准
+    REJECTED = "rejected"  # 已拒绝
+    CANCELLED = "cancelled"  # 已取消
+    COMPLETED = "completed"  # 已完成
 
 
 class WorkflowAction(Enum):
     """工作流动作"""
-    SUBMIT = "submit"             # 提交
-    APPROVE = "approve"           # 批准
-    REJECT = "reject"             # 拒绝
-    CANCEL = "cancel"             # 取消
-    COMPLETE = "complete"         # 完成
+
+    SUBMIT = "submit"  # 提交
+    APPROVE = "approve"  # 批准
+    REJECT = "reject"  # 拒绝
+    CANCEL = "cancel"  # 取消
+    COMPLETE = "complete"  # 完成
 
 
 @dataclass
 class WorkflowStep:
     """工作流步骤"""
+
     step_id: str
     step_name: str
     required_role: Optional[str] = None
@@ -46,6 +49,7 @@ class WorkflowStep:
 @dataclass
 class ExecutionContext:
     """执行上下文"""
+
     user: User
     action: Any  # WorkflowAction，使用Any避免循环依赖
     entity_type: str
@@ -136,7 +140,9 @@ class WorkflowManager:
         return None
 
     @classmethod
-    def can_execute_action(cls, context: ExecutionContext, workflow_step: WorkflowStep) -> tuple[bool, str]:
+    def can_execute_action(
+        cls, context: ExecutionContext, workflow_step: WorkflowStep
+    ) -> tuple[bool, str]:
         """
         检查用户是否可以执行指定步骤
 
@@ -159,6 +165,7 @@ class WorkflowManager:
                 # 尝试使用自定义权限检查
                 try:
                     from ai_assistant.utils.permissions import has_custom_permission
+
                     if not has_custom_permission(user, workflow_step.required_permission):
                         return False, f"需要权限: {workflow_step.required_permission}"
                 except Exception:
@@ -202,7 +209,9 @@ class WorkflowManager:
         return False, "不支持的工作流动作", {}
 
     @classmethod
-    def _execute_delivery_shipment(cls, context: 'ExecutionContext') -> tuple[bool, str, Dict[str, Any]]:
+    def _execute_delivery_shipment(
+        cls, context: "ExecutionContext"
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """执行发货确认"""
         try:
             from sales.models import Delivery
@@ -210,24 +219,27 @@ class WorkflowManager:
             delivery = Delivery.objects.get(id=context.entity_id, is_deleted=False)
 
             # 更新状态
-            delivery.status = 'shipped'
-            if hasattr(delivery, 'shipped_at'):
+            delivery.status = "shipped"
+            if hasattr(delivery, "shipped_at"):
                 delivery.shipped_at = timezone.now()
-            if hasattr(delivery, 'shipped_by'):
+            if hasattr(delivery, "shipped_by"):
                 delivery.shipped_by = context.user
             delivery.save()
 
             # TODO: 扣减库存、创建库存变动记录等
 
-            return True, f"发货单 {delivery.delivery_number} 已确认发货", {
-                "delivery_number": delivery.delivery_number,
-                "status": delivery.status
-            }
+            return (
+                True,
+                f"发货单 {delivery.delivery_number} 已确认发货",
+                {"delivery_number": delivery.delivery_number, "status": delivery.status},
+            )
         except Exception as e:
             return False, f"确认发货失败: {str(e)}", {}
 
     @classmethod
-    def _execute_purchase_receipt_confirm(cls, context: ExecutionContext) -> tuple[bool, str, Dict[str, Any]]:
+    def _execute_purchase_receipt_confirm(
+        cls, context: ExecutionContext
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """执行收货确认"""
         try:
             from purchase.models import PurchaseReceipt
@@ -235,17 +247,18 @@ class WorkflowManager:
             receipt = PurchaseReceipt.objects.get(id=context.entity_id, is_deleted=False)
 
             # 更新状态
-            receipt.status = 'received'
+            receipt.status = "received"
             receipt.received_at = timezone.now()
             receipt.received_by = context.user
             receipt.save()
 
             # TODO: 增加库存、创建库存变动记录等
 
-            return True, f"收货单 {receipt.receipt_number} 已确认收货", {
-                "receipt_number": receipt.receipt_number,
-                "status": receipt.status
-            }
+            return (
+                True,
+                f"收货单 {receipt.receipt_number} 已确认收货",
+                {"receipt_number": receipt.receipt_number, "status": receipt.status},
+            )
         except Exception as e:
             return False, f"确认收货失败: {str(e)}", {}
 
@@ -264,25 +277,28 @@ class WorkflowManager:
                     warehouse=transfer.source_warehouse,
                     product=item.product,
                     quantity=-item.quantity,  # 负数表示扣减
-                    transaction_type='out',
-                    reference_number=transfer.transfer_number
+                    transaction_type="out",
+                    reference_number=transfer.transfer_number,
                 )
 
             # 更新状态
-            transfer.status = 'shipped'
+            transfer.status = "shipped"
             transfer.shipped_at = timezone.now()
             transfer.shipped_by = context.user
             transfer.save()
 
-            return True, f"调拨单 {transfer.transfer_number} 已发货", {
-                "transfer_number": transfer.transfer_number,
-                "status": transfer.status
-            }
+            return (
+                True,
+                f"调拨单 {transfer.transfer_number} 已发货",
+                {"transfer_number": transfer.transfer_number, "status": transfer.status},
+            )
         except Exception as e:
             return False, f"调拨发货失败: {str(e)}", {}
 
     @classmethod
-    def _execute_transfer_receive(cls, context: ExecutionContext) -> tuple[bool, str, Dict[str, Any]]:
+    def _execute_transfer_receive(
+        cls, context: ExecutionContext
+    ) -> tuple[bool, str, Dict[str, Any]]:
         """执行调拨收货"""
         try:
             from inventory.models import StockTransfer
@@ -296,19 +312,20 @@ class WorkflowManager:
                     warehouse=transfer.target_warehouse,
                     product=item.product,
                     quantity=item.quantity,  # 正数表示增加
-                    transaction_type='in',
-                    reference_number=transfer.transfer_number
+                    transaction_type="in",
+                    reference_number=transfer.transfer_number,
                 )
 
             # 更新状态
-            transfer.status = 'received'
+            transfer.status = "received"
             transfer.received_at = timezone.now()
             transfer.received_by = context.user
             transfer.save()
 
-            return True, f"调拨单 {transfer.transfer_number} 已收货", {
-                "transfer_number": transfer.transfer_number,
-                "status": transfer.status
-            }
+            return (
+                True,
+                f"调拨单 {transfer.transfer_number} 已收货",
+                {"transfer_number": transfer.transfer_number, "status": transfer.status},
+            )
         except Exception as e:
             return False, f"调拨收货失败: {str(e)}", {}

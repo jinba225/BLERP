@@ -15,14 +15,17 @@ from .channels import (
     DingTalkChannel,
     TelegramChannel,
 )
+
 # from .services import ChannelAIService  # 暂时注释，ChannelAIService尚未实现
 from .channels.base_channel import IncomingMessage, OutgoingMessage
 
 
 # 判断是否启用异步处理
-USE_ASYNC_PROCESSING = getattr(settings, 'AI_ASSISTANT_USE_ASYNC', False) and \
-                       hasattr(settings, 'CELERY_BROKER_URL') and \
-                       settings.CELERY_BROKER_URL
+USE_ASYNC_PROCESSING = (
+    getattr(settings, "AI_ASSISTANT_USE_ASYNC", False)
+    and hasattr(settings, "CELERY_BROKER_URL")
+    and settings.CELERY_BROKER_URL
+)
 
 
 def _process_message_sync(user, message):
@@ -42,10 +45,8 @@ def _process_message_sync(user, message):
     # return ai_service.process_message(message)
 
     # 临时返回一个模拟响应
-    return OutgoingMessage(
-        content='⚠️ AI助手服务正在开发中，请稍后再试。',
-        message_type='text'
-    )
+    return OutgoingMessage(content="⚠️ AI助手服务正在开发中，请稍后再试。", message_type="text")
+
 
 def _process_message_async(user, message):
     """
@@ -62,14 +63,14 @@ def _process_message_async(user, message):
 
     # 序列化消息数据
     message_data = {
-        'message_id': message.message_id,
-        'channel': message.channel,
-        'external_user_id': message.external_user_id,
-        'content': message.content,
-        'timestamp': message.timestamp.isoformat() if message.timestamp else None,
-        'message_type': message.message_type,
-        'conversation_id': message.conversation_id,
-        'raw_data': message.raw_data,
+        "message_id": message.message_id,
+        "channel": message.channel,
+        "external_user_id": message.external_user_id,
+        "content": message.content,
+        "timestamp": message.timestamp.isoformat() if message.timestamp else None,
+        "message_type": message.message_type,
+        "conversation_id": message.conversation_id,
+        "raw_data": message.raw_data,
     }
 
     # 提交异步任务
@@ -77,10 +78,8 @@ def _process_message_async(user, message):
 
     # 返回"正在处理"的响应
     from .channels import OutgoingMessage
-    return OutgoingMessage(
-        content='收到消息，正在处理中喵～ (..•˘_˘•..)',
-        message_type='text'
-    )
+
+    return OutgoingMessage(content="收到消息，正在处理中喵～ (..•˘_˘•..)", message_type="text")
 
 
 @csrf_exempt
@@ -94,10 +93,7 @@ def wechat_webhook(request):
     """
     try:
         # 获取微信配置
-        config = WeChatConfig.objects.filter(
-            is_active=True,
-            is_deleted=False
-        ).first()
+        config = WeChatConfig.objects.filter(is_active=True, is_deleted=False).first()
 
         if not config:
             return HttpResponse("微信配置不存在", status=404)
@@ -110,8 +106,8 @@ def wechat_webhook(request):
             return HttpResponse("签名验证失败", status=403)
 
         # GET请求：返回echostr
-        if request.method == 'GET':
-            echostr = request.GET.get('echostr', '')
+        if request.method == "GET":
+            echostr = request.GET.get("echostr", "")
             # TODO: 需要解密echostr
             return HttpResponse(echostr)
 
@@ -126,10 +122,9 @@ def wechat_webhook(request):
             # 发送提示消息
             channel.send_message(
                 message.external_user_id,
-                type('OutgoingMessage', (), {
-                    'content': '您还未绑定系统账号，请联系管理员',
-                    'message_type': 'text'
-                })()
+                type(
+                    "OutgoingMessage", (), {"content": "您还未绑定系统账号，请联系管理员", "message_type": "text"}
+                )(),
             )
             return HttpResponse("OK")
 
@@ -159,10 +154,7 @@ def dingtalk_webhook(request):
     """
     try:
         # 获取钉钉配置
-        config = DingTalkConfig.objects.filter(
-            is_active=True,
-            is_deleted=False
-        ).first()
+        config = DingTalkConfig.objects.filter(is_active=True, is_deleted=False).first()
 
         if not config:
             return JsonResponse({"error": "钉钉配置不存在"}, status=404)
@@ -185,10 +177,9 @@ def dingtalk_webhook(request):
             # 发送提示消息
             channel.send_message(
                 message.external_user_id,
-                type('OutgoingMessage', (), {
-                    'content': '您还未绑定系统账号，请联系管理员',
-                    'message_type': 'text'
-                })()
+                type(
+                    "OutgoingMessage", (), {"content": "您还未绑定系统账号，请联系管理员", "message_type": "text"}
+                )(),
             )
             return JsonResponse({"success": True})
 
@@ -218,10 +209,7 @@ def telegram_webhook(request):
     """
     try:
         # 获取Telegram配置
-        config = TelegramConfig.objects.filter(
-            is_active=True,
-            is_deleted=False
-        ).first()
+        config = TelegramConfig.objects.filter(is_active=True, is_deleted=False).first()
 
         if not config:
             return JsonResponse({"error": "Telegram配置不存在"}, status=404)
@@ -242,16 +230,14 @@ def telegram_webhook(request):
         user = channel.get_or_create_user_mapping(message.external_user_id)
         if not user:
             # 获取chat_id（用于发送消息）
-            chat_id = message.raw_data.get('chat_id', message.external_user_id)
+            chat_id = message.raw_data.get("chat_id", message.external_user_id)
 
             # 发送提示消息
             from .channels import OutgoingMessage
+
             channel.send_message(
                 str(chat_id),
-                OutgoingMessage(
-                    content='你还未绑定系统账号，请联系管理员绑定 (>_<)',
-                    message_type='text'
-                )
+                OutgoingMessage(content="你还未绑定系统账号，请联系管理员绑定 (>_<)", message_type="text"),
             )
             return JsonResponse({"ok": True})
 
@@ -262,7 +248,7 @@ def telegram_webhook(request):
             response = _process_message_sync(user, message)
 
         # 发送回复（使用chat_id）
-        chat_id = message.raw_data.get('chat_id', message.external_user_id)
+        chat_id = message.raw_data.get("chat_id", message.external_user_id)
         channel.send_message(str(chat_id), response)
 
         return JsonResponse({"ok": True})

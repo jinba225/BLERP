@@ -28,22 +28,18 @@ class WooCommerceAPI:
         self.base_url = f"{shop_config.shop_url.rstrip('/')}/wp-json/wc/v3"
         self.consumer_key = shop_config.consumer_key
         self.consumer_secret = shop_config.consumer_secret
-        self.timeout = getattr(settings, 'ECOMM_SYNC_TIMEOUT', 30)
+        self.timeout = getattr(settings, "ECOMM_SYNC_TIMEOUT", 30)
 
         self.session = requests.Session()
         self.session.auth = (self.consumer_key, self.consumer_secret)
-        self.session.headers.update({
-            'User-Agent': 'Django-ERP-EcommSync/1.0',
-            'Accept': 'application/json',
-        })
+        self.session.headers.update(
+            {
+                "User-Agent": "Django-ERP-EcommSync/1.0",
+                "Accept": "application/json",
+            }
+        )
 
-    def _request(
-        self,
-        method: str,
-        endpoint: str,
-        data: dict = None,
-        params: dict = None
-    ) -> dict:
+    def _request(self, method: str, endpoint: str, data: dict = None, params: dict = None) -> dict:
         """
         发送HTTP请求
 
@@ -63,21 +59,14 @@ class WooCommerceAPI:
 
         try:
             response = self.session.request(
-                method=method,
-                url=url,
-                json=data,
-                params=params,
-                timeout=self.timeout
+                method=method, url=url, json=data, params=params, timeout=self.timeout
             )
             response.raise_for_status()
 
             return response.json()
 
         except requests.exceptions.Timeout:
-            raise WooCommerceAPIError(
-                f"请求超时: {url}",
-                status_code=408
-            )
+            raise WooCommerceAPIError(f"请求超时: {url}", status_code=408)
 
         except requests.exceptions.HTTPError as e:
             error_data = {}
@@ -89,13 +78,11 @@ class WooCommerceAPI:
             raise WooCommerceAPIError(
                 f"HTTP错误: {e.response.status_code}",
                 status_code=e.response.status_code,
-                response_data=error_data
+                response_data=error_data,
             )
 
         except Exception as e:
-            raise WooCommerceAPIError(
-                f"请求失败: {str(e)}"
-            )
+            raise WooCommerceAPIError(f"请求失败: {str(e)}")
 
     def get_product(self, product_id: int) -> dict:
         """
@@ -107,14 +94,9 @@ class WooCommerceAPI:
         Returns:
             产品数据
         """
-        return self._request('GET', f'/products/{product_id}')
+        return self._request("GET", f"/products/{product_id}")
 
-    def get_products(
-        self,
-        page: int = 1,
-        per_page: int = 100,
-        **filters
-    ) -> List[dict]:
+    def get_products(self, page: int = 1, per_page: int = 100, **filters) -> List[dict]:
         """
         获取产品列表
 
@@ -126,10 +108,10 @@ class WooCommerceAPI:
         Returns:
             产品列表
         """
-        params = {'page': page, 'per_page': per_page}
+        params = {"page": page, "per_page": per_page}
         params.update(filters)
 
-        return self._request('GET', '/products', params=params)
+        return self._request("GET", "/products", params=params)
 
     def create_product(self, product_data: dict) -> dict:
         """
@@ -141,7 +123,7 @@ class WooCommerceAPI:
         Returns:
             创建的产品数据
         """
-        return self._request('POST', '/products', data=product_data)
+        return self._request("POST", "/products", data=product_data)
 
     def update_product(self, product_id: int, product_data: dict) -> dict:
         """
@@ -154,7 +136,7 @@ class WooCommerceAPI:
         Returns:
             更新后的产品数据
         """
-        return self._request('PUT', f'/products/{product_id}', data=product_data)
+        return self._request("PUT", f"/products/{product_id}", data=product_data)
 
     def batch_update_products(self, updates: List[dict]) -> dict:
         """
@@ -166,7 +148,7 @@ class WooCommerceAPI:
         Returns:
             批量更新结果
         """
-        return self._request('POST', '/products/batch', data={'update': updates})
+        return self._request("POST", "/products/batch", data={"update": updates})
 
     def delete_product(self, product_id: int, force: bool = False) -> dict:
         """
@@ -179,8 +161,8 @@ class WooCommerceAPI:
         Returns:
             删除结果
         """
-        params = {'force': force} if force else {}
-        return self._request('DELETE', f'/products/{product_id}', params=params)
+        params = {"force": force} if force else {}
+        return self._request("DELETE", f"/products/{product_id}", params=params)
 
     def get_categories(self, **filters) -> List[dict]:
         """
@@ -192,7 +174,7 @@ class WooCommerceAPI:
         Returns:
             分类列表
         """
-        return self._request('GET', '/products/categories', params=filters)
+        return self._request("GET", "/products/categories", params=filters)
 
     def create_category(self, category_data: dict) -> dict:
         """
@@ -204,7 +186,7 @@ class WooCommerceAPI:
         Returns:
             创建的分类数据
         """
-        return self._request('POST', '/products/categories', data=category_data)
+        return self._request("POST", "/products/categories", data=category_data)
 
     def upload_image(self, image_file: str) -> dict:
         """
@@ -218,8 +200,8 @@ class WooCommerceAPI:
         """
         url = f"{self.base_url}/media"
 
-        with open(image_file, 'rb') as f:
-            files = {'file': f}
+        with open(image_file, "rb") as f:
+            files = {"file": f}
             response = self.session.post(url, files=files, timeout=self.timeout)
             response.raise_for_status()
 
@@ -239,7 +221,7 @@ class WooCommerceAPI:
             return False
 
     @classmethod
-    def get_active(cls) -> Optional['WooCommerceAPI']:
+    def get_active(cls) -> Optional["WooCommerceAPI"]:
         """
         获取激活的WooCommerce API客户端
 

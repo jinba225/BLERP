@@ -4,65 +4,102 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sales', '0002_initial'),
+        ("sales", "0002_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='quote',
-            name='subtotal',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='所有明细的含税金额之和', max_digits=12, verbose_name='含税小计'),
+            model_name="quote",
+            name="subtotal",
+            field=models.DecimalField(
+                decimal_places=2,
+                default=0,
+                help_text="所有明细的含税金额之和",
+                max_digits=12,
+                verbose_name="含税小计",
+            ),
         ),
         migrations.AlterField(
-            model_name='quote',
-            name='tax_amount',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='从含税价格反推得出', max_digits=12, verbose_name='税额'),
+            model_name="quote",
+            name="tax_amount",
+            field=models.DecimalField(
+                decimal_places=2, default=0, help_text="从含税价格反推得出", max_digits=12, verbose_name="税额"
+            ),
         ),
         migrations.AlterField(
-            model_name='quote',
-            name='total_amount',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='客户实际支付金额（含税）', max_digits=12, verbose_name='含税总金额'),
+            model_name="quote",
+            name="total_amount",
+            field=models.DecimalField(
+                decimal_places=2,
+                default=0,
+                help_text="客户实际支付金额（含税）",
+                max_digits=12,
+                verbose_name="含税总金额",
+            ),
         ),
         migrations.AlterField(
-            model_name='quoteitem',
-            name='line_total',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='含税金额', max_digits=12, verbose_name='含税小计'),
+            model_name="quoteitem",
+            name="line_total",
+            field=models.DecimalField(
+                decimal_places=2, default=0, help_text="含税金额", max_digits=12, verbose_name="含税小计"
+            ),
         ),
         migrations.AlterField(
-            model_name='quoteitem',
-            name='unit_price',
-            field=models.DecimalField(decimal_places=2, help_text='含税单价', max_digits=12, verbose_name='含税单价'),
+            model_name="quoteitem",
+            name="unit_price",
+            field=models.DecimalField(
+                decimal_places=2, help_text="含税单价", max_digits=12, verbose_name="含税单价"
+            ),
         ),
         migrations.AlterField(
-            model_name='salesorder',
-            name='shipping_cost',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='含税运费', max_digits=12, verbose_name='运费'),
+            model_name="salesorder",
+            name="shipping_cost",
+            field=models.DecimalField(
+                decimal_places=2, default=0, help_text="含税运费", max_digits=12, verbose_name="运费"
+            ),
         ),
         migrations.AlterField(
-            model_name='salesorder',
-            name='subtotal',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='所有明细的含税金额之和', max_digits=12, verbose_name='含税小计'),
+            model_name="salesorder",
+            name="subtotal",
+            field=models.DecimalField(
+                decimal_places=2,
+                default=0,
+                help_text="所有明细的含税金额之和",
+                max_digits=12,
+                verbose_name="含税小计",
+            ),
         ),
         migrations.AlterField(
-            model_name='salesorder',
-            name='tax_amount',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='从含税价格反推得出', max_digits=12, verbose_name='税额'),
+            model_name="salesorder",
+            name="tax_amount",
+            field=models.DecimalField(
+                decimal_places=2, default=0, help_text="从含税价格反推得出", max_digits=12, verbose_name="税额"
+            ),
         ),
         migrations.AlterField(
-            model_name='salesorder',
-            name='total_amount',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='客户实际支付金额（含税）', max_digits=12, verbose_name='含税总金额'),
+            model_name="salesorder",
+            name="total_amount",
+            field=models.DecimalField(
+                decimal_places=2,
+                default=0,
+                help_text="客户实际支付金额（含税）",
+                max_digits=12,
+                verbose_name="含税总金额",
+            ),
         ),
         migrations.AlterField(
-            model_name='salesorderitem',
-            name='line_total',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='含税金额', max_digits=12, verbose_name='含税小计'),
+            model_name="salesorderitem",
+            name="line_total",
+            field=models.DecimalField(
+                decimal_places=2, default=0, help_text="含税金额", max_digits=12, verbose_name="含税小计"
+            ),
         ),
         migrations.AlterField(
-            model_name='salesorderitem',
-            name='unit_price',
-            field=models.DecimalField(decimal_places=2, help_text='含税单价', max_digits=12, verbose_name='含税单价'),
+            model_name="salesorderitem",
+            name="unit_price",
+            field=models.DecimalField(
+                decimal_places=2, help_text="含税单价", max_digits=12, verbose_name="含税单价"
+            ),
         ),
     ]

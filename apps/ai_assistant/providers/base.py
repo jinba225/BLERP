@@ -12,6 +12,7 @@ from dataclasses import dataclass
 @dataclass
 class AIResponse:
     """AI响应数据类"""
+
     content: str  # AI回复内容
     tool_calls: Optional[List[Dict[str, Any]]] = None  # 工具调用列表
     finish_reason: Optional[str] = None  # 结束原因
@@ -22,9 +23,15 @@ class AIResponse:
 class BaseAIProvider(ABC):
     """AI Provider 抽象基类"""
 
-    def __init__(self, api_key: str, api_base: Optional[str] = None,
-                 model_name: str = None, temperature: float = 0.7,
-                 max_tokens: int = 2000, timeout: int = 60):
+    def __init__(
+        self,
+        api_key: str,
+        api_base: Optional[str] = None,
+        model_name: str = None,
+        temperature: float = 0.7,
+        max_tokens: int = 2000,
+        timeout: int = 60,
+    ):
         """
         初始化Provider
 
@@ -44,8 +51,9 @@ class BaseAIProvider(ABC):
         self.timeout = timeout
 
     @abstractmethod
-    def chat(self, messages: List[Dict[str, str]],
-             tools: Optional[List[Dict[str, Any]]] = None) -> AIResponse:
+    def chat(
+        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+    ) -> AIResponse:
         """
         发送对话请求
 
@@ -59,8 +67,9 @@ class BaseAIProvider(ABC):
         pass
 
     @abstractmethod
-    def stream_chat(self, messages: List[Dict[str, str]],
-                   tools: Optional[List[Dict[str, Any]]] = None) -> Iterator[str]:
+    def stream_chat(
+        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+    ) -> Iterator[str]:
         """
         流式对话请求
 
@@ -114,24 +123,29 @@ class BaseAIProvider(ABC):
 
 class ProviderException(Exception):
     """Provider异常基类"""
+
     pass
 
 
 class ProviderAPIException(ProviderException):
     """API调用异常"""
+
     pass
 
 
 class ProviderAuthException(ProviderException):
     """认证失败异常"""
+
     pass
 
 
 class ProviderTimeoutException(ProviderException):
     """超时异常"""
+
     pass
 
 
 class ProviderRateLimitException(ProviderException):
     """频率限制异常"""
+
     pass

@@ -1,3 +1,3 @@
 from .adapter import CdiscountAdapter
 
-__all__ = ['CdiscountAdapter']
+__all__ = ["CdiscountAdapter"]

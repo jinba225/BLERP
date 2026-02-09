@@ -25,17 +25,10 @@ class SearchSupplierTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "keyword": {
-                    "type": "string",
-                    "description": "搜索关键词（供应商名称、编号或联系人）"
-                },
-                "limit": {
-                    "type": "integer",
-                    "description": "返回结果数量限制（默认10）",
-                    "default": 10
-                }
+                "keyword": {"type": "string", "description": "搜索关键词（供应商名称、编号或联系人）"},
+                "limit": {"type": "integer", "description": "返回结果数量限制（默认10）", "default": 10},
             },
-            "required": ["keyword"]
+            "required": ["keyword"],
         }
 
     def execute(self, keyword: str, limit: int = 10, **kwargs) -> ToolResult:
@@ -43,38 +36,33 @@ class SearchSupplierTool(BaseTool):
         try:
             # 构建搜索查询
             suppliers = Supplier.objects.filter(
-                Q(name__icontains=keyword) |
-                Q(code__icontains=keyword) |
-                Q(contact_person__icontains=keyword),
-                is_deleted=False
+                Q(name__icontains=keyword)
+                | Q(code__icontains=keyword)
+                | Q(contact_person__icontains=keyword),
+                is_deleted=False,
             )[:limit]
 
             # 格式化结果
             results = []
             for supplier in suppliers:
-                results.append({
-                    "id": supplier.id,
-                    "code": supplier.code,
-                    "name": supplier.name,
-                    "contact_person": supplier.contact_person or "",
-                    "phone": supplier.phone or "",
-                    "email": supplier.email or "",
-                    "address": supplier.address or "",
-                    "supplier_type": supplier.get_supplier_type_display(),
-                    "is_active": supplier.is_active,
-                })
+                results.append(
+                    {
+                        "id": supplier.id,
+                        "code": supplier.code,
+                        "name": supplier.name,
+                        "contact_person": supplier.contact_person or "",
+                        "phone": supplier.phone or "",
+                        "email": supplier.email or "",
+                        "address": supplier.address or "",
+                        "supplier_type": supplier.get_supplier_type_display(),
+                        "is_active": supplier.is_active,
+                    }
+                )
 
-            return ToolResult(
-                success=True,
-                data=results,
-                message=f"找到 {len(results)} 个供应商"
-            )
+            return ToolResult(success=True, data=results, message=f"找到 {len(results)} 个供应商")
 
         except Exception as e:
-            return ToolResult(
-                success=False,
-                error=f"搜索供应商失败: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"搜索供应商失败: {str(e)}")
 
 
 class CreatePurchaseRequestTool(BaseTool):
@@ -102,25 +90,23 @@ class CreatePurchaseRequestTool(BaseTool):
                             "required_date": {"type": "string", "description": "需求日期（YYYY-MM-DD）"},
                             "purpose": {"type": "string", "description": "用途说明"},
                         },
-                        "required": ["product_id", "quantity"]
-                    }
+                        "required": ["product_id", "quantity"],
+                    },
                 },
                 "urgency": {
                     "type": "string",
                     "description": "紧急程度（normal/urgent/very_urgent）",
                     "enum": ["normal", "urgent", "very_urgent"],
-                    "default": "normal"
+                    "default": "normal",
                 },
-                "notes": {
-                    "type": "string",
-                    "description": "备注说明"
-                }
+                "notes": {"type": "string", "description": "备注说明"},
             },
-            "required": ["items"]
+            "required": ["items"],
         }
 
-    def execute(self, items: list, urgency: str = "normal",
-                notes: str = "", **kwargs) -> ToolResult:
+    def execute(
+        self, items: list, urgency: str = "normal", notes: str = "", **kwargs
+    ) -> ToolResult:
         """执行创建采购申请"""
         try:
             from django.db import transaction
@@ -132,54 +118,51 @@ class CreatePurchaseRequestTool(BaseTool):
 
             for item in items:
                 try:
-                    product = Product.objects.get(id=item['product_id'], is_deleted=False)
+                    product = Product.objects.get(id=item["product_id"], is_deleted=False)
                 except Product.DoesNotExist:
-                    return ToolResult(
-                        success=False,
-                        error=f"产品ID {item['product_id']} 不存在"
-                    )
+                    return ToolResult(success=False, error=f"产品ID {item['product_id']} 不存在")
 
-                quantity = float(item['quantity'])
-                required_date = item.get('required_date')
+                quantity = float(item["quantity"])
+                required_date = item.get("required_date")
                 if required_date:
                     try:
-                        required_date = datetime.strptime(required_date, '%Y-%m-%d').date()
+                        required_date = datetime.strptime(required_date, "%Y-%m-%d").date()
                     except ValueError:
-                        return ToolResult(
-                            success=False,
-                            error=f"需求日期格式错误，应为 YYYY-MM-DD"
-                        )
+                        return ToolResult(success=False, error=f"需求日期格式错误，应为 YYYY-MM-DD")
 
-                validated_items.append({
-                    'product': product,
-                    'quantity': quantity,
-                    'required_date': required_date,
-                    'purpose': item.get('purpose', ''),
-                })
+                validated_items.append(
+                    {
+                        "product": product,
+                        "quantity": quantity,
+                        "required_date": required_date,
+                        "purpose": item.get("purpose", ""),
+                    }
+                )
 
             # 创建采购申请
             with transaction.atomic():
-                request_number = DocumentNumberGenerator.generate('purchase_request')
+                request_number = DocumentNumberGenerator.generate("purchase_request")
 
                 purchase_request = PurchaseRequest.objects.create(
                     request_number=request_number,
                     request_date=datetime.now().date(),
                     urgency=urgency,
                     notes=notes,
-                    status='draft',
-                    created_by=self.user
+                    status="draft",
+                    created_by=self.user,
                 )
 
                 # 创建明细
                 for item_data in validated_items:
                     from purchase.models import PurchaseRequestItem
+
                     PurchaseRequestItem.objects.create(
                         purchase_request=purchase_request,
-                        product=item_data['product'],
-                        quantity=item_data['quantity'],
-                        required_date=item_data['required_date'],
-                        purpose=item_data['purpose'],
-                        created_by=self.user
+                        product=item_data["product"],
+                        quantity=item_data["quantity"],
+                        required_date=item_data["required_date"],
+                        purpose=item_data["purpose"],
+                        created_by=self.user,
                     )
 
             return ToolResult(
@@ -191,14 +174,11 @@ class CreatePurchaseRequestTool(BaseTool):
                     "urgency": urgency,
                     "urgency_display": purchase_request.get_urgency_display(),
                 },
-                message=f"采购申请单 {purchase_request.request_number} 创建成功"
+                message=f"采购申请单 {purchase_request.request_number} 创建成功",
             )
 
         except Exception as e:
-            return ToolResult(
-                success=False,
-                error=f"创建采购申请失败: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"创建采购申请失败: {str(e)}")
 
 
 class QueryPurchaseOrdersTool(BaseTool):
@@ -217,36 +197,35 @@ class QueryPurchaseOrdersTool(BaseTool):
                 "status": {
                     "type": "string",
                     "description": "订单状态（draft/pending/confirmed/in_progress/completed/cancelled）",
-                    "enum": ["draft", "pending", "confirmed", "in_progress",
-                            "partially_received", "received", "completed", "cancelled"]
+                    "enum": [
+                        "draft",
+                        "pending",
+                        "confirmed",
+                        "in_progress",
+                        "partially_received",
+                        "received",
+                        "completed",
+                        "cancelled",
+                    ],
                 },
-                "supplier_id": {
-                    "type": "integer",
-                    "description": "供应商ID"
-                },
-                "date_from": {
-                    "type": "string",
-                    "description": "开始日期（YYYY-MM-DD）"
-                },
-                "date_to": {
-                    "type": "string",
-                    "description": "结束日期（YYYY-MM-DD）"
-                },
-                "keyword": {
-                    "type": "string",
-                    "description": "搜索关键词（订单号）"
-                },
-                "limit": {
-                    "type": "integer",
-                    "description": "返回结果数量限制（默认20）",
-                    "default": 20
-                }
-            }
+                "supplier_id": {"type": "integer", "description": "供应商ID"},
+                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
+                "keyword": {"type": "string", "description": "搜索关键词（订单号）"},
+                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+            },
         }
 
-    def execute(self, status: str = None, supplier_id: int = None,
-                date_from: str = None, date_to: str = None,
-                keyword: str = None, limit: int = 20, **kwargs) -> ToolResult:
+    def execute(
+        self,
+        status: str = None,
+        supplier_id: int = None,
+        date_from: str = None,
+        date_to: str = None,
+        keyword: str = None,
+        limit: int = 20,
+        **kwargs,
+    ) -> ToolResult:
         """执行查询"""
         try:
             # 构建查询
@@ -267,33 +246,28 @@ class QueryPurchaseOrdersTool(BaseTool):
             if keyword:
                 orders = orders.filter(order_number__icontains=keyword)
 
-            orders = orders.order_by('-order_date')[:limit]
+            orders = orders.order_by("-order_date")[:limit]
 
             # 格式化结果
             results = []
             for order in orders:
-                results.append({
-                    "id": order.id,
-                    "order_number": order.order_number,
-                    "supplier_name": order.supplier.name,
-                    "order_date": order.order_date.strftime("%Y-%m-%d"),
-                    "total_amount": float(order.total_amount),
-                    "status": order.status,
-                    "status_display": order.get_status_display(),
-                    "items_count": order.items.count(),
-                })
+                results.append(
+                    {
+                        "id": order.id,
+                        "order_number": order.order_number,
+                        "supplier_name": order.supplier.name,
+                        "order_date": order.order_date.strftime("%Y-%m-%d"),
+                        "total_amount": float(order.total_amount),
+                        "status": order.status,
+                        "status_display": order.get_status_display(),
+                        "items_count": order.items.count(),
+                    }
+                )
 
-            return ToolResult(
-                success=True,
-                data=results,
-                message=f"找到 {len(results)} 个采购订单"
-            )
+            return ToolResult(success=True, data=results, message=f"找到 {len(results)} 个采购订单")
 
         except Exception as e:
-            return ToolResult(
-                success=False,
-                error=f"查询采购订单失败: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"查询采购订单失败: {str(e)}")
 
 
 class ApprovePurchaseOrderTool(BaseTool):
@@ -311,16 +285,10 @@ class ApprovePurchaseOrderTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "order_id": {
-                    "type": "integer",
-                    "description": "采购订单ID"
-                },
-                "notes": {
-                    "type": "string",
-                    "description": "审核备注"
-                }
+                "order_id": {"type": "integer", "description": "采购订单ID"},
+                "notes": {"type": "string", "description": "审核备注"},
             },
-            "required": ["order_id"]
+            "required": ["order_id"],
         }
 
     def execute(self, order_id: int, notes: str = "", **kwargs) -> ToolResult:
@@ -330,22 +298,18 @@ class ApprovePurchaseOrderTool(BaseTool):
             try:
                 order = PurchaseOrder.objects.get(id=order_id, is_deleted=False)
             except PurchaseOrder.DoesNotExist:
-                return ToolResult(
-                    success=False,
-                    error=f"采购订单ID {order_id} 不存在"
-                )
+                return ToolResult(success=False, error=f"采购订单ID {order_id} 不存在")
 
             # 检查订单状态
-            if order.status != 'pending':
+            if order.status != "pending":
                 return ToolResult(
-                    success=False,
-                    error=f"订单状态为 {order.get_status_display()}，不是待审核状态"
+                    success=False, error=f"订单状态为 {order.get_status_display()}，不是待审核状态"
                 )
 
             # 执行审核
-            order.status = 'confirmed'
+            order.status = "confirmed"
             if notes:
-                order.notes = (order.notes or '') + f"\n审核备注: {notes}"
+                order.notes = (order.notes or "") + f"\n审核备注: {notes}"
             order.save()
 
             return ToolResult(
@@ -355,11 +319,8 @@ class ApprovePurchaseOrderTool(BaseTool):
                     "status": order.status,
                     "status_display": order.get_status_display(),
                 },
-                message=f"采购订单 {order.order_number} 审核成功"
+                message=f"采购订单 {order.order_number} 审核成功",
             )
 
         except Exception as e:
-            return ToolResult(
-                success=False,
-                error=f"审核采购订单失败: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"审核采购订单失败: {str(e)}")

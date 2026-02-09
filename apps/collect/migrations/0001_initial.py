@@ -6,177 +6,539 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('core', '0010_platform_shop_and_more'),
-        ('products', '0004_add_default_unit'),
+        ("core", "0010_platform_shop_and_more"),
+        ("products", "0004_add_default_unit"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CollectTask',
+            name="CollectTask",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('task_name', models.CharField(max_length=64, verbose_name='采集任务名称')),
-                ('collect_platform', models.CharField(choices=[('taobao', '淘宝'), ('1688', '1688阿里巴巴')], db_index=True, max_length=16, verbose_name='采集平台')),
-                ('collect_urls', models.TextField(help_text='商品链接，每行一个', verbose_name='采集商品链接')),
-                ('collect_num', models.IntegerField(default=0, verbose_name='计划采集数')),
-                ('success_num', models.IntegerField(default=0, verbose_name='成功采集数')),
-                ('fail_num', models.IntegerField(default=0, verbose_name='失败采集数')),
-                ('collect_status', models.CharField(choices=[('pending', '待采集'), ('running', '采集中'), ('success', '采集成功'), ('failed', '采集失败'), ('partial', '部分采集成功')], db_index=True, default='pending', max_length=16, verbose_name='采集状态')),
-                ('land_status', models.CharField(choices=[('unland', '未落地'), ('running', '落地中'), ('success', '落地成功'), ('failed', '落地失败')], db_index=True, default='unland', max_length=16, verbose_name='落地状态')),
-                ('celery_task_id', models.CharField(blank=True, max_length=64, verbose_name='Celery任务ID')),
-                ('sync_cross', models.BooleanField(default=False, verbose_name='自动同步到跨境平台')),
-                ('sync_status', models.CharField(blank=True, max_length=16, verbose_name='跨境同步状态')),
-                ('error_msg', models.TextField(blank=True, verbose_name='任务失败原因')),
-                ('collect_data', models.JSONField(blank=True, default=dict, verbose_name='采集原始数据')),
-                ('started_at', models.DateTimeField(blank=True, null=True, verbose_name='开始时间')),
-                ('completed_at', models.DateTimeField(blank=True, null=True, verbose_name='完成时间')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('cross_platform', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='sync_tasks', to='core.platform', verbose_name='目标跨境平台')),
-                ('cross_shop', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='sync_tasks', to='core.shop', verbose_name='目标跨境店铺')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('platform', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='collect_tasks', to='core.platform', verbose_name='关联平台配置')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("task_name", models.CharField(max_length=64, verbose_name="采集任务名称")),
+                (
+                    "collect_platform",
+                    models.CharField(
+                        choices=[("taobao", "淘宝"), ("1688", "1688阿里巴巴")],
+                        db_index=True,
+                        max_length=16,
+                        verbose_name="采集平台",
+                    ),
+                ),
+                ("collect_urls", models.TextField(help_text="商品链接，每行一个", verbose_name="采集商品链接")),
+                ("collect_num", models.IntegerField(default=0, verbose_name="计划采集数")),
+                ("success_num", models.IntegerField(default=0, verbose_name="成功采集数")),
+                ("fail_num", models.IntegerField(default=0, verbose_name="失败采集数")),
+                (
+                    "collect_status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "待采集"),
+                            ("running", "采集中"),
+                            ("success", "采集成功"),
+                            ("failed", "采集失败"),
+                            ("partial", "部分采集成功"),
+                        ],
+                        db_index=True,
+                        default="pending",
+                        max_length=16,
+                        verbose_name="采集状态",
+                    ),
+                ),
+                (
+                    "land_status",
+                    models.CharField(
+                        choices=[
+                            ("unland", "未落地"),
+                            ("running", "落地中"),
+                            ("success", "落地成功"),
+                            ("failed", "落地失败"),
+                        ],
+                        db_index=True,
+                        default="unland",
+                        max_length=16,
+                        verbose_name="落地状态",
+                    ),
+                ),
+                (
+                    "celery_task_id",
+                    models.CharField(blank=True, max_length=64, verbose_name="Celery任务ID"),
+                ),
+                ("sync_cross", models.BooleanField(default=False, verbose_name="自动同步到跨境平台")),
+                ("sync_status", models.CharField(blank=True, max_length=16, verbose_name="跨境同步状态")),
+                ("error_msg", models.TextField(blank=True, verbose_name="任务失败原因")),
+                ("collect_data", models.JSONField(blank=True, default=dict, verbose_name="采集原始数据")),
+                ("started_at", models.DateTimeField(blank=True, null=True, verbose_name="开始时间")),
+                ("completed_at", models.DateTimeField(blank=True, null=True, verbose_name="完成时间")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "cross_platform",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="sync_tasks",
+                        to="core.platform",
+                        verbose_name="目标跨境平台",
+                    ),
+                ),
+                (
+                    "cross_shop",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="sync_tasks",
+                        to="core.shop",
+                        verbose_name="目标跨境店铺",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "platform",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="collect_tasks",
+                        to="core.platform",
+                        verbose_name="关联平台配置",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '采集任务',
-                'verbose_name_plural': '采集任务',
-                'db_table': 'collect_task',
-                'ordering': ['-created_at'],
+                "verbose_name": "采集任务",
+                "verbose_name_plural": "采集任务",
+                "db_table": "collect_task",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='CollectItem',
+            name="CollectItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('collect_url', models.CharField(max_length=512, verbose_name='商品采集链接')),
-                ('item_name', models.CharField(blank=True, max_length=200, verbose_name='商品名称')),
-                ('item_sku', models.CharField(blank=True, max_length=64, verbose_name='平台商品SKU')),
-                ('collect_status', models.CharField(choices=[('pending', '待采集'), ('success', '采集成功'), ('failed', '采集失败')], default='pending', max_length=16, verbose_name='子项采集状态')),
-                ('land_status', models.CharField(choices=[('unland', '未落地'), ('success', '落地成功'), ('failed', '落地失败')], default='unland', max_length=16, verbose_name='子项落地状态')),
-                ('collect_data', models.JSONField(default=dict, verbose_name='采集原始数据')),
-                ('land_error', models.TextField(blank=True, verbose_name='落地失败原因')),
-                ('images', models.JSONField(blank=True, default=list, verbose_name='图片列表')),
-                ('main_image', models.URLField(blank=True, max_length=512, verbose_name='主图链接')),
-                ('collected_at', models.DateTimeField(blank=True, null=True, verbose_name='采集时间')),
-                ('landed_at', models.DateTimeField(blank=True, null=True, verbose_name='落地时间')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('product', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='collect_items', to='products.product', verbose_name='关联产品库产品')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
-                ('collect_task', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='collect_items', to='collect.collecttask', verbose_name='关联采集任务')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("collect_url", models.CharField(max_length=512, verbose_name="商品采集链接")),
+                ("item_name", models.CharField(blank=True, max_length=200, verbose_name="商品名称")),
+                ("item_sku", models.CharField(blank=True, max_length=64, verbose_name="平台商品SKU")),
+                (
+                    "collect_status",
+                    models.CharField(
+                        choices=[("pending", "待采集"), ("success", "采集成功"), ("failed", "采集失败")],
+                        default="pending",
+                        max_length=16,
+                        verbose_name="子项采集状态",
+                    ),
+                ),
+                (
+                    "land_status",
+                    models.CharField(
+                        choices=[("unland", "未落地"), ("success", "落地成功"), ("failed", "落地失败")],
+                        default="unland",
+                        max_length=16,
+                        verbose_name="子项落地状态",
+                    ),
+                ),
+                ("collect_data", models.JSONField(default=dict, verbose_name="采集原始数据")),
+                ("land_error", models.TextField(blank=True, verbose_name="落地失败原因")),
+                ("images", models.JSONField(blank=True, default=list, verbose_name="图片列表")),
+                ("main_image", models.URLField(blank=True, max_length=512, verbose_name="主图链接")),
+                ("collected_at", models.DateTimeField(blank=True, null=True, verbose_name="采集时间")),
+                ("landed_at", models.DateTimeField(blank=True, null=True, verbose_name="落地时间")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="collect_items",
+                        to="products.product",
+                        verbose_name="关联产品库产品",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
+                (
+                    "collect_task",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="collect_items",
+                        to="collect.collecttask",
+                        verbose_name="关联采集任务",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '采集商品子项',
-                'verbose_name_plural': '采集商品子项',
-                'db_table': 'collect_item',
-                'ordering': ['-created_at'],
+                "verbose_name": "采集商品子项",
+                "verbose_name_plural": "采集商品子项",
+                "db_table": "collect_item",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='FieldMapRule',
+            name="FieldMapRule",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('collect_platform', models.CharField(choices=[('taobao', '淘宝'), ('1688', '1688阿里巴巴')], db_index=True, max_length=16, verbose_name='采集平台')),
-                ('target_type', models.CharField(choices=[('product', '产品库'), ('listing', 'Listing')], db_index=True, max_length=16, verbose_name='映射目标')),
-                ('source_field', models.CharField(help_text='如淘宝的title, pic_url等', max_length=64, verbose_name='源字段')),
-                ('target_field', models.CharField(help_text='如产品库的name, main_image等', max_length=64, verbose_name='目标字段')),
-                ('rule_type', models.CharField(choices=[('direct', '直接映射'), ('calc', '计算规则'), ('fixed', '固定值'), ('function', '自定义函数')], default='direct', max_length=16, verbose_name='规则类型')),
-                ('map_rule', models.CharField(blank=True, help_text='如: 拼接-精品, price*1.5, length*height*width', max_length=256, verbose_name='映射规则')),
-                ('sort_order', models.IntegerField(default=0, verbose_name='排序权重')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('description', models.TextField(blank=True, verbose_name='描述')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "collect_platform",
+                    models.CharField(
+                        choices=[("taobao", "淘宝"), ("1688", "1688阿里巴巴")],
+                        db_index=True,
+                        max_length=16,
+                        verbose_name="采集平台",
+                    ),
+                ),
+                (
+                    "target_type",
+                    models.CharField(
+                        choices=[("product", "产品库"), ("listing", "Listing")],
+                        db_index=True,
+                        max_length=16,
+                        verbose_name="映射目标",
+                    ),
+                ),
+                (
+                    "source_field",
+                    models.CharField(
+                        help_text="如淘宝的title, pic_url等", max_length=64, verbose_name="源字段"
+                    ),
+                ),
+                (
+                    "target_field",
+                    models.CharField(
+                        help_text="如产品库的name, main_image等", max_length=64, verbose_name="目标字段"
+                    ),
+                ),
+                (
+                    "rule_type",
+                    models.CharField(
+                        choices=[
+                            ("direct", "直接映射"),
+                            ("calc", "计算规则"),
+                            ("fixed", "固定值"),
+                            ("function", "自定义函数"),
+                        ],
+                        default="direct",
+                        max_length=16,
+                        verbose_name="规则类型",
+                    ),
+                ),
+                (
+                    "map_rule",
+                    models.CharField(
+                        blank=True,
+                        help_text="如: 拼接-精品, price*1.5, length*height*width",
+                        max_length=256,
+                        verbose_name="映射规则",
+                    ),
+                ),
+                ("sort_order", models.IntegerField(default=0, verbose_name="排序权重")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                ("description", models.TextField(blank=True, verbose_name="描述")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '字段映射规则',
-                'verbose_name_plural': '字段映射规则',
-                'db_table': 'collect_field_map',
-                'ordering': ['collect_platform', 'target_type', 'sort_order'],
+                "verbose_name": "字段映射规则",
+                "verbose_name_plural": "字段映射规则",
+                "db_table": "collect_field_map",
+                "ordering": ["collect_platform", "target_type", "sort_order"],
             },
         ),
         migrations.CreateModel(
-            name='PricingRule',
+            name="PricingRule",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('name', models.CharField(max_length=100, verbose_name='规则名称')),
-                ('rule_type', models.CharField(choices=[('markup', '加成定价'), ('fixed', '固定定价'), ('formula', '公式定价')], max_length=20, verbose_name='规则类型')),
-                ('markup_percent', models.DecimalField(blank=True, decimal_places=2, help_text='如: 50 表示加价50%', max_digits=5, null=True, verbose_name='加成百分比')),
-                ('fixed_price', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True, verbose_name='固定价格')),
-                ('formula', models.CharField(blank=True, help_text='如: cost * 1.5 + shipping_cost', max_length=500, verbose_name='定价公式')),
-                ('round_method', models.CharField(blank=True, choices=[('none', '不取整'), ('up', '向上取整'), ('down', '向下取整'), ('nearest', '四舍五入')], max_length=20, verbose_name='取整方式')),
-                ('min_price', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True, verbose_name='最低价格')),
-                ('max_price', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True, verbose_name='最高价格')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('description', models.TextField(blank=True, verbose_name='描述')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('platform', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pricing_rules', to='core.platform', verbose_name='适用平台')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("name", models.CharField(max_length=100, verbose_name="规则名称")),
+                (
+                    "rule_type",
+                    models.CharField(
+                        choices=[("markup", "加成定价"), ("fixed", "固定定价"), ("formula", "公式定价")],
+                        max_length=20,
+                        verbose_name="规则类型",
+                    ),
+                ),
+                (
+                    "markup_percent",
+                    models.DecimalField(
+                        blank=True,
+                        decimal_places=2,
+                        help_text="如: 50 表示加价50%",
+                        max_digits=5,
+                        null=True,
+                        verbose_name="加成百分比",
+                    ),
+                ),
+                (
+                    "fixed_price",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True, verbose_name="固定价格"
+                    ),
+                ),
+                (
+                    "formula",
+                    models.CharField(
+                        blank=True,
+                        help_text="如: cost * 1.5 + shipping_cost",
+                        max_length=500,
+                        verbose_name="定价公式",
+                    ),
+                ),
+                (
+                    "round_method",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("none", "不取整"),
+                            ("up", "向上取整"),
+                            ("down", "向下取整"),
+                            ("nearest", "四舍五入"),
+                        ],
+                        max_length=20,
+                        verbose_name="取整方式",
+                    ),
+                ),
+                (
+                    "min_price",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True, verbose_name="最低价格"
+                    ),
+                ),
+                (
+                    "max_price",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True, verbose_name="最高价格"
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                ("description", models.TextField(blank=True, verbose_name="描述")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "platform",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="pricing_rules",
+                        to="core.platform",
+                        verbose_name="适用平台",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '定价规则',
-                'verbose_name_plural': '定价规则',
-                'db_table': 'collect_pricing_rule',
-                'ordering': ['-created_at'],
+                "verbose_name": "定价规则",
+                "verbose_name_plural": "定价规则",
+                "db_table": "collect_pricing_rule",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.AddIndex(
-            model_name='collecttask',
-            index=models.Index(fields=['collect_platform', 'collect_status', 'land_status'], name='collect_tas_collect_0d4326_idx'),
+            model_name="collecttask",
+            index=models.Index(
+                fields=["collect_platform", "collect_status", "land_status"],
+                name="collect_tas_collect_0d4326_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='collecttask',
-            index=models.Index(fields=['-created_at'], name='collect_tas_created_566503_idx'),
+            model_name="collecttask",
+            index=models.Index(fields=["-created_at"], name="collect_tas_created_566503_idx"),
         ),
         migrations.AddIndex(
-            model_name='collecttask',
-            index=models.Index(fields=['-created_at', 'collect_status'], name='collect_tas_created_45a546_idx'),
+            model_name="collecttask",
+            index=models.Index(
+                fields=["-created_at", "collect_status"], name="collect_tas_created_45a546_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='collectitem',
-            index=models.Index(fields=['collect_task', 'collect_status'], name='collect_ite_collect_5d5ac4_idx'),
+            model_name="collectitem",
+            index=models.Index(
+                fields=["collect_task", "collect_status"], name="collect_ite_collect_5d5ac4_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='collectitem',
-            index=models.Index(fields=['collect_status', 'land_status'], name='collect_ite_collect_5e5074_idx'),
+            model_name="collectitem",
+            index=models.Index(
+                fields=["collect_status", "land_status"], name="collect_ite_collect_5e5074_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='collectitem',
-            index=models.Index(fields=['product', 'is_deleted'], name='collect_ite_product_fcf866_idx'),
+            model_name="collectitem",
+            index=models.Index(
+                fields=["product", "is_deleted"], name="collect_ite_product_fcf866_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='fieldmaprule',
-            index=models.Index(fields=['collect_platform', 'target_type'], name='collect_fie_collect_e04fca_idx'),
+            model_name="fieldmaprule",
+            index=models.Index(
+                fields=["collect_platform", "target_type"], name="collect_fie_collect_e04fca_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='fieldmaprule',
-            index=models.Index(fields=['is_active'], name='collect_fie_is_acti_62441c_idx'),
+            model_name="fieldmaprule",
+            index=models.Index(fields=["is_active"], name="collect_fie_is_acti_62441c_idx"),
         ),
         migrations.AlterUniqueTogether(
-            name='fieldmaprule',
-            unique_together={('collect_platform', 'target_type', 'source_field', 'is_deleted')},
+            name="fieldmaprule",
+            unique_together={("collect_platform", "target_type", "source_field", "is_deleted")},
         ),
     ]

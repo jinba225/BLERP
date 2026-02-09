@@ -9,19 +9,22 @@ import json
 @method_decorator(login_required)
 class LoginRequiredMixin:
     """登录RequiredMixin"""
+
     pass
 
 
 class JsonResponseMixin:
     """JSON响应混入类"""
 
-    def json_response(self, success: bool = True, data: any = None, message: str = '', error: str = None):
+    def json_response(
+        self, success: bool = True, data: any = None, message: str = "", error: str = None
+    ):
         """返回JSON响应"""
         response_data = {
-            'success': success,
-            'data': data,
-            'message': message,
-            'error': error,
+            "success": success,
+            "data": data,
+            "message": message,
+            "error": error,
         }
         return JsonResponse(response_data)
 
@@ -31,7 +34,7 @@ class BaseListView(JsonResponseMixin, LoginRequiredMixin, View):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['app_name'] = '电商同步'
+        context["app_name"] = "电商同步"
         return context
 
 
@@ -40,7 +43,7 @@ class BaseDetailView(JsonResponseMixin, LoginRequiredMixin, View):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['app_name'] = '电商同步'
+        context["app_name"] = "电商同步"
         return context
 
 
@@ -49,5 +52,5 @@ class BaseFormView(JsonResponseMixin, LoginRequiredMixin, View):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['app_name'] = '电商同步'
+        context["app_name"] = "电商同步"
         return context

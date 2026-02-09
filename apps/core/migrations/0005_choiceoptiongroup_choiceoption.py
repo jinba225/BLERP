@@ -6,66 +6,244 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0004_move_print_templates_from_sales'),
+        ("core", "0004_move_print_templates_from_sales"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ChoiceOptionGroup',
+            name="ChoiceOptionGroup",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('category', models.CharField(choices=[('customer_level', '客户等级'), ('customer_status', '客户状态'), ('address_type', '地址类型'), ('visit_type', '拜访类型'), ('visit_purpose', '拜访目的'), ('credit_type', '信用操作类型'), ('supplier_level', '供应商等级'), ('contact_type', '联系人类型'), ('evaluation_period', '评估周期'), ('product_type', '产品类型'), ('product_status', '产品状态'), ('unit_type', '单位类型'), ('attribute_type', '属性类型'), ('price_type', '价格类型'), ('warehouse_type', '仓库类型'), ('adjustment_type', '库存调整类型'), ('adjustment_reason', '调整原因'), ('count_type', '盘点类型'), ('transaction_type', '库存事务类型'), ('payment_terms', '付款方式')], db_index=True, max_length=50, verbose_name='所属分类')),
-                ('name', models.CharField(max_length=100, verbose_name='分组名称')),
-                ('code', models.CharField(max_length=50, verbose_name='分组代码')),
-                ('sort_order', models.IntegerField(default=0, verbose_name='排序')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "category",
+                    models.CharField(
+                        choices=[
+                            ("customer_level", "客户等级"),
+                            ("customer_status", "客户状态"),
+                            ("address_type", "地址类型"),
+                            ("visit_type", "拜访类型"),
+                            ("visit_purpose", "拜访目的"),
+                            ("credit_type", "信用操作类型"),
+                            ("supplier_level", "供应商等级"),
+                            ("contact_type", "联系人类型"),
+                            ("evaluation_period", "评估周期"),
+                            ("product_type", "产品类型"),
+                            ("product_status", "产品状态"),
+                            ("unit_type", "单位类型"),
+                            ("attribute_type", "属性类型"),
+                            ("price_type", "价格类型"),
+                            ("warehouse_type", "仓库类型"),
+                            ("adjustment_type", "库存调整类型"),
+                            ("adjustment_reason", "调整原因"),
+                            ("count_type", "盘点类型"),
+                            ("transaction_type", "库存事务类型"),
+                            ("payment_terms", "付款方式"),
+                        ],
+                        db_index=True,
+                        max_length=50,
+                        verbose_name="所属分类",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, verbose_name="分组名称")),
+                ("code", models.CharField(max_length=50, verbose_name="分组代码")),
+                ("sort_order", models.IntegerField(default=0, verbose_name="排序")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '选项分组',
-                'verbose_name_plural': '选项分组',
-                'db_table': 'core_choice_option_group',
-                'ordering': ['category', 'sort_order'],
-                'unique_together': {('category', 'code')},
+                "verbose_name": "选项分组",
+                "verbose_name_plural": "选项分组",
+                "db_table": "core_choice_option_group",
+                "ordering": ["category", "sort_order"],
+                "unique_together": {("category", "code")},
             },
         ),
         migrations.CreateModel(
-            name='ChoiceOption',
+            name="ChoiceOption",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('category', models.CharField(choices=[('customer_level', '客户等级'), ('customer_status', '客户状态'), ('address_type', '地址类型'), ('visit_type', '拜访类型'), ('visit_purpose', '拜访目的'), ('credit_type', '信用操作类型'), ('supplier_level', '供应商等级'), ('contact_type', '联系人类型'), ('evaluation_period', '评估周期'), ('product_type', '产品类型'), ('product_status', '产品状态'), ('unit_type', '单位类型'), ('attribute_type', '属性类型'), ('price_type', '价格类型'), ('warehouse_type', '仓库类型'), ('adjustment_type', '库存调整类型'), ('adjustment_reason', '调整原因'), ('count_type', '盘点类型'), ('transaction_type', '库存事务类型'), ('payment_terms', '付款方式')], db_index=True, help_text='选项所属的分类，如客户等级、付款方式等', max_length=50, verbose_name='选项分类')),
-                ('code', models.CharField(db_index=True, help_text='选项的唯一标识代码，用于程序内部引用', max_length=50, verbose_name='选项代码')),
-                ('label', models.CharField(help_text='显示给用户看的名称', max_length=100, verbose_name='显示名称')),
-                ('description', models.TextField(blank=True, help_text='选项的详细说明', verbose_name='描述')),
-                ('sort_order', models.IntegerField(default=0, help_text='排序号，数字越小越靠前', verbose_name='排序')),
-                ('is_active', models.BooleanField(default=True, help_text='禁用后该选项不会在下拉列表中显示', verbose_name='是否启用')),
-                ('is_system', models.BooleanField(default=False, help_text='系统内置选项不允许删除，但可以修改显示名称', verbose_name='是否系统内置')),
-                ('color', models.CharField(blank=True, help_text='用于前端显示的颜色，如#FF0000', max_length=20, verbose_name='颜色标识')),
-                ('icon', models.CharField(blank=True, help_text='Font Awesome图标类名，如fa-star', max_length=50, verbose_name='图标类名')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "category",
+                    models.CharField(
+                        choices=[
+                            ("customer_level", "客户等级"),
+                            ("customer_status", "客户状态"),
+                            ("address_type", "地址类型"),
+                            ("visit_type", "拜访类型"),
+                            ("visit_purpose", "拜访目的"),
+                            ("credit_type", "信用操作类型"),
+                            ("supplier_level", "供应商等级"),
+                            ("contact_type", "联系人类型"),
+                            ("evaluation_period", "评估周期"),
+                            ("product_type", "产品类型"),
+                            ("product_status", "产品状态"),
+                            ("unit_type", "单位类型"),
+                            ("attribute_type", "属性类型"),
+                            ("price_type", "价格类型"),
+                            ("warehouse_type", "仓库类型"),
+                            ("adjustment_type", "库存调整类型"),
+                            ("adjustment_reason", "调整原因"),
+                            ("count_type", "盘点类型"),
+                            ("transaction_type", "库存事务类型"),
+                            ("payment_terms", "付款方式"),
+                        ],
+                        db_index=True,
+                        help_text="选项所属的分类，如客户等级、付款方式等",
+                        max_length=50,
+                        verbose_name="选项分类",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(
+                        db_index=True,
+                        help_text="选项的唯一标识代码，用于程序内部引用",
+                        max_length=50,
+                        verbose_name="选项代码",
+                    ),
+                ),
+                (
+                    "label",
+                    models.CharField(help_text="显示给用户看的名称", max_length=100, verbose_name="显示名称"),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, help_text="选项的详细说明", verbose_name="描述"),
+                ),
+                (
+                    "sort_order",
+                    models.IntegerField(default=0, help_text="排序号，数字越小越靠前", verbose_name="排序"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True, help_text="禁用后该选项不会在下拉列表中显示", verbose_name="是否启用"
+                    ),
+                ),
+                (
+                    "is_system",
+                    models.BooleanField(
+                        default=False, help_text="系统内置选项不允许删除，但可以修改显示名称", verbose_name="是否系统内置"
+                    ),
+                ),
+                (
+                    "color",
+                    models.CharField(
+                        blank=True,
+                        help_text="用于前端显示的颜色，如#FF0000",
+                        max_length=20,
+                        verbose_name="颜色标识",
+                    ),
+                ),
+                (
+                    "icon",
+                    models.CharField(
+                        blank=True,
+                        help_text="Font Awesome图标类名，如fa-star",
+                        max_length=50,
+                        verbose_name="图标类名",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '选项配置',
-                'verbose_name_plural': '选项配置',
-                'db_table': 'core_choice_option',
-                'ordering': ['category', 'sort_order', 'code'],
-                'indexes': [models.Index(fields=['category', 'is_active'], name='core_choice_categor_8ae141_idx'), models.Index(fields=['category', 'sort_order'], name='core_choice_categor_6c89fe_idx')],
-                'unique_together': {('category', 'code')},
+                "verbose_name": "选项配置",
+                "verbose_name_plural": "选项配置",
+                "db_table": "core_choice_option",
+                "ordering": ["category", "sort_order", "code"],
+                "indexes": [
+                    models.Index(
+                        fields=["category", "is_active"], name="core_choice_categor_8ae141_idx"
+                    ),
+                    models.Index(
+                        fields=["category", "sort_order"], name="core_choice_categor_6c89fe_idx"
+                    ),
+                ],
+                "unique_together": {("category", "code")},
             },
         ),
     ]

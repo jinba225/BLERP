@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试消息显示</title>
+</head>
+<body>
+    <h1>测试Django Messages框架</h1>
+
+    <h2>当前存储的messages:</h2>
+    <pre>
+    {{ messages }}
+    </pre>
+
+    <h2>遍历messages:</h2>
+    <ul>
+    {% for message in messages %}
+        <li>{{ message.tags }}: {{ message }}</li>
+    {% empty %}
+        <li>没有消息</li>
+    {% endfor %}
+    </ul>
+
+    <h2>添加测试消息:</h2>
+    <form method="post" action="/test/add-message/">
+        {% csrf_token %}
+        <button type="submit" name="type" value="success">添加成功消息</button>
+        <button type="submit" name="type" value="error">添加错误消息</button>
+        <button type="submit" name="type" value="warning">添加警告消息</button>
+    </form>
+
+    <hr>
+    <a href="/purchase/borrows/7/">返回借用单详情页</a>
+</body>
+</html>

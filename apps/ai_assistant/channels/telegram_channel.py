@@ -29,7 +29,7 @@ class TelegramChannel(BaseChannel):
         """
         super().__init__(config)
         # 临时：直接使用明文 Token（用于调试加密问题）
-        if config.bot_token.startswith('Z0FB'):
+        if config.bot_token.startswith("Z0FB"):
             # 如果是加密的 Token，尝试解密
             try:
                 self.bot_token = decrypt_api_key(config.bot_token)
@@ -54,7 +54,7 @@ class TelegramChannel(BaseChannel):
         Returns:
             是否合法
         """
-        return request.method == 'POST'
+        return request.method == "POST"
 
     def parse_message(self, request: HttpRequest) -> Optional[IncomingMessage]:
         """
@@ -68,50 +68,50 @@ class TelegramChannel(BaseChannel):
         """
         try:
             # 解析请求体
-            body = json.loads(request.body.decode('utf-8'))
+            body = json.loads(request.body.decode("utf-8"))
 
             # 获取消息对象
-            message = body.get('message')
+            message = body.get("message")
             if not message:
                 # 可能是其他类型的update（edited_message, callback_query等）
                 return None
 
             # 检查是否是文本消息
-            text = message.get('text')
+            text = message.get("text")
             if not text:
                 return None
 
             # 获取发送者信息
-            from_user = message.get('from', {})
-            chat = message.get('chat', {})
+            from_user = message.get("from", {})
+            chat = message.get("chat", {})
 
             # 检查是否是群组消息
-            if chat.get('type') in ['group', 'supergroup'] and not self.allow_groups:
+            if chat.get("type") in ["group", "supergroup"] and not self.allow_groups:
                 return None
 
             # 获取用户ID
-            external_user_id = str(from_user.get('id'))
-            username = from_user.get('username') or from_user.get('first_name', 'Unknown')
+            external_user_id = str(from_user.get("id"))
+            username = from_user.get("username") or from_user.get("first_name", "Unknown")
 
             # 构建会话ID（私聊用user_id，群聊用chat_id）
-            if chat.get('type') == 'private':
+            if chat.get("type") == "private":
                 conversation_id = f"telegram_{external_user_id}"
             else:
                 conversation_id = f"telegram_group_{chat.get('id')}"
 
             return IncomingMessage(
-                message_id=str(message.get('message_id')),
+                message_id=str(message.get("message_id")),
                 channel=self.channel_name,
                 external_user_id=external_user_id,
                 content=text,
-                timestamp=datetime.fromtimestamp(message.get('date', 0)),
+                timestamp=datetime.fromtimestamp(message.get("date", 0)),
                 message_type="text",
                 conversation_id=conversation_id,
                 raw_data={
-                    'username': username,
-                    'chat_id': chat.get('id'),
-                    'chat_type': chat.get('type'),
-                }
+                    "username": username,
+                    "chat_id": chat.get("id"),
+                    "chat_type": chat.get("type"),
+                },
             )
 
         except Exception as e:
@@ -141,15 +141,15 @@ class TelegramChannel(BaseChannel):
 
             # 添加额外参数（如按钮）
             if message.extra:
-                if 'reply_markup' in message.extra:
-                    data['reply_markup'] = message.extra['reply_markup']
+                if "reply_markup" in message.extra:
+                    data["reply_markup"] = message.extra["reply_markup"]
 
             # 发送请求
             response = requests.post(url, json=data, timeout=10)
             response.raise_for_status()
 
             result = response.json()
-            return result.get('ok', False)
+            return result.get("ok", False)
 
         except Exception as e:
             print(f"发送Telegram消息失败: {str(e)}")
@@ -177,7 +177,7 @@ class TelegramChannel(BaseChannel):
             response.raise_for_status()
 
             result = response.json()
-            return result.get('ok', False)
+            return result.get("ok", False)
 
         except Exception as e:
             print(f"设置Telegram Webhook失败: {str(e)}")
@@ -197,7 +197,7 @@ class TelegramChannel(BaseChannel):
             response.raise_for_status()
 
             result = response.json()
-            return result.get('ok', False)
+            return result.get("ok", False)
 
         except Exception as e:
             print(f"删除Telegram Webhook失败: {str(e)}")
@@ -217,8 +217,8 @@ class TelegramChannel(BaseChannel):
             response.raise_for_status()
 
             result = response.json()
-            if result.get('ok'):
-                return result.get('result')
+            if result.get("ok"):
+                return result.get("result")
 
             return None
 

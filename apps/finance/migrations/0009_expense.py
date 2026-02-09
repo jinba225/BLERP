@@ -8,52 +8,220 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('departments', '0002_initial'),
-        ('finance', '0008_supplieraccount_customer_and_more'),
+        ("departments", "0002_initial"),
+        ("finance", "0008_supplieraccount_customer_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Expense',
+            name="Expense",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('expense_number', models.CharField(max_length=100, unique=True, verbose_name='费用单号')),
-                ('expense_date', models.DateField(help_text='费用发生日期', verbose_name='费用日期')),
-                ('category', models.CharField(choices=[('travel', '差旅费'), ('transportation', '交通费'), ('meal', '餐饮费'), ('office', '办公费'), ('communication', '通讯费'), ('utilities', '水电费'), ('entertainment', '业务招待费'), ('training', '培训费'), ('maintenance', '维修费'), ('advertising', '广告费'), ('other', '其他费用')], max_length=20, verbose_name='费用类别')),
-                ('amount', models.DecimalField(decimal_places=2, help_text='费用总金额', max_digits=12, validators=[django.core.validators.MinValueValidator(Decimal('0.01'))], verbose_name='费用金额')),
-                ('payment_method', models.CharField(choices=[('cash', '现金'), ('bank_transfer', '银行转账'), ('company_card', '公司卡'), ('personal_advance', '个人垫付')], default='personal_advance', max_length=20, verbose_name='支付方式')),
-                ('project', models.CharField(blank=True, help_text='费用关联的项目名称', max_length=200, verbose_name='关联项目')),
-                ('reference_number', models.CharField(blank=True, help_text='关联的其他单据号', max_length=100, verbose_name='参考单号')),
-                ('status', models.CharField(choices=[('draft', '草稿'), ('submitted', '已提交'), ('approved', '已审批'), ('rejected', '已拒绝'), ('paid', '已支付'), ('cancelled', '已取消')], default='draft', max_length=20, verbose_name='状态')),
-                ('submitted_at', models.DateTimeField(blank=True, null=True, verbose_name='提交时间')),
-                ('approved_at', models.DateTimeField(blank=True, null=True, verbose_name='审批时间')),
-                ('rejection_reason', models.TextField(blank=True, verbose_name='拒绝原因')),
-                ('paid_at', models.DateTimeField(blank=True, null=True, verbose_name='支付时间')),
-                ('description', models.TextField(help_text='详细说明费用用途和明细', verbose_name='费用说明')),
-                ('notes', models.TextField(blank=True, verbose_name='备注')),
-                ('applicant', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='expenses', to=settings.AUTH_USER_MODEL, verbose_name='申请人')),
-                ('approved_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='approved_expenses', to=settings.AUTH_USER_MODEL, verbose_name='审批人')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('department', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='departments.department', verbose_name='申请部门')),
-                ('journal', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='expenses', to='finance.journal', verbose_name='关联凭证')),
-                ('paid_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='paid_expenses', to=settings.AUTH_USER_MODEL, verbose_name='支付人')),
-                ('payment_account', models.ForeignKey(blank=True, help_text='支付费用使用的会计科目（如银行存款、库存现金）', null=True, on_delete=django.db.models.deletion.SET_NULL, to='finance.account', verbose_name='支付科目')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "expense_number",
+                    models.CharField(max_length=100, unique=True, verbose_name="费用单号"),
+                ),
+                ("expense_date", models.DateField(help_text="费用发生日期", verbose_name="费用日期")),
+                (
+                    "category",
+                    models.CharField(
+                        choices=[
+                            ("travel", "差旅费"),
+                            ("transportation", "交通费"),
+                            ("meal", "餐饮费"),
+                            ("office", "办公费"),
+                            ("communication", "通讯费"),
+                            ("utilities", "水电费"),
+                            ("entertainment", "业务招待费"),
+                            ("training", "培训费"),
+                            ("maintenance", "维修费"),
+                            ("advertising", "广告费"),
+                            ("other", "其他费用"),
+                        ],
+                        max_length=20,
+                        verbose_name="费用类别",
+                    ),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2,
+                        help_text="费用总金额",
+                        max_digits=12,
+                        validators=[django.core.validators.MinValueValidator(Decimal("0.01"))],
+                        verbose_name="费用金额",
+                    ),
+                ),
+                (
+                    "payment_method",
+                    models.CharField(
+                        choices=[
+                            ("cash", "现金"),
+                            ("bank_transfer", "银行转账"),
+                            ("company_card", "公司卡"),
+                            ("personal_advance", "个人垫付"),
+                        ],
+                        default="personal_advance",
+                        max_length=20,
+                        verbose_name="支付方式",
+                    ),
+                ),
+                (
+                    "project",
+                    models.CharField(
+                        blank=True, help_text="费用关联的项目名称", max_length=200, verbose_name="关联项目"
+                    ),
+                ),
+                (
+                    "reference_number",
+                    models.CharField(
+                        blank=True, help_text="关联的其他单据号", max_length=100, verbose_name="参考单号"
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("draft", "草稿"),
+                            ("submitted", "已提交"),
+                            ("approved", "已审批"),
+                            ("rejected", "已拒绝"),
+                            ("paid", "已支付"),
+                            ("cancelled", "已取消"),
+                        ],
+                        default="draft",
+                        max_length=20,
+                        verbose_name="状态",
+                    ),
+                ),
+                ("submitted_at", models.DateTimeField(blank=True, null=True, verbose_name="提交时间")),
+                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="审批时间")),
+                ("rejection_reason", models.TextField(blank=True, verbose_name="拒绝原因")),
+                ("paid_at", models.DateTimeField(blank=True, null=True, verbose_name="支付时间")),
+                ("description", models.TextField(help_text="详细说明费用用途和明细", verbose_name="费用说明")),
+                ("notes", models.TextField(blank=True, verbose_name="备注")),
+                (
+                    "applicant",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="expenses",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="申请人",
+                    ),
+                ),
+                (
+                    "approved_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="approved_expenses",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="审批人",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "department",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="departments.department",
+                        verbose_name="申请部门",
+                    ),
+                ),
+                (
+                    "journal",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="expenses",
+                        to="finance.journal",
+                        verbose_name="关联凭证",
+                    ),
+                ),
+                (
+                    "paid_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="paid_expenses",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="支付人",
+                    ),
+                ),
+                (
+                    "payment_account",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="支付费用使用的会计科目（如银行存款、库存现金）",
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="finance.account",
+                        verbose_name="支付科目",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '费用报销单',
-                'verbose_name_plural': '费用报销单',
-                'db_table': 'finance_expense',
-                'ordering': ['-expense_date', '-created_at'],
-                'indexes': [models.Index(fields=['applicant', 'status'], name='finance_exp_applica_dabe2b_idx'), models.Index(fields=['expense_date'], name='finance_exp_expense_a60cc7_idx'), models.Index(fields=['category'], name='finance_exp_categor_54fa26_idx'), models.Index(fields=['status'], name='finance_exp_status_857ce9_idx')],
+                "verbose_name": "费用报销单",
+                "verbose_name_plural": "费用报销单",
+                "db_table": "finance_expense",
+                "ordering": ["-expense_date", "-created_at"],
+                "indexes": [
+                    models.Index(
+                        fields=["applicant", "status"], name="finance_exp_applica_dabe2b_idx"
+                    ),
+                    models.Index(fields=["expense_date"], name="finance_exp_expense_a60cc7_idx"),
+                    models.Index(fields=["category"], name="finance_exp_categor_54fa26_idx"),
+                    models.Index(fields=["status"], name="finance_exp_status_857ce9_idx"),
+                ],
             },
         ),
     ]

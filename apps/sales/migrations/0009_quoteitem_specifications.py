@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('sales', '0008_salesorder_invoice_status'),
+        ("sales", "0008_salesorder_invoice_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='quoteitem',
-            name='specifications',
-            field=models.CharField(blank=True, help_text='产品规格型号', max_length=500, verbose_name='产品规格'),
+            model_name="quoteitem",
+            name="specifications",
+            field=models.CharField(
+                blank=True, help_text="产品规格型号", max_length=500, verbose_name="产品规格"
+            ),
         ),
     ]

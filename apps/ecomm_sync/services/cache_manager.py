@@ -41,20 +41,20 @@ class CacheManager:
         """初始化缓存管理器"""
         self.redis_client = cache
         self.local_cache = {}  # L1内存缓存
-        self.local_cache_ttl = LOCAL_CACHE_CONFIG['ttl']
-        self.local_cache_max_size = LOCAL_CACHE_CONFIG['max_size']
+        self.local_cache_ttl = LOCAL_CACHE_CONFIG["ttl"]
+        self.local_cache_max_size = LOCAL_CACHE_CONFIG["max_size"]
 
         # 缓存统计
         self.stats = {
-            'hits': 0,
-            'misses': 0,
-            'sets': 0,
-            'deletes': 0,
+            "hits": 0,
+            "misses": 0,
+            "sets": 0,
+            "deletes": 0,
         }
 
         logger.info("初始化智能缓存管理器")
 
-    async def get(self, key: str, cache_type: str = 'default') -> Optional[Any]:
+    async def get(self, key: str, cache_type: str = "default") -> Optional[Any]:
         """
         获取缓存（多级查询）
 
@@ -74,7 +74,7 @@ class CacheManager:
             value, timestamp = self.local_cache[key]
             # 检查是否过期
             if datetime.now() - timestamp < timedelta(seconds=self.local_cache_ttl):
-                self.stats['hits'] += 1
+                self.stats["hits"] += 1
                 logger.debug(f"L1缓存命中: {key}")
                 return value
             else:
@@ -88,7 +88,7 @@ class CacheManager:
                 # 反序列化
                 try:
                     if isinstance(value, bytes):
-                        value = value.decode('utf-8')
+                        value = value.decode("utf-8")
                     value = json.loads(value)
                 except:
                     pass
@@ -96,7 +96,7 @@ class CacheManager:
                 # 回写L1缓存
                 self.local_cache[key] = (value, datetime.now())
 
-                self.stats['hits'] += 1
+                self.stats["hits"] += 1
                 logger.debug(f"L2缓存命中: {key}")
                 return value
 
@@ -104,16 +104,11 @@ class CacheManager:
             logger.error(f"Redis缓存查询失败: {e}")
 
         # 缓存未命中
-        self.stats['misses'] += 1
+        self.stats["misses"] += 1
         logger.debug(f"缓存未命中: {key}")
         return None
 
-    async def set(
-        self,
-        key: str,
-        value: Any,
-        cache_type: str = 'default'
-    ):
+    async def set(self, key: str, value: Any, cache_type: str = "default"):
         """
         设置缓存（根据策略选择写入方式）
 
@@ -127,8 +122,8 @@ class CacheManager:
         """
         # 获取缓存策略
         strategy_config = CACHE_STRATEGIES.get(cache_type, {})
-        strategy = strategy_config.get('strategy', 'cache_aside')
-        ttl = strategy_config.get('ttl', 300)
+        strategy = strategy_config.get("strategy", "cache_aside")
+        ttl = strategy_config.get("ttl", 300)
 
         # 序列化值
         try:
@@ -137,21 +132,21 @@ class CacheManager:
             serialized_value = str(value)
 
         # 根据策略写入
-        if strategy == 'write_through':
+        if strategy == "write_through":
             # 写透：同时写本地和Redis
             self.local_cache[key] = (value, datetime.now())
             self.redis_client.setex(key, ttl, serialized_value)
 
-        elif strategy == 'write_back':
+        elif strategy == "write_back":
             # 写回：先写本地，异步刷Redis
             self.local_cache[key] = (value, datetime.now())
             asyncio.create_task(self._write_back_to_redis(key, serialized_value, ttl))
 
-        elif strategy == 'cache_aside':
+        elif strategy == "cache_aside":
             # 旁路：只写Redis
             self.redis_client.setex(key, ttl, serialized_value)
 
-        self.stats['sets'] += 1
+        self.stats["sets"] += 1
         logger.debug(f"缓存已设置: {key}, strategy={strategy}")
 
     async def delete(self, key: str):
@@ -174,7 +169,7 @@ class CacheManager:
         except Exception as e:
             logger.error(f"Redis缓存删除失败: {e}")
 
-        self.stats['deletes'] += 1
+        self.stats["deletes"] += 1
         logger.debug(f"缓存已删除: {key}")
 
     async def invalidate_pattern(self, pattern: str):
@@ -204,12 +199,7 @@ class CacheManager:
         except Exception as e:
             logger.error(f"批量失效缓存失败: {e}")
 
-    async def warm_up(
-        self,
-        data_loader: callable,
-        keys: List[str],
-        cache_type: str = 'default'
-    ):
+    async def warm_up(self, data_loader: callable, keys: List[str], cache_type: str = "default"):
         """
         缓存预热
 
@@ -264,32 +254,27 @@ class CacheManager:
                 'deletes': 78,
             }
         """
-        total = self.stats['hits'] + self.stats['misses']
-        hit_rate = self.stats['hits'] / total if total > 0 else 0
+        total = self.stats["hits"] + self.stats["misses"]
+        hit_rate = self.stats["hits"] / total if total > 0 else 0
 
         return {
             **self.stats,
-            'hit_rate': round(hit_rate, 4),
-            'total_requests': total,
-            'local_cache_size': len(self.local_cache),
+            "hit_rate": round(hit_rate, 4),
+            "total_requests": total,
+            "local_cache_size": len(self.local_cache),
         }
 
     def reset_stats(self):
         """重置缓存统计"""
         self.stats = {
-            'hits': 0,
-            'misses': 0,
-            'sets': 0,
-            'deletes': 0,
+            "hits": 0,
+            "misses": 0,
+            "sets": 0,
+            "deletes": 0,
         }
         logger.info("缓存统计已重置")
 
-    async def _write_back_to_redis(
-        self,
-        key: str,
-        value: str,
-        ttl: int
-    ):
+    async def _write_back_to_redis(self, key: str, value: str, ttl: int):
         """
         异步写回Redis（内部方法）
 
@@ -319,7 +304,7 @@ class CacheManager:
             keys = []
             for key in self.redis_client.keys(pattern):
                 if isinstance(key, bytes):
-                    key = key.decode('utf-8')
+                    key = key.decode("utf-8")
                 keys.append(key)
             return keys
         except Exception as e:
@@ -378,11 +363,11 @@ def cleanup_cache_task():
 
         logger.info("缓存清理完成")
 
-        return {'status': 'success', 'message': '缓存清理完成'}
+        return {"status": "success", "message": "缓存清理完成"}
 
     except Exception as e:
         logger.error(f"缓存清理失败: {e}")
-        return {'status': 'error', 'message': str(e)}
+        return {"status": "error", "message": str(e)}
 
 
 @shared_task
@@ -406,8 +391,8 @@ def reset_cache_stats_task():
 
         logger.info("缓存统计已重置")
 
-        return {'status': 'success', 'message': '缓存统计已重置'}
+        return {"status": "success", "message": "缓存统计已重置"}
 
     except Exception as e:
         logger.error(f"重置缓存统计失败: {e}")
-        return {'status': 'error', 'message': str(e)}
+        return {"status": "error", "message": str(e)}

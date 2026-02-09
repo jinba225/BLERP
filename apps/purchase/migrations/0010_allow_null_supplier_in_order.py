@@ -5,16 +5,22 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('suppliers', '0005_remove_supplier_contact_person_remove_supplier_email_and_more'),
-        ('purchase', '0009_remove_quality_inspection'),
+        ("suppliers", "0005_remove_supplier_contact_person_remove_supplier_email_and_more"),
+        ("purchase", "0009_remove_quality_inspection"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='purchaseorder',
-            name='supplier',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='purchase_orders', to='suppliers.supplier', verbose_name='供应商'),
+            model_name="purchaseorder",
+            name="supplier",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="purchase_orders",
+                to="suppliers.supplier",
+                verbose_name="供应商",
+            ),
         ),
     ]

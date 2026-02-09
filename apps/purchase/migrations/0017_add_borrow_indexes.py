@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('purchase', '0016_add_borrow_status_options'),
+        ("purchase", "0016_add_borrow_status_options"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='borrow',
-            name='status',
-            field=models.CharField(choices=[('draft', '草稿'), ('borrowed', '借用中'), ('completed', '已完成')], default='draft', max_length=20, verbose_name='状态'),
+            model_name="borrow",
+            name="status",
+            field=models.CharField(
+                choices=[("draft", "草稿"), ("borrowed", "借用中"), ("completed", "已完成")],
+                default="draft",
+                max_length=20,
+                verbose_name="状态",
+            ),
         ),
     ]

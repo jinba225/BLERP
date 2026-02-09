@@ -10,11 +10,7 @@ import base64
 import logging
 from typing import Dict, Any, List
 from .base import BaseCollectAdapter
-from ..exceptions import (
-    CollectException,
-    DataParseException,
-    APIResponseException
-)
+from ..exceptions import CollectException, DataParseException, APIResponseException
 
 
 logger = logging.getLogger(__name__)
@@ -44,17 +40,17 @@ class AliExpressCollectAdapter(BaseCollectAdapter):
         super().__init__(platform_config)
 
         # AliExpress特有配置
-        self.app_key = getattr(platform_config, 'app_key', self.api_key)
-        self.app_secret = getattr(platform_config, 'app_secret', self.api_secret)
+        self.app_key = getattr(platform_config, "app_key", self.api_key)
+        self.app_secret = getattr(platform_config, "app_secret", self.api_secret)
 
         # AliExpress API基础URL
-        self.api_url = 'https://api.aliexpress.com'  # 生产环境
+        self.api_url = "https://api.aliexpress.com"  # 生产环境
 
         # API版本
-        self.api_version = '1.0'
+        self.api_version = "1.0"
 
         # 默认语言
-        self.language = 'en'  # en, ru, pt, es, fr
+        self.language = "en"  # en, ru, pt, es, fr
 
         logger.info(f"初始化AliExpress采集适配器: app_key={self.app_key}")
 
@@ -74,8 +70,8 @@ class AliExpressCollectAdapter(BaseCollectAdapter):
             >>> print(item_id)  # '1005001234567890'
         """
         patterns = [
-            r'/item/(\d+)\.html',
-            r'productId=(\d+)',
+            r"/item/(\d+)\.html",
+            r"productId=(\d+)",
             r'product_id["\']:\s*["\'](\d+)["\']',
         ]
 
@@ -117,13 +113,11 @@ class AliExpressCollectAdapter(BaseCollectAdapter):
 
         # 3. HMAC-SHA256加密
         signature = hmac.new(
-            self.app_secret.encode('utf-8'),
-            params_str.encode('utf-8'),
-            hashlib.sha256
+            self.app_secret.encode("utf-8"), params_str.encode("utf-8"), hashlib.sha256
         ).digest()
 
         # 4. Base64编码
-        sign = base64.b64encode(signature).decode('utf-8')
+        sign = base64.b64encode(signature).decode("utf-8")
 
         logger.debug(f"生成签名: {sign}")
 
@@ -156,37 +150,37 @@ class AliExpressCollectAdapter(BaseCollectAdapter):
             # 2. 构造请求参数
             timestamp = str(int(time.time() * 1000))
             params = {
-                'method': 'getProductDetail',
-                'app_key': self.app_key,
-                'timestamp': timestamp,
-                'format': 'json',
-                'v': self.api_version,
-                'language': self.language,
-                'productId': product_id,
-                'localCountry': 'US',  # 可选：目标国家
+                "method": "getProductDetail",
+                "app_key": self.app_key,
+                "timestamp": timestamp,
+                "format": "json",
+                "v": self.api_version,
+                "language": self.language,
+                "productId": product_id,
+                "localCountry": "US",  # 可选：目标国家
             }
 
             # 3. 生成签名
-            params['sign'] = self.sign(params)
+            params["sign"] = self.sign(params)
 
             # 4. 发送API请求
             logger.info(f"开始采集AliExpress商品: product_id={product_id}")
-            response = self._make_request('POST', self.api_url, json_data=params)
+            response = self._make_request("POST", self.api_url, json_data=params)
 
             # 5. 检查响应
-            if 'error_response' in response:
-                error_response = response['error_response']
+            if "error_response" in response:
+                error_response = response["error_response"]
                 raise APIResponseException(
                     self.platform_name,
-                    error_response.get('code', 'Unknown'),
-                    error_response.get('msg', error_response.get('message', 'Unknown error'))
+                    error_response.get("code", "Unknown"),
+                    error_response.get("msg", error_response.get("message", "Unknown error")),
                 )
 
             # 6. 提取商品数据
-            if 'result' not in response:
+            if "result" not in response:
                 raise DataParseException(f"AliExpress API响应格式异常: {response}")
 
-            product_data = response['result']
+            product_data = response["result"]
 
             # 7. 标准化数据
             normalized_data = self.normalize_data(product_data)
@@ -200,9 +194,7 @@ class AliExpressCollectAdapter(BaseCollectAdapter):
         except Exception as e:
             logger.error(f"采集AliExpress商品失败: {e}")
             raise CollectException(
-                code=500,
-                msg=f"采集AliExpress商品失败: {str(e)}",
-                details={'item_url': item_url}
+                code=500, msg=f"采集AliExpress商品失败: {str(e)}", details={"item_url": item_url}
             )
 
     def normalize_data(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -225,52 +217,46 @@ class AliExpressCollectAdapter(BaseCollectAdapter):
         """
         try:
             # 提取价格（美元）
-            original_price = raw_data.get('originalPrice', {})
-            price = float(original_price.get('value', 0))
+            original_price = raw_data.get("originalPrice", {})
+            price = float(original_price.get("value", 0))
 
             # 提取图片列表
             images = self._extract_images(raw_data)
 
             # 提取店铺信息
-            shop_name = raw_data.get('sellerName', 'AliExpress Store')
+            shop_name = raw_data.get("sellerName", "AliExpress Store")
 
             # 构造标准化数据
             normalized = {
                 # ========== 产品库字段 ==========
-                'product_name': raw_data.get('subject', ''),
-                'main_image': raw_data.get('imageUrl', ''),
-                'price': price,
-                'stock': int(raw_data.get('stock', 0)),
-                'description': raw_data.get('description', ''),
-
+                "product_name": raw_data.get("subject", ""),
+                "main_image": raw_data.get("imageUrl", ""),
+                "price": price,
+                "stock": int(raw_data.get("stock", 0)),
+                "description": raw_data.get("description", ""),
                 # ========== Listing字段 ==========
-                'listing_title': raw_data.get('subject', '') + '[Cross-border]',
-                'images': images,
-
+                "listing_title": raw_data.get("subject", "") + "[Cross-border]",
+                "images": images,
                 # SKU信息
-                'skus': self._extract_skus(raw_data),
-
+                "skus": self._extract_skus(raw_data),
                 # ========== 源数据 ==========
-                'source_sku': str(raw_data.get('productId', '')),
-                'source_platform': 'aliexpress',
-                'source_url': f"https://www.aliexpress.com/item/{raw_data.get('productId', '')}.html",
-
+                "source_sku": str(raw_data.get("productId", "")),
+                "source_platform": "aliexpress",
+                "source_url": f"https://www.aliexpress.com/item/{raw_data.get('productId', '')}.html",
                 # ========== 店铺信息 ==========
-                'shop_name': shop_name,
-                'shop_id': str(raw_data.get('sellerId', '')),
-
+                "shop_name": shop_name,
+                "shop_id": str(raw_data.get("sellerId", "")),
                 # ========== 平台配置 ==========
-                'platform_config': {
-                    'aliexpress_product_id': raw_data.get('productId', ''),
-                    'aliexpress_seller_id': raw_data.get('sellerId', ''),
-                    'aliexpress_category_id': raw_data.get('categoryId', ''),
-                    'aliexpress_original_price': price,
-                    'aliexpress_sale_price': raw_data.get('salePrice', {}).get('value', price),
-                    'aliexpress_language': self.language,
+                "platform_config": {
+                    "aliexpress_product_id": raw_data.get("productId", ""),
+                    "aliexpress_seller_id": raw_data.get("sellerId", ""),
+                    "aliexpress_category_id": raw_data.get("categoryId", ""),
+                    "aliexpress_original_price": price,
+                    "aliexpress_sale_price": raw_data.get("salePrice", {}).get("value", price),
+                    "aliexpress_language": self.language,
                 },
-
                 # ========== 原始数据（备用） ==========
-                'raw_data': raw_data,
+                "raw_data": raw_data,
             }
 
             logger.debug(f"标准化AliExpress数据: product_name={normalized['product_name']}")
@@ -294,22 +280,22 @@ class AliExpressCollectAdapter(BaseCollectAdapter):
         images = []
 
         # 主图
-        if 'imageUrl' in raw_data:
-            images.append(raw_data['imageUrl'])
+        if "imageUrl" in raw_data:
+            images.append(raw_data["imageUrl"])
 
         # 商品图片列表
-        if 'imageUrls' in raw_data:
-            image_urls = raw_data['imageUrls']
+        if "imageUrls" in raw_data:
+            image_urls = raw_data["imageUrls"]
             if isinstance(image_urls, list):
                 images.extend(image_urls)
 
         # SKU图片
-        if 'sku' in raw_data:
-            sku_list = raw_data.get('sku', [])
+        if "sku" in raw_data:
+            sku_list = raw_data.get("sku", [])
             if isinstance(sku_list, list):
                 for sku in sku_list:
-                    if 'imageUrl' in sku:
-                        images.append(sku['imageUrl'])
+                    if "imageUrl" in sku:
+                        images.append(sku["imageUrl"])
 
         # 去重并限制数量
         seen = set()
@@ -335,19 +321,19 @@ class AliExpressCollectAdapter(BaseCollectAdapter):
 
         try:
             # AliExpress的SKU信息在sku字段
-            sku_list = raw_data.get('sku', [])
+            sku_list = raw_data.get("sku", [])
 
             if not isinstance(sku_list, list):
                 return skus
 
             for sku_data in sku_list:
                 sku = {
-                    'sku_id': str(sku_data.get('skuId', '')),
-                    'sku_name': sku_data.get('skuProp', ''),
-                    'price': float(sku_data.get('salePrice', {}).get('value', 0)),
-                    'stock': int(sku_data.get('stock', 0)),
-                    'sku_image': sku_data.get('imageUrl', ''),
-                    'attributes': self._extract_sku_attributes(sku_data),
+                    "sku_id": str(sku_data.get("skuId", "")),
+                    "sku_name": sku_data.get("skuProp", ""),
+                    "price": float(sku_data.get("salePrice", {}).get("value", 0)),
+                    "stock": int(sku_data.get("stock", 0)),
+                    "sku_image": sku_data.get("imageUrl", ""),
+                    "attributes": self._extract_sku_attributes(sku_data),
                 }
                 skus.append(sku)
 
@@ -370,12 +356,12 @@ class AliExpressCollectAdapter(BaseCollectAdapter):
 
         try:
             # 提取SKU属性（如颜色、尺寸等）
-            sku_props = sku_data.get('skuPropInfos', [])
+            sku_props = sku_data.get("skuPropInfos", [])
 
             if isinstance(sku_props, list):
                 for prop in sku_props:
-                    prop_name = prop.get('attrName', '')
-                    prop_value = prop.get('attrValue', '')
+                    prop_name = prop.get("attrName", "")
+                    prop_value = prop.get("attrValue", "")
                     if prop_name and prop_value:
                         attributes[prop_name] = prop_value
 
@@ -396,11 +382,11 @@ class AliExpressCollectAdapter(BaseCollectAdapter):
             >>> adapter.set_language('ru')  # 俄语
             >>> data = adapter.collect_item(url)
         """
-        supported_languages = ['en', 'ru', 'pt', 'es', 'fr']
+        supported_languages = ["en", "ru", "pt", "es", "fr"]
 
         if language not in supported_languages:
             logger.warning(f"不支持的语言: {language}，使用默认语言en")
-            self.language = 'en'
+            self.language = "en"
         else:
             self.language = language
 

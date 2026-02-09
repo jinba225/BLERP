@@ -4,15 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ecomm_sync', '0004_alter_platformaccount_platform_and_more'),
+        ("ecomm_sync", "0004_alter_platformaccount_platform_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='platformaccount',
-            name='account_type',
-            field=models.CharField(choices=[('amazon', 'Amazon'), ('ebay', 'eBay'), ('aliexpress', '速卖通'), ('lazada', 'Lazada'), ('woo', 'WooCommerce'), ('shopify', 'Shopify'), ('jumia', 'Jumia'), ('cdiscount', 'Cdiscount')], max_length=20, verbose_name='账号类型'),
+            model_name="platformaccount",
+            name="account_type",
+            field=models.CharField(
+                choices=[
+                    ("amazon", "Amazon"),
+                    ("ebay", "eBay"),
+                    ("aliexpress", "速卖通"),
+                    ("lazada", "Lazada"),
+                    ("woo", "WooCommerce"),
+                    ("shopify", "Shopify"),
+                    ("jumia", "Jumia"),
+                    ("cdiscount", "Cdiscount"),
+                ],
+                max_length=20,
+                verbose_name="账号类型",
+            ),
         ),
     ]

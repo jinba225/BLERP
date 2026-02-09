@@ -20,8 +20,13 @@ from .base import (
 class AnthropicProvider(BaseAIProvider):
     """Anthropic Claude Provider 实现"""
 
-    def __init__(self, api_key: str, api_base: Optional[str] = None,
-                 model_name: str = "claude-3-5-sonnet-20241022", **kwargs):
+    def __init__(
+        self,
+        api_key: str,
+        api_base: Optional[str] = None,
+        model_name: str = "claude-3-5-sonnet-20241022",
+        **kwargs,
+    ):
         super().__init__(api_key, api_base, model_name, **kwargs)
 
         # 初始化Anthropic客户端
@@ -34,8 +39,9 @@ class AnthropicProvider(BaseAIProvider):
 
         self.client = Anthropic(**client_params)
 
-    def chat(self, messages: List[Dict[str, str]],
-             tools: Optional[List[Dict[str, Any]]] = None) -> AIResponse:
+    def chat(
+        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+    ) -> AIResponse:
         """
         发送对话请求
 
@@ -86,14 +92,16 @@ class AnthropicProvider(BaseAIProvider):
                 elif block.type == "tool_use":
                     if tool_calls is None:
                         tool_calls = []
-                    tool_calls.append({
-                        "id": block.id,
-                        "type": "function",
-                        "function": {
-                            "name": block.name,
-                            "arguments": str(block.input),
+                    tool_calls.append(
+                        {
+                            "id": block.id,
+                            "type": "function",
+                            "function": {
+                                "name": block.name,
+                                "arguments": str(block.input),
+                            },
                         }
-                    })
+                    )
 
             return AIResponse(
                 content=content,
@@ -112,8 +120,9 @@ class AnthropicProvider(BaseAIProvider):
         except Exception as e:
             raise ProviderAPIException(f"Claude API调用失败: {str(e)}")
 
-    def stream_chat(self, messages: List[Dict[str, str]],
-                   tools: Optional[List[Dict[str, Any]]] = None) -> Iterator[str]:
+    def stream_chat(
+        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+    ) -> Iterator[str]:
         """
         流式对话请求
 
@@ -180,10 +189,12 @@ class AnthropicProvider(BaseAIProvider):
 
         claude_tools = []
         for tool in tools:
-            claude_tools.append({
-                "name": tool.get("name"),
-                "description": tool.get("description"),
-                "input_schema": tool.get("parameters", {}),
-            })
+            claude_tools.append(
+                {
+                    "name": tool.get("name"),
+                    "description": tool.get("description"),
+                    "input_schema": tool.get("parameters", {}),
+                }
+            )
 
         return claude_tools

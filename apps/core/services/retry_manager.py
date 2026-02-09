@@ -34,7 +34,7 @@ class RetryManager:
         max_retries: Optional[int] = None,
         base_delay: Optional[float] = None,
         max_delay: Optional[float] = None,
-        jitter: Optional[bool] = None
+        jitter: Optional[bool] = None,
     ):
         """
         初始化重试管理器
@@ -47,13 +47,13 @@ class RetryManager:
         """
         config = RETRY_CONFIG
 
-        self.max_retries = max_retries or config['max_retries']
-        self.base_delay = base_delay or config['base_delay']
-        self.max_delay = max_delay or config['max_delay']
-        self.jitter = jitter if jitter is not None else config['jitter']
+        self.max_retries = max_retries or config["max_retries"]
+        self.base_delay = base_delay or config["base_delay"]
+        self.max_delay = max_delay or config["max_delay"]
+        self.jitter = jitter if jitter is not None else config["jitter"]
 
-        self.retryable_errors = set(config['retryable_errors'])
-        self.non_retryable_errors = set(config['non_retryable_errors'])
+        self.retryable_errors = set(config["retryable_errors"])
+        self.non_retryable_errors = set(config["non_retryable_errors"])
 
         logger.debug(
             f"初始化重试管理器: max_retries={self.max_retries}, "
@@ -77,7 +77,7 @@ class RetryManager:
             >>> manager.calculate_backoff(2)  # 第3次重试，约4秒
         """
         # 指数退避：base_delay * 2^retry_count
-        exponential_delay = self.base_delay * (2 ** retry_count)
+        exponential_delay = self.base_delay * (2**retry_count)
 
         # 限制最大延迟
         delay = min(exponential_delay, self.max_delay)
@@ -135,48 +135,43 @@ class RetryManager:
         error_msg = str(error).lower()
 
         # 超时错误
-        if 'timeout' in error_name or 'timeout' in error_msg:
-            return 'timeout'
+        if "timeout" in error_name or "timeout" in error_msg:
+            return "timeout"
 
         # 连接错误
-        if 'connection' in error_name or 'connection' in error_msg:
-            return 'connection_error'
+        if "connection" in error_name or "connection" in error_msg:
+            return "connection_error"
 
         # 限流错误
-        if 'rate limit' in error_msg or '429' in error_msg:
-            return 'rate_limit'
+        if "rate limit" in error_msg or "429" in error_msg:
+            return "rate_limit"
 
         # 服务器错误
-        if hasattr(error, 'status_code'):
-            status_code = getattr(error, 'status_code')
+        if hasattr(error, "status_code"):
+            status_code = getattr(error, "status_code")
             if 500 <= status_code < 600:
-                return 'server_error_5xx'
+                return "server_error_5xx"
 
         # 认证错误（不可重试）
-        if 'authentication' in error_msg or 'unauthorized' in error_msg:
-            return 'authentication_failed'
+        if "authentication" in error_msg or "unauthorized" in error_msg:
+            return "authentication_failed"
 
         # 权限错误（不可重试）
-        if 'permission' in error_msg or 'forbidden' in error_msg:
-            return 'permission_denied'
+        if "permission" in error_msg or "forbidden" in error_msg:
+            return "permission_denied"
 
         # 请求错误（不可重试）
-        if 'invalid' in error_msg or 'bad request' in error_msg:
-            return 'invalid_request'
+        if "invalid" in error_msg or "bad request" in error_msg:
+            return "invalid_request"
 
         # 未找到（不可重试）
-        if 'not found' in error_msg or '404' in error_msg:
-            return 'not_found'
+        if "not found" in error_msg or "404" in error_msg:
+            return "not_found"
 
         # 默认：未知错误
-        return 'unknown'
+        return "unknown"
 
-    async def execute_with_retry(
-        self,
-        func: Callable,
-        *args,
-        **kwargs
-    ) -> Any:
+    async def execute_with_retry(self, func: Callable, *args, **kwargs) -> Any:
         """
         执行函数并自动重试（异步版本）
 
@@ -219,26 +214,16 @@ class RetryManager:
                 # 计算退避时间
                 backoff = self.calculate_backoff(attempt)
 
-                logger.warning(
-                    f"第{attempt + 1}次尝试失败: {e}, "
-                    f"等待{backoff:.2f}秒后重试..."
-                )
+                logger.warning(f"第{attempt + 1}次尝试失败: {e}, " f"等待{backoff:.2f}秒后重试...")
 
                 # 等待后重试
                 await asyncio.sleep(backoff)
 
         # 所有重试都失败
-        logger.error(
-            f"达到最大重试次数({self.max_retries})，放弃重试: {last_error}"
-        )
+        logger.error(f"达到最大重试次数({self.max_retries})，放弃重试: {last_error}")
         raise last_error
 
-    def execute_with_retry_sync(
-        self,
-        func: Callable,
-        *args,
-        **kwargs
-    ) -> Any:
+    def execute_with_retry_sync(self, func: Callable, *args, **kwargs) -> Any:
         """
         执行函数并自动重试（同步版本）
 
@@ -268,25 +253,15 @@ class RetryManager:
 
                 backoff = self.calculate_backoff(attempt)
 
-                logger.warning(
-                    f"第{attempt + 1}次尝试失败: {e}, "
-                    f"等待{backoff:.2f}秒后重试..."
-                )
+                logger.warning(f"第{attempt + 1}次尝试失败: {e}, " f"等待{backoff:.2f}秒后重试...")
 
                 time.sleep(backoff)
 
-        logger.error(
-            f"达到最大重试次数({self.max_retries})，放弃重试: {last_error}"
-        )
+        logger.error(f"达到最大重试次数({self.max_retries})，放弃重试: {last_error}")
         raise last_error
 
 
-def retry(
-    max_retries: int = 3,
-    base_delay: float = 1,
-    max_delay: float = 60,
-    jitter: bool = True
-):
+def retry(max_retries: int = 3, base_delay: float = 1, max_delay: float = 60, jitter: bool = True):
     """
     重试装饰器
 
@@ -325,8 +300,7 @@ def retry(
 
 # 便捷函数
 def get_retry_manager(
-    max_retries: Optional[int] = None,
-    base_delay: Optional[float] = None
+    max_retries: Optional[int] = None, base_delay: Optional[float] = None
 ) -> RetryManager:
     """
     获取重试管理器实例（便捷函数）

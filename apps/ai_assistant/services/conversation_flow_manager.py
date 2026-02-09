@@ -20,6 +20,7 @@ from ai_assistant.services.nlp_service import NLPService, Intent, IntentResult
 
 class ConversationState(Enum):
     """对话状态"""
+
     GREETING = "greeting"
     COLLECTING_INFO = "collecting_info"
     CONFIRMING = "confirming"
@@ -31,6 +32,7 @@ class ConversationState(Enum):
 @dataclass
 class ConversationContext:
     """对话上下文"""
+
     session_id: str
     user_id: int
     state: ConversationState = ConversationState.GREETING
@@ -45,11 +47,11 @@ class ConversationContext:
 
 class ConversationFlowManager:
     """对话流管理器"""
-    
+
     def __init__(self, nlp_service: NLPService):
         self.nlp_service = nlp_service
         self.contexts: Dict[str, ConversationContext] = {}
-        
+
         # 每个意图的必需字段
         self.intent_required_fields = {
             Intent.CREATE_ORDER: ["customer_name", "product_name", "quantity"],
@@ -61,29 +63,22 @@ class ConversationFlowManager:
             Intent.QUERY_INVENTORY: [],
             Intent.QUERY_ORDER: ["order_number"],
         }
-    
+
     def create_context(self, session_id: str, user_id: int) -> ConversationContext:
         """创建新的对话上下文"""
         context = ConversationContext(
-            session_id=session_id,
-            user_id=user_id,
-            state=ConversationState.GREETING
+            session_id=session_id, user_id=user_id, state=ConversationState.GREETING
         )
         self.contexts[session_id] = context
         return context
-    
+
     def get_context(self, session_id: str) -> Optional[ConversationContext]:
         """获取对话上下文"""
         return self.contexts.get(session_id)
-    
-    def process_message(
-        self, 
-        session_id: str, 
-        user_id: int, 
-        user_message: str
-    ) -> Tuple[str, bool]:
+
+    def process_message(self, session_id: str, user_id: int, user_message: str) -> Tuple[str, bool]:
         """处理用户消息，返回 AI 回复和是否完成
-        
+
         Returns:
             (reply, is_completed): AI 回复和是否完成对话
         """
@@ -91,14 +86,12 @@ class ConversationFlowManager:
         context = self.get_context(session_id)
         if not context:
             context = self.create_context(session_id, user_id)
-        
+
         # 记录对话历史
-        context.conversation_history.append({
-            "role": "user",
-            "content": user_message,
-            "timestamp": datetime.now().isoformat()
-        })
-        
+        context.conversation_history.append(
+            {"role": "user", "content": user_message, "timestamp": datetime.now().isoformat()}
+        )
+
         # 根据状态处理消息
         try:
             if context.state == ConversationState.GREETING:
@@ -116,7 +109,7 @@ class ConversationFlowManager:
             context.error_message = str(e)
             context.updated_at = datetime.now()
             return f"处理过程中发生错误: {str(e)}", False
-    
+
     def _handle_greeting(self, context: ConversationContext, user_message: str) -> Tuple[str, bool]:
         """处理初始问候消息"""
         # 解析意图
@@ -140,7 +133,12 @@ class ConversationFlowManager:
         if not missing_fields:
             # 所有必需信息都已收集
             # 对于查询类操作，直接执行，不需要确认
-            if context.intent in [Intent.QUERY_PRODUCT, Intent.QUERY_INVENTORY, Intent.QUERY_CUSTOMER, Intent.QUERY_ORDER]:
+            if context.intent in [
+                Intent.QUERY_PRODUCT,
+                Intent.QUERY_INVENTORY,
+                Intent.QUERY_CUSTOMER,
+                Intent.QUERY_ORDER,
+            ]:
                 context.state = ConversationState.EXECUTING
                 return self._execute_operation(context)
             else:
@@ -153,8 +151,10 @@ class ConversationFlowManager:
             reply = self.nlp_service.clarify_missing_info(intent_result, missing_fields)
             context.updated_at = datetime.now()
             return reply, False
-    
-    def _handle_collecting_info(self, context: ConversationContext, user_message: str) -> Tuple[str, bool]:
+
+    def _handle_collecting_info(
+        self, context: ConversationContext, user_message: str
+    ) -> Tuple[str, bool]:
         """处理收集信息阶段的消息"""
         # 在收集信息阶段，直接使用 MockAIProvider 的实体提取逻辑
         # 这样可以避免 NLP 服务的意图识别干扰实体提取
@@ -162,7 +162,7 @@ class ConversationFlowManager:
         # 直接调用 MockAIProvider 的 _extract_intent_entities 方法
         entities = {}
         try:
-            if hasattr(self.nlp_service.ai_provider, '_extract_intent_entities'):
+            if hasattr(self.nlp_service.ai_provider, "_extract_intent_entities"):
                 entities = self.nlp_service.ai_provider._extract_intent_entities(user_message)
                 # 调试信息
                 # print(f"DEBUG: _handle_collecting_info - 提取到的实体: {entities}")
@@ -178,7 +178,8 @@ class ConversationFlowManager:
         # 检查缺失字段
         required_fields = self.intent_required_fields.get(context.intent, [])
         missing_fields = [
-            field for field in required_fields
+            field
+            for field in required_fields
             if field not in context.collected_data or not context.collected_data.get(field)
         ]
 
@@ -192,11 +193,11 @@ class ConversationFlowManager:
 
         # 如果还在收集信息阶段，检查是否有确认指令
         if missing_fields:
-            if any(word in user_message.lower() for word in ['确认', '是', '好的', 'OK', '没问题']):
+            if any(word in user_message.lower() for word in ["确认", "是", "好的", "OK", "没问题"]):
                 # 用户确认，进入确认阶段
                 context.state = ConversationState.CONFIRMING
                 return self._generate_confirmation(context)
-            elif any(word in user_message.lower() for word in ['取消', '重来', '重新开始']):
+            elif any(word in user_message.lower() for word in ["取消", "重来", "重新开始"]):
                 # 用户取消，重新开始
                 context.state = ConversationState.GREETING
                 context.collected_data = {}
@@ -205,12 +206,14 @@ class ConversationFlowManager:
 
         # 继续收集信息
         reply = self.nlp_service.clarify_missing_info(
-            IntentResult(intent=context.intent, confidence=0.85, entities={}, original_text=user_message),
-            missing_fields
+            IntentResult(
+                intent=context.intent, confidence=0.85, entities={}, original_text=user_message
+            ),
+            missing_fields,
         )
         context.updated_at = datetime.now()
         return reply, False
-    
+
     def _generate_confirmation(self, context: ConversationContext) -> Tuple[str, bool]:
         """生成确认消息"""
         intent_name = {
@@ -223,26 +226,29 @@ class ConversationFlowManager:
             Intent.QUERY_INVENTORY: "查询库存",
             Intent.QUERY_ORDER: "查询订单",
         }.get(context.intent, "未知操作")
-        
+
         reply = f"确认要执行以下操作：\n\n"
         reply += f"操作类型: {intent_name}\n"
-        
+
         # 显示收集的数据
         for key, value in context.collected_data.items():
             reply += f"{key}: {value}\n"
-        
+
         reply += '\n请确认是否继续？（回复"确认"或"取消"）'
         context.updated_at = datetime.now()
         return reply, False
-    
-    def _handle_confirming(self, context: ConversationContext, user_message: str) -> Tuple[str, bool]:
+
+    def _handle_confirming(
+        self, context: ConversationContext, user_message: str
+    ) -> Tuple[str, bool]:
         """处理确认阶段的消息"""
         user_message_lower = user_message.lower()
 
         # 首先检查是否还有缺失的必需信息
         required_fields = self.intent_required_fields.get(context.intent, [])
         missing_fields = [
-            field for field in required_fields
+            field
+            for field in required_fields
             if field not in context.collected_data or not context.collected_data.get(field)
         ]
 
@@ -255,7 +261,13 @@ class ConversationFlowManager:
             return reply, False
 
         # 检查确认或取消指令
-        if "确认" in user_message_lower or "是" in user_message_lower or "好的" in user_message_lower or "OK" in user_message_lower or "没问题":
+        if (
+            "确认" in user_message_lower
+            or "是" in user_message_lower
+            or "好的" in user_message_lower
+            or "OK" in user_message_lower
+            or "没问题"
+        ):
             # 用户确认，执行操作
             context.state = ConversationState.EXECUTING
             return self._execute_operation(context)
@@ -268,7 +280,7 @@ class ConversationFlowManager:
         else:
             # 用户没有明确回答，重新确认
             return self._generate_confirmation(context)
-    
+
     def _execute_operation(self, context: ConversationContext) -> Tuple[str, bool]:
         """执行业务操作"""
         try:
@@ -291,68 +303,70 @@ class ConversationFlowManager:
                 result = self._query_order(context)
             else:
                 raise ValueError(f"未知意图: {context.intent}")
-            
+
             context.state = ConversationState.COMPLETED
             context.updated_at = datetime.now()
-            
+
             # 记录 AI 回复
-            context.conversation_history.append({
-                "role": "assistant",
-                "content": result,
-                "timestamp": datetime.now().isoformat()
-            })
-            
+            context.conversation_history.append(
+                {"role": "assistant", "content": result, "timestamp": datetime.now().isoformat()}
+            )
+
             return result, True
-        
+
         except Exception as e:
             context.state = ConversationState.ERROR
             context.error_message = str(e)
             context.updated_at = datetime.now()
             return f"执行操作时发生错误: {str(e)}", False
-    
-    def _handle_executing(self, context: ConversationContext, user_message: str) -> Tuple[str, bool]:
+
+    def _handle_executing(
+        self, context: ConversationContext, user_message: str
+    ) -> Tuple[str, bool]:
         """处理执行阶段的消息（不应该到达这里）"""
         return self._generate_confirmation(context)
-    
+
     def _handle_completed_or_error(self, context: ConversationContext) -> Tuple[str, bool]:
         """处理已完成或错误的对话"""
         if context.state == ConversationState.COMPLETED:
             return "操作已完成。如需继续，请重新开始。", True
         else:
             return f"操作失败: {context.error_message}。如需继续，请重新开始。", False
-    
+
     def _create_order(self, context: ConversationContext) -> str:
         """创建销售订单（示例实现）"""
         # 这里应该调用实际的业务逻辑
         customer_name = context.collected_data.get("customer_name", "")
         product_name = context.collected_data.get("product_name", "")
         quantity = context.collected_data.get("quantity", "")
-        
+
         return f"✅ 成功创建销售订单！\n客户: {customer_name}\n产品: {product_name}\n数量: {quantity}\n\n订单号: SO{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    
+
     def _create_quote(self, context: ConversationContext) -> str:
         """创建报价单（示例实现）"""
         customer_name = context.collected_data.get("customer_name", "")
         product_name = context.collected_data.get("product_name", "")
         quantity = context.collected_data.get("quantity", "")
-        
+
         return f"✅ 成功创建报价单！\n客户: {customer_name}\n产品: {product_name}\n数量: {quantity}\n\n报价单号: QT{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    
+
     def _approve_order(self, context: ConversationContext) -> str:
         """审核订单（示例实现）"""
         order_number = context.collected_data.get("order_number", "")
         return f"✅ 成功审核订单 {order_number}！"
-    
+
     def _reject_order(self, context: ConversationContext) -> str:
         """拒绝订单（示例实现）"""
         order_number = context.collected_data.get("order_number", "")
         return f"❌ 已拒绝订单 {order_number}。"
-    
+
     def _query_customer(self, context: ConversationContext) -> str:
         """查询客户（示例实现）"""
         customer_name = context.collected_data.get("customer_name", "")
-        return f"📋 客户信息:\n客户名称: {customer_name}\n客户代码: CUST001\n联系人: 张三\n电话: 13800138000\n地址: 北京市朝阳区"
-    
+        return (
+            f"📋 客户信息:\n客户名称: {customer_name}\n客户代码: CUST001\n联系人: 张三\n电话: 13800138000\n地址: 北京市朝阳区"
+        )
+
     def _query_product(self, context: ConversationContext) -> str:
         """查询产品（真实实现）"""
         from ai_assistant.tools.registry import ToolRegistry
@@ -386,9 +400,9 @@ class ConversationFlowManager:
                 reply = f"📦 找到 {len(products)} 个产品：\n\n"
                 for i, product in enumerate(products[:10], 1):  # 最多显示10个
                     reply += f"{i}. **{product.get('name', 'N/A')}**\n"
-                    if product.get('code'):
+                    if product.get("code"):
                         reply += f"   编码: {product['code']}\n"
-                    if product.get('specifications'):
+                    if product.get("specifications"):
                         reply += f"   规格: {product['specifications']}\n"
                     reply += f"   单位: {product.get('unit', 'N/A')}\n"
                     reply += f"   状态: {product.get('status', 'N/A')}\n"
@@ -430,7 +444,9 @@ class ConversationFlowManager:
                 for i, product in enumerate(products[:10], 1):
                     reply += f"{i}. **{product.get('product', 'N/A')}**\n"
                     reply += f"   当前库存: {product.get('quantity', 0)}\n"
-                    reply += f"   状态: {'⚠️ 低库存' if product.get('is_low_stock', False) else '✅ 正常'}\n"
+                    reply += (
+                        f"   状态: {'⚠️ 低库存' if product.get('is_low_stock', False) else '✅ 正常'}\n"
+                    )
                     reply += "\n"
 
                 if len(products) > 10:
@@ -453,8 +469,7 @@ class ConversationFlowManager:
             if customer_name:
                 # 搜索特定客户
                 customers = Customer.objects.filter(
-                    name__icontains=customer_name,
-                    is_deleted=False
+                    name__icontains=customer_name, is_deleted=False
                 )[:10]
             else:
                 # 返回所有客户
@@ -489,12 +504,11 @@ class ConversationFlowManager:
             if order_number:
                 # 查询特定订单
                 orders = SalesOrder.objects.filter(
-                    order_number__icontains=order_number,
-                    is_deleted=False
+                    order_number__icontains=order_number, is_deleted=False
                 )[:5]
             else:
                 # 返回最近的订单
-                orders = SalesOrder.objects.filter(is_deleted=False).order_by('-created_at')[:10]
+                orders = SalesOrder.objects.filter(is_deleted=False).order_by("-created_at")[:10]
 
             if not orders:
                 return f"📋 未找到匹配的订单"
@@ -512,16 +526,16 @@ class ConversationFlowManager:
 
         except Exception as e:
             return f"❌ 查询订单时发生错误: {str(e)}"
-    
+
     def _query_inventory(self, context: ConversationContext) -> str:
         """查询库存（示例实现）"""
         return f"📊 库存信息:\n笔记本电脑: 100 台\n显示器: 50 台\n键盘: 200 个"
-    
+
     def _query_order(self, context: ConversationContext) -> str:
         """查询订单（示例实现）"""
         order_number = context.collected_data.get("order_number", "")
         return f"📋 订单信息:\n订单号: {order_number}\n状态: 已审核\n总金额: ¥50,000.00\n创建时间: 2025-01-26"
-    
+
     def reset_context(self, session_id: str) -> None:
         """重置对话上下文"""
         if session_id in self.contexts:

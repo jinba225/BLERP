@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ai_assistant', '0007_alter_aimodelconfig_provider_customeraiconfig'),
+        ("ai_assistant", "0007_alter_aimodelconfig_provider_customeraiconfig"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='aitool',
-            name='handler_path',
-            field=models.CharField(help_text='如: ai_assistant.tools.sales.SearchCustomerTool', max_length=200, verbose_name='处理器路径'),
+            model_name="aitool",
+            name="handler_path",
+            field=models.CharField(
+                help_text="如: ai_assistant.tools.sales.SearchCustomerTool",
+                max_length=200,
+                verbose_name="处理器路径",
+            ),
         ),
     ]

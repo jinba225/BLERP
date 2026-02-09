@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('suppliers', '0003_alter_supplier_payment_terms'),
+        ("suppliers", "0003_alter_supplier_payment_terms"),
     ]
 
     operations = [
         migrations.RemoveIndex(
-            model_name='supplier',
-            name='suppliers_s_supplie_c9bf31_idx',
+            model_name="supplier",
+            name="suppliers_s_supplie_c9bf31_idx",
         ),
         migrations.RemoveField(
-            model_name='supplier',
-            name='supplier_type',
+            model_name="supplier",
+            name="supplier_type",
         ),
     ]

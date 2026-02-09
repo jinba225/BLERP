@@ -1,0 +1,85 @@
+# Django ERP 定时任务配置示例
+#
+# 用法:
+# 1. 复制此文件: cp scripts/crontab.example /tmp/my-crontab
+# 2. 修改路径和环境变量
+# 3. 安装cron任务: crontab /tmp/my-crontab
+# 4. 查看已安装的任务: crontab -l
+# 5. 删除所有任务: crontab -r
+
+# ============================================
+# 环境变量
+# ============================================
+
+# 设置PATH环境变量，确保脚本可以找到所有命令
+PATH=/usr/local/bin:/usr/bin:/bin
+
+# 设置项目路径
+PROJECT_DIR=/path/to/django_erp
+
+# ============================================
+# 数据库备份任务
+# ============================================
+
+# 每天凌晨2点执行数据库备份
+0 2 * * * cd $PROJECT_DIR && ./scripts/backup.sh production >> $PROJECT_DIR/logs/cron_backup.log 2>&1
+
+# 每6小时执行一次数据库备份（高频备份）
+# 0 */6 * * * cd $PROJECT_DIR && ./scripts/backup.sh production >> $PROJECT_DIR/logs/cron_backup.log 2>&1
+
+# 每周日凌晨3点执行完整备份（包括媒体文件）
+0 3 * * 0 cd $PROJECT_DIR && BACKUP_MEDIA=true ./scripts/backup.sh production >> $PROJECT_DIR/logs/cron_backup.log 2>&1
+
+# ============================================
+# 数据库清理任务（可选）
+# ============================================
+
+# 每天凌晨4点清理过期的软删除记录（如果有这样的管理命令）
+# 0 4 * * * cd $PROJECT_DIR && python manage.py cleanup_deleted_records >> $PROJECT_DIR/logs/cron_cleanup.log 2>&1
+
+# ============================================
+# 系统维护任务（可选）
+# ============================================
+
+# 每天凌晨5点清理Django session
+# 0 5 * * * cd $PROJECT_DIR && python manage.py clearsessions >> $PROJECT_DIR/logs/cron_clearsessions.log 2>&1
+
+# 每周一下午1点生成报表
+# 0 13 * * 1 cd $PROJECT_DIR && python manage.py generate_weekly_reports >> $PROJECT_DIR/logs/cron_reports.log 2>&1
+
+# ============================================
+# 监控和告警（可选）
+# ============================================
+
+# 每小时检查磁盘空间，如果使用超过80%则发送告警
+# 0 * * * * cd $PROJECT_DIR && ./scripts/check_disk_space.sh >> $PROJECT_DIR/logs/cron_disk_space.log 2>&1
+
+# ============================================
+# 注意事项
+# ============================================
+
+# 1. 确保脚本有执行权限: chmod +x scripts/backup.sh
+# 2. 确保日志目录存在: mkdir -p logs
+# 3. 修改$PROJECT_DIR为实际的项目路径
+# 4. 根据实际需求调整备份频率
+# 5. 确保数据库密码等敏感信息已配置在.env文件中
+# 6. 测试cron任务: 查看logs/cron_backup.log确认备份是否成功
+
+# ============================================
+# Cron表达式说明
+# ============================================
+
+# * * * * * 命令
+# │ │ │ │ │
+# │ │ │ │ └─── 星期几 (0-7, 0和7都表示星期日)
+# │ │ │ └───── 月份 (1-12)
+# │ │ └─────── 日期 (1-31)
+# │ └───────── 小时 (0-23)
+# └─────────── 分钟 (0-59)
+
+# 常用示例:
+# 0 2 * * *     # 每天凌晨2点
+# 0 */6 * * *   # 每6小时
+# 0 0 * * 0     # 每周日0点
+# 0 0 1 * *     # 每月1号0点
+# */30 * * * *  # 每30分钟

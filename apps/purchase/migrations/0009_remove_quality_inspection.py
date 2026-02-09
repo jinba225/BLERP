@@ -4,115 +4,119 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('purchase', '0008_alter_borrowitem_options_and_more'),
+        ("purchase", "0008_alter_borrowitem_options_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='qualityinspection',
-            name='approved_by',
+            model_name="qualityinspection",
+            name="approved_by",
         ),
         migrations.RemoveField(
-            model_name='qualityinspection',
-            name='created_by',
+            model_name="qualityinspection",
+            name="created_by",
         ),
         migrations.RemoveField(
-            model_name='qualityinspection',
-            name='deleted_by',
+            model_name="qualityinspection",
+            name="deleted_by",
         ),
         migrations.RemoveField(
-            model_name='qualityinspection',
-            name='inspector',
+            model_name="qualityinspection",
+            name="inspector",
         ),
         migrations.RemoveField(
-            model_name='qualityinspection',
-            name='receipt',
+            model_name="qualityinspection",
+            name="receipt",
         ),
         migrations.RemoveField(
-            model_name='qualityinspection',
-            name='updated_by',
+            model_name="qualityinspection",
+            name="updated_by",
         ),
         migrations.RemoveField(
-            model_name='qualityinspectionitem',
-            name='created_by',
+            model_name="qualityinspectionitem",
+            name="created_by",
         ),
         migrations.RemoveField(
-            model_name='qualityinspectionitem',
-            name='deleted_by',
+            model_name="qualityinspectionitem",
+            name="deleted_by",
         ),
         migrations.RemoveField(
-            model_name='qualityinspectionitem',
-            name='inspection',
+            model_name="qualityinspectionitem",
+            name="inspection",
         ),
         migrations.RemoveField(
-            model_name='qualityinspectionitem',
-            name='updated_by',
+            model_name="qualityinspectionitem",
+            name="updated_by",
         ),
         migrations.RemoveField(
-            model_name='qualityinspectiontemplate',
-            name='category',
+            model_name="qualityinspectiontemplate",
+            name="category",
         ),
         migrations.RemoveField(
-            model_name='qualityinspectiontemplate',
-            name='created_by',
+            model_name="qualityinspectiontemplate",
+            name="created_by",
         ),
         migrations.RemoveField(
-            model_name='qualityinspectiontemplate',
-            name='deleted_by',
+            model_name="qualityinspectiontemplate",
+            name="deleted_by",
         ),
         migrations.RemoveField(
-            model_name='qualityinspectiontemplate',
-            name='updated_by',
+            model_name="qualityinspectiontemplate",
+            name="updated_by",
         ),
         migrations.RemoveField(
-            model_name='purchasereceipt',
-            name='inspected_by',
+            model_name="purchasereceipt",
+            name="inspected_by",
         ),
         migrations.RemoveField(
-            model_name='purchasereceipt',
-            name='inspection_date',
+            model_name="purchasereceipt",
+            name="inspection_date",
         ),
         migrations.RemoveField(
-            model_name='purchasereceipt',
-            name='overall_quality',
+            model_name="purchasereceipt",
+            name="overall_quality",
         ),
         migrations.RemoveField(
-            model_name='purchasereceipt',
-            name='quality_notes',
+            model_name="purchasereceipt",
+            name="quality_notes",
         ),
         migrations.RemoveField(
-            model_name='purchasereceiptitem',
-            name='accepted_quantity',
+            model_name="purchasereceiptitem",
+            name="accepted_quantity",
         ),
         migrations.RemoveField(
-            model_name='purchasereceiptitem',
-            name='quality_notes',
+            model_name="purchasereceiptitem",
+            name="quality_notes",
         ),
         migrations.RemoveField(
-            model_name='purchasereceiptitem',
-            name='quality_status',
+            model_name="purchasereceiptitem",
+            name="quality_status",
         ),
         migrations.RemoveField(
-            model_name='purchasereceiptitem',
-            name='rejected_quantity',
+            model_name="purchasereceiptitem",
+            name="rejected_quantity",
         ),
         migrations.AlterField(
-            model_name='purchasereceipt',
-            name='status',
-            field=models.CharField(choices=[('pending', '待收货'), ('partial', '部分收货'), ('received', '已收货')], default='pending', max_length=20, verbose_name='状态'),
+            model_name="purchasereceipt",
+            name="status",
+            field=models.CharField(
+                choices=[("pending", "待收货"), ("partial", "部分收货"), ("received", "已收货")],
+                default="pending",
+                max_length=20,
+                verbose_name="状态",
+            ),
         ),
         migrations.DeleteModel(
-            name='NonConformingProduct',
+            name="NonConformingProduct",
         ),
         migrations.DeleteModel(
-            name='QualityInspection',
+            name="QualityInspection",
         ),
         migrations.DeleteModel(
-            name='QualityInspectionItem',
+            name="QualityInspectionItem",
         ),
         migrations.DeleteModel(
-            name='QualityInspectionTemplate',
+            name="QualityInspectionTemplate",
         ),
     ]

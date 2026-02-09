@@ -142,7 +142,7 @@ class BaseChannel(ABC):
                 channel=self.channel_name,
                 external_user_id=external_user_id,
                 is_active=True,
-                is_deleted=False
+                is_deleted=False,
             ).first()
 
             if mapping:

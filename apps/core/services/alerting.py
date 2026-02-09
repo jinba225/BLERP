@@ -44,12 +44,12 @@ class AlertingService:
         self.rules = ALERT_RULES
 
         # 钉钉配置
-        self.dingtalk_webhook = config('DINGTALK_WEBHOOK_URL', default=None)
-        self.dingtalk_secret = config('DINGTALK_SECRET', default=None)
+        self.dingtalk_webhook = config("DINGTALK_WEBHOOK_URL", default=None)
+        self.dingtalk_secret = config("DINGTALK_SECRET", default=None)
 
         # 邮件配置
-        self.email_enabled = EMAIL_ALERT_CONFIG['enabled']
-        self.email_recipients = EMAIL_ALERT_CONFIG['recipients']
+        self.email_enabled = EMAIL_ALERT_CONFIG["enabled"]
+        self.email_recipients = EMAIL_ALERT_CONFIG["recipients"]
 
         logger.debug("初始化告警服务")
 
@@ -81,6 +81,7 @@ class AlertingService:
             >>> await alerting.check_and_alert_async()
         """
         import asyncio
+
         await asyncio.to_thread(self.check_and_alert)
 
     def _handle_alert(self, alert: Dict):
@@ -92,16 +93,14 @@ class AlertingService:
         """
         try:
             # 查找匹配的告警规则
-            rule = self._find_rule(alert['alert_type'])
+            rule = self._find_rule(alert["alert_type"])
 
-            if not rule or not rule.get('enabled'):
+            if not rule or not rule.get("enabled"):
                 return
 
             # 检查冷却期
-            if self._is_in_cooldown(alert['alert_type'], alert['platform']):
-                logger.debug(
-                    f"告警在冷却期内: {alert['alert_type']} - {alert['platform']}"
-                )
+            if self._is_in_cooldown(alert["alert_type"], alert["platform"]):
+                logger.debug(f"告警在冷却期内: {alert['alert_type']} - {alert['platform']}")
                 return
 
             # 触发告警
@@ -137,7 +136,7 @@ class AlertingService:
         if not rule:
             return False
 
-        cooldown = rule.get('cooldown', 0)
+        cooldown = rule.get("cooldown", 0)
         if cooldown == 0:
             return False
 
@@ -170,17 +169,16 @@ class AlertingService:
             self._record_alert_history(alert)
 
             # 根据配置的渠道发送通知
-            channels = rule.get('channels', [])
+            channels = rule.get("channels", [])
 
             for channel in channels:
-                if channel == 'dingtalk':
+                if channel == "dingtalk":
                     self._send_dingtalk_alert(alert, rule)
-                elif channel == 'email':
+                elif channel == "email":
                     self._send_email_alert(alert, rule)
 
             logger.warning(
-                f"触发告警: {alert['alert_type']} - {alert['platform']}, "
-                f"严重程度: {rule['severity']}"
+                f"触发告警: {alert['alert_type']} - {alert['platform']}, " f"严重程度: {rule['severity']}"
             )
 
         except Exception as e:
@@ -197,7 +195,7 @@ class AlertingService:
             key = f"alert_history:{alert['platform']}"
             alert_data = {
                 **alert,
-                'timestamp': datetime.now().isoformat(),
+                "timestamp": datetime.now().isoformat(),
             }
 
             # 添加到列表（保留最近100条）
@@ -249,14 +247,12 @@ class AlertingService:
             # 如果配置了加签密钥，计算签名
             if self.dingtalk_secret:
                 timestamp = str(round(time.time() * 1000))
-                secret_enc = self.dingtalk_secret.encode('utf-8')
-                string_to_sign = f'{timestamp}\n{self.dingtalk_secret}'
-                string_to_sign_enc = string_to_sign.encode('utf-8')
+                secret_enc = self.dingtalk_secret.encode("utf-8")
+                string_to_sign = f"{timestamp}\n{self.dingtalk_secret}"
+                string_to_sign_enc = string_to_sign.encode("utf-8")
 
                 hmac_code = hmac.new(
-                    secret_enc,
-                    string_to_sign_enc,
-                    digestmod=hashlib.sha256
+                    secret_enc, string_to_sign_enc, digestmod=hashlib.sha256
                 ).digest()
 
                 sign = urllib.parse.quote_plus(base64.b64encode(hmac_code))
@@ -271,15 +267,11 @@ class AlertingService:
             }
 
             # 发送请求
-            response = requests.post(
-                webhook_url,
-                json=data,
-                timeout=10
-            )
+            response = requests.post(webhook_url, json=data, timeout=10)
 
             if response.status_code == 200:
                 result = response.json()
-                if result.get('errcode') == 0:
+                if result.get("errcode") == 0:
                     logger.info(f"钉钉告警发送成功: {alert['alert_type']}")
                 else:
                     logger.error(f"钉钉告警发送失败: {result}")
@@ -336,11 +328,7 @@ class AlertingService:
         except Exception as e:
             logger.error(f"发送邮件告警异常: {e}")
 
-    def get_alert_history(
-        self,
-        platform: Optional[str] = None,
-        limit: int = 50
-    ) -> List[Dict]:
+    def get_alert_history(self, platform: Optional[str] = None, limit: int = 50) -> List[Dict]:
         """
         获取告警历史
 
@@ -375,10 +363,7 @@ class AlertingService:
                         pass
 
             # 按时间排序
-            all_alerts.sort(
-                key=lambda x: x.get('timestamp', ''),
-                reverse=True
-            )
+            all_alerts.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
 
             return all_alerts[:limit]
 

@@ -9,9 +9,12 @@ from rest_framework.response import Response
 from django.contrib.auth import login, logout, get_user_model
 from django.conf import settings
 from .serializers import (
-    LoginSerializer, TokenSerializer, PasswordChangeSerializer,
-    PasswordResetSerializer, PasswordResetConfirmSerializer,
-    UserInfoSerializer
+    LoginSerializer,
+    TokenSerializer,
+    PasswordChangeSerializer,
+    PasswordResetSerializer,
+    PasswordResetConfirmSerializer,
+    UserInfoSerializer,
 )
 from .authentication import generate_jwt_token
 
@@ -22,23 +25,23 @@ User = get_user_model()
     request=LoginSerializer,
     responses={
         200: OpenApiResponse(
-            description='登录成功',
+            description="登录成功",
             response=TokenSerializer,
         ),
         400: OpenApiResponse(
-            description='登录失败',
+            description="登录失败",
         ),
     },
-    summary='用户登录',
+    summary="用户登录",
 )
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def login_view(request):
     """User login API."""
     serializer = LoginSerializer(data=request.data)
 
     if serializer.is_valid():
-        user = serializer.validated_data['user']
+        user = serializer.validated_data["user"]
 
         # Generate JWT token
         token = generate_jwt_token(user)
@@ -48,22 +51,23 @@ def login_view(request):
 
         # Log login activity
         from users.models import LoginLog
+
         LoginLog.objects.create(
             user=user,
-            login_type='web',
+            login_type="web",
             ip_address=get_client_ip(request),
-            user_agent=request.META.get('HTTP_USER_AGENT', ''),
-            is_successful=True
+            user_agent=request.META.get("HTTP_USER_AGENT", ""),
+            is_successful=True,
         )
 
         # Prepare response data
-        user_serializer = UserInfoSerializer(user, context={'request': request})
+        user_serializer = UserInfoSerializer(user, context={"request": request})
 
         response_data = {
-            'token': token,
-            'user': user_serializer.data,
-            'expires_in': settings.JWT_EXPIRATION_DELTA,
-            'message': '登录成功'
+            "token": token,
+            "user": user_serializer.data,
+            "expires_in": settings.JWT_EXPIRATION_DELTA,
+            "message": "登录成功",
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
@@ -72,14 +76,14 @@ def login_view(request):
 
 
 @extend_schema(
-    summary='用户登出',
+    summary="用户登出",
     responses={
         200: OpenApiResponse(
-            description='登出成功',
+            description="登出成功",
         ),
     },
 )
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
     """User logout API."""
@@ -88,10 +92,9 @@ def logout_view(request):
     from django.utils import timezone
 
     try:
-        login_log = LoginLog.objects.filter(
-            user=request.user,
-            logout_time__isnull=True
-        ).latest('login_time')
+        login_log = LoginLog.objects.filter(user=request.user, logout_time__isnull=True).latest(
+            "login_time"
+        )
         login_log.logout_time = timezone.now()
         login_log.save()
     except LoginLog.DoesNotExist:
@@ -100,77 +103,74 @@ def logout_view(request):
     # Logout user
     logout(request)
 
-    return Response({'message': '登出成功'}, status=status.HTTP_200_OK)
+    return Response({"message": "登出成功"}, status=status.HTTP_200_OK)
 
 
 @extend_schema(
-    summary='获取当前用户信息',
+    summary="获取当前用户信息",
     responses={
         200: OpenApiResponse(
-            description='用户信息',
+            description="用户信息",
             response=UserInfoSerializer,
         ),
     },
 )
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def user_info_view(request):
     """Get current user info."""
-    serializer = UserInfoSerializer(request.user, context={'request': request})
+    serializer = UserInfoSerializer(request.user, context={"request": request})
     return Response(serializer.data)
 
 
 @extend_schema(
     request=PasswordChangeSerializer,
-    summary='修改密码',
+    summary="修改密码",
     responses={
         200: OpenApiResponse(
-            description='密码修改成功',
+            description="密码修改成功",
         ),
         400: OpenApiResponse(
-            description='密码修改失败',
+            description="密码修改失败",
         ),
     },
 )
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def change_password_view(request):
     """Change user password."""
-    serializer = PasswordChangeSerializer(
-        data=request.data,
-        context={'request': request}
-    )
+    serializer = PasswordChangeSerializer(data=request.data, context={"request": request})
 
     if serializer.is_valid():
         serializer.save()
-        return Response({'message': '密码修改成功'})
+        return Response({"message": "密码修改成功"})
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema(
     request=PasswordResetSerializer,
-    summary='请求密码重置',
+    summary="请求密码重置",
     responses={
         200: OpenApiResponse(
-            description='密码重置邮件已发送',
+            description="密码重置邮件已发送",
         ),
         400: OpenApiResponse(
-            description='请求失败',
+            description="请求失败",
         ),
         500: OpenApiResponse(
-            description='发送邮件失败',
+            description="发送邮件失败",
         ),
     },
 )
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def password_reset_view(request):
     """Request password reset."""
     serializer = PasswordResetSerializer(data=request.data)
 
     if serializer.is_valid():
-        email = serializer.validated_data['email']
+        email = serializer.validated_data["email"]
         try:
             user = User.objects.get(email=email, is_active=True)
 
@@ -188,7 +188,7 @@ def password_reset_view(request):
             reset_url = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"
 
             # Send email
-            subject = '重置您的密码'
+            subject = "重置您的密码"
             message = f"""
             您好 {user.username}，
 
@@ -208,17 +208,13 @@ def password_reset_view(request):
                 fail_silently=False,
             )
 
-            return Response(
-                {'message': '密码重置邮件已发送，请检查您的邮箱'},
-                status=status.HTTP_200_OK
-            )
+            return Response({"message": "密码重置邮件已发送，请检查您的邮箱"}, status=status.HTTP_200_OK)
         except Exception as e:
             # For security reasons, don't reveal if email exists or not,
             # but here we already validated it in serializer so it's fine to log error
             print(f"Error sending email: {e}")
             return Response(
-                {'message': '发送邮件失败，请稍后重试'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"message": "发送邮件失败，请稍后重试"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -226,26 +222,26 @@ def password_reset_view(request):
 
 @extend_schema(
     request=PasswordResetConfirmSerializer,
-    summary='确认密码重置',
+    summary="确认密码重置",
     responses={
         200: OpenApiResponse(
-            description='密码重置成功',
+            description="密码重置成功",
         ),
         400: OpenApiResponse(
-            description='重置链接无效',
+            description="重置链接无效",
         ),
     },
 )
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def password_reset_confirm_view(request):
     """Confirm password reset."""
     serializer = PasswordResetConfirmSerializer(data=request.data)
 
     if serializer.is_valid():
-        uid = serializer.validated_data['uid']
-        token = serializer.validated_data['token']
-        new_password = serializer.validated_data['new_password']
+        uid = serializer.validated_data["uid"]
+        token = serializer.validated_data["token"]
+        new_password = serializer.validated_data["new_password"]
 
         from django.contrib.auth.tokens import default_token_generator
         from django.utils.http import urlsafe_base64_decode
@@ -258,43 +254,34 @@ def password_reset_confirm_view(request):
             if default_token_generator.check_token(user, token):
                 user.set_password(new_password)
                 user.save()
-                return Response(
-                    {'message': '密码重置成功，请使用新密码登录'},
-                    status=status.HTTP_200_OK
-                )
+                return Response({"message": "密码重置成功，请使用新密码登录"}, status=status.HTTP_200_OK)
             else:
-                return Response(
-                    {'error': '无效或过期的重置链接'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return Response({"error": "无效或过期的重置链接"}, status=status.HTTP_400_BAD_REQUEST)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            return Response(
-                {'error': '无效的重置链接'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": "无效的重置链接"}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema(
-    summary='刷新Token',
+    summary="刷新Token",
     responses={
         200: OpenApiResponse(
-            description='Token刷新成功',
+            description="Token刷新成功",
             response=TokenSerializer,
         ),
     },
 )
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def refresh_token_view(request):
     """Refresh JWT token."""
     token = generate_jwt_token(request.user)
 
     response_data = {
-        'token': token,
-        'expires_in': settings.JWT_EXPIRATION_DELTA,
-        'message': 'Token刷新成功'
+        "token": token,
+        "expires_in": settings.JWT_EXPIRATION_DELTA,
+        "message": "Token刷新成功",
     }
 
     return Response(response_data, status=status.HTTP_200_OK)
@@ -302,10 +289,10 @@ def refresh_token_view(request):
 
 def get_client_ip(request):
     """Get client IP address."""
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     if x_forwarded_for:
         # Take first IP in list (client IP)
-        ip = x_forwarded_for.split(',')[0].strip()
+        ip = x_forwarded_for.split(",")[0].strip()
     else:
-        ip = request.META.get('REMOTE_ADDR')
+        ip = request.META.get("REMOTE_ADDR")
     return ip

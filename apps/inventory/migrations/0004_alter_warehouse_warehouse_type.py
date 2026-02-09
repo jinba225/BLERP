@@ -4,15 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory', '0003_inboundorder_outboundorder_outboundorderitem_and_more'),
+        ("inventory", "0003_inboundorder_outboundorder_outboundorderitem_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='warehouse',
-            name='warehouse_type',
-            field=models.CharField(choices=[('main', '主仓库'), ('branch', '分仓库'), ('virtual', '虚拟仓库'), ('transit', '在途仓库'), ('damaged', '残次品仓库'), ('borrow', '借用仓')], default='main', max_length=20, verbose_name='仓库类型'),
+            model_name="warehouse",
+            name="warehouse_type",
+            field=models.CharField(
+                choices=[
+                    ("main", "主仓库"),
+                    ("branch", "分仓库"),
+                    ("virtual", "虚拟仓库"),
+                    ("transit", "在途仓库"),
+                    ("damaged", "残次品仓库"),
+                    ("borrow", "借用仓"),
+                ],
+                default="main",
+                max_length=20,
+                verbose_name="仓库类型",
+            ),
         ),
     ]

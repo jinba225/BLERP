@@ -12,26 +12,23 @@ class TemplateSelector:
     # 单据类型到模板类别的映射
     DOCUMENT_CATEGORY_MAP = {
         # 销售类
-        'quote': 'sales',
-        'sales_order': 'sales',
-        'delivery': 'sales',
-        'sales_return': 'sales',
-
+        "quote": "sales",
+        "sales_order": "sales",
+        "delivery": "sales",
+        "sales_return": "sales",
         # 采购类
-        'purchase_order': 'purchase',
-        'purchase_receipt': 'purchase',
-        'purchase_return': 'purchase',
-
+        "purchase_order": "purchase",
+        "purchase_receipt": "purchase",
+        "purchase_return": "purchase",
         # 库存类
-        'stock_in': 'inventory',
-        'stock_out': 'inventory',
-        'stock_transfer': 'inventory',
-        'stock_check': 'inventory',
-
+        "stock_in": "inventory",
+        "stock_out": "inventory",
+        "stock_transfer": "inventory",
+        "stock_check": "inventory",
         # 财务类
-        'invoice': 'finance',
-        'payment': 'finance',
-        'receipt': 'finance',
+        "invoice": "finance",
+        "payment": "finance",
+        "receipt": "finance",
     }
 
     @classmethod
@@ -53,9 +50,7 @@ class TemplateSelector:
         # 2. 获取该类别的所有可用模板
         templates = list(
             PrintTemplate.objects.filter(
-                template_category=category,
-                is_active=True,
-                is_deleted=False
+                template_category=category, is_active=True, is_deleted=False
             )
         )
 
@@ -86,10 +81,13 @@ class TemplateSelector:
         """
         try:
             # 1. 尝试从默认映射表获取
-            mapping = DefaultTemplateMapping.objects.filter(
-                document_type=document_type_full,
-                is_deleted=False
-            ).select_related('template').first()
+            mapping = (
+                DefaultTemplateMapping.objects.filter(
+                    document_type=document_type_full, is_deleted=False
+                )
+                .select_related("template")
+                .first()
+            )
 
             if mapping and mapping.template and mapping.template.is_active:
                 return mapping.template
@@ -99,7 +97,7 @@ class TemplateSelector:
 
         # 2. 降级方案：返回该类别第一个可用模板
         # 提取基础单据类型（如 'quote_domestic' → 'quote'）
-        document_type = document_type_full.split('_')[0]
+        document_type = document_type_full.split("_")[0]
         templates = cls.get_available_templates(document_type)
         return templates[0] if templates else None
 
@@ -114,7 +112,7 @@ class TemplateSelector:
         Returns:
             str: 模板类别（'sales', 'purchase', 'inventory', 'finance', 'other'）
         """
-        return cls.DOCUMENT_CATEGORY_MAP.get(document_type, 'other')
+        return cls.DOCUMENT_CATEGORY_MAP.get(document_type, "other")
 
     @classmethod
     def get_category_display_name(cls, category):

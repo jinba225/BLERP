@@ -116,11 +116,14 @@
                         {% for quotation in quotations %}
                         <td class="px-6 py-4 text-center border-r border-gray-200 {% if quotation.status == 'selected' %}bg-green-50{% endif %}">
                             {% if quotation.status == 'submitted' and inquiry.status != 'selected' %}
-                            <a class="btn btn-primary" href="{% url 'purchase:quotation_select' quotation.pk %}">
-                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-</svg>选定
-                            </a>
+                            <form method="post" action="{% url 'purchase:quotation_select' quotation.pk %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">
+                                    <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>选定
+                                </button>
+                            </form>
                             {% elif quotation.status == 'selected' %}
                             <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-xs rounded">
                                 <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

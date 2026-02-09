@@ -52,9 +52,14 @@ class ToolMonitor:
         # 缓存1天
         cache.set(cache_key, self.stats, 86400)
 
-    def record_execution(self, tool_name: str, user_id: int,
-                        success: bool, execution_time: float,
-                        metadata: Dict[str, Any] = None):
+    def record_execution(
+        self,
+        tool_name: str,
+        user_id: int,
+        success: bool,
+        execution_time: float,
+        metadata: Dict[str, Any] = None,
+    ):
         """
         记录工具执行
 
@@ -78,9 +83,7 @@ class ToolMonitor:
         # 更新执行时间
         self.stats["total_time"][tool_name] += execution_time
         exec_count = self.stats["executions"][tool_name]
-        self.stats["avg_time"][tool_name] = (
-            self.stats["total_time"][tool_name] / exec_count
-        )
+        self.stats["avg_time"][tool_name] = self.stats["total_time"][tool_name] / exec_count
 
         # 更新最后使用时间
         self.stats["last_used"][tool_name] = timezone.now().isoformat()
@@ -97,9 +100,14 @@ class ToolMonitor:
         # 同时记录到日志（如果配置了日志模型）
         self._log_execution(tool_name, user_id, success, execution_time, metadata)
 
-    def _log_execution(self, tool_name: str, user_id: int,
-                      success: bool, execution_time: float,
-                      metadata: Dict[str, Any] = None):
+    def _log_execution(
+        self,
+        tool_name: str,
+        user_id: int,
+        success: bool,
+        execution_time: float,
+        metadata: Dict[str, Any] = None,
+    ):
         """记录执行到日志（预留数据库日志接口）"""
         # TODO: 如果需要持久化日志，可以在这里写入数据库
         # 例如创建ToolExecutionLog模型
@@ -133,7 +141,7 @@ class ToolMonitor:
             "failure_count": failures,
             "success_rate": round(success_rate, 2),
             "avg_execution_time": round(avg_time, 3),
-            "last_used": last_used
+            "last_used": last_used,
         }
 
     def get_all_tools_stats(self) -> List[Dict[str, Any]]:
@@ -182,20 +190,13 @@ class ToolMonitor:
         total_executions = sum(user_tools.values())
 
         # 找出用户最常用的工具
-        top_tools = sorted(
-            user_tools.items(),
-            key=lambda x: x[1],
-            reverse=True
-        )[:5]
+        top_tools = sorted(user_tools.items(), key=lambda x: x[1], reverse=True)[:5]
 
         return {
             "user_id": user_id,
             "total_executions": total_executions,
             "tools_used": len(user_tools),
-            "top_tools": [
-                {"tool_name": tool, "count": count}
-                for tool, count in top_tools
-            ]
+            "top_tools": [{"tool_name": tool, "count": count} for tool, count in top_tools],
         }
 
     def get_daily_stats(self, days: int = 7) -> List[Dict[str, Any]]:
@@ -218,19 +219,19 @@ class ToolMonitor:
             day_executions = self.stats["daily_executions"].get(date_str, {})
             total_executions = sum(day_executions.values())
 
-            daily_stats.append({
-                "date": date_str,
-                "total_executions": total_executions,
-                "tools_used": len(day_executions),
-                "top_tools": [
-                    {"tool_name": tool, "count": count}
-                    for tool, count in sorted(
-                        day_executions.items(),
-                        key=lambda x: x[1],
-                        reverse=True
-                    )[:3]
-                ]
-            })
+            daily_stats.append(
+                {
+                    "date": date_str,
+                    "total_executions": total_executions,
+                    "tools_used": len(day_executions),
+                    "top_tools": [
+                        {"tool_name": tool, "count": count}
+                        for tool, count in sorted(
+                            day_executions.items(), key=lambda x: x[1], reverse=True
+                        )[:3]
+                    ],
+                }
+            )
 
         return daily_stats
 
@@ -250,38 +251,23 @@ class ToolMonitor:
                 "avg_success_rate": 0.0,
                 "avg_execution_time": 0.0,
                 "slowest_tools": [],
-                "fastest_tools": []
+                "fastest_tools": [],
             }
 
         total_executions = sum(s["total_executions"] for s in all_stats)
 
         # 计算平均成功率
-        weighted_success_rate = sum(
-            s["success_rate"] * s["total_executions"]
-            for s in all_stats
-        )
-        avg_success_rate = (
-            weighted_success_rate / total_executions
-            if total_executions > 0 else 0.0
-        )
+        weighted_success_rate = sum(s["success_rate"] * s["total_executions"] for s in all_stats)
+        avg_success_rate = weighted_success_rate / total_executions if total_executions > 0 else 0.0
 
         # 计算平均执行时间
-        avg_execution_time = sum(
-            s["avg_execution_time"] for s in all_stats
-        ) / len(all_stats)
+        avg_execution_time = sum(s["avg_execution_time"] for s in all_stats) / len(all_stats)
 
         # 最慢的工具
-        slowest_tools = sorted(
-            all_stats,
-            key=lambda x: x["avg_execution_time"],
-            reverse=True
-        )[:5]
+        slowest_tools = sorted(all_stats, key=lambda x: x["avg_execution_time"], reverse=True)[:5]
 
         # 最快的工具
-        fastest_tools = sorted(
-            all_stats,
-            key=lambda x: x["avg_execution_time"]
-        )[:5]
+        fastest_tools = sorted(all_stats, key=lambda x: x["avg_execution_time"])[:5]
 
         return {
             "total_tools": len(all_stats),
@@ -290,7 +276,7 @@ class ToolMonitor:
             "avg_execution_time": round(avg_execution_time, 3),
             "slowest_tools": slowest_tools,
             "fastest_tools": fastest_tools,
-            "most_used_tools": self.get_top_tools(5)
+            "most_used_tools": self.get_top_tools(5),
         }
 
     def get_category_stats(self) -> Dict[str, Any]:
@@ -348,10 +334,11 @@ class ToolMonitor:
             return {
                 "tools": self.get_all_tools_stats(),
                 "performance": self.get_performance_report(),
-                "daily": self.get_daily_stats(30)
+                "daily": self.get_daily_stats(30),
             }
         elif format == "json":
             import json
+
             return json.dumps(self.export_stats("dict"), ensure_ascii=False, indent=2)
         else:
             raise ValueError(f"不支持的导出格式: {format}")
@@ -395,10 +382,7 @@ class ToolExecutionTimer:
 
             # 记录执行
             self.monitor.record_execution(
-                self.tool_name,
-                self.user_id,
-                self.success,
-                execution_time
+                self.tool_name, self.user_id, self.success, execution_time
             )
 
         return False  # 不抑制异常
@@ -445,30 +429,36 @@ class PerformanceAlert:
 
             # 检查执行时间
             if stats["avg_execution_time"] > PerformanceAlert.VERY_SLOW_EXECUTION_THRESHOLD:
-                alerts.append({
-                    "type": "critical",
-                    "tool": tool_name,
-                    "message": f"工具 {tool_name} 平均执行时间过长",
-                    "value": stats["avg_execution_time"],
-                    "threshold": PerformanceAlert.VERY_SLOW_EXECUTION_THRESHOLD
-                })
+                alerts.append(
+                    {
+                        "type": "critical",
+                        "tool": tool_name,
+                        "message": f"工具 {tool_name} 平均执行时间过长",
+                        "value": stats["avg_execution_time"],
+                        "threshold": PerformanceAlert.VERY_SLOW_EXECUTION_THRESHOLD,
+                    }
+                )
             elif stats["avg_execution_time"] > PerformanceAlert.SLOW_EXECUTION_THRESHOLD:
-                alerts.append({
-                    "type": "warning",
-                    "tool": tool_name,
-                    "message": f"工具 {tool_name} 执行时间偏长",
-                    "value": stats["avg_execution_time"],
-                    "threshold": PerformanceAlert.SLOW_EXECUTION_THRESHOLD
-                })
+                alerts.append(
+                    {
+                        "type": "warning",
+                        "tool": tool_name,
+                        "message": f"工具 {tool_name} 执行时间偏长",
+                        "value": stats["avg_execution_time"],
+                        "threshold": PerformanceAlert.SLOW_EXECUTION_THRESHOLD,
+                    }
+                )
 
             # 检查成功率
             if stats["success_rate"] < PerformanceAlert.LOW_SUCCESS_RATE_THRESHOLD:
-                alerts.append({
-                    "type": "warning",
-                    "tool": tool_name,
-                    "message": f"工具 {tool_name} 成功率偏低",
-                    "value": stats["success_rate"],
-                    "threshold": PerformanceAlert.LOW_SUCCESS_RATE_THRESHOLD
-                })
+                alerts.append(
+                    {
+                        "type": "warning",
+                        "tool": tool_name,
+                        "message": f"工具 {tool_name} 成功率偏低",
+                        "value": stats["success_rate"],
+                        "threshold": PerformanceAlert.LOW_SUCCESS_RATE_THRESHOLD,
+                    }
+                )
 
         return alerts

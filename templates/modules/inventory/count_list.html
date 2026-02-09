@@ -1,9 +1,259 @@
 {% extends 'layouts/base.html' %}
-{% block title %}Page{% endblock %}
+{% block title %}库存盘点 - BetterLaser ERP{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-500">库存管理</span>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">库存盘点</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">库存盘点列表</h3>
+            <p class="text-sm text-gray-600">共 {{ total_count }} 条记录</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button type="button" @click="manualRefresh"
+                :disabled="isRefreshing"
+                class="text-sm text-gray-600 hover:text-theme-600 flex items-center transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="刷新页面">
+                <svg class="w-4 h-4 mr-2" :class="{ 'animate-spin': isRefreshing }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span x-text="isRefreshing ? '刷新中...' : '刷新'"></span>
+            </button>
+            <a class="btn btn-primary" href="{% url 'inventory:count_create' %}">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                新建盘点单
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">搜索</label>
+                <div class="relative flex items-center">
+                    <input type="text"
+                           name="search" id="searchInput"
+                           value="{{ search }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 "
+                           placeholder="盘点单号、仓库名称..." oninput="toggleClearButton()">
+                    <button type="button" id="clearSearch" onclick="clearSearchInput()"
+                        class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-theme-500 hover:bg-theme-600 text-white flex items-center justify-center transition-all duration-200 hidden"
+                        style="display: none;">
+                        <svg class="icon w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                <select name="status"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                    <option value="">全部状态</option>
+                    {% for status_code, status_name in count_statuses %}
+                    <option value="{{ status_code }}" {% if status == status_code %}selected{% endif %}>
+                        {{ status_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">盘点类型</label>
+                <select name="count_type"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                    <option value="">全部类型</option>
+                    {% for type_code, type_name in count_types %}
+                    <option value="{{ type_code }}" {% if count_type == type_code %}selected{% endif %}>
+                        {{ type_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">仓库</label>
+                <select name="warehouse"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                    <option value="">全部仓库</option>
+                    {% for w in warehouses %}
+                    <option value="{{ w.id }}" {% if warehouse_id|stringformat:"s" == w.id|stringformat:"s" %}selected{% endif %}>
+                        {{ w.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">计划开始日期</label>
+                <input type="date"
+                       name="date_from"
+                       value="{{ date_from }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">计划结束日期</label>
+                <input type="date"
+                       name="date_to"
+                       value="{{ date_to }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+            </div>
+
+            <div class="flex items-end col-span-2">
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    搜索
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">盘点单号</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">盘点类型</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">仓库</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">计划日期</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">主管</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for count in page_obj %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {{ count.count_number }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {{ count.get_count_type_display }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {{ count.warehouse.name }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ count.planned_date }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {% if count.supervisor %}{{ count.supervisor.username }}{% else %}-{% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded
+                            {% if count.status == 'completed' %}bg-green-100 text-green-800
+                            {% elif count.status == 'in_progress' %}bg-theme-100 text-theme-800
+                            {% elif count.status == 'planned' %}bg-yellow-100 text-yellow-800
+                            {% elif count.status == 'cancelled' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ count.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'inventory:count_detail' count.pk %}"
+                           class="text-theme-600 hover:text-theme-700 mr-3"
+                           title="查看详情">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </a>
+                        {% if count.status == 'planned' or count.status == 'in_progress' %}
+                        <a href="{% url 'inventory:count_update' count.pk %}"
+                           class="text-green-600 hover:text-green-900 mr-3"
+                           title="编辑">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                        <svg class="icon mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <p>暂无盘点单数据</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}"
+                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    上一页
+                </a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}"
+                   class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    下一页
+                </a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        显示第 <span class="font-medium">{{ page_obj.start_index }}</span> 到
+                        <span class="font-medium">{{ page_obj.end_index }}</span> 条，
+                        共 <span class="font-medium">{{ page_obj.paginator.count }}</span> 条
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                        </span>
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+
+
+
 
 {% block extra_js %}
-
-
 <script>
 // 搜索框清除按钮功能
 function toggleClearButton() {
@@ -70,265 +320,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
-
-
-
-// 搜索框清除按钮功能
-function toggleClearButton() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-
-    if (searchInput && clearBtn) {
-        if (searchInput.value.trim() !== '') {
-            clearBtn.style.display = 'flex';
-            updateClearButtonPosition();
-        } else {
-            clearBtn.style.display = 'none';
-        }
-    }
-}
-
-function updateClearButtonPosition() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-
-    if (!searchInput || !clearBtn) return;
-
-    // 创建临时canvas来测量文本宽度
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const inputStyles = window.getComputedStyle(searchInput);
-    context.font = inputStyles.font;
-
-    // 计算文本宽度（考虑左右padding）
-    const textWidth = context.measureText(searchInput.value).width;
-    const paddingLeft = parseFloat(inputStyles.paddingLeft);
-    const offset = textWidth + paddingLeft + 20; // 20px为额外间距
-
-    // 设置按钮位置，确保不超出输入框右边界
-    const inputWidth = searchInput.offsetWidth;
-    const buttonWidth = 24; // 按钮宽度
-    const maxOffset = inputWidth - buttonWidth - 8; // 8px为右边距
-
-    const finalOffset = Math.min(offset, maxOffset);
-    clearBtn.style.left = finalOffset + 'px';
-    clearBtn.style.right = 'auto';
-}
-
-function clearSearchInput() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-    if (searchInput && clearBtn) {
-        searchInput.value = '';
-        clearBtn.style.display = 'none';
-        searchInput.focus();
-    }
-}
-
-// 页面加载时初始化清除按钮状态
-document.addEventListener('DOMContentLoaded', function() {
-    toggleClearButton();
-
-    // 监听窗口大小变化，重新计算按钮位置
-    window.addEventListener('resize', function() {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput && searchInput.value.trim() !== '') {
-            updateClearButtonPosition();
-        }
-    });
-});
-
-{% endblock %}
-
-{% block breadcrumb %}
-<span class="mx-2 text-gray-400">/</span>
-<span class="text-gray-500">库存管理</span>
-<span class="mx-2 text-gray-400">/</span>
-<span class="text-gray-900 font-semibold">库存盘点</span>
-{% endblock %}
-
-{% block content %}
-<div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
-    <!-- Header -->
-    <div class="flex justify-between items-center">
-        <div>
-            <h3 class="text-lg font-semibold text-gray-900">库存盘点列表</h3>
-            <p class="text-sm text-gray-600">共 {{ total_count }} 条记录</p>
-        </div>
-        <div class="flex items-center space-x-3">
-            <button type="button" @click="manualRefresh"
-                :disabled="isRefreshing"
-                class="text-sm text-gray-600 hover:text-theme-600 flex items-center transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="刷新页面">
-                <svg class="w-4 h-4 mr-2" :class="{ 'animate-spin': isRefreshing }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                <span x-text="isRefreshing ? '刷新中...' : '刷新'"></span>
-            </button>
-            <a class="btn btn-primary" href="{% url 'inventory:count_create' %}">
-            <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-</svg>新建盘点单
-        </a>
-    </div> <!-- Filters -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">搜索</label>
-                <div class="relative flex items-center">
-                <input type="text"
-                       name="search" id="searchInput"
-                       value="{{ search }}"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 "
-                       placeholder="盘点单号、仓库名称..." oninput="toggleClearButton()">
-                <button type="button" id="clearSearch" onclick="clearSearchInput()"
-                    class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-theme-500 hover:bg-theme-600 text-white flex items-center justify-center transition-all duration-200 hidden"
-                    style="display: none;">
-                    <svg class="icon w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            </div> <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
-                <select name="status"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
-                    <option value="">全部状态</option>
-                    {% for status_code, status_name in count_statuses %}
-                    <option value="{{ status_code }}" {% if status == status_code %}selected{% endif %}>
-                        {{ status_name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div> <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">盘点类型</label>
-                <select name="count_type"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
-                    <option value="">全部类型</option>
-                    {% for type_code, type_name in count_types %}
-                    <option value="{{ type_code }}" {% if count_type == type_code %}selected{% endif %}>
-                        {{ type_name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div> <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">仓库</label>
-                <select name="warehouse"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
-                    <option value="">全部仓库</option>
-                    {% for w in warehouses %}
-                    <option value="{{ w.id }}" {% if warehouse_id|stringformat:"s" == w.id|stringformat:"s" %}selected{% endif %}>
-                        {{ w.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div> <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">计划开始日期</label>
-                <input type="date"
-                       name="date_from"
-                       value="{{ date_from }}"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
-            </div> <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">计划结束日期</label>
-                <input type="date"
-                       name="date_to"
-                       value="{{ date_to }}"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
-            </div> <div class="flex items-end col-span-2">
-                <button class="btn btn-primary" type="submit">
-                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-</svg>搜索
-                </button>
-            </div>
-        </form>
-    </div> <!-- Table -->
-    <div class="bg-white rounded-lg shadow overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">盘点单号</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">盘点类型</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">仓库</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">计划日期</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">主管</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for count in page_obj %}
-                <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {{ count.count_number }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {{ count.get_count_type_display }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ count.warehouse.name }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ count.planned_date }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {% if count.supervisor %}{{ count.supervisor.username }}{% else %}-{% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-semibold rounded
-                            {% if count.status == 'completed' %}bg-green-100 text-green-800
-                            {% elif count.status == 'in_progress' %}bg-theme-100 text-theme-800
-                            {% elif count.status == 'planned' %}bg-yellow-100 text-yellow-800
-                            {% elif count.status == 'cancelled' %}bg-red-100 text-red-800
-                            {% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {{ count.get_status_display }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{% url 'inventory:count_detail' count.pk %}"
-                           class="text-theme-600 hover:text-theme-700 mr-3"
-                           title="查看详情">
-                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-</svg>
-                        </a>
-                        {% if count.status == 'planned' %}
-                        <a href="{% url 'inventory:count_update' count.pk %}"
-                           class="text-green-600 hover:text-green-900"
-                           title="编辑">
-                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-</svg>
-                        </a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                        <svg class="icon mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-</svg>
-                        <p>暂无盘点单数据</p>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table> <!-- Pagination -->
-        {% if page_obj.has_other_pages %}
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-sm text-gray-700">
-                        显示第 <span class="font-medium">{{ page_obj.start_index }}</span> 到
-                        <span class="font-medium">{{ page_obj.end_index }}</span> 条，
-                        共 <span class="font-medium">{{ page_obj.paginator.count }}</span> 条
-                    </p>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-</div>
 {% endblock %}

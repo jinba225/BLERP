@@ -6,16 +6,12 @@ AI Assistant Services 模块
 
 # from .ai_service import AIService  # 暂时注释，避免模型导入问题
 
-from .nlp_service import (
-    NLPService,
-    Intent,
-    IntentResult
-)
+from .nlp_service import NLPService, Intent, IntentResult
 
 from .conversation_flow_manager import (
     ConversationFlowManager,
     ConversationContext,
-    ConversationState
+    ConversationState,
 )
 
 # from .customer_ai_service import CustomerAIService  # 暂时注释
@@ -24,20 +20,16 @@ from .conversation_flow_manager import (
 __all__ = [
     # AI Service
     # 'AIService',
-
     # NLP Service
-    'NLPService',
-    'Intent',
-    'IntentResult',
-
+    "NLPService",
+    "Intent",
+    "IntentResult",
     # Conversation Flow Manager
-    'ConversationFlowManager',
-    'ConversationContext',
-    'ConversationState',
-
+    "ConversationFlowManager",
+    "ConversationContext",
+    "ConversationState",
     # Customer AI Service
     # 'CustomerAIService',
-
     # Channel AI Service
     # 'ChannelAIService',
 ]

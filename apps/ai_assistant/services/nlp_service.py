@@ -104,6 +104,7 @@ class Intent(Enum):
 @dataclass
 class IntentResult:
     """意图识别结果"""
+
     intent: Intent
     confidence: float
     entities: Dict[str, Any]
@@ -112,11 +113,11 @@ class IntentResult:
 
 class NLPService:
     """自然语言处理服务"""
-    
+
     def __init__(self, ai_provider: BaseAIProvider):
         self.ai_provider = ai_provider
         self.system_prompt = self._build_system_prompt()
-    
+
     def _build_system_prompt(self) -> str:
         """构建系统提示词"""
         return """你是一个 ERP 系统的智能助手，负责理解用户的自然语言请求。
@@ -284,31 +285,31 @@ class NLPService:
 }
 
 请只返回 JSON 格式，不要包含其他文字。"""
-    
+
     def parse_user_input(self, user_input: str) -> IntentResult:
         """解析用户输入"""
         messages = [
             {"role": "system", "content": self.system_prompt},
-            {"role": "user", "content": user_input}
+            {"role": "user", "content": user_input},
         ]
-        
+
         response = self.ai_provider.chat(messages)
-        
+
         try:
             result = self._parse_ai_response(response.content)
             return IntentResult(
                 intent=result["intent"],
                 confidence=result["confidence"],
                 entities=result["entities"],
-                original_text=user_input
+                original_text=user_input,
             )
         except Exception as e:
             return self._fallback_parse(user_input)
-    
+
     def _parse_ai_response(self, response_text: str) -> Dict[str, Any]:
         """解析 AI 响应"""
         # 尝试提取 JSON（改进的正则表达式，只匹配第一个完整的 JSON 对象）
-        json_match = re.search(r'\{[^{}]*\{[^{}]*\}(?:[^{}]*\{[^{}]*\})*[^{}]*\}', response_text)
+        json_match = re.search(r"\{[^{}]*\{[^{}]*\}(?:[^{}]*\{[^{}]*\})*[^{}]*\}", response_text)
         if json_match:
             try:
                 result = json.loads(json_match.group())
@@ -332,15 +333,15 @@ class NLPService:
         # 如果没有找到有效的 JSON，尝试从头提取
         try:
             # 从开头尝试解析 JSON
-            json_start = response_text.find('{')
+            json_start = response_text.find("{")
             if json_start >= 0:
                 # 查找匹配的闭合括号
                 brace_count = 0
                 end_pos = json_start + 1
-                for i, char in enumerate(response_text[json_start + 1:], start=json_start + 1):
-                    if char == '{':
+                for i, char in enumerate(response_text[json_start + 1 :], start=json_start + 1):
+                    if char == "{":
                         brace_count += 1
-                    elif char == '}':
+                    elif char == "}":
                         brace_count -= 1
                         if brace_count == 0:
                             end_pos = i + 1
@@ -366,15 +367,15 @@ class NLPService:
             pass
 
         raise ValueError("无法解析 AI 响应")
-    
+
     def _fallback_parse(self, user_input: str) -> IntentResult:
         """备用解析方法（基于规则）"""
         user_input_lower = user_input.lower()
-        
+
         # 简单的基于规则的意图识别
         intent = Intent.UNKNOWN
         confidence = 0.5
-        
+
         if any(keyword in user_input_lower for keyword in ["创建订单", "新建订单", "增加订单", "create order"]):
             intent = Intent.CREATE_ORDER
             confidence = 0.7
@@ -399,29 +400,26 @@ class NLPService:
         elif any(keyword in user_input_lower for keyword in ["查询订单", "查看订单", "query order"]):
             intent = Intent.QUERY_ORDER
             confidence = 0.7
-        
+
         # 提取实体
         entities = self._extract_entities(user_input)
-        
+
         return IntentResult(
-            intent=intent,
-            confidence=confidence,
-            entities=entities,
-            original_text=user_input
+            intent=intent, confidence=confidence, entities=entities, original_text=user_input
         )
-    
+
     def _extract_entities(self, user_input: str) -> Dict[str, Any]:
         """从用户输入中提取实体"""
         entities = {}
-        
+
         # 提取数量（数字）
-        quantity_pattern = r'(\d+)\s*(个|台|件|套|箱|kg|kg)'
+        quantity_pattern = r"(\d+)\s*(个|台|件|套|箱|kg|kg)"
         quantity_match = re.search(quantity_pattern, user_input)
         if quantity_match:
             entities["quantity"] = int(quantity_match.group(1))
-        
+
         # 提取金额（中文或数字）
-        amount_pattern = r'(\d+(?:\.\d+)?)\s*(万|元|块|USD|USD)'
+        amount_pattern = r"(\d+(?:\.\d+)?)\s*(万|元|块|USD|USD)"
         amount_match = re.search(amount_pattern, user_input)
         if amount_match:
             amount = float(amount_match.group(1))
@@ -429,34 +427,36 @@ class NLPService:
             if unit == "万":
                 amount *= 10000
             entities["amount"] = amount
-        
+
         # 提取订单号（SO 开头）
-        order_number_pattern = r'(SO\d{10,})'
+        order_number_pattern = r"(SO\d{10,})"
         order_match = re.search(order_number_pattern, user_input)
         if order_match:
             entities["order_number"] = order_match.group(1)
-        
+
         # 提取客户名称（公司名称通常较长）
         customer_patterns = [
-            r'([^\s,，。]+(?:有限公司|股份公司|集团|科技公司|贸易公司)[^\s,，。]*)',
-            r'(北京|上海|广州|深圳|杭州|成都|武汉)[^\s,，。]+?(?:公司|集团)',
+            r"([^\s,，。]+(?:有限公司|股份公司|集团|科技公司|贸易公司)[^\s,，。]*)",
+            r"(北京|上海|广州|深圳|杭州|成都|武汉)[^\s,，。]+?(?:公司|集团)",
         ]
         for pattern in customer_patterns:
             customer_match = re.search(pattern, user_input)
             if customer_match:
                 entities["customer_name"] = customer_match.group(1)
                 break
-        
+
         return entities
-    
-    def extract_missing_entities(self, intent_result: IntentResult, required_fields: List[str]) -> List[str]:
+
+    def extract_missing_entities(
+        self, intent_result: IntentResult, required_fields: List[str]
+    ) -> List[str]:
         """提取缺失的实体"""
         missing = []
         for field in required_fields:
             if field not in intent_result.entities or not intent_result.entities[field]:
                 missing.append(field)
         return missing
-    
+
     def clarify_missing_info(self, intent_result: IntentResult, missing_fields: List[str]) -> str:
         """生成追问问题，收集缺失信息"""
         field_questions = {
@@ -471,9 +471,9 @@ class NLPService:
             "delivery_address": "请问交付地址是什么？",
             "remark": "有什么备注信息吗？",
         }
-        
+
         questions = [field_questions.get(field, f"请提供 {field} 信息") for field in missing_fields]
-        
+
         if len(questions) == 1:
             return questions[0]
         else:

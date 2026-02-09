@@ -66,7 +66,29 @@
                 </div>
             </div>
         </div>
-    </div> <!-- Search and Filter -->
+    </div>
+
+    <!-- 负应付说明 -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="icon text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">
+                    负应付说明
+                </h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <p>采购退货会产生<strong>负应付账款</strong>，减少需要支付给供应商的金额。</p>
+                    <p class="mt-1">当前系统中有 <strong>{{ page_obj|length }}</strong> 条应付账款记录。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
     <div class="bg-white rounded-lg shadow p-6">
         <form method="get" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -127,6 +149,8 @@
                         </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">已付金额
                         </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">退货明细
+                        </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">未付余额
                         </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作
@@ -176,6 +200,15 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
                             ¥{{ account.paid_amount|floatformat:2 }}
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                            {% if account.return_detail_count > 0 %}
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ account.return_detail_count }} 笔退货
+                            </span>
+                            {% else %}
+                            <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
                             <span
                                 class="font-bold {% if account.balance > 0 %}text-red-600{% else %}text-green-600{% endif %}">
@@ -190,15 +223,15 @@
                             {% if account.balance > 0 %}
                             <a class="btn btn-primary" href="{% url 'finance:supplier_account_writeoff' account.pk %}">
                                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-</svg>手动核销
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>手动核销
                             </a>
                             {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="9" class="px-6 py-12 text-center text-gray-500">
                             <svg class="icon text-gray-300 mb-4 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
 </svg>

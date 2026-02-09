@@ -6,91 +6,239 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0009_auto_20260116_1211'),
+        ("core", "0009_auto_20260116_1211"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Platform',
+            name="Platform",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('platform_name', models.CharField(max_length=100, verbose_name='平台名称')),
-                ('platform_code', models.CharField(choices=[('taobao', '淘宝'), ('1688', '1688'), ('shopee', 'Shopee'), ('tiktok', 'TikTok'), ('shopify', 'Shopify'), ('amazon', 'Amazon'), ('ebay', 'eBay'), ('lazada', 'Lazada'), ('woocommerce', 'WooCommerce')], max_length=20, unique=True, verbose_name='平台编码')),
-                ('platform_type', models.CharField(choices=[('collect', '采集平台'), ('cross', '跨境平台'), ('ecommerce', '电商平台')], max_length=20, verbose_name='平台类型')),
-                ('api_key', models.CharField(blank=True, help_text='平台API密钥', max_length=128, verbose_name='API Key')),
-                ('api_secret', models.CharField(blank=True, help_text='平台API密钥', max_length=128, verbose_name='API Secret')),
-                ('api_url', models.URLField(blank=True, max_length=256, verbose_name='API网关地址')),
-                ('api_version', models.CharField(blank=True, max_length=16, verbose_name='API版本')),
-                ('auth_type', models.CharField(blank=True, help_text='如：oauth2, basic等', max_length=20, verbose_name='认证方式')),
-                ('access_token', models.TextField(blank=True, verbose_name='访问令牌')),
-                ('refresh_token', models.TextField(blank=True, verbose_name='刷新令牌')),
-                ('token_expires_at', models.DateTimeField(blank=True, null=True, verbose_name='令牌过期时间')),
-                ('platform_config', models.JSONField(blank=True, default=dict, help_text='平台级别的配置信息', verbose_name='平台配置')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('description', models.TextField(blank=True, verbose_name='描述')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("platform_name", models.CharField(max_length=100, verbose_name="平台名称")),
+                (
+                    "platform_code",
+                    models.CharField(
+                        choices=[
+                            ("taobao", "淘宝"),
+                            ("1688", "1688"),
+                            ("shopee", "Shopee"),
+                            ("tiktok", "TikTok"),
+                            ("shopify", "Shopify"),
+                            ("amazon", "Amazon"),
+                            ("ebay", "eBay"),
+                            ("lazada", "Lazada"),
+                            ("woocommerce", "WooCommerce"),
+                        ],
+                        max_length=20,
+                        unique=True,
+                        verbose_name="平台编码",
+                    ),
+                ),
+                (
+                    "platform_type",
+                    models.CharField(
+                        choices=[("collect", "采集平台"), ("cross", "跨境平台"), ("ecommerce", "电商平台")],
+                        max_length=20,
+                        verbose_name="平台类型",
+                    ),
+                ),
+                (
+                    "api_key",
+                    models.CharField(
+                        blank=True, help_text="平台API密钥", max_length=128, verbose_name="API Key"
+                    ),
+                ),
+                (
+                    "api_secret",
+                    models.CharField(
+                        blank=True, help_text="平台API密钥", max_length=128, verbose_name="API Secret"
+                    ),
+                ),
+                ("api_url", models.URLField(blank=True, max_length=256, verbose_name="API网关地址")),
+                ("api_version", models.CharField(blank=True, max_length=16, verbose_name="API版本")),
+                (
+                    "auth_type",
+                    models.CharField(
+                        blank=True, help_text="如：oauth2, basic等", max_length=20, verbose_name="认证方式"
+                    ),
+                ),
+                ("access_token", models.TextField(blank=True, verbose_name="访问令牌")),
+                ("refresh_token", models.TextField(blank=True, verbose_name="刷新令牌")),
+                (
+                    "token_expires_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="令牌过期时间"),
+                ),
+                (
+                    "platform_config",
+                    models.JSONField(
+                        blank=True, default=dict, help_text="平台级别的配置信息", verbose_name="平台配置"
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                ("description", models.TextField(blank=True, verbose_name="描述")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '平台配置',
-                'verbose_name_plural': '平台配置',
-                'db_table': 'core_platform',
+                "verbose_name": "平台配置",
+                "verbose_name_plural": "平台配置",
+                "db_table": "core_platform",
             },
         ),
         migrations.CreateModel(
-            name='Shop',
+            name="Shop",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('shop_name', models.CharField(max_length=200, verbose_name='店铺名称')),
-                ('shop_code', models.CharField(blank=True, max_length=100, verbose_name='店铺编码')),
-                ('shop_id', models.CharField(blank=True, db_index=True, max_length=100, verbose_name='平台店铺ID')),
-                ('shop_config', models.JSONField(blank=True, default=dict, help_text='店铺级别的配置信息', verbose_name='店铺配置')),
-                ('currency', models.CharField(default='CNY', max_length=10, verbose_name='货币')),
-                ('country', models.CharField(blank=True, max_length=50, verbose_name='国家/地区')),
-                ('api_key', models.CharField(blank=True, max_length=128, verbose_name='店铺API Key')),
-                ('api_secret', models.CharField(blank=True, max_length=128, verbose_name='店铺API Secret')),
-                ('access_token', models.TextField(blank=True, verbose_name='访问令牌')),
-                ('refresh_token', models.TextField(blank=True, verbose_name='刷新令牌')),
-                ('token_expires_at', models.DateTimeField(blank=True, null=True, verbose_name='令牌过期时间')),
-                ('is_active', models.BooleanField(default=True, verbose_name='是否启用')),
-                ('description', models.TextField(blank=True, verbose_name='描述')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('platform', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='shops', to='core.platform', verbose_name='所属平台')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                ("shop_name", models.CharField(max_length=200, verbose_name="店铺名称")),
+                ("shop_code", models.CharField(blank=True, max_length=100, verbose_name="店铺编码")),
+                (
+                    "shop_id",
+                    models.CharField(
+                        blank=True, db_index=True, max_length=100, verbose_name="平台店铺ID"
+                    ),
+                ),
+                (
+                    "shop_config",
+                    models.JSONField(
+                        blank=True, default=dict, help_text="店铺级别的配置信息", verbose_name="店铺配置"
+                    ),
+                ),
+                ("currency", models.CharField(default="CNY", max_length=10, verbose_name="货币")),
+                ("country", models.CharField(blank=True, max_length=50, verbose_name="国家/地区")),
+                ("api_key", models.CharField(blank=True, max_length=128, verbose_name="店铺API Key")),
+                (
+                    "api_secret",
+                    models.CharField(blank=True, max_length=128, verbose_name="店铺API Secret"),
+                ),
+                ("access_token", models.TextField(blank=True, verbose_name="访问令牌")),
+                ("refresh_token", models.TextField(blank=True, verbose_name="刷新令牌")),
+                (
+                    "token_expires_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="令牌过期时间"),
+                ),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                ("description", models.TextField(blank=True, verbose_name="描述")),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "platform",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="shops",
+                        to="core.platform",
+                        verbose_name="所属平台",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '店铺配置',
-                'verbose_name_plural': '店铺配置',
-                'db_table': 'core_shop',
+                "verbose_name": "店铺配置",
+                "verbose_name_plural": "店铺配置",
+                "db_table": "core_shop",
             },
         ),
         migrations.AddIndex(
-            model_name='platform',
-            index=models.Index(fields=['platform_code', 'platform_type', 'is_active'], name='core_platfo_platfor_60dc38_idx'),
+            model_name="platform",
+            index=models.Index(
+                fields=["platform_code", "platform_type", "is_active"],
+                name="core_platfo_platfor_60dc38_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='platform',
-            index=models.Index(fields=['platform_type', 'is_active'], name='core_platfo_platfor_405342_idx'),
+            model_name="platform",
+            index=models.Index(
+                fields=["platform_type", "is_active"], name="core_platfo_platfor_405342_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='shop',
-            index=models.Index(fields=['platform', 'is_active'], name='core_shop_platfor_483849_idx'),
+            model_name="shop",
+            index=models.Index(
+                fields=["platform", "is_active"], name="core_shop_platfor_483849_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='shop',
-            index=models.Index(fields=['shop_id'], name='core_shop_shop_id_92afce_idx'),
+            model_name="shop",
+            index=models.Index(fields=["shop_id"], name="core_shop_shop_id_92afce_idx"),
         ),
     ]

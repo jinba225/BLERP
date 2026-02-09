@@ -26,7 +26,7 @@ class DeepSeekProvider(BaseAIProvider):
         model_name: Optional[str] = None,
         api_base: Optional[str] = None,
         timeout: int = 30,
-        **kwargs
+        **kwargs,
     ):
         """初始化 DeepSeek Provider
 
@@ -41,7 +41,7 @@ class DeepSeekProvider(BaseAIProvider):
             api_key=api_key,
             api_base=api_base,
             model_name=model_name or self.DEFAULT_MODEL,
-            timeout=timeout
+            timeout=timeout,
         )
 
         self.api_base = api_base or self.DEFAULT_BASE_URL
@@ -53,14 +53,11 @@ class DeepSeekProvider(BaseAIProvider):
             headers={
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
-            }
+            },
         )
 
     async def generate_text(
-        self,
-        prompt: str,
-        system_prompt: Optional[str] = None,
-        **kwargs
+        self, prompt: str, system_prompt: Optional[str] = None, **kwargs
     ) -> str:
         """生成文本（兼容旧接口）
 
@@ -82,11 +79,7 @@ class DeepSeekProvider(BaseAIProvider):
         response = await self._chat_async(messages, **kwargs)
         return response.content
 
-    async def _chat_async(
-        self,
-        messages: List[Dict[str, str]],
-        **kwargs
-    ) -> AIResponse:
+    async def _chat_async(self, messages: List[Dict[str, str]], **kwargs) -> AIResponse:
         """异步chat方法（内部使用）
 
         Args:
@@ -115,13 +108,11 @@ class DeepSeekProvider(BaseAIProvider):
         try:
             # 调试日志
             import logging
+
             logger = logging.getLogger(__name__)
             logger.info(f"DeepSeek API 请求: model={self.model_name}, messages={len(messages)}")
 
-            response = await self.client.post(
-                "/chat/completions",
-                json=request_params
-            )
+            response = await self.client.post("/chat/completions", json=request_params)
             response.raise_for_status()
 
             # 解析响应
@@ -137,7 +128,7 @@ class DeepSeekProvider(BaseAIProvider):
                     content=content,
                     tokens_used=tokens_used,
                     model=self.model_name,
-                    finish_reason=result["choices"][0].get("finish_reason")
+                    finish_reason=result["choices"][0].get("finish_reason"),
                 )
             else:
                 raise ValueError(f"DeepSeek API 返回的格式不正确: {result}")
@@ -146,9 +137,7 @@ class DeepSeekProvider(BaseAIProvider):
             raise Exception(f"DeepSeek API 请求失败: {str(e)}")
 
     def chat(
-        self,
-        messages: List[Dict[str, str]],
-        tools: Optional[List[Dict[str, Any]]] = None
+        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
     ) -> AIResponse:
         """同步chat方法（实现BaseAIProvider接口）
 
@@ -169,9 +158,7 @@ class DeepSeekProvider(BaseAIProvider):
         return loop.run_until_complete(self._chat_async(messages))
 
     def stream_chat(
-        self,
-        messages: List[Dict[str, str]],
-        tools: Optional[List[Dict[str, Any]]] = None
+        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
     ) -> Iterator[str]:
         """流式chat方法（实现BaseAIProvider接口）
 
@@ -223,9 +210,7 @@ class DeepSeekProvider(BaseAIProvider):
         # 发送请求
         try:
             async with self.client.stream(
-                "POST",
-                "/chat/completions",
-                json=request_params
+                "POST", "/chat/completions", json=request_params
             ) as response:
                 response.raise_for_status()
 
@@ -241,6 +226,7 @@ class DeepSeekProvider(BaseAIProvider):
                         # 解析 JSON
                         try:
                             import json
+
                             chunk = json.loads(data)
 
                             # 提取生成的文本
@@ -256,10 +242,7 @@ class DeepSeekProvider(BaseAIProvider):
             raise Exception(f"DeepSeek API 请求失败: {str(e)}")
 
     async def generate_text_stream(
-        self,
-        prompt: str,
-        system_prompt: Optional[str] = None,
-        **kwargs
+        self, prompt: str, system_prompt: Optional[str] = None, **kwargs
     ):
         """流式生成文本
 
@@ -275,16 +258,10 @@ class DeepSeekProvider(BaseAIProvider):
 
         # 添加系统提示词
         if system_prompt:
-            messages.append({
-                "role": "system",
-                "content": system_prompt
-            })
+            messages.append({"role": "system", "content": system_prompt})
 
         # 添加用户提示词
-        messages.append({
-            "role": "user",
-            "content": prompt
-        })
+        messages.append({"role": "user", "content": prompt})
 
         # 构建请求参数
         request_params = {
@@ -304,9 +281,7 @@ class DeepSeekProvider(BaseAIProvider):
         # 发送请求
         try:
             async with self.client.stream(
-                "POST",
-                "/chat/completions",
-                json=request_params
+                "POST", "/chat/completions", json=request_params
             ) as response:
                 response.raise_for_status()
 
@@ -343,10 +318,7 @@ class DeepSeekProvider(BaseAIProvider):
         """
         try:
             # 发送一个简单的请求
-            response = await self.generate_text(
-                prompt="你好",
-                max_tokens=10
-            )
+            response = await self.generate_text(prompt="你好", max_tokens=10)
             return bool(response)
         except Exception:
             return False
@@ -356,7 +328,7 @@ class DeepSeekProvider(BaseAIProvider):
         import asyncio
 
         # 异步关闭客户端
-        if hasattr(self, 'client') and not self.client.is_closed:
+        if hasattr(self, "client") and not self.client.is_closed:
             try:
                 loop = asyncio.get_event_loop()
                 if loop.is_running():
