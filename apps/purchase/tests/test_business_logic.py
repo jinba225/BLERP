@@ -1,24 +1,30 @@
 """
 Purchase business logic tests.
 """
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.utils import timezone
-from django.db import transaction
-from decimal import Decimal
 from datetime import timedelta
+from decimal import Decimal
 
+from django.contrib.auth import get_user_model
+from django.db import transaction
+from django.test import TestCase
+from django.utils import timezone
+
+from apps.finance.models import SupplierAccount
+from apps.inventory.models import InventoryStock, Warehouse
+from apps.products.models import Product, ProductCategory, Unit
 from apps.purchase.models import (
-    PurchaseOrder, PurchaseOrderItem,
-    PurchaseInquiry, PurchaseInquiryItem,
-    SupplierQuotation, SupplierQuotationItem,
-    PurchaseReceipt, PurchaseReceiptItem,
-    PurchaseReturn, PurchaseReturnItem
+    PurchaseInquiry,
+    PurchaseInquiryItem,
+    PurchaseOrder,
+    PurchaseOrderItem,
+    PurchaseReceipt,
+    PurchaseReceiptItem,
+    PurchaseReturn,
+    PurchaseReturnItem,
+    SupplierQuotation,
+    SupplierQuotationItem,
 )
 from apps.suppliers.models import Supplier
-from apps.products.models import Product, ProductCategory, Unit
-from apps.inventory.models import Warehouse, InventoryStock
-from apps.finance.models import SupplierAccount
 
 User = get_user_model()
 
@@ -29,50 +35,34 @@ class InquiryToQuotationTest(TestCase):
     def setUp(self):
         """Set up test data."""
         self.user = User.objects.create_user(
-            username='testuser',
-            email='testuser@test.com',
-            password='testpass123'
+            username="testuser", email="testuser@test.com", password="testpass123"
         )
 
-        self.supplier1 = Supplier.objects.create(
-            name='供应商A',
-            code='SUP001',
-            created_by=self.user
-        )
+        self.supplier1 = Supplier.objects.create(name="供应商A", code="SUP001", created_by=self.user)
 
-        self.supplier2 = Supplier.objects.create(
-            name='供应商B',
-            code='SUP002',
-            created_by=self.user
-        )
+        self.supplier2 = Supplier.objects.create(name="供应商B", code="SUP002", created_by=self.user)
 
         self.category = ProductCategory.objects.create(
-            name='测试分类',
-            code='CAT001',
-            created_by=self.user
+            name="测试分类", code="CAT001", created_by=self.user
         )
 
-        self.unit = Unit.objects.create(
-            name='件',
-            symbol='pcs',
-            created_by=self.user
-        )
+        self.unit = Unit.objects.create(name="件", symbol="pcs", created_by=self.user)
 
         self.product = Product.objects.create(
-            name='测试产品',
-            code='PROD001',
+            name="测试产品",
+            code="PROD001",
             category=self.category,
             unit=self.unit,
-            cost_price=Decimal('80.00'),
-            created_by=self.user
+            cost_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         # Create inquiry
         self.inquiry = PurchaseInquiry.objects.create(
-            inquiry_number='RFQ2025110001',
+            inquiry_number="RFQ2025110001",
             inquiry_date=timezone.now().date(),
             required_date=timezone.now().date() + timedelta(days=7),
-            created_by=self.user
+            created_by=self.user,
         )
 
         # Add inquiry item
@@ -80,8 +70,8 @@ class InquiryToQuotationTest(TestCase):
             inquiry=self.inquiry,
             product=self.product,
             quantity=100,
-            target_price=Decimal('80.00'),
-            created_by=self.user
+            target_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
     # 注释掉 send_inquiry 相关测试，因为 PurchaseInquiry 模型中没有此方法
@@ -144,58 +134,41 @@ class OrderApprovalTest(TestCase):
     def setUp(self):
         """Set up test data."""
         self.user = User.objects.create_user(
-            username='testuser',
-            email='testuser@test.com',
-            password='testpass123'
+            username="testuser", email="testuser@test.com", password="testpass123"
         )
 
         self.approver = User.objects.create_user(
-            username='approver',
-            email='approver@test.com',
-            password='testpass123'
+            username="approver", email="approver@test.com", password="testpass123"
         )
 
-        self.supplier = Supplier.objects.create(
-            name='测试供应商',
-            code='SUP001',
-            created_by=self.user
-        )
+        self.supplier = Supplier.objects.create(name="测试供应商", code="SUP001", created_by=self.user)
 
         self.warehouse = Warehouse.objects.create(
-            name='测试仓库',
-            code='WH001',
-            is_active=True,
-            created_by=self.user
+            name="测试仓库", code="WH001", is_active=True, created_by=self.user
         )
 
         self.category = ProductCategory.objects.create(
-            name='测试分类',
-            code='CAT001',
-            created_by=self.user
+            name="测试分类", code="CAT001", created_by=self.user
         )
 
-        self.unit = Unit.objects.create(
-            name='件',
-            symbol='pcs',
-            created_by=self.user
-        )
+        self.unit = Unit.objects.create(name="件", symbol="pcs", created_by=self.user)
 
         self.product = Product.objects.create(
-            name='测试产品',
-            code='PROD001',
+            name="测试产品",
+            code="PROD001",
             category=self.category,
             unit=self.unit,
-            cost_price=Decimal('80.00'),
-            created_by=self.user
+            cost_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         # Create purchase order
         self.order = PurchaseOrder.objects.create(
-            order_number='PO2025110001',
+            order_number="PO2025110001",
             supplier=self.supplier,
             order_date=timezone.now().date(),
-            payment_terms='net_30',
-            created_by=self.user
+            payment_terms="net_30",
+            created_by=self.user,
         )
 
         # Add order item
@@ -203,8 +176,8 @@ class OrderApprovalTest(TestCase):
             purchase_order=self.order,
             product=self.product,
             quantity=100,
-            unit_price=Decimal('80.00'),
-            created_by=self.user
+            unit_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         self.order.calculate_totals()
@@ -214,14 +187,12 @@ class OrderApprovalTest(TestCase):
         """Test order approval with automatic receipt creation."""
         # Approve order with receipt creation
         receipt = self.order.approve_order(
-            approved_by_user=self.approver,
-            warehouse=self.warehouse,
-            auto_create_receipt=True
+            approved_by_user=self.approver, warehouse=self.warehouse, auto_create_receipt=True
         )
 
         # Verify order status updated
         self.order.refresh_from_db()
-        self.assertEqual(self.order.status, 'approved')
+        self.assertEqual(self.order.status, "approved")
         self.assertEqual(self.order.approved_by, self.approver)
         self.assertIsNotNone(self.order.approved_at)
 
@@ -238,13 +209,12 @@ class OrderApprovalTest(TestCase):
         """Test order approval without receipt creation."""
         # Approve order without receipt
         receipt = self.order.approve_order(
-            approved_by_user=self.approver,
-            auto_create_receipt=False
+            approved_by_user=self.approver, auto_create_receipt=False
         )
 
         # Verify order approved
         self.order.refresh_from_db()
-        self.assertEqual(self.order.status, 'approved')
+        self.assertEqual(self.order.status, "approved")
 
         # Verify no receipt created
         self.assertIsNone(receipt)
@@ -275,20 +245,14 @@ class OrderApprovalTest(TestCase):
     def test_cannot_approve_twice(self):
         """Test that orders cannot be approved twice."""
         # First approval
-        self.order.approve_order(
-            approved_by_user=self.approver,
-            auto_create_receipt=False
-        )
+        self.order.approve_order(approved_by_user=self.approver, auto_create_receipt=False)
 
         # Second approval - 当前实现会因状态检查而失败
         with self.assertRaises(ValueError) as context:
-            self.order.approve_order(
-                approved_by_user=self.approver,
-                auto_create_receipt=False
-            )
+            self.order.approve_order(approved_by_user=self.approver, auto_create_receipt=False)
 
         # 期望错误消息是状态检查的错误，不是"已经审核过了"
-        self.assertIn('只有草稿状态', str(context.exception))
+        self.assertIn("只有草稿状态", str(context.exception))
 
     def test_payment_terms_due_date_calculation(self):
         """Test due date calculation based on payment terms."""
@@ -297,26 +261,25 @@ class OrderApprovalTest(TestCase):
 
         # Test net_30
         order_net30 = PurchaseOrder.objects.create(
-            order_number='PO2025110003',
+            order_number="PO2025110003",
             supplier=self.supplier,
             order_date=timezone.now().date(),
             required_date=timezone.now().date() + timedelta(days=30),  # 设置 required_date
-            payment_terms='net_30',
-            created_by=self.user
+            payment_terms="net_30",
+            created_by=self.user,
         )
         PurchaseOrderItem.objects.create(
             purchase_order=order_net30,
             product=self.product,
             quantity=50,
-            unit_price=Decimal('80.00'),
-            created_by=self.user
+            unit_price=Decimal("80.00"),
+            created_by=self.user,
         )
         order_net30.calculate_totals()
         order_net30.save()
 
         receipt = order_net30.approve_order(
-            approved_by_user=self.approver,
-            auto_create_receipt=False
+            approved_by_user=self.approver, auto_create_receipt=False
         )
 
         # 注意：当前不再自动创建应付账款
@@ -329,65 +292,48 @@ class OrderUnapprovalTest(TestCase):
     def setUp(self):
         """Set up test data."""
         self.user = User.objects.create_user(
-            username='testuser',
-            email='testuser@test.com',
-            password='testpass123'
+            username="testuser", email="testuser@test.com", password="testpass123"
         )
 
         self.approver = User.objects.create_user(
-            username='approver',
-            email='approver@test.com',
-            password='testpass123'
+            username="approver", email="approver@test.com", password="testpass123"
         )
 
-        self.supplier = Supplier.objects.create(
-            name='测试供应商',
-            code='SUP001',
-            created_by=self.user
-        )
+        self.supplier = Supplier.objects.create(name="测试供应商", code="SUP001", created_by=self.user)
 
         self.warehouse = Warehouse.objects.create(
-            name='测试仓库',
-            code='WH001',
-            is_active=True,
-            created_by=self.user
+            name="测试仓库", code="WH001", is_active=True, created_by=self.user
         )
 
         self.category = ProductCategory.objects.create(
-            name='测试分类',
-            code='CAT001',
-            created_by=self.user
+            name="测试分类", code="CAT001", created_by=self.user
         )
 
-        self.unit = Unit.objects.create(
-            name='件',
-            symbol='pcs',
-            created_by=self.user
-        )
+        self.unit = Unit.objects.create(name="件", symbol="pcs", created_by=self.user)
 
         self.product = Product.objects.create(
-            name='测试产品',
-            code='PROD001',
+            name="测试产品",
+            code="PROD001",
             category=self.category,
             unit=self.unit,
-            cost_price=Decimal('80.00'),
-            created_by=self.user
+            cost_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         # Create and approve order
         self.order = PurchaseOrder.objects.create(
-            order_number='PO2025110001',
+            order_number="PO2025110001",
             supplier=self.supplier,
             order_date=timezone.now().date(),
-            created_by=self.user
+            created_by=self.user,
         )
 
         PurchaseOrderItem.objects.create(
             purchase_order=self.order,
             product=self.product,
             quantity=100,
-            unit_price=Decimal('80.00'),
-            created_by=self.user
+            unit_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         self.order.calculate_totals()
@@ -395,9 +341,7 @@ class OrderUnapprovalTest(TestCase):
 
         # Approve with receipt
         self.receipt = self.order.approve_order(
-            approved_by_user=self.approver,
-            warehouse=self.warehouse,
-            auto_create_receipt=True
+            approved_by_user=self.approver, warehouse=self.warehouse, auto_create_receipt=True
         )
 
     # 注释掉撤销审核相关测试，因为 PurchaseOrder 模型中没有 unapprove_order() 方法
@@ -458,93 +402,78 @@ class ReceiptProcessTest(TestCase):
     def setUp(self):
         """Set up test data."""
         self.user = User.objects.create_user(
-            username='testuser',
-            email='testuser@test.com',
-            password='testpass123'
+            username="testuser", email="testuser@test.com", password="testpass123"
         )
 
-        self.supplier = Supplier.objects.create(
-            name='测试供应商',
-            code='SUP001',
-            created_by=self.user
-        )
+        self.supplier = Supplier.objects.create(name="测试供应商", code="SUP001", created_by=self.user)
 
         self.warehouse = Warehouse.objects.create(
-            name='测试仓库',
-            code='WH001',
-            is_active=True,
-            created_by=self.user
+            name="测试仓库", code="WH001", is_active=True, created_by=self.user
         )
 
         self.category = ProductCategory.objects.create(
-            name='测试分类',
-            code='CAT001',
-            created_by=self.user
+            name="测试分类", code="CAT001", created_by=self.user
         )
 
-        self.unit = Unit.objects.create(
-            name='件',
-            symbol='pcs',
-            created_by=self.user
-        )
+        self.unit = Unit.objects.create(name="件", symbol="pcs", created_by=self.user)
 
         self.product = Product.objects.create(
-            name='测试产品',
-            code='PROD001',
+            name="测试产品",
+            code="PROD001",
             category=self.category,
             unit=self.unit,
-            cost_price=Decimal('80.00'),
-            created_by=self.user
+            cost_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         # Create order
         self.order = PurchaseOrder.objects.create(
-            order_number='PO2025110001',
+            order_number="PO2025110001",
             supplier=self.supplier,
             order_date=timezone.now().date(),
-            status='approved',
-            created_by=self.user
+            status="approved",
+            created_by=self.user,
         )
 
         self.order_item = PurchaseOrderItem.objects.create(
             purchase_order=self.order,
             product=self.product,
             quantity=100,
-            unit_price=Decimal('80.00'),
-            created_by=self.user
+            unit_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         # Create receipt
         self.receipt = PurchaseReceipt.objects.create(
-            receipt_number='PR2025110001',
+            receipt_number="PR2025110001",
             purchase_order=self.order,
             warehouse=self.warehouse,
             receipt_date=timezone.now().date(),
-            created_by=self.user
+            created_by=self.user,
         )
 
         self.receipt_item = PurchaseReceiptItem.objects.create(
             receipt=self.receipt,
             order_item=self.order_item,
             received_quantity=100,
-            created_by=self.user
+            created_by=self.user,
         )
 
     def test_receipt_item_creation(self):
         """Test receipt item creation."""
         self.assertEqual(self.receipt.items.count(), 1)
-        self.assertEqual(self.receipt_item.received_quantity, Decimal('100'))
+        self.assertEqual(self.receipt_item.received_quantity, Decimal("100"))
         self.assertEqual(self.receipt_item.order_item.product, self.product)
 
     def test_partial_receipt(self):
         """Test partial receipt of order."""
         # Create second receipt with remaining quantity
         receipt2 = PurchaseReceipt.objects.create(
-            receipt_number='PR2025110002',
+            receipt_number="PR2025110002",
             purchase_order=self.order,
             warehouse=self.warehouse,
             receipt_date=timezone.now().date(),
-            created_by=self.user
+            created_by=self.user,
         )
 
         # This order item already has 100 received
@@ -553,20 +482,17 @@ class ReceiptProcessTest(TestCase):
             purchase_order=self.order,
             product=self.product,
             quantity=200,
-            unit_price=Decimal('80.00'),
-            created_by=self.user
+            unit_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         # First partial receipt of 100
         receipt_item2 = PurchaseReceiptItem.objects.create(
-            receipt=receipt2,
-            order_item=order_item2,
-            received_quantity=100,
-            created_by=self.user
+            receipt=receipt2, order_item=order_item2, received_quantity=100, created_by=self.user
         )
 
-        self.assertEqual(receipt_item2.received_quantity, Decimal('100'))
-        self.assertEqual(order_item2.quantity, Decimal('200'))
+        self.assertEqual(receipt_item2.received_quantity, Decimal("100"))
+        self.assertEqual(order_item2.quantity, Decimal("200"))
 
 
 class PurchaseReturnProcessTest(TestCase):
@@ -575,69 +501,53 @@ class PurchaseReturnProcessTest(TestCase):
     def setUp(self):
         """Set up test data."""
         self.user = User.objects.create_user(
-            username='testuser',
-            email='testuser@test.com',
-            password='testpass123'
+            username="testuser", email="testuser@test.com", password="testpass123"
         )
 
-        self.supplier = Supplier.objects.create(
-            name='测试供应商',
-            code='SUP001',
-            created_by=self.user
-        )
+        self.supplier = Supplier.objects.create(name="测试供应商", code="SUP001", created_by=self.user)
 
-        self.warehouse = Warehouse.objects.create(
-            name='测试仓库',
-            code='WH001',
-            created_by=self.user
-        )
+        self.warehouse = Warehouse.objects.create(name="测试仓库", code="WH001", created_by=self.user)
 
         self.category = ProductCategory.objects.create(
-            name='测试分类',
-            code='CAT001',
-            created_by=self.user
+            name="测试分类", code="CAT001", created_by=self.user
         )
 
-        self.unit = Unit.objects.create(
-            name='件',
-            symbol='pcs',
-            created_by=self.user
-        )
+        self.unit = Unit.objects.create(name="件", symbol="pcs", created_by=self.user)
 
         self.product = Product.objects.create(
-            name='测试产品',
-            code='PROD001',
+            name="测试产品",
+            code="PROD001",
             category=self.category,
             unit=self.unit,
-            cost_price=Decimal('80.00'),
-            created_by=self.user
+            cost_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         # Create order
         self.order = PurchaseOrder.objects.create(
-            order_number='PO2025110001',
+            order_number="PO2025110001",
             supplier=self.supplier,
             order_date=timezone.now().date(),
-            status='fully_received',
-            created_by=self.user
+            status="fully_received",
+            created_by=self.user,
         )
 
         self.order_item = PurchaseOrderItem.objects.create(
             purchase_order=self.order,
             product=self.product,
             quantity=100,
-            unit_price=Decimal('80.00'),
-            created_by=self.user
+            unit_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
     def test_return_creation(self):
         """Test purchase return creation."""
         purchase_return = PurchaseReturn.objects.create(
-            return_number='PTN2025110001',
+            return_number="PTN2025110001",
             purchase_order=self.order,
-            reason='defective',
+            reason="defective",
             return_date=timezone.now().date(),
-            created_by=self.user
+            created_by=self.user,
         )
 
         # Add return item
@@ -645,23 +555,23 @@ class PurchaseReturnProcessTest(TestCase):
             purchase_return=purchase_return,
             order_item=self.order_item,
             quantity=10,
-            unit_price=Decimal('80.00'),
-            created_by=self.user
+            unit_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
-        self.assertEqual(purchase_return.status, 'draft')  # 默认状态是草稿
+        self.assertEqual(purchase_return.status, "draft")  # 默认状态是草稿
         self.assertEqual(purchase_return.items.count(), 1)
-        self.assertEqual(return_item.quantity, Decimal('10'))
-        self.assertEqual(return_item.line_total, Decimal('800.00'))
+        self.assertEqual(return_item.quantity, Decimal("10"))
+        self.assertEqual(return_item.line_total, Decimal("800.00"))
 
     def test_partial_return(self):
         """Test partial product return."""
         purchase_return = PurchaseReturn.objects.create(
-            return_number='PTN2025110001',
+            return_number="PTN2025110001",
             purchase_order=self.order,
-            reason='defective',
+            reason="defective",
             return_date=timezone.now().date(),
-            created_by=self.user
+            created_by=self.user,
         )
 
         # Return only 10 out of 100
@@ -669,14 +579,14 @@ class PurchaseReturnProcessTest(TestCase):
             purchase_return=purchase_return,
             order_item=self.order_item,
             quantity=10,
-            unit_price=Decimal('80.00'),
-            created_by=self.user
+            unit_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         # Verify partial return
-        self.assertEqual(purchase_return.items.first().quantity, Decimal('10'))
+        self.assertEqual(purchase_return.items.first().quantity, Decimal("10"))
         # Original order item still has 100
-        self.assertEqual(self.order_item.quantity, Decimal('100'))
+        self.assertEqual(self.order_item.quantity, Decimal("100"))
 
 
 class IntegrationTest(TestCase):
@@ -685,94 +595,77 @@ class IntegrationTest(TestCase):
     def setUp(self):
         """Set up test data."""
         self.user = User.objects.create_user(
-            username='testuser',
-            email='testuser@test.com',
-            password='testpass123'
+            username="testuser", email="testuser@test.com", password="testpass123"
         )
 
-        self.supplier = Supplier.objects.create(
-            name='测试供应商',
-            code='SUP001',
-            created_by=self.user
-        )
+        self.supplier = Supplier.objects.create(name="测试供应商", code="SUP001", created_by=self.user)
 
         self.warehouse = Warehouse.objects.create(
-            name='测试仓库',
-            code='WH001',
-            is_active=True,
-            created_by=self.user
+            name="测试仓库", code="WH001", is_active=True, created_by=self.user
         )
 
         self.category = ProductCategory.objects.create(
-            name='测试分类',
-            code='CAT001',
-            created_by=self.user
+            name="测试分类", code="CAT001", created_by=self.user
         )
 
-        self.unit = Unit.objects.create(
-            name='件',
-            symbol='pcs',
-            created_by=self.user
-        )
+        self.unit = Unit.objects.create(name="件", symbol="pcs", created_by=self.user)
 
         self.product = Product.objects.create(
-            name='测试产品',
-            code='PROD001',
+            name="测试产品",
+            code="PROD001",
             category=self.category,
             unit=self.unit,
-            cost_price=Decimal('80.00'),
-            created_by=self.user
+            cost_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
     def test_complete_purchase_flow(self):
         """Test complete purchase flow from inquiry to order."""
         # 1. Create inquiry
         inquiry = PurchaseInquiry.objects.create(
-            inquiry_number='RFQ2025110001',
+            inquiry_number="RFQ2025110001",
             inquiry_date=timezone.now().date(),
             required_date=timezone.now().date() + timedelta(days=7),
-            created_by=self.user
+            created_by=self.user,
         )
 
         PurchaseInquiryItem.objects.create(
             inquiry=inquiry,
             product=self.product,
             quantity=100,
-            target_price=Decimal('80.00'),
-            created_by=self.user
+            target_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         # 2. Skip send_inquiry() 调用，因为此方法未实现
         # inquiry.send_inquiry([self.supplier])
         # self.assertEqual(inquiry.status, 'sent')
-        inquiry.status = 'sent'  # 手动设置状态以继续测试流程
+        inquiry.status = "sent"  # 手动设置状态以继续测试流程
         inquiry.save()
 
         # 3. Create order
         order = PurchaseOrder.objects.create(
-            order_number='PO2025110001',
+            order_number="PO2025110001",
             supplier=self.supplier,
             order_date=timezone.now().date(),
-            created_by=self.user
+            created_by=self.user,
         )
 
         PurchaseOrderItem.objects.create(
             purchase_order=order,
             product=self.product,
             quantity=100,
-            unit_price=Decimal('80.00'),
-            created_by=self.user
+            unit_price=Decimal("80.00"),
+            created_by=self.user,
         )
 
         # 4. Approve order
         receipt = order.approve_order(
-            approved_by_user=self.user,
-            warehouse=self.warehouse,
-            auto_create_receipt=True
+            approved_by_user=self.user, warehouse=self.warehouse, auto_create_receipt=True
         )
 
         # Verify complete flow
-        self.assertEqual(inquiry.status, 'sent')
-        self.assertEqual(order.status, 'approved')
+        self.assertEqual(inquiry.status, "sent")
+        self.assertEqual(order.status, "approved")
         self.assertIsNotNone(receipt)
         # 注意：应付账款不再自动创建

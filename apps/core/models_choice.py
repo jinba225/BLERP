@@ -2,9 +2,9 @@
 Dynamic choice options management.
 统一的动态选项管理模型，替代硬编码的choices。
 """
-from django.db import models
-from django.core.cache import cache
 from core.models import BaseModel
+from django.core.cache import cache
+from django.db import models
 
 
 class ChoiceOption(BaseModel):

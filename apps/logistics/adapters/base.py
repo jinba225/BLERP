@@ -4,7 +4,8 @@
 定义物流适配器的统一接口
 """
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
+
 from logistics.models import ShippingOrder
 
 

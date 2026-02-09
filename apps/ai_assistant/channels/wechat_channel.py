@@ -4,18 +4,19 @@
 通过微信企业号API实现消息收发
 """
 
-from typing import Optional
-from datetime import datetime
 import hashlib
-import time
 import json
+import time
+from datetime import datetime
+from typing import Optional
+
 import requests
 from django.http import HttpRequest
 
-from .base_channel import BaseChannel, IncomingMessage, OutgoingMessage
 from ..models import WeChatConfig
 from ..utils import decrypt_api_key
 from ..utils.cache import AIAssistantCache
+from .base_channel import BaseChannel, IncomingMessage, OutgoingMessage
 
 
 class WeChatChannel(BaseChannel):

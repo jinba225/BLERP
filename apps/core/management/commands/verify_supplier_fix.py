@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
-from django.db.models import Sum, Count
+from django.db.models import Count, Sum
+
 from apps.finance.models import SupplierAccount
 
 

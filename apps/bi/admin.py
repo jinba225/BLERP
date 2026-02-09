@@ -2,16 +2,17 @@
 BI模块Admin配置
 """
 from django.contrib import admin
+
 from .models import (
-    Report,
-    ReportData,
-    SalesSummary,
-    ProductSales,
-    InventoryAnalysis,
-    PlatformComparison,
     Dashboard,
     DashboardWidget,
     DashboardWidgetConfig,
+    InventoryAnalysis,
+    PlatformComparison,
+    ProductSales,
+    Report,
+    ReportData,
+    SalesSummary,
 )
 
 

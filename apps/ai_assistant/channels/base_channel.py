@@ -5,10 +5,11 @@
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
 from dataclasses import dataclass
-from django.contrib.auth import get_user_model
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 

@@ -4,12 +4,13 @@ ERP工具基类
 提供AI调用ERP系统的标准工具接口
 """
 
+import json
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-import json
 
 User = get_user_model()
 

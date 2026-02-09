@@ -2,14 +2,14 @@
 AI Assistant Utils 模块
 """
 
-from .encryption import APIKeyEncryption, encrypt_api_key, decrypt_api_key
 from .cache import AIAssistantCache
+from .encryption import APIKeyEncryption, decrypt_api_key, encrypt_api_key
 from .logger import AIAssistantLogger
 from .permissions import (
-    has_custom_permission,
+    clear_user_permission_cache,
     get_user_permissions,
     get_user_roles,
-    clear_user_permission_cache,
+    has_custom_permission,
 )
 
 __all__ = [

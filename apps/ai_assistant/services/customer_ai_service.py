@@ -4,11 +4,11 @@
 管理客户级别的 AI 助手配置，包括模型选择、权限控制、工具管理等。
 """
 
-from typing import Optional, List, Dict, Any
-from django.db import transaction
-from django.core.exceptions import PermissionDenied
+from typing import Any, Dict, List, Optional
 
-from ai_assistant.models import CustomerAIConfig, AIModelConfig, AITool
+from ai_assistant.models import AIModelConfig, AITool, CustomerAIConfig
+from django.core.exceptions import PermissionDenied
+from django.db import transaction
 
 
 class CustomerAIService:

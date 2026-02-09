@@ -5,18 +5,19 @@
 """
 
 from typing import Optional
-from django.contrib.auth import get_user_model
 
-from ai_assistant.providers import BaseAIProvider
-from ai_assistant.services import (
-    NLPService,
-    ConversationFlowManager,
-    ConversationContext,
-    ConversationState,
-    Intent,
-)
 from ai_assistant.channels import ChannelAdapter
 from ai_assistant.channels.base_channel import IncomingMessage, OutgoingMessage
+from ai_assistant.providers import BaseAIProvider
+from ai_assistant.services import (
+    ConversationContext,
+    ConversationFlowManager,
+    ConversationState,
+    Intent,
+    NLPService,
+)
+from django.contrib.auth import get_user_model
+
 from common.utils import decrypt_api_key
 
 User = get_user_model()
@@ -64,6 +65,7 @@ class ChannelAIService:
             BaseAIProvider 实例，如果没有配置则返回 None
         """
         from ai_assistant.models import AIModelConfig
+
         from common.utils import decrypt_api_key
 
         # 1. 优先使用客户级别的配置
@@ -84,10 +86,10 @@ class ChannelAIService:
     def _create_provider(self, config) -> BaseAIProvider:
         """创建 Provider 实例"""
         from ai_assistant.providers import (
-            OpenAIProvider,
             AnthropicProvider,
-            MockAIProvider,
             DeepSeekProvider,
+            MockAIProvider,
+            OpenAIProvider,
         )
 
         provider_map = {

@@ -18,12 +18,12 @@ BetterLaser ERP - 测试数据工厂 (Factory Boy)
     )
 """
 
-import factory
-from factory.django import DjangoModelFactory
-from factory.fuzzy import FuzzyChoice, FuzzyDecimal, FuzzyInteger, FuzzyDate
 from datetime import date, timedelta
 from decimal import Decimal
 
+import factory
+from factory.django import DjangoModelFactory
+from factory.fuzzy import FuzzyChoice, FuzzyDate, FuzzyDecimal, FuzzyInteger
 
 # ============================================================
 # Core模块工厂

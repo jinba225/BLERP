@@ -12,18 +12,19 @@
 """
 import os
 import sys
+
 import django
 
 # 添加项目路径到sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # 设置Django环境
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'better_laser_erp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "better_laser_erp.settings")
 django.setup()
 
 from core.models import DocumentNumberSequence
-from finance.models import Payment
 from django.db.models import Max
+from finance.models import Payment
 
 
 def fix_payment_sequence():
@@ -34,9 +35,8 @@ def fix_payment_sequence():
 
     # 1. 查询所有BILL前缀的付款单号
     bill_payments = Payment.objects.filter(
-        payment_number__startswith='BILL',
-        is_deleted=False
-    ).values('payment_number', 'created_at')
+        payment_number__startswith="BILL", is_deleted=False
+    ).values("payment_number", "created_at")
 
     if not bill_payments:
         print("❌ 未找到BILL前缀的付款单号")
@@ -46,10 +46,11 @@ def fix_payment_sequence():
 
     # 2. 按日期分组，找出每个日期的最大序号
     from collections import defaultdict
+
     date_max_sequence = defaultdict(int)
 
     for payment in bill_payments:
-        payment_number = payment['payment_number']
+        payment_number = payment["payment_number"]
         # BILL + YYMMDD(6位) + 序号
         # 例如: BILL260116001
         if len(payment_number) >= 12:
@@ -71,9 +72,7 @@ def fix_payment_sequence():
 
     # 4. 检查序列表中的记录
     print("\n🔍 检查序列表记录...")
-    existing_sequences = DocumentNumberSequence.objects.filter(
-        prefix='BILL'
-    )
+    existing_sequences = DocumentNumberSequence.objects.filter(prefix="BILL")
 
     if existing_sequences.exists():
         print("⚠️  序列表中已存在BILL前缀的记录：")
@@ -92,8 +91,7 @@ def fix_payment_sequence():
     for date_str, max_sequence in sorted(date_max_sequence.items()):
         # 检查是否已存在
         sequence_obj = DocumentNumberSequence.objects.filter(
-            prefix='BILL',
-            date_str=date_str
+            prefix="BILL", date_str=date_str
         ).first()
 
         if sequence_obj:
@@ -109,9 +107,7 @@ def fix_payment_sequence():
         else:
             # 不存在则创建
             DocumentNumberSequence.objects.create(
-                prefix='BILL',
-                date_str=date_str,
-                current_number=max_sequence
+                prefix="BILL", date_str=date_str, current_number=max_sequence
             )
             print(f"✨ 创建 {date_str}: current_number={max_sequence}")
             created_count += 1
@@ -124,18 +120,19 @@ def fix_payment_sequence():
 
     # 6. 验证结果
     print("\n🔍 验证修复结果...")
-    all_sequences = DocumentNumberSequence.objects.filter(prefix='BILL')
+    all_sequences = DocumentNumberSequence.objects.filter(prefix="BILL")
     print(f"   序列表中BILL前缀记录总数: {all_sequences.count()}")
-    for seq in all_sequences.order_by('-date_str'):
+    for seq in all_sequences.order_by("-date_str"):
         print(f"   - {seq.date_str}: current_number={seq.current_number:03d}")
 
     print("\n✨ 现在可以正常生成付款单号了！")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         fix_payment_sequence()
     except Exception as e:
         print(f"\n❌ 执行失败: {str(e)}")
         import traceback
+
         traceback.print_exc()

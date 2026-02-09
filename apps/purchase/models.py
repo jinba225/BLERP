@@ -1,12 +1,12 @@
 """
 Purchase models for the ERP system.
 """
-from django.db import models
+from core.models import PAYMENT_METHOD_CHOICES, BaseModel
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
-from core.models import BaseModel, PAYMENT_METHOD_CHOICES
-from django.utils import timezone
+from django.db import models
 from django.db.models import Sum
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -65,7 +65,7 @@ class PurchaseOrder(BaseModel):
 
     # Financial information
     subtotal = models.DecimalField("小计", max_digits=12, decimal_places=2, default=0)
-    tax_rate = models.DecimalField("税率(%)", max_digits=5, decimal_places=2, default=0)
+    tax_rate = models.DecimalField("税率(%)", max_digits=5, decimal_places=2, default=13)
     tax_amount = models.DecimalField("税额", max_digits=12, decimal_places=2, default=0)
     discount_rate = models.DecimalField("折扣率(%)", max_digits=5, decimal_places=2, default=0)
     discount_amount = models.DecimalField("折扣金额", max_digits=12, decimal_places=2, default=0)
@@ -417,6 +417,7 @@ class PurchaseRequest(BaseModel):
             ValueError: If validation fails
         """
         from core.models import SystemConfig
+
         from common.utils import DocumentNumberGenerator
 
         # Validation
@@ -1008,7 +1009,7 @@ class Borrow(BaseModel):
             items_to_receive: 本次入库的明细列表 [{'item_id': 1, 'quantity': 10}, ...]
                             如果为None，则全部入库
         """
-        from inventory.models import Warehouse, InventoryTransaction
+        from inventory.models import InventoryTransaction, Warehouse
 
         if self.status != "borrowed":
             raise ValueError("只有借用中状态的借用单才能确认入库")
@@ -1076,7 +1077,8 @@ class Borrow(BaseModel):
             returned_items_data: 归还数据列表 [{'item_id': 1, 'quantity': 10}, ...]
         """
         from decimal import Decimal
-        from inventory.models import Warehouse, InventoryTransaction
+
+        from inventory.models import InventoryTransaction, Warehouse
 
         if self.status != "borrowed":
             raise ValueError("只有借用中状态的借用单才能处理归还")
@@ -1133,6 +1135,7 @@ class Borrow(BaseModel):
             PurchaseOrder: 生成的采购订单
         """
         from decimal import Decimal
+
         from core.utils.document_number import DocumentNumberGenerator
         from inventory.models import Warehouse
 

@@ -1,10 +1,10 @@
 """
 Inventory models for the ERP system.
 """
-from django.db import models
+from core.models import BaseModel
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
-from core.models import BaseModel
+from django.db import models
 
 User = get_user_model()
 

@@ -6,7 +6,7 @@
 """
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from inventory.models import InventoryTransaction, InventoryStock, Warehouse
+from inventory.models import InventoryStock, InventoryTransaction, Warehouse
 from products.models import Product
 
 

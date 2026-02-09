@@ -1,13 +1,13 @@
 """
 Core middleware for the ERP system.
 """
-import pytz
 import logging
 import traceback
+
+import pytz
+from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
-from django.http import JsonResponse
-
 
 logger = logging.getLogger(__name__)
 

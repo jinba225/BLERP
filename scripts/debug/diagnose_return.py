@@ -7,14 +7,16 @@
 """
 
 import os
+
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_erp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 django.setup()
 
 from decimal import Decimal
-from purchase.models import PurchaseReturn, PurchaseOrder, PurchaseOrderItem
+
 from finance.models import SupplierAccount, SupplierAccountDetail
+from purchase.models import PurchaseOrder, PurchaseOrderItem, PurchaseReturn
 
 
 def diagnose_return(return_id):
@@ -42,8 +44,8 @@ def diagnose_return(return_id):
 
     # 3. 退货明细分析
     print("📦 退货明细分析:")
-    total_refund_should = Decimal('0')
-    total_refund_actual = Decimal('0')
+    total_refund_should = Decimal("0")
+    total_refund_actual = Decimal("0")
 
     for idx, item in enumerate(return_order.items.all(), 1):
         order_item = item.order_item
@@ -83,10 +85,7 @@ def diagnose_return(return_id):
     print("💳 应付账款记录检查:")
 
     # 查找相关的应付账款明细
-    ar_details = SupplierAccountDetail.objects.filter(
-        return_order=return_order,
-        is_deleted=False
-    )
+    ar_details = SupplierAccountDetail.objects.filter(return_order=return_order, is_deleted=False)
 
     if ar_details.exists():
         print(f"  ✅ 找到 {ar_details.count()} 条应付明细记录:")
@@ -110,7 +109,9 @@ def diagnose_return(return_id):
         parent_account = SupplierAccount.get_or_create_for_order(return_order.purchase_order)
         print(f"  应付主单ID: {parent_account.id}")
         print(f"  供应商: {parent_account.supplier.name}")
-        print(f"  采购订单: {parent_account.purchase_order.order_number if parent_account.purchase_order else 'N/A'}")
+        print(
+            f"  采购订单: {parent_account.purchase_order.order_number if parent_account.purchase_order else 'N/A'}"
+        )
         print(f"  当前余额: ¥{parent_account.balance:.2f}")
         print(f"  原始余额: ¥{parent_account.original_balance:.2f}")
         print(f"  已分配金额: ¥{parent_account.allocated_amount:.2f}")
@@ -120,7 +121,9 @@ def diagnose_return(return_id):
         all_details = parent_account.details.filter(is_deleted=False)
         print(f"\n  主单下所有明细 (共 {all_details.count()} 条):")
         for detail in all_details:
-            print(f"    - {detail.detail_number}: {detail.get_detail_type_display()} ¥{detail.amount:.2f}")
+            print(
+                f"    - {detail.detail_number}: {detail.get_detail_type_display()} ¥{detail.amount:.2f}"
+            )
     except Exception as e:
         print(f"  ❌ 获取应付主单失败: {e}")
 
@@ -134,7 +137,7 @@ def diagnose_return(return_id):
     elif total_refund_should == 0:
         print(f"  ⚠️  当前退货场景不需要生成应付账款")
         print(f"  📝 说明: 退货数量 ≤ 未收货数量，只减少订单数量")
-    elif abs(total_refund_should - total_refund_actual) < Decimal('0.01'):
+    elif abs(total_refund_should - total_refund_actual) < Decimal("0.01"):
         print(f"  ✅ 应付账款生成正常")
     else:
         print(f"  ⚠️  应付金额不匹配")
@@ -144,7 +147,7 @@ def diagnose_return(return_id):
     print(f"\n{'='*60}\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:

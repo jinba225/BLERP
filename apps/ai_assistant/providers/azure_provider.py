@@ -11,9 +11,11 @@ Microsoft Azure OpenAI Provider
 官方文档：https://learn.microsoft.com/zh-cn/azure/ai-services/openai/
 """
 
-from typing import Dict, Any
-from .base import BaseAIProvider, AIResponse, ProviderException
+from typing import Any, Dict
+
 import openai
+
+from .base import AIResponse, BaseAIProvider, ProviderException
 
 
 class AzureProvider(BaseAIProvider):

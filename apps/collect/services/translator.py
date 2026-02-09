@@ -2,9 +2,11 @@
 翻译服务
 支持多语言翻译
 """
+from typing import Dict, Optional
+
 import requests
-from typing import Optional, Dict
 from django.conf import settings
+
 from .exceptions import TranslationException
 
 

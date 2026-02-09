@@ -1,8 +1,12 @@
 """
 Purchase 模块的导入导出资源配置
 """
-from import_export import resources, fields
-from import_export.widgets import ForeignKeyWidget, DateWidget, DecimalWidget
+from django.contrib.auth import get_user_model
+from import_export import fields, resources
+from import_export.widgets import DateWidget, DecimalWidget, ForeignKeyWidget
+from products.models import Product
+from suppliers.models import Supplier
+
 from .models import (
     PurchaseOrder,
     PurchaseOrderItem,
@@ -13,9 +17,6 @@ from .models import (
     SupplierQuotation,
     SupplierQuotationItem,
 )
-from django.contrib.auth import get_user_model
-from suppliers.models import Supplier
-from products.models import Product
 
 User = get_user_model()
 

@@ -4,11 +4,12 @@
 提供上下文感知的建议、自动补全和历史记录分析
 """
 
-from typing import Dict, Any, List, Optional, Tuple
 from collections import Counter
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
+
 from django.db.models import Q
 from django.utils import timezone
-from datetime import datetime, timedelta
 
 
 class IntelligentAssistant:
@@ -206,8 +207,8 @@ class IntelligentAssistant:
 
     def _autocomplete_order(self, partial: str, context: Dict[str, Any]) -> List[Dict[str, Any]]:
         """自动补全订单号"""
-        from sales.models import SalesOrder
         from purchase.models import PurchaseOrder
+        from sales.models import SalesOrder
 
         results = []
 

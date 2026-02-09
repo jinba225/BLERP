@@ -1,12 +1,13 @@
 """
 Print template editor views (moved from sales module).
 """
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
 import json
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from .models import PrintTemplate
 
@@ -208,6 +209,7 @@ def template_duplicate(request, pk):
 def template_export(request, pk):
     """Export a template as JSON file."""
     import json
+
     from django.http import HttpResponse
     from django.utils import timezone
 

@@ -10,7 +10,7 @@
             <h1 class="text-2xl font-bold text-gray-900">平台配置</h1>
             <p class="text-sm text-gray-500 mt-1">管理采集平台和跨境平台配置</p>
         </div>
-        <a href="/admin/collect/platform/add/" 
+        <a href="/admin/collect/platform/add/"
            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors">
             <i class="fas fa-plus"></i>
             新建平台
@@ -79,22 +79,22 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('platformManage', () => ({
         platforms: [],
         filterType: '',
-        
+
         async initData() {
             await this.fetchPlatforms();
         },
-        
+
         async fetchPlatforms() {
             const params = this.filterType ? `?type=${this.filterType}` : '';
             const response = await fetch(`/collect/platforms/${params}`);
             const data = await response.json();
             this.platforms = data.platforms || [];
         },
-        
+
         filterPlatforms() {
             this.fetchPlatforms();
         },
-        
+
         getPlatformTypeText(type) {
             const typeMap = {
                 'collect': '采集平台',

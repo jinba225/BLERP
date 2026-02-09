@@ -1,5 +1,6 @@
-import requests
 from typing import Dict, List, Optional
+
+import requests
 from django.conf import settings
 from ecomm_sync.models import WooShopConfig
 

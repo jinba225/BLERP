@@ -1,7 +1,6 @@
 """日志管理视图"""
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -6,9 +6,10 @@ Example: SO20251108001
 
 前缀支持系统配置，可在后台修改
 """
+from datetime import date
+
 from django.db import models, transaction
 from django.utils import timezone
-from datetime import date
 
 
 class DocumentNumberGenerator:

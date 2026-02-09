@@ -10,12 +10,12 @@
 4. 执行业务操作
 """
 
-from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
-from ai_assistant.services.nlp_service import NLPService, Intent, IntentResult
+from ai_assistant.services.nlp_service import Intent, IntentResult, NLPService
 
 
 class ConversationState(Enum):

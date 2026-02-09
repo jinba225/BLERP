@@ -4,17 +4,18 @@
 """
 from pathlib import Path
 
+
 def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     """修复extra_js块缺少闭合标签的问题"""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    lines = content.split('\n')
+    lines = content.split("\n")
 
     # 查找 {% block extra_js %}
     extra_js_start = -1
     for i, line in enumerate(lines):
-        if '{% block extra_js %}' in line:
+        if "{% block extra_js %}" in line:
             extra_js_start = i
             break
 
@@ -24,7 +25,7 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     # 从extra_js开始，查找</script>标签
     script_end = -1
     for i in range(extra_js_start, len(lines)):
-        if '</script>' in lines[i]:
+        if "</script>" in lines[i]:
             script_end = i
             break
 
@@ -41,11 +42,11 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
 
     if next_content_line == -1:
         # 文件在</script>后结束了，需要添加{% endblock %}
-        lines.append('{% endblock %}')
-        new_content = '\n'.join(lines)
+        lines.append("{% endblock %}")
+        new_content = "\n".join(lines)
 
         if new_content != content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
             return True
         return False
@@ -54,17 +55,17 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     next_line = lines[next_content_line]
 
     # 如果是{% block xxx %}，说明extra_js缺少endblock
-    if '{% block ' in next_line and 'extra_js' not in next_line:
+    if "{% block " in next_line and "extra_js" not in next_line:
         # 在新block之前插入{% endblock %}
-        lines.insert(next_content_line, '{% endblock %}')
+        lines.insert(next_content_line, "{% endblock %}")
 
         # 删除新block及其之后的所有内容
-        new_lines = lines[:next_content_line + 1]
+        new_lines = lines[: next_content_line + 1]
 
-        new_content = '\n'.join(new_lines)
+        new_content = "\n".join(new_lines)
 
         if new_content != content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
             return True
 
@@ -72,22 +73,22 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     # 简单的检查：看它和</script>之间是否有{% block xxx %}
     has_block_between = False
     for i in range(script_end + 1, next_content_line):
-        if '{% block ' in lines[i] and 'extra_js' not in lines[i]:
+        if "{% block " in lines[i] and "extra_js" not in lines[i]:
             has_block_between = True
             break
 
     if has_block_between:
         # 有另一个block在中间，说明extra_js缺少endblock
         # 在那个block之前插入{% endblock %}
-        lines.insert(next_content_line, '{% endblock %}')
+        lines.insert(next_content_line, "{% endblock %}")
 
         # 删除新block及其之后的所有内容
-        new_lines = lines[:next_content_line + 1]
+        new_lines = lines[: next_content_line + 1]
 
-        new_content = '\n'.join(new_lines)
+        new_content = "\n".join(new_lines)
 
         if new_content != content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
             return True
 

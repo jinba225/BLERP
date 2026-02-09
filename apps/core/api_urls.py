@@ -1,6 +1,7 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .viewsets import CompanyViewSet, SystemConfigViewSet, AttachmentViewSet, AuditLogViewSet
+
+from .viewsets import AttachmentViewSet, AuditLogViewSet, CompanyViewSet, SystemConfigViewSet
 
 app_name = "core_api"
 

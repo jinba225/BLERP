@@ -2,33 +2,27 @@
 Celery异步任务模块
 实现采集、落地、同步的全链路异步处理
 """
-import uuid
 import math
+import uuid
+from typing import Any, Dict
+
 from celery import shared_task
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
-from django.conf import settings
-from typing import Dict, Any
+from products.models import Product
 
-from .models import (
-    CollectTask,
-    CollectItem,
-    ProductListing,
-    Platform,
-    Shop,
-    PricingRule,
-)
 from .adapters import get_collect_adapter
-from .services import ImageDownloader, TranslatorFactory, translate_product_data
 from .exceptions import (
     CollectException,
-    ProductCreateException,
-    ListingCreateException,
-    SyncException,
     ImageDownloadException,
+    ListingCreateException,
+    ProductCreateException,
+    SyncException,
     TranslationException,
 )
-from products.models import Product
+from .models import CollectItem, CollectTask, Platform, PricingRule, ProductListing, Shop
+from .services import ImageDownloader, TranslatorFactory, translate_product_data
 
 
 def generate_erp_sku(source_platform: str, source_sku: str) -> str:

@@ -1,11 +1,11 @@
 """
 Supplier models for the ERP system.
 """
-from django.db import models
+from core.models import PAYMENT_METHOD_CHOICES, BaseModel
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
+from django.db import models
 from django.db.models import Sum
-from core.models import BaseModel, PAYMENT_METHOD_CHOICES
 
 User = get_user_model()
 

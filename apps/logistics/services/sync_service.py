@@ -4,13 +4,13 @@
 负责物流订单的创建、追踪、状态同步等核心功能
 """
 import logging
-from typing import List, Dict, Any
-from django.utils import timezone
-from django.db.models import Q, Count, Sum, Avg
-from logistics.models import ShippingOrder, TrackingInfo, LogisticsCompany
-from logistics.adapters.factory import LogisticsAdapterFactory
-from ecomm_sync.adapters import get_adapter as get_platform_adapter
+from typing import Any, Dict, List
 
+from django.db.models import Avg, Count, Q, Sum
+from django.utils import timezone
+from ecomm_sync.adapters import get_adapter as get_platform_adapter
+from logistics.adapters.factory import LogisticsAdapterFactory
+from logistics.models import LogisticsCompany, ShippingOrder, TrackingInfo
 
 logger = logging.getLogger(__name__)
 

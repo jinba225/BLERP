@@ -1,20 +1,21 @@
 """
 User viewsets for the ERP system.
 """
-from rest_framework import viewsets, permissions, filters, status
+from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
-from django.contrib.auth import get_user_model
-from .models import Role, UserRole, Permission, UserProfile, LoginLog
+
+from .models import LoginLog, Permission, Role, UserProfile, UserRole
 from .serializers import (
-    UserSerializer,
-    UserCreateSerializer,
-    RoleSerializer,
-    UserRoleSerializer,
-    PermissionSerializer,
-    UserProfileSerializer,
     LoginLogSerializer,
+    PermissionSerializer,
+    RoleSerializer,
+    UserCreateSerializer,
+    UserProfileSerializer,
+    UserRoleSerializer,
+    UserSerializer,
 )
 
 User = get_user_model()

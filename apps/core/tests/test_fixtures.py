@@ -5,9 +5,9 @@
 """
 
 from decimal import Decimal
-from django.utils import timezone
-from django.contrib.auth import get_user_model
 
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -16,9 +16,13 @@ class FixtureFactory:
     """测试数据工厂基类"""
 
     @staticmethod
-    def create_product(code='PROD001', name='测试产品',
-                      cost_price=Decimal('100.00'),
-                      selling_price=Decimal('150.00'), **kwargs):
+    def create_product(
+        code="PROD001",
+        name="测试产品",
+        cost_price=Decimal("100.00"),
+        selling_price=Decimal("150.00"),
+        **kwargs
+    ):
         """
         创建产品
 
@@ -35,25 +39,17 @@ class FixtureFactory:
         from products.models import Product, ProductCategory, Unit
 
         # 获取或创建默认单位
-        unit = kwargs.pop('unit', None)
+        unit = kwargs.pop("unit", None)
         if not unit:
             unit, _ = Unit.objects.get_or_create(
-                name='件',
-                defaults={
-                    'symbol': '件',
-                    'unit_type': 'count',
-                    'is_default': True
-                }
+                name="件", defaults={"symbol": "件", "unit_type": "count", "is_default": True}
             )
 
         # 获取或创建默认分类
-        category = kwargs.pop('category', None)
+        category = kwargs.pop("category", None)
         if not category:
             category, _ = ProductCategory.objects.get_or_create(
-                code='CAT001',
-                defaults={
-                    'name': '默认分类'
-                }
+                code="CAT001", defaults={"name": "默认分类"}
             )
 
         return Product.objects.create(
@@ -67,7 +63,7 @@ class FixtureFactory:
         )
 
     @staticmethod
-    def create_supplier(code='SUP001', name='测试供应商', **kwargs):
+    def create_supplier(code="SUP001", name="测试供应商", **kwargs):
         """
         创建供应商
 
@@ -81,21 +77,13 @@ class FixtureFactory:
         """
         from suppliers.models import Supplier
 
-        defaults = {
-            'address': '测试地址',
-            'city': '测试城市',
-            'payment_terms': 'bank_transfer'
-        }
+        defaults = {"address": "测试地址", "city": "测试城市", "payment_terms": "bank_transfer"}
         defaults.update(kwargs)
 
-        return Supplier.objects.create(
-            code=code,
-            name=name,
-            **defaults
-        )
+        return Supplier.objects.create(code=code, name=name, **defaults)
 
     @staticmethod
-    def create_customer(code='CUS001', name='测试客户', **kwargs):
+    def create_customer(code="CUS001", name="测试客户", **kwargs):
         """
         创建客户
 
@@ -109,21 +97,13 @@ class FixtureFactory:
         """
         from customers.models import Customer
 
-        defaults = {
-            'address': '客户地址',
-            'city': '客户城市'
-        }
+        defaults = {"address": "客户地址", "city": "客户城市"}
         defaults.update(kwargs)
 
-        return Customer.objects.create(
-            code=code,
-            name=name,
-            **defaults
-        )
+        return Customer.objects.create(code=code, name=name, **defaults)
 
     @staticmethod
-    def create_warehouse(code='WH001', name='测试仓库',
-                        warehouse_type='main', **kwargs):
+    def create_warehouse(code="WH001", name="测试仓库", warehouse_type="main", **kwargs):
         """
         创建仓库
 
@@ -138,16 +118,11 @@ class FixtureFactory:
         """
         from inventory.models import Warehouse
 
-        defaults = {
-            'is_active': True
-        }
+        defaults = {"is_active": True}
         defaults.update(kwargs)
 
         return Warehouse.objects.create(
-            code=code,
-            name=name,
-            warehouse_type=warehouse_type,
-            **defaults
+            code=code, name=name, warehouse_type=warehouse_type, **defaults
         )
 
     @staticmethod
@@ -168,25 +143,17 @@ class FixtureFactory:
         from purchase.models import PurchaseOrder, PurchaseOrderItem
 
         defaults = {
-            'order_date': timezone.now().date(),
-            'required_date': timezone.now().date() + timezone.timedelta(days=7),
+            "order_date": timezone.now().date(),
+            "required_date": timezone.now().date() + timezone.timedelta(days=7),
         }
         defaults.update(kwargs)
 
-        order = PurchaseOrder.objects.create(
-            supplier=supplier,
-            created_by=user,
-            **defaults
-        )
+        order = PurchaseOrder.objects.create(supplier=supplier, created_by=user, **defaults)
 
         # 创建订单明细
         for item_data in items_data:
-            product = item_data.pop('product')
-            PurchaseOrderItem.objects.create(
-                purchase_order=order,
-                product=product,
-                **item_data
-            )
+            product = item_data.pop("product")
+            PurchaseOrderItem.objects.create(purchase_order=order, product=product, **item_data)
 
         # 重新计算总金额
         order.calculate_totals()
@@ -211,25 +178,17 @@ class FixtureFactory:
         from sales.models import SalesOrder, SalesOrderItem
 
         defaults = {
-            'order_date': timezone.now().date(),
-            'required_date': timezone.now().date() + timezone.timedelta(days=7),
+            "order_date": timezone.now().date(),
+            "required_date": timezone.now().date() + timezone.timedelta(days=7),
         }
         defaults.update(kwargs)
 
-        order = SalesOrder.objects.create(
-            customer=customer,
-            created_by=user,
-            **defaults
-        )
+        order = SalesOrder.objects.create(customer=customer, created_by=user, **defaults)
 
         # 创建订单明细
         for item_data in items_data:
-            product = item_data.pop('product')
-            SalesOrderItem.objects.create(
-                order=order,
-                product=product,
-                **item_data
-            )
+            product = item_data.pop("product")
+            SalesOrderItem.objects.create(order=order, product=product, **item_data)
 
         # 重新计算总金额
         order.calculate_totals()
@@ -255,24 +214,21 @@ class FixtureFactory:
         from purchase.models import PurchaseReceipt, PurchaseReceiptItem
 
         defaults = {
-            'receipt_date': timezone.now().date(),
+            "receipt_date": timezone.now().date(),
         }
         defaults.update(kwargs)
 
         receipt = PurchaseReceipt.objects.create(
-            purchase_order=order,
-            warehouse=warehouse,
-            created_by=user,
-            **defaults
+            purchase_order=order, warehouse=warehouse, created_by=user, **defaults
         )
 
         # 创建收货明细
         for item_data in items_data:
-            order_item = item_data.pop('order_item')
-            received_quantity = item_data.pop('quantity')
+            order_item = item_data.pop("order_item")
+            received_quantity = item_data.pop("quantity")
             # 移除不存在的字段
-            item_data.pop('unit_price', None)
-            item_data.pop('product', None)
+            item_data.pop("unit_price", None)
+            item_data.pop("product", None)
             PurchaseReceiptItem.objects.create(
                 receipt=receipt,
                 order_item=order_item,
@@ -304,26 +260,20 @@ class FixtureFactory:
         from sales.models import Delivery, DeliveryItem
 
         defaults = {
-            'planned_date': timezone.now().date(),  # 修复: 使用planned_date而不是delivery_date
+            "planned_date": timezone.now().date(),  # 修复: 使用planned_date而不是delivery_date
         }
         defaults.update(kwargs)
 
         delivery = Delivery.objects.create(
-            sales_order=order,
-            warehouse=warehouse,
-            created_by=user,
-            **defaults
+            sales_order=order, warehouse=warehouse, created_by=user, **defaults
         )
 
         # 创建发货明细
         for item_data in items_data:
-            order_item = item_data.pop('order_item')
-            quantity = item_data.pop('quantity', item_data.get('quantity'))
+            order_item = item_data.pop("order_item")
+            quantity = item_data.pop("quantity", item_data.get("quantity"))
             DeliveryItem.objects.create(
-                delivery=delivery,
-                order_item=order_item,
-                quantity=quantity,
-                **item_data
+                delivery=delivery, order_item=order_item, quantity=quantity, **item_data
             )
 
         # 重新计算总金额（如果模型有此方法）

@@ -1,17 +1,18 @@
 """
 Users app URLs.
 """
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .viewsets import (
-    UserViewSet,
-    RoleViewSet,
-    UserRoleViewSet,
-    PermissionViewSet,
-    UserProfileViewSet,
-    LoginLogViewSet,
-)
+
 from . import views
+from .viewsets import (
+    LoginLogViewSet,
+    PermissionViewSet,
+    RoleViewSet,
+    UserProfileViewSet,
+    UserRoleViewSet,
+    UserViewSet,
+)
 
 app_name = "users"
 

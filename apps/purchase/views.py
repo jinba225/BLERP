@@ -2,35 +2,38 @@
 Purchase views for the ERP system.
 """
 import logging
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+
 from django.contrib import messages
-from django.db import transaction, models
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db import models, transaction
 from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger(__name__)
 
+from core.models import PAYMENT_METHOD_CHOICES
+
+from common.utils import DocumentNumberGenerator
+
 from .models import (
-    PurchaseOrder,
-    PurchaseOrderItem,
-    PurchaseRequest,
-    PurchaseRequestItem,
-    PurchaseReceipt,
-    PurchaseReceiptItem,
-    PurchaseReturn,
-    PurchaseReturnItem,
-    PurchaseInquiry,
-    PurchaseInquiryItem,
-    SupplierQuotation,
-    SupplierQuotationItem,
     Borrow,
     BorrowItem,
+    PurchaseInquiry,
+    PurchaseInquiryItem,
+    PurchaseOrder,
+    PurchaseOrderItem,
+    PurchaseReceipt,
+    PurchaseReceiptItem,
+    PurchaseRequest,
+    PurchaseRequestItem,
+    PurchaseReturn,
+    PurchaseReturnItem,
+    SupplierQuotation,
+    SupplierQuotationItem,
 )
-from common.utils import DocumentNumberGenerator
-from core.models import PAYMENT_METHOD_CHOICES
 
 
 @login_required
@@ -152,6 +155,7 @@ def order_create(request):
     if request.method == "POST":
         import json
         from decimal import Decimal
+
         from .services import PurchaseOrderService
 
         order_data = {
@@ -161,7 +165,7 @@ def order_create(request):
             "promised_date": request.POST.get("promised_date") or None,
             "buyer_id": request.POST.get("buyer") or None,
             "warehouse_id": request.POST.get("warehouse") or None,
-            "tax_rate": request.POST.get("tax_rate", 0),
+            "tax_rate": request.POST.get("tax_rate", 13),
             "discount_rate": request.POST.get("discount_rate", 0),
             "shipping_cost": request.POST.get("shipping_cost", 0),
             "currency": request.POST.get("currency", "CNY"),
@@ -200,10 +204,10 @@ def order_create(request):
         except Exception as e:
             messages.error(request, f"创建失败：{str(e)}")
 
-    from suppliers.models import Supplier
+    from django.contrib.auth import get_user_model
     from inventory.models import Warehouse
     from products.models import Product
-    from django.contrib.auth import get_user_model
+    from suppliers.models import Supplier
 
     User = get_user_model()
 
@@ -241,6 +245,7 @@ def order_update(request, pk):
     """Update an existing purchase order."""
     import json
     from decimal import Decimal
+
     from .services import PurchaseOrderService
 
     order = get_object_or_404(
@@ -263,7 +268,7 @@ def order_update(request, pk):
             "promised_date": request.POST.get("promised_date") or None,
             "buyer_id": request.POST.get("buyer") or None,
             "warehouse_id": request.POST.get("warehouse") or None,
-            "tax_rate": request.POST.get("tax_rate", 0),
+            "tax_rate": request.POST.get("tax_rate", 13),
             "discount_rate": request.POST.get("discount_rate", 0),
             "shipping_cost": request.POST.get("shipping_cost", 0),
             "currency": request.POST.get("currency", "CNY"),
@@ -302,10 +307,10 @@ def order_update(request, pk):
             messages.error(request, f"更新失败：{str(e)}")
 
     # GET request
-    from suppliers.models import Supplier
+    from django.contrib.auth import get_user_model
     from inventory.models import Warehouse
     from products.models import Product
-    from django.contrib.auth import get_user_model
+    from suppliers.models import Supplier
 
     User = get_user_model()
 
@@ -433,8 +438,8 @@ def request_detail(request, pk):
     )
 
     # Get suppliers and warehouses for approval modal
-    from suppliers.models import Supplier
     from inventory.models import Warehouse
+    from suppliers.models import Supplier
 
     # Find preferred supplier from items (if any)
     preferred_supplier = None
@@ -465,6 +470,7 @@ def request_create(request):
     if request.method == "POST":
         import json
         from decimal import Decimal
+
         from .services import PurchaseRequestService
 
         request_data = {
@@ -511,15 +517,20 @@ def request_create(request):
             messages.error(request, f"创建失败：{str(e)}")
 
     # GET request
-    from suppliers.models import Supplier
+    import json
+
+    from django.core.serializers.json import DjangoJSONEncoder
     from products.models import Product
+    from suppliers.models import Supplier
 
     suppliers = Supplier.objects.filter(is_deleted=False, is_approved=True)
-    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+    products = Product.objects.filter(is_deleted=False, status="active").values(
+        "id", "name", "code"
+    )
 
     context = {
         "suppliers": suppliers,
-        "products": products,
+        "products": json.dumps(list(products), cls=DjangoJSONEncoder),
         "action": "create",
     }
     return render(request, "modules/purchase/request_form.html", context)
@@ -541,6 +552,7 @@ def request_update(request, pk):
     if request.method == "POST":
         import json
         from decimal import Decimal
+
         from .services import PurchaseRequestService
 
         request_data = {
@@ -583,16 +595,21 @@ def request_update(request, pk):
             messages.error(request, f"更新失败：{str(e)}")
 
     # GET request
-    from suppliers.models import Supplier
+    import json
+
+    from django.core.serializers.json import DjangoJSONEncoder
     from products.models import Product
+    from suppliers.models import Supplier
 
     suppliers = Supplier.objects.filter(is_deleted=False, is_approved=True)
-    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+    products = Product.objects.filter(is_deleted=False, status="active").values(
+        "id", "name", "code"
+    )
 
     context = {
         "request": purchase_request,
         "suppliers": suppliers,
-        "products": products,
+        "products": json.dumps(list(products), cls=DjangoJSONEncoder),
         "action": "update",
     }
     return render(request, "modules/purchase/request_form.html", context)
@@ -668,8 +685,8 @@ def request_convert_to_order(request, pk):
             messages.error(request, f"转换失败：{str(e)}")
 
     # GET request
-    from suppliers.models import Supplier
     from inventory.models import Warehouse
+    from suppliers.models import Supplier
 
     # Get preferred supplier from items
     preferred_supplier = None
@@ -1106,8 +1123,9 @@ def receipt_receive(request, pk):
         return redirect("purchase:receipt_detail", pk=pk)
 
     try:
-        from inventory.models import InventoryTransaction
         from decimal import Decimal
+
+        from inventory.models import InventoryTransaction
 
         # Process received quantities from form
         total_received = Decimal("0")
@@ -1147,6 +1165,7 @@ def receipt_receive(request, pk):
 
         # 获取或创建应付主单
         from finance.models import SupplierAccount, SupplierAccountDetail
+
         from common.utils import DocumentNumberGenerator
 
         parent_account = SupplierAccount.get_or_create_for_order(receipt.purchase_order)
@@ -1170,8 +1189,9 @@ def receipt_receive(request, pk):
 
         if is_from_borrow and source_borrow:
             # ========== 借用单转采购订单：创建借用仓→主仓的调拨单据 ==========
-            from inventory.models import Warehouse, StockTransfer, StockTransferItem
+            from inventory.models import StockTransfer, StockTransferItem, Warehouse
             from inventory.services import StockTransferService
+
             from common.utils import DocumentNumberGenerator
 
             try:
@@ -1304,9 +1324,10 @@ def order_request_payment(request, pk):
 
     根据已收货数量计算应付金额（支持分批收货）
     """
-    from finance.models import SupplierAccount
     from datetime import datetime, timedelta
     from decimal import Decimal
+
+    from finance.models import SupplierAccount
 
     order = get_object_or_404(PurchaseOrder, pk=pk, is_deleted=False)
 
@@ -1335,8 +1356,9 @@ def order_request_payment(request, pk):
         due_date = datetime.now().date() + timedelta(days=30)
 
         # 生成应付账款编号（使用PAY前缀）
-        from common.utils import DocumentNumberGenerator
         from django.utils import timezone
+
+        from common.utils import DocumentNumberGenerator
 
         # 手动生成PAY格式的编号
         today = timezone.now().date()
@@ -1468,6 +1490,7 @@ def return_detail(request, pk):
 def return_create(request, order_pk):
     """Create a new purchase return from order."""
     from decimal import Decimal
+
     from django.db.models import Sum
 
     order = get_object_or_404(PurchaseOrder, pk=order_pk, is_deleted=False)
@@ -1707,7 +1730,8 @@ def return_approve(request, pk):
 
                     # ========== 自动生成负应付明细 ==========
                     # 每个明细单独生成负应付记录
-                    from finance.models import SupplierAccountDetail, SupplierAccount
+                    from finance.models import SupplierAccount, SupplierAccountDetail
+
                     from common.utils import DocumentNumberGenerator
 
                     # 获取或创建应付主单
@@ -1767,8 +1791,9 @@ def return_approve(request, pk):
 @login_required
 def return_statistics(request):
     """Purchase return statistics."""
-    from django.db.models import Sum, Count
     from decimal import Decimal
+
+    from django.db.models import Count, Sum
 
     # Get date range
     date_from = request.GET.get("date_from", "")
@@ -1917,9 +1942,10 @@ def inquiry_detail(request, pk):
 def inquiry_create(request):
     """Create a new purchase inquiry."""
     if request.method == "POST":
-        from common.utils import DocumentNumberGenerator
-        from decimal import Decimal
         import json
+        from decimal import Decimal
+
+        from common.utils import DocumentNumberGenerator
 
         # Generate inquiry number
         inquiry_number = DocumentNumberGenerator.generate("INQ")
@@ -1972,11 +1998,11 @@ def inquiry_create(request):
         return redirect("purchase:inquiry_detail", pk=inquiry.pk)
 
     # GET request - show form
+    from departments.models import Department
+    from django.core.serializers.json import DjangoJSONEncoder
     from inventory.models import Warehouse
     from products.models import Product
     from suppliers.models import Supplier
-    from departments.models import Department
-    from django.core.serializers.json import DjangoJSONEncoder
 
     warehouses = Warehouse.objects.filter(is_deleted=False, is_active=True)
     departments = Department.objects.filter(is_deleted=False)
@@ -2009,8 +2035,8 @@ def inquiry_update(request, pk):
         return redirect("purchase:inquiry_detail", pk=pk)
 
     if request.method == "POST":
-        from decimal import Decimal
         import json
+        from decimal import Decimal
 
         # Parse items JSON
         items_json = request.POST.get("items_json", "[]")
@@ -2058,12 +2084,13 @@ def inquiry_update(request, pk):
         return redirect("purchase:inquiry_detail", pk=inquiry.pk)
 
     # GET request - show form
+    import json
+
+    from departments.models import Department
+    from django.core.serializers.json import DjangoJSONEncoder
     from inventory.models import Warehouse
     from products.models import Product
     from suppliers.models import Supplier
-    from departments.models import Department
-    from django.core.serializers.json import DjangoJSONEncoder
-    import json
 
     warehouses = Warehouse.objects.filter(is_deleted=False, is_active=True)
     departments = Department.objects.filter(is_deleted=False)
@@ -2262,8 +2289,8 @@ def quotation_update(request, pk):
         return redirect("purchase:quotation_detail", pk=pk)
 
     if request.method == "POST":
-        from decimal import Decimal
         import json
+        from decimal import Decimal
 
         # Parse items JSON
         items_json = request.POST.get("items_json", "[]")
@@ -2556,11 +2583,11 @@ def purchase_order_report(request):
     - 供应商、采购员、产品
     - 金额范围、交货日期范围
     """
-    from django.db.models import Count, Sum, Q
+    from django.core.paginator import Paginator
+    from django.db.models import Count, Q, Sum
+    from products.models import Product
     from suppliers.models import Supplier
     from users.models import User
-    from products.models import Product
-    from django.core.paginator import Paginator
 
     # 基础查询集
     queryset = (
@@ -2682,8 +2709,8 @@ def purchase_order_report(request):
 @login_required
 def borrow_list(request):
     """借用单列表"""
-    from suppliers.models import Supplier
     from django.db.models import Count
+    from suppliers.models import Supplier
 
     # 基础查询
     borrows = (
@@ -2753,8 +2780,8 @@ def borrow_list(request):
 def borrow_create(request):
     """创建借用单"""
     if request.method == "POST":
-        from decimal import Decimal
         import json
+        from decimal import Decimal
 
         # 解析明细数据
         items_json = request.POST.get("items_json", "[]")
@@ -2790,9 +2817,9 @@ def borrow_create(request):
 
         # 如果有错误，返回表单页面并显示错误
         if errors:
-            from suppliers.models import Supplier
-            from products.models import Product
             from django.core.serializers.json import DjangoJSONEncoder
+            from products.models import Product
+            from suppliers.models import Supplier
 
             suppliers = Supplier.objects.filter(is_deleted=False, is_active=True).values(
                 "id", "name", "code"
@@ -2858,10 +2885,11 @@ def borrow_create(request):
         return redirect("purchase:borrow_detail", pk=borrow.pk)
 
     # GET request - 显示表单
-    from suppliers.models import Supplier
-    from products.models import Product
-    from django.core.serializers.json import DjangoJSONEncoder
     import json
+
+    from django.core.serializers.json import DjangoJSONEncoder
+    from products.models import Product
+    from suppliers.models import Supplier
 
     suppliers = Supplier.objects.filter(is_deleted=False, is_active=True).values(
         "id", "name", "code"
@@ -2925,8 +2953,8 @@ def borrow_update(request, pk):
         return redirect("purchase:borrow_detail", pk=pk)
 
     if request.method == "POST":
-        from decimal import Decimal
         import json
+        from decimal import Decimal
 
         # 解析明细数据
         items_json = request.POST.get("items_json", "[]")
@@ -2983,10 +3011,11 @@ def borrow_update(request, pk):
         return redirect("purchase:borrow_detail", pk=borrow.pk)
 
     # GET request - 显示表单
-    from suppliers.models import Supplier
-    from products.models import Product
-    from django.core.serializers.json import DjangoJSONEncoder
     import json
+
+    from django.core.serializers.json import DjangoJSONEncoder
+    from products.models import Product
+    from suppliers.models import Supplier
 
     suppliers = Supplier.objects.filter(is_deleted=False, is_active=True).values(
         "id", "name", "code"
@@ -3119,6 +3148,7 @@ def borrow_confirm_all_receipt(request, pk):
     except Exception as e:
         print(f"[DEBUG] 未预期的错误: {type(e).__name__}: {e}")
         import traceback
+
         traceback.print_exc()
         messages.error(request, f"系统错误: {str(e)}")
         logger.error(f"借用单 {borrow.borrow_number} 系统错误: {str(e)}")
@@ -3126,7 +3156,6 @@ def borrow_confirm_all_receipt(request, pk):
 
 
 @login_required
-@require_http_methods(["POST"])
 @transaction.atomic
 def borrow_return(request, pk):
     """归还处理（支持部分归还）"""
@@ -3189,11 +3218,11 @@ def borrow_return(request, pk):
 
 
 @login_required
-@require_http_methods(["POST"])
 @transaction.atomic
 def borrow_request_conversion(request, pk):
     """直接转采购（无需审核）"""
     from decimal import Decimal
+
     from core.utils.document_number import DocumentNumberGenerator
 
     borrow = get_object_or_404(Borrow, pk=pk, is_deleted=False)

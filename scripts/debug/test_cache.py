@@ -10,28 +10,29 @@
 """
 import os
 import sys
+
 import django
 
 # 设置 Django 环境
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_erp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 django.setup()
 
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.test import Client
-from django.contrib.auth import get_user_model
 
-print("="*60)
+print("=" * 60)
 print("BetterLaser ERP 缓存功能测试")
-print("="*60)
+print("=" * 60)
 
 # 1. 测试缓存后端
 print("\n[1/5] 测试缓存后端...")
 try:
-    cache.set('test_key', 'test_value', 60)
-    value = cache.get('test_key')
-    if value == 'test_value':
+    cache.set("test_key", "test_value", 60)
+    value = cache.get("test_key")
+    if value == "test_value":
         print("✓ 缓存后端正常工作")
-        cache.delete('test_key')
+        cache.delete("test_key")
     else:
         print("✗ 缓存后端测试失败")
 except Exception as e:
@@ -40,9 +41,10 @@ except Exception as e:
 # 2. 测试导入装饰器
 print("\n[2/5] 测试缓存装饰器导入...")
 try:
-    from django.views.decorators.cache import never_cache, cache_page
+    from django.views.decorators.cache import cache_page, never_cache
     from django.views.decorators.http import condition
-    from django.views.decorators.vary import vary_on_headers, vary_on_cookie
+    from django.views.decorators.vary import vary_on_cookie, vary_on_headers
+
     print("✓ 所有缓存装饰器导入成功")
 except ImportError as e:
     print(f"✗ 装饰器导入失败: {e}")
@@ -50,12 +52,12 @@ except ImportError as e:
 # 3. 测试视图导入
 print("\n[3/5] 测试视图模块导入...")
 modules_to_test = [
-    'apps.finance.views',
-    'apps.purchase.views',
-    'apps.inventory.views',
-    'apps.products.views',
-    'apps.suppliers.views',
-    'apps.customers.views',
+    "apps.finance.views",
+    "apps.purchase.views",
+    "apps.inventory.views",
+    "apps.products.views",
+    "apps.suppliers.views",
+    "apps.customers.views",
 ]
 
 for module in modules_to_test:
@@ -68,13 +70,13 @@ for module in modules_to_test:
 # 4. 检查 ETag 函数
 print("\n[4/5] 检查 ETag 函数定义...")
 etag_functions = [
-    ('apps.purchase.views', 'order_list_etag'),
-    ('apps.inventory.views', 'stock_list_etag'),
-    ('apps.finance.views', 'customer_account_list_etag'),
-    ('apps.finance.views', 'supplier_account_list_etag'),
-    ('apps.products.views', 'product_list_etag'),
-    ('apps.suppliers.views', 'supplier_list_etag'),
-    ('apps.customers.views', 'customer_list_etag'),
+    ("apps.purchase.views", "order_list_etag"),
+    ("apps.inventory.views", "stock_list_etag"),
+    ("apps.finance.views", "customer_account_list_etag"),
+    ("apps.finance.views", "supplier_account_list_etag"),
+    ("apps.products.views", "product_list_etag"),
+    ("apps.suppliers.views", "supplier_list_etag"),
+    ("apps.customers.views", "customer_list_etag"),
 ]
 
 for module_name, func_name in etag_functions:
@@ -90,9 +92,9 @@ for module_name, func_name in etag_functions:
 # 5. 测试缓存管理命令
 print("\n[5/5] 检查缓存管理命令...")
 commands = [
-    'apps.core.management.commands.clear_cache',
-    'apps.core.management.commands.cache_stats',
-    'apps.core.management.commands.warm_cache',
+    "apps.core.management.commands.clear_cache",
+    "apps.core.management.commands.cache_stats",
+    "apps.core.management.commands.warm_cache",
 ]
 
 for command in commands:
@@ -102,9 +104,9 @@ for command in commands:
     except Exception as e:
         print(f"✗ {command.split('.')[-1]} 命令不可用: {e}")
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("测试完成！")
-print("="*60)
+print("=" * 60)
 
 # 缓存配置摘要
 print("\n缓存配置摘要:")
@@ -118,18 +120,18 @@ import time
 # 写入测试
 start = time.time()
 for i in range(100):
-    cache.set(f'perf_test_{i}', f'value_{i}', 60)
+    cache.set(f"perf_test_{i}", f"value_{i}", 60)
 write_time = time.time() - start
 
 # 读取测试
 start = time.time()
 for i in range(100):
-    cache.get(f'perf_test_{i}')
+    cache.get(f"perf_test_{i}")
 read_time = time.time() - start
 
 # 清理
 for i in range(100):
-    cache.delete(f'perf_test_{i}')
+    cache.delete(f"perf_test_{i}")
 
 print(f"  写入 100 次: {write_time:.4f} 秒")
 print(f"  读取 100 次: {read_time:.4f} 秒")

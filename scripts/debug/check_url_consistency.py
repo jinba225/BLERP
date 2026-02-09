@@ -13,12 +13,12 @@ Django URL 一致性检查脚本
     python scripts/check_url_consistency.py
 """
 
+import ast
 import os
 import re
-import ast
 import sys
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
 # 添加项目路径

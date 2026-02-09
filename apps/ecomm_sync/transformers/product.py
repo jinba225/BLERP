@@ -1,9 +1,9 @@
 import logging
 from typing import Dict, Optional
+
 from django.utils.text import slugify
 from ecomm_sync.models import EcommProduct
-from products.models import Product, ProductCategory, Brand, Unit
-
+from products.models import Brand, Product, ProductCategory, Unit
 
 logger = logging.getLogger(__name__)
 

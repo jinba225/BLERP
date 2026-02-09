@@ -3,15 +3,16 @@ Shopee电商平台适配器
 
 Shopee是东南亚领先的电商平台
 """
-from ..base import BaseAdapter
-from typing import Dict, List
+import base64
 import hashlib
 import hmac
-import base64
 import json
-from datetime import datetime
-from urllib.parse import urlencode
 import logging
+from datetime import datetime
+from typing import Dict, List
+from urllib.parse import urlencode
+
+from ..base import BaseAdapter
 
 logger = logging.getLogger(__name__)
 

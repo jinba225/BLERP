@@ -4,20 +4,21 @@
 通过钉钉企业应用API实现消息收发
 """
 
-from typing import Optional
-from datetime import datetime
+import base64
 import hashlib
 import hmac
-import base64
-import time
 import json
+import time
+from datetime import datetime
+from typing import Optional
+
 import requests
 from django.http import HttpRequest
 
-from .base_channel import BaseChannel, IncomingMessage, OutgoingMessage
 from ..models import DingTalkConfig
 from ..utils import decrypt_api_key
 from ..utils.cache import AIAssistantCache
+from .base_channel import BaseChannel, IncomingMessage, OutgoingMessage
 
 
 class DingTalkChannel(BaseChannel):

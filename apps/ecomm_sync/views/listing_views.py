@@ -1,13 +1,13 @@
 """
 Listing管理视图
 """
-from django.shortcuts import render
+from core.models import Platform
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.shortcuts import render
 
-from ..models import ProductListing, PlatformAccount
-from core.models import Platform
+from ..models import PlatformAccount, ProductListing
 
 
 @login_required

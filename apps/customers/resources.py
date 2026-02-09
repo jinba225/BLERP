@@ -1,10 +1,11 @@
 """
 Customers 模块的导入导出资源配置
 """
-from import_export import resources, fields
-from import_export.widgets import DateWidget
-from .models import Customer, CustomerContact
 from django.contrib.auth import get_user_model
+from import_export import fields, resources
+from import_export.widgets import DateWidget
+
+from .models import Customer, CustomerContact
 
 User = get_user_model()
 

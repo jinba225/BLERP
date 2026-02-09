@@ -9,16 +9,18 @@ Django ERP AI Assistant - 命令行测试脚本
 
 import os
 import sys
+
 import django
 
 # 设置Django环境
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_erp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 django.setup()
 
 from django.contrib.auth import get_user_model
-from apps.ai_assistant.services.nlp_service import NLPService
+
 from apps.ai_assistant.services.conversation_flow_manager import ConversationFlowManager
+from apps.ai_assistant.services.nlp_service import NLPService
 from apps.ai_assistant.services.tool_monitor import ToolMonitor
 from apps.ai_assistant.tools.registry import ToolRegistry
 
@@ -39,9 +41,11 @@ class AIAssistantCLI:
             print(f"✅ 创建测试用户: {username}")
 
         # 初始化服务
-        from apps.ai_assistant.providers.deepseek_provider import DeepSeekProvider
         import os
-        api_key = os.getenv('DEEPSEEK_API_KEY', 'test_key')
+
+        from apps.ai_assistant.providers.deepseek_provider import DeepSeekProvider
+
+        api_key = os.getenv("DEEPSEEK_API_KEY", "test_key")
         ai_provider = DeepSeekProvider(api_key)
         self.nlp_service = NLPService(ai_provider)
         self.flow_manager = ConversationFlowManager(self.user)
@@ -110,11 +114,7 @@ class AIAssistantCLI:
         for category, category_tools in sorted(categories.items()):
             print(f"\n📁 {category.upper()} ({len(category_tools)}个工具):")
             for tool in category_tools:
-                risk_emoji = {
-                    'low': '🟢',
-                    'medium': '🟡',
-                    'high': '🔴'
-                }.get(tool.risk_level, '⚪')
+                risk_emoji = {"low": "🟢", "medium": "🟡", "high": "🔴"}.get(tool.risk_level, "⚪")
 
                 print(f"  {risk_emoji} {tool.name} - {tool.display_name}")
                 print(f"     {tool.description[:80]}...")
@@ -155,6 +155,7 @@ class AIAssistantCLI:
         except Exception as e:
             print(f"\n❌ 错误: {str(e)}")
             import traceback
+
             traceback.print_exc()
 
     def run(self):
@@ -170,24 +171,24 @@ class AIAssistantCLI:
                     continue
 
                 # 处理特殊命令
-                if user_input.lower() in ['quit', 'exit', 'q']:
+                if user_input.lower() in ["quit", "exit", "q"]:
                     print("\n👋 再见！")
                     break
 
-                elif user_input.lower() == 'stats':
+                elif user_input.lower() == "stats":
                     self.show_stats()
                     continue
 
-                elif user_input.lower() == 'tools':
+                elif user_input.lower() == "tools":
                     self.show_tools()
                     continue
 
-                elif user_input.lower() == 'clear':
+                elif user_input.lower() == "clear":
                     self.flow_manager.clear_context()
                     print("\n✅ 对话上下文已清空")
                     continue
 
-                elif user_input.lower() == 'help':
+                elif user_input.lower() == "help":
                     self.show_welcome()
                     continue
 
@@ -216,10 +217,12 @@ class BatchTestRunner:
             print(f"❌ 无法创建测试用户: {e}")
             return
 
-        from apps.ai_assistant.providers.deepseek_provider import DeepSeekProvider
         # 使用测试API密钥（从环境变量或使用默认值）
         import os
-        api_key = os.getenv('DEEPSEEK_API_KEY', 'test_key')
+
+        from apps.ai_assistant.providers.deepseek_provider import DeepSeekProvider
+
+        api_key = os.getenv("DEEPSEEK_API_KEY", "test_key")
         ai_provider = DeepSeekProvider(api_key)
         self.nlp_service = NLPService(ai_provider)
         self.tool_monitor = ToolMonitor()
@@ -291,12 +294,7 @@ class BatchTestRunner:
         test_params = {"date": "2025-02-05"}
 
         # 设置缓存
-        CacheService.set(
-            "query_sales_orders",
-            test_params,
-            {"test": "data", "count": 10},
-            ttl=60
-        )
+        CacheService.set("query_sales_orders", test_params, {"test": "data", "count": 10}, ttl=60)
         print("✅ 缓存设置成功")
 
         # 获取缓存
@@ -326,7 +324,7 @@ class BatchTestRunner:
         # 测试上下文建议
         context = {
             "recent_intents": ["query_customer"],
-            "recent_entities": {"customer_name": "ABC公司"}
+            "recent_entities": {"customer_name": "ABC公司"},
         }
 
         suggestions = assistant.get_suggestions(context)
@@ -337,11 +335,7 @@ class BatchTestRunner:
 
         # 测试自动补全
         print(f"\n🔍 自动补全测试:")
-        results = assistant.autocomplete_parameter(
-            "customer_name",
-            "ABC",
-            context
-        )
+        results = assistant.autocomplete_parameter("customer_name", "ABC", context)
         print(f"  客户名称 'ABC' 的补全结果:")
         for result in results[:3]:
             print(f"    • {result['display']}")
@@ -365,8 +359,8 @@ class BatchTestRunner:
                 "items": [
                     {"order_number": "SO-001", "status": "confirmed"},
                     {"order_number": "SO-002", "status": "pending"},
-                ]
-            }
+                ],
+            },
         }
 
         response = nlg.generate_response(test_result, "query_sales_orders", verbose=True)
@@ -403,6 +397,7 @@ class BatchTestRunner:
         except Exception as e:
             print(f"\n❌ 测试失败: {e}")
             import traceback
+
             traceback.print_exc()
 
 
@@ -410,22 +405,15 @@ def main():
     """主函数"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Django ERP AI Assistant CLI')
+    parser = argparse.ArgumentParser(description="Django ERP AI Assistant CLI")
     parser.add_argument(
-        '--mode',
-        choices=['cli', 'test'],
-        default='cli',
-        help='运行模式: cli=交互式命令行, test=批量测试'
+        "--mode", choices=["cli", "test"], default="cli", help="运行模式: cli=交互式命令行, test=批量测试"
     )
-    parser.add_argument(
-        '--user',
-        default='test_user',
-        help='测试用户名'
-    )
+    parser.add_argument("--user", default="test_user", help="测试用户名")
 
     args = parser.parse_args()
 
-    if args.mode == 'cli':
+    if args.mode == "cli":
         # 交互式命令行模式
         cli = AIAssistantCLI(args.user)
         cli.run()
@@ -435,5 +423,5 @@ def main():
         tester.run_all_tests()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

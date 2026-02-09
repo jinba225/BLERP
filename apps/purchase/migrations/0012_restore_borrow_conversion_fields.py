@@ -1,9 +1,9 @@
 # Generated manually to restore conversion approval fields
 # 这些字段在 0008 迁移中被错误移除，但代码和模板仍在使用
 
+import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
-import django.db.models.deletion
 
 
 class Migration(migrations.Migration):

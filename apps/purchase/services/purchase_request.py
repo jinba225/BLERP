@@ -1,7 +1,9 @@
+from decimal import Decimal
+
 from django.db import transaction
 from django.utils import timezone
-from decimal import Decimal
-from purchase.models import PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem
+from purchase.models import PurchaseOrder, PurchaseOrderItem, PurchaseRequest, PurchaseRequestItem
+
 from common.utils import DocumentNumberGenerator
 
 

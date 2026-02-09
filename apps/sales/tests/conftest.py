@@ -4,8 +4,9 @@ Sales tests conftest.py
 导入全局pytest fixtures
 """
 
-import pytest
 from decimal import Decimal
+
+import pytest
 from django.contrib.auth import get_user_model
 
 User = get_user_model()

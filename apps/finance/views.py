@@ -2,36 +2,36 @@
 Finance views for the ERP system.
 """
 import logging
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from decimal import ROUND_HALF_UP, Decimal
+
+from customers.models import Customer
 from django.contrib import messages
-from django.db import transaction
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q, Sum, Count, Max, F
-from django.utils import timezone
+from django.db import transaction
+from django.db.models import Count, F, Max, Q, Sum
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.cache import never_cache
-from decimal import Decimal, ROUND_HALF_UP
+from suppliers.models import Supplier
 
 from .models import (
     Account,
-    Journal,
-    JournalEntry,
-    CustomerAccount,
-    SupplierAccount,
-    Payment,
     Budget,
     BudgetLine,
+    CustomerAccount,
+    CustomerPrepayment,
+    FinancialReport,
     Invoice,
     InvoiceItem,
-    FinancialReport,
-    TaxRate,
-    CustomerPrepayment,
+    Journal,
+    JournalEntry,
+    Payment,
+    SupplierAccount,
     SupplierPrepayment,
+    TaxRate,
 )
-from customers.models import Customer
-from suppliers.models import Supplier
-
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -144,9 +144,11 @@ def _create_invoice_from_order_post(request, order, invoice_type, party_field):
     Returns:
         tuple: (success: bool, invoice: Invoice or None, error_message: str or None)
     """
-    from products.models import Product
-    from common.utils import DocumentNumberGenerator
     from decimal import Decimal, InvalidOperation
+
+    from products.models import Product
+
+    from common.utils import DocumentNumberGenerator
 
     logger.info(
         f"User {request.user.username} attempting to create {invoice_type} invoice from order {order.order_number}"
@@ -684,8 +686,9 @@ def customer_account_writeoff(request, pk):
 
         def generate_unique_payment_number(prefix_key):
             """生成唯一的付款单号（带重试机制）"""
+            from django.db import IntegrityError, transaction
+
             from common.utils import DocumentNumberGenerator
-            from django.db import transaction, IntegrityError
 
             max_retries = 5
             for attempt in range(max_retries):
@@ -932,8 +935,9 @@ def supplier_account_writeoff(request, pk):
 
         def generate_unique_payment_number(prefix_key):
             """生成唯一的付款单号（带重试机制）"""
+            from django.db import IntegrityError, transaction
+
             from common.utils import DocumentNumberGenerator
-            from django.db import transaction, IntegrityError
 
             max_retries = 5
             for attempt in range(max_retries):
@@ -2110,8 +2114,8 @@ def invoice_create(request):
 
     # GET request - show form
     from customers.models import Customer
-    from suppliers.models import Supplier
     from products.models import Product
+    from suppliers.models import Supplier
 
     context = {
         "invoice_type_choices": Invoice.INVOICE_TYPES,
@@ -2202,8 +2206,8 @@ def invoice_edit(request, pk):
 
     # GET request - show form
     from customers.models import Customer
-    from suppliers.models import Supplier
     from products.models import Product
+    from suppliers.models import Supplier
 
     context = {
         "invoice": invoice,
@@ -2317,10 +2321,10 @@ def invoice_create_from_sales_order(request, order_id):
     """
     从销售订单创建发票。
     """
-    from sales.models import Order as SalesOrder
     from customers.models import Customer
-    from suppliers.models import Supplier
     from products.models import Product
+    from sales.models import Order as SalesOrder
+    from suppliers.models import Supplier
 
     # 获取销售订单（优化查询避免N+1问题）
     order = get_object_or_404(
@@ -2667,8 +2671,8 @@ def payment_payment_list(request):
     page_obj = paginator.get_page(request.GET.get("page"))
 
     # Get suppliers/customers for filter dropdown
-    from suppliers.models import Supplier
     from customers.models import Customer
+    from suppliers.models import Supplier
 
     suppliers = Supplier.objects.filter(is_deleted=False, is_active=True)
     customers = Customer.objects.filter(is_deleted=False, status="active")
@@ -3045,8 +3049,8 @@ def account_report(request):
     - 逾期状态
     - 结清状态
     """
-    from sales.models import SalesOrder
     from purchase.models import PurchaseOrder
+    from sales.models import SalesOrder
 
     # 获取账款类型
     account_type = request.GET.get("account_type", "receivable").strip()

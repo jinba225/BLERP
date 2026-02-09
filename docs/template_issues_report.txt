@@ -325,4 +325,3 @@
   🔴 [HIGH] extra_js块位置错误，应该在文件末尾 (当前在第208行，共276行)
   🔴 [HIGH] JavaScript函数重复定义: updateClearButtonPosition (行225)
   🔴 [HIGH] JavaScript函数重复定义: clearSearchInput (行252)
-

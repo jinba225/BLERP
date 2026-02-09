@@ -1,12 +1,13 @@
 """
 Custom template filters for the ERP system.
 """
+import json
+from datetime import date, datetime
+from decimal import Decimal
+
 from django import template
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
-from decimal import Decimal
-from datetime import date, datetime
-import json
 
 register = template.Library()
 

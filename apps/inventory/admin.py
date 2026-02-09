@@ -3,22 +3,19 @@ Inventory admin configuration.
 """
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
+
 from .models import (
-    Warehouse,
-    Location,
     InventoryStock,
     InventoryTransaction,
+    Location,
     StockAdjustment,
-    StockTransfer,
-    StockTransferItem,
     StockCount,
     StockCountItem,
+    StockTransfer,
+    StockTransferItem,
+    Warehouse,
 )
-from .resources import (
-    WarehouseResource,
-    StockMovementResource,
-    StockAdjustmentResource,
-)
+from .resources import StockAdjustmentResource, StockMovementResource, WarehouseResource
 
 
 class LocationInline(admin.TabularInline):

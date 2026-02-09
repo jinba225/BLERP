@@ -3,13 +3,14 @@ Wish电商平台适配器
 
 Wish是全球知名的移动电商平台
 """
-from ..base import BaseAdapter
-from typing import Dict, List
 import hashlib
 import hmac
 import json
-from datetime import datetime
 import logging
+from datetime import datetime
+from typing import Dict, List
+
+from ..base import BaseAdapter
 
 logger = logging.getLogger(__name__)
 

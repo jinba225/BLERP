@@ -60,11 +60,11 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('shopManage', () => ({
         shops: [],
-        
+
         async initData() {
             await this.fetchShops();
         },
-        
+
         async fetchShops() {
             const response = await fetch('/collect/shops/');
             const data = await response.json();

@@ -1,7 +1,6 @@
 """商品管理视图"""
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -5,11 +5,11 @@ Django管理命令：预热常用页面缓存
     python manage.py warm_cache                    # 预热缓存
     python manage.py warm_cache --verbose          # 显示详细信息
 """
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from django.test import Client
 from django.urls import reverse
-from django.contrib.auth import get_user_model
 
 
 class Command(BaseCommand):

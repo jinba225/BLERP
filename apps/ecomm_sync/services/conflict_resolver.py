@@ -8,13 +8,12 @@
 - 冲突日志记录
 """
 import logging
-from typing import Dict, List, Optional, Any
 from datetime import datetime
 from enum import Enum
-from django.utils import timezone
+from typing import Any, Dict, List, Optional
 
 from core.config import CONFLICT_STRATEGIES, ResolutionStrategy
-
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 

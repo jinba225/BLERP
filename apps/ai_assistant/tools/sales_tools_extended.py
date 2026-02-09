@@ -4,10 +4,12 @@
 提供销售业务的高级查询和操作工具，包括发货、退货、借货等功能
 """
 
-from typing import Dict, Any
-from django.db.models import Q
-from sales.models import Delivery, SalesReturn, SalesLoan
+from typing import Any, Dict
+
 from customers.models import Customer
+from django.db.models import Q
+from sales.models import Delivery, SalesLoan, SalesReturn
+
 from .base_tool import BaseTool, ToolResult
 
 

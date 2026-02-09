@@ -1,13 +1,12 @@
 """
 视图模块
 """
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
-
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.views.decorators.http import require_GET, require_POST
 
 # ---------------------- 页面视图 ----------------------
 
@@ -15,8 +14,9 @@ from django.db.models import Q
 @login_required
 def collect_manage(request):
     """采集任务管理主页面"""
-    from .models import CollectTask
     from core.models import Platform, Shop
+
+    from .models import CollectTask
 
     # 采集任务列表（带分页）
     tasks = CollectTask.objects.filter(is_deleted=False).order_by("-created_at")
@@ -76,7 +76,7 @@ def platform_list(request):
 @login_required
 def shop_list(request):
     """店铺配置列表"""
-    from core.models import Shop, Platform
+    from core.models import Platform, Shop
 
     shops = Shop.objects.filter(is_deleted=False).select_related("platform").order_by("-created_at")
 
@@ -98,8 +98,9 @@ def shop_list(request):
 @login_required
 def listing_list(request):
     """Listing管理列表"""
-    from .models import ProductListing
     from core.models import Platform
+
+    from .models import ProductListing
 
     listings = (
         ProductListing.objects.filter(is_deleted=False)
@@ -194,7 +195,7 @@ def collect_task_create_ajax(request):
 @require_GET
 def collect_task_status_ajax(request):
     """AJAX查询采集任务状态，供前端轮询"""
-    from .models import CollectTask, CollectItem
+    from .models import CollectItem, CollectTask
 
     task_id = request.GET.get("task_id")
     collect_task = get_object_or_404(CollectTask, id=task_id, is_deleted=False)

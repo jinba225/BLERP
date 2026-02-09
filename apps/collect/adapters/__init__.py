@@ -3,8 +3,8 @@
 """
 from .base import (
     BaseCollectAdapter,
-    TaobaoCollectAdapter,
     One688CollectAdapter,
+    TaobaoCollectAdapter,
     get_collect_adapter,
 )
 

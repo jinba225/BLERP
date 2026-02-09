@@ -14,25 +14,33 @@ Django ERP 数据一致性端到端验证测试
 - 应收金额 = 发货单汇总 - 退货单汇总
 """
 
-import pytest
 from decimal import Decimal
-from django.db.models import Sum
 
-from purchase.models import (
-    PurchaseOrder, PurchaseOrderItem,
-    PurchaseReceipt, PurchaseReceiptItem,
-    PurchaseReturn, PurchaseReturnItem
-)
-from sales.models import (
-    SalesOrder, SalesOrderItem,
-    SalesDelivery, SalesDeliveryItem,
-    SalesReturn, SalesReturnItem
-)
+import pytest
+from django.db.models import Sum
 from finance.models import (
-    SupplierAccount, SupplierAccountDetail,
-    CustomerAccount, CustomerAccountDetail
+    CustomerAccount,
+    CustomerAccountDetail,
+    SupplierAccount,
+    SupplierAccountDetail,
 )
 from inventory.models import InventoryTransaction
+from purchase.models import (
+    PurchaseOrder,
+    PurchaseOrderItem,
+    PurchaseReceipt,
+    PurchaseReceiptItem,
+    PurchaseReturn,
+    PurchaseReturnItem,
+)
+from sales.models import (
+    SalesDelivery,
+    SalesDeliveryItem,
+    SalesOrder,
+    SalesOrderItem,
+    SalesReturn,
+    SalesReturnItem,
+)
 
 
 @pytest.mark.django_db
@@ -53,32 +61,32 @@ class TestDataConsistencyE2E:
         issues = []
 
         # 只检查已部分收货或完全收货的订单
-        orders = PurchaseOrder.objects.filter(
-            status__in=['partial_received', 'fully_received']
-        )
+        orders = PurchaseOrder.objects.filter(status__in=["partial_received", "fully_received"])
 
         for order in orders:
             # 订单记录的已收货数量
-            order_received = Decimal('0')
+            order_received = Decimal("0")
             for item in order.items.all():
-                order_received += item.received_quantity or Decimal('0')
+                order_received += item.received_quantity or Decimal("0")
 
             # 库存交易的入库数量
             inventory_received = InventoryTransaction.objects.filter(
-                reference_type='purchase_receipt',
-                reference_id__in=PurchaseReceipt.objects.filter(
-                    purchase_order=order
-                ).values_list('id', flat=True),
-                transaction_type='in'
-            ).aggregate(total=Sum('quantity'))['total'] or Decimal('0')
+                reference_type="purchase_receipt",
+                reference_id__in=PurchaseReceipt.objects.filter(purchase_order=order).values_list(
+                    "id", flat=True
+                ),
+                transaction_type="in",
+            ).aggregate(total=Sum("quantity"))["total"] or Decimal("0")
 
             if order_received != inventory_received:
-                issues.append({
-                    'order_number': order.order_number,
-                    'order_received': order_received,
-                    'inventory_received': inventory_received,
-                    'difference': order_received - inventory_received
-                })
+                issues.append(
+                    {
+                        "order_number": order.order_number,
+                        "order_received": order_received,
+                        "inventory_received": inventory_received,
+                        "difference": order_received - inventory_received,
+                    }
+                )
 
         assert len(issues) == 0, f"发现{len(issues)}个订单库存不一致: {issues}"
 
@@ -94,9 +102,7 @@ class TestDataConsistencyE2E:
         """
         issues = []
 
-        accounts = SupplierAccount.objects.filter(
-            outstanding_amount__gt=Decimal('0')
-        )
+        accounts = SupplierAccount.objects.filter(outstanding_amount__gt=Decimal("0"))
 
         for account in accounts:
             # 获取关联的采购订单
@@ -106,37 +112,35 @@ class TestDataConsistencyE2E:
                 continue
 
             # 计算收货单总金额
-            receipts = PurchaseReceipt.objects.filter(
-                purchase_order=order,
-                status='confirmed'
-            )
+            receipts = PurchaseReceipt.objects.filter(purchase_order=order, status="confirmed")
 
-            receipt_total = Decimal('0')
+            receipt_total = Decimal("0")
             for receipt in receipts:
-                receipt_total += receipt.total_amount or Decimal('0')
+                receipt_total += receipt.total_amount or Decimal("0")
 
             # 计算退货单总金额
             returns = PurchaseReturn.objects.filter(
-                receipt__purchase_order=order,
-                status='confirmed'
+                receipt__purchase_order=order, status="confirmed"
             )
 
-            return_total = Decimal('0')
+            return_total = Decimal("0")
             for return_order in returns:
-                return_total += return_order.total_amount or Decimal('0')
+                return_total += return_order.total_amount or Decimal("0")
 
             # 应付账款应该等于收货 - 退货
             expected_amount = receipt_total - return_total
 
             if account.invoice_amount != expected_amount:
-                issues.append({
-                    'order_number': order.order_number,
-                    'account_invoice': account.invoice_amount,
-                    'receipt_total': receipt_total,
-                    'return_total': return_total,
-                    'expected_amount': expected_amount,
-                    'difference': account.invoice_amount - expected_amount
-                })
+                issues.append(
+                    {
+                        "order_number": order.order_number,
+                        "account_invoice": account.invoice_amount,
+                        "receipt_total": receipt_total,
+                        "return_total": return_total,
+                        "expected_amount": expected_amount,
+                        "difference": account.invoice_amount - expected_amount,
+                    }
+                )
 
         assert len(issues) == 0, f"发现{len(issues)}个应付账款金额不一致: {issues}"
 
@@ -153,32 +157,32 @@ class TestDataConsistencyE2E:
         issues = []
 
         # 只检查已部分发货或完全发货的订单
-        orders = SalesOrder.objects.filter(
-            status__in=['partial_delivered', 'fully_delivered']
-        )
+        orders = SalesOrder.objects.filter(status__in=["partial_delivered", "fully_delivered"])
 
         for order in orders:
             # 订单记录的已发货数量
-            order_delivered = Decimal('0')
+            order_delivered = Decimal("0")
             for item in order.items.all():
-                order_delivered += item.delivered_quantity or Decimal('0')
+                order_delivered += item.delivered_quantity or Decimal("0")
 
             # 库存交易的出库数量
             inventory_delivered = InventoryTransaction.objects.filter(
-                reference_type='sales_delivery',
-                reference_id__in=SalesDelivery.objects.filter(
-                    sales_order=order
-                ).values_list('id', flat=True),
-                transaction_type='out'
-            ).aggregate(total=Sum('quantity'))['total'] or Decimal('0')
+                reference_type="sales_delivery",
+                reference_id__in=SalesDelivery.objects.filter(sales_order=order).values_list(
+                    "id", flat=True
+                ),
+                transaction_type="out",
+            ).aggregate(total=Sum("quantity"))["total"] or Decimal("0")
 
             if order_delivered != inventory_delivered:
-                issues.append({
-                    'order_number': order.order_number,
-                    'order_delivered': order_delivered,
-                    'inventory_delivered': inventory_delivered,
-                    'difference': order_delivered - inventory_delivered
-                })
+                issues.append(
+                    {
+                        "order_number": order.order_number,
+                        "order_delivered": order_delivered,
+                        "inventory_delivered": inventory_delivered,
+                        "difference": order_delivered - inventory_delivered,
+                    }
+                )
 
         assert len(issues) == 0, f"发现{len(issues)}个订单发货不一致: {issues}"
 
@@ -194,9 +198,7 @@ class TestDataConsistencyE2E:
         """
         issues = []
 
-        accounts = CustomerAccount.objects.filter(
-            outstanding_amount__gt=Decimal('0')
-        )
+        accounts = CustomerAccount.objects.filter(outstanding_amount__gt=Decimal("0"))
 
         for account in accounts:
             # 获取关联的销售订单
@@ -206,37 +208,33 @@ class TestDataConsistencyE2E:
                 continue
 
             # 计算发货单总金额
-            deliveries = SalesDelivery.objects.filter(
-                sales_order=order,
-                status='confirmed'
-            )
+            deliveries = SalesDelivery.objects.filter(sales_order=order, status="confirmed")
 
-            delivery_total = Decimal('0')
+            delivery_total = Decimal("0")
             for delivery in deliveries:
-                delivery_total += delivery.total_amount or Decimal('0')
+                delivery_total += delivery.total_amount or Decimal("0")
 
             # 计算退货单总金额
-            returns = SalesReturn.objects.filter(
-                delivery__sales_order=order,
-                status='confirmed'
-            )
+            returns = SalesReturn.objects.filter(delivery__sales_order=order, status="confirmed")
 
-            return_total = Decimal('0')
+            return_total = Decimal("0")
             for return_order in returns:
-                return_total += return_order.total_amount or Decimal('0')
+                return_total += return_order.total_amount or Decimal("0")
 
             # 应收账款应该等于发货 - 退货
             expected_amount = delivery_total - return_total
 
             if account.invoice_amount != expected_amount:
-                issues.append({
-                    'order_number': order.order_number,
-                    'account_invoice': account.invoice_amount,
-                    'delivery_total': delivery_total,
-                    'return_total': return_total,
-                    'expected_amount': expected_amount,
-                    'difference': account.invoice_amount - expected_amount
-                })
+                issues.append(
+                    {
+                        "order_number": order.order_number,
+                        "account_invoice": account.invoice_amount,
+                        "delivery_total": delivery_total,
+                        "return_total": return_total,
+                        "expected_amount": expected_amount,
+                        "difference": account.invoice_amount - expected_amount,
+                    }
+                )
 
         assert len(issues) == 0, f"发现{len(issues)}个应收账款金额不一致: {issues}"
 
@@ -255,18 +253,20 @@ class TestDataConsistencyE2E:
 
         for account in accounts:
             # 计算明细单汇总
-            detail_total = account.details.aggregate(
-                total=Sum('amount')
-            )['total'] or Decimal('0')
+            detail_total = account.details.aggregate(total=Sum("amount"))["total"] or Decimal("0")
 
             if account.invoice_amount != detail_total:
-                issues.append({
-                    'account_id': account.id,
-                    'order_number': account.purchase_order.order_number if account.purchase_order else None,
-                    'account_invoice': account.invoice_amount,
-                    'detail_total': detail_total,
-                    'difference': account.invoice_amount - detail_total
-                })
+                issues.append(
+                    {
+                        "account_id": account.id,
+                        "order_number": account.purchase_order.order_number
+                        if account.purchase_order
+                        else None,
+                        "account_invoice": account.invoice_amount,
+                        "detail_total": detail_total,
+                        "difference": account.invoice_amount - detail_total,
+                    }
+                )
 
         assert len(issues) == 0, f"发现{len(issues)}个应付账款明细汇总不一致: {issues}"
 
@@ -285,18 +285,20 @@ class TestDataConsistencyE2E:
 
         for account in accounts:
             # 计算明细单汇总
-            detail_total = account.details.aggregate(
-                total=Sum('amount')
-            )['total'] or Decimal('0')
+            detail_total = account.details.aggregate(total=Sum("amount"))["total"] or Decimal("0")
 
             if account.invoice_amount != detail_total:
-                issues.append({
-                    'account_id': account.id,
-                    'order_number': account.sales_order.order_number if account.sales_order else None,
-                    'account_invoice': account.invoice_amount,
-                    'detail_total': detail_total,
-                    'difference': account.invoice_amount - detail_total
-                })
+                issues.append(
+                    {
+                        "account_id": account.id,
+                        "order_number": account.sales_order.order_number
+                        if account.sales_order
+                        else None,
+                        "account_invoice": account.invoice_amount,
+                        "detail_total": detail_total,
+                        "difference": account.invoice_amount - detail_total,
+                    }
+                )
 
         assert len(issues) == 0, f"发现{len(issues)}个应收账款明细汇总不一致: {issues}"
 
@@ -318,31 +320,29 @@ class TestDataConsistencyE2E:
 
         for stock in stocks:
             # 计算入库汇总
-        qty_in = InventoryTransaction.objects.filter(
-                product=stock.product,
-                warehouse=stock.warehouse,
-                transaction_type='in'
-            ).aggregate(total=Sum('quantity'))['total'] or Decimal('0')
+            qty_in = InventoryTransaction.objects.filter(
+                product=stock.product, warehouse=stock.warehouse, transaction_type="in"
+            ).aggregate(total=Sum("quantity"))["total"] or Decimal("0")
 
             # 计算出库汇总
             qty_out = InventoryTransaction.objects.filter(
-                product=stock.product,
-                warehouse=stock.warehouse,
-                transaction_type='out'
-            ).aggregate(total=Sum('quantity'))['total'] or Decimal('0')
+                product=stock.product, warehouse=stock.warehouse, transaction_type="out"
+            ).aggregate(total=Sum("quantity"))["total"] or Decimal("0")
 
             # 库存应该等于入库 - 出库
             expected_qty = qty_in - qty_out
 
             if stock.quantity != expected_qty:
-                issues.append({
-                    'product': stock.product.code,
-                    'warehouse': stock.warehouse.code,
-                    'stock_quantity': stock.quantity,
-                    'qty_in': qty_in,
-                    'qty_out': qty_out,
-                    'expected_qty': expected_qty,
-                    'difference': stock.quantity - expected_qty
-                })
+                issues.append(
+                    {
+                        "product": stock.product.code,
+                        "warehouse": stock.warehouse.code,
+                        "stock_quantity": stock.quantity,
+                        "qty_in": qty_in,
+                        "qty_out": qty_out,
+                        "expected_qty": expected_qty,
+                        "difference": stock.quantity - expected_qty,
+                    }
+                )
 
         assert len(issues) == 0, f"发现{len(issues)}个库存数量不一致: {issues}"

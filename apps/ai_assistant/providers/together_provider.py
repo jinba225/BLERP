@@ -9,9 +9,11 @@ Together AI Provider - 开源模型聚合平台
 官方文档：https://docs.together.ai/
 """
 
-from typing import Dict, Any
-from .base import BaseAIProvider, AIResponse
+from typing import Any, Dict
+
 import requests
+
+from .base import AIResponse, BaseAIProvider
 
 
 class TogetherProvider(BaseAIProvider):

@@ -9,9 +9,11 @@ Mistral Provider - 法国 Mistral AI 的开源大模型
 官方文档：https://docs.mistral.ai/
 """
 
-from typing import Dict, Any
-from .base import BaseAIProvider, AIResponse
+from typing import Any, Dict
+
 import requests
+
+from .base import AIResponse, BaseAIProvider
 
 
 class MistralProvider(BaseAIProvider):

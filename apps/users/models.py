@@ -1,10 +1,10 @@
 """
 User models for the ERP system.
 """
-from django.contrib.auth.models import AbstractUser
-from django.db import models
-from django.core.validators import RegexValidator
 from core.models import BaseModel
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
+from django.db import models
 
 
 class User(AbstractUser):

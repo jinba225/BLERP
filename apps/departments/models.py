@@ -1,10 +1,10 @@
 """
 Department models for the ERP system.
 """
-from django.db import models
-from django.contrib.auth import get_user_model
-from mptt.models import MPTTModel, TreeForeignKey
 from core.models import BaseModel
+from django.contrib.auth import get_user_model
+from django.db import models
+from mptt.models import MPTTModel, TreeForeignKey
 
 User = get_user_model()
 

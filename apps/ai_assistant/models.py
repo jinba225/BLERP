@@ -2,9 +2,9 @@
 AI助手数据模型
 """
 
-from django.db import models
-from django.contrib.auth import get_user_model
 from core.models import BaseModel
+from django.contrib.auth import get_user_model
+from django.db import models
 
 User = get_user_model()
 

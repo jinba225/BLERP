@@ -4,11 +4,13 @@
 提供AI操作销售业务的工具集
 """
 
-from typing import Dict, Any
-from django.db.models import Q
+from typing import Any, Dict
+
 from customers.models import Customer
-from sales.models import Quote, SalesOrder
+from django.db.models import Q
 from products.models import Product
+from sales.models import Quote, SalesOrder
+
 from .base_tool import BaseTool, ToolResult
 
 
@@ -99,8 +101,10 @@ class CreateSalesQuoteTool(BaseTool):
     ) -> ToolResult:
         """执行创建报价单"""
         try:
-            from django.db import transaction
             from datetime import datetime, timedelta
+
+            from django.db import transaction
+
             from common.utils import DocumentNumberGenerator
 
             # 验证客户
@@ -446,8 +450,10 @@ class CreateSalesOrderTool(BaseTool):
     ) -> ToolResult:
         """执行创建订单"""
         try:
-            from django.db import transaction
             from datetime import datetime, timedelta
+
+            from django.db import transaction
+
             from common.utils import DocumentNumberGenerator
 
             # 验证客户

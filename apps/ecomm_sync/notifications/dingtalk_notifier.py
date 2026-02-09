@@ -1,11 +1,10 @@
 """钉钉通知"""
-import logging
-import json
-import hmac
 import hashlib
+import hmac
+import json
+import logging
 import time
 from typing import List
-
 
 logger = logging.getLogger(__name__)
 

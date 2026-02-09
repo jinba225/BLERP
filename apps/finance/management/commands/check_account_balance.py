@@ -1,6 +1,8 @@
-from django.core.management.base import BaseCommand
-from apps.finance.models import SupplierAccount, SupplierAccountDetail
 from decimal import Decimal
+
+from django.core.management.base import BaseCommand
+
+from apps.finance.models import SupplierAccount, SupplierAccountDetail
 
 
 class Command(BaseCommand):

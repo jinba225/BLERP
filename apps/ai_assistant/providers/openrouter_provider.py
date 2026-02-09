@@ -12,9 +12,11 @@ OpenRouter Provider - 多模型路由平台
 官方文档：https://openrouter.com/docs
 """
 
-from typing import Dict, Any
-from .base import BaseAIProvider, AIResponse
+from typing import Any, Dict
+
 import openai
+
+from .base import AIResponse, BaseAIProvider
 
 
 class OpenRouterProvider(BaseAIProvider):

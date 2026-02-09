@@ -13,7 +13,7 @@
 - ✅ 位置: Warehouse 类，第49-64行
 - ✅ 语法: 已通过Python AST检查
 
-### 2. apps/purchase/views.py ✅  
+### 2. apps/purchase/views.py ✅
 - ✅ 添加默认采购员逻辑（当前登录用户）
 - ✅ 添加默认收货仓库逻辑（主仓库）
 - ✅ 位置: order_create() 视图
@@ -117,7 +117,7 @@ except Warehouse.DoesNotExist:
 
 #### 模板默认选中
 ```django
-<option value="{{ buyer.id }}" 
+<option value="{{ buyer.id }}"
     {% if order and order.buyer and order.buyer.id == buyer.id %}selected
     {% elif action == 'create' and default_buyer and default_buyer.id == buyer.id %}selected
     {% endif %}>
@@ -155,6 +155,6 @@ except Warehouse.DoesNotExist:
 
 ---
 
-*实施时间: 2026-02-08*  
-*实施人员: Claude (Sonnet 4.5)*  
+*实施时间: 2026-02-08*
+*实施人员: Claude (Sonnet 4.5)*
 *状态: ✅ 完成并验证通过*

@@ -7,7 +7,7 @@
 3. 创建默认模板映射
 """
 from django.core.management.base import BaseCommand
-from sales.models import PrintTemplate, DefaultTemplateMapping
+from sales.models import DefaultTemplateMapping, PrintTemplate
 
 
 class Command(BaseCommand):

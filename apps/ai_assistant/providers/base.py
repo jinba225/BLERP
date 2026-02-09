@@ -5,8 +5,8 @@ AI Provider 抽象基类
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional, Iterator
 from dataclasses import dataclass
+from typing import Any, Dict, Iterator, List, Optional
 
 
 @dataclass

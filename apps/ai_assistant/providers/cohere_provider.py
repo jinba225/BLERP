@@ -10,9 +10,11 @@ Cohere Provider - 专注于 RAG（检索增强生成）
 官方文档：https://docs.cohere.com/
 """
 
-from typing import Dict, Any
-from .base import BaseAIProvider, AIResponse
+from typing import Any, Dict
+
 import cohere
+
+from .base import AIResponse, BaseAIProvider
 
 
 class CohereProvider(BaseAIProvider):

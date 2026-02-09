@@ -1,9 +1,10 @@
 """基础视图类"""
-from django.views import View
+import json
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
-import json
+from django.views import View
 
 
 @method_decorator(login_required)

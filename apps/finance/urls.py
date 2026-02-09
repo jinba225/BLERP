@@ -1,9 +1,10 @@
 """
 Finance app URLs.
 """
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from . import views, views_reports, views_expense
+
+from . import views, views_expense, views_reports
 
 app_name = "finance"
 

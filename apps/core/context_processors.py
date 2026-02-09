@@ -3,6 +3,7 @@ Context processors for injecting global template variables.
 """
 from django.core.cache import cache
 from django.utils.translation import get_language
+
 from .models import Company
 
 

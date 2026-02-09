@@ -4,17 +4,18 @@
 """
 from pathlib import Path
 
+
 def fix_template_structure(file_path: Path) -> bool:
     """修复模板结构 - 删除extra_js块后的所有内容"""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    lines = content.split('\n')
+    lines = content.split("\n")
 
     # 查找 {% block extra_js %}
     extra_js_start = -1
     for i, line in enumerate(lines):
-        if '{% block extra_js %}' in line:
+        if "{% block extra_js %}" in line:
             extra_js_start = i
             break
 
@@ -28,11 +29,11 @@ def fix_template_structure(file_path: Path) -> bool:
         line = lines[i]
 
         # 如果遇到了另一个 {% block xxx %}，跳过它
-        if '{% block ' in line and 'extra_js' not in line:
+        if "{% block " in line and "extra_js" not in line:
             continue
 
         # 找到 {% endblock %}
-        if '{% endblock %}' in line:
+        if "{% endblock %}" in line:
             extra_js_end = i
             break
 
@@ -50,12 +51,12 @@ def fix_template_structure(file_path: Path) -> bool:
         return False  # 已经是正确的结构
 
     # 删除extra_js块后的所有内容（包括空行）
-    new_lines = lines[:extra_js_end + 1]
+    new_lines = lines[: extra_js_end + 1]
 
-    new_content = '\n'.join(new_lines)
+    new_content = "\n".join(new_lines)
 
     if new_content != content:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(new_content)
         return True
 

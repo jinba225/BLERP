@@ -2,9 +2,10 @@
 Core app URLs.
 """
 from django.urls import path
+
+from . import views
 from . import views_database as db_views
 from . import views_template as tpl_views
-from . import views
 
 app_name = "core"
 

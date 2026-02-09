@@ -1,30 +1,30 @@
 """
 Sales admin configuration.
 """
+# 打印模板模型已移至 core 模块
+from core.models import DefaultTemplateMapping, PrintTemplate
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
+
 from .models import (
-    Quote,
-    QuoteItem,
-    SalesOrder,
-    SalesOrderItem,
     Delivery,
     DeliveryItem,
-    SalesReturn,
-    SalesReturnItem,
+    Quote,
+    QuoteItem,
     SalesLoan,
     SalesLoanItem,
+    SalesOrder,
+    SalesOrderItem,
+    SalesReturn,
+    SalesReturnItem,
 )
 from .resources import (
-    QuoteResource,
-    SalesOrderResource,
     DeliveryResource,
-    SalesReturnResource,
+    QuoteResource,
     SalesLoanResource,
+    SalesOrderResource,
+    SalesReturnResource,
 )
-
-# 打印模板模型已移至 core 模块
-from core.models import PrintTemplate, DefaultTemplateMapping
 
 
 class QuoteItemInline(admin.TabularInline):

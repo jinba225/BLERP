@@ -9,20 +9,20 @@ from pathlib import Path
 def fix_double_endblock(file_path):
     """修复文件中的双重 endblock"""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         original_content = content
 
         # 查找连续的 {% endblock %}（中间只有空白字符）
-        pattern = r'{%\s*endblock\s*%}\s*\n\s*{%\s*endblock\s*%}'
+        pattern = r"{%\s*endblock\s*%}\s*\n\s*{%\s*endblock\s*%}"
 
         # 替换为单个 endblock
-        content = re.sub(pattern, '{% endblock %}\n', content)
+        content = re.sub(pattern, "{% endblock %}\n", content)
 
         if content != original_content:
             # 写回文件
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
             return True, "已修复"
         else:
@@ -49,7 +49,7 @@ def main():
 
     for file_path in sorted(html_files):
         # 只检查我们修改过的列表文件
-        if 'list.html' not in str(file_path):
+        if "list.html" not in str(file_path):
             continue
 
         checked_count += 1

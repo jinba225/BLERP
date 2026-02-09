@@ -4,21 +4,16 @@
 处理来自各个渠道的Webhook请求
 """
 
+from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.conf import settings
 
-from .models import WeChatConfig, DingTalkConfig, TelegramConfig, ChannelUserMapping
-from .channels import (
-    WeChatChannel,
-    DingTalkChannel,
-    TelegramChannel,
-)
+from .channels import DingTalkChannel, TelegramChannel, WeChatChannel
 
 # from .services import ChannelAIService  # 暂时注释，ChannelAIService尚未实现
 from .channels.base_channel import IncomingMessage, OutgoingMessage
-
+from .models import ChannelUserMapping, DingTalkConfig, TelegramConfig, WeChatConfig
 
 # 判断是否启用异步处理
 USE_ASYNC_PROCESSING = (

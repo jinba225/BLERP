@@ -8,9 +8,10 @@
 """
 
 import re
-from pathlib import Path
 from collections import Counter
-from fontawesome_to_svg_mapping import ICON_MAPPING, ICON_ALIASES
+from pathlib import Path
+
+from fontawesome_to_svg_mapping import ICON_ALIASES, ICON_MAPPING
 
 
 def extract_fontawesome_icons(content):

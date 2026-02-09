@@ -1,5 +1,6 @@
-from django.utils import timezone
 import logging
+
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -17,9 +18,9 @@ class ListingService:
         Returns:
             发布结果
         """
-        from products.models import Product
-        from core.models import Platform, ProductListing, PlatformAccount
+        from core.models import Platform, PlatformAccount, ProductListing
         from ecomm_sync.adapters import get_adapter
+        from products.models import Product
 
         results = {"total": len(platforms), "success": 0, "failed": 0, "errors": []}
 
@@ -81,8 +82,8 @@ class ListingService:
         Returns:
             是否成功
         """
-        from ecomm_sync.models import ProductListing
         from ecomm_sync.adapters import get_adapter
+        from ecomm_sync.models import ProductListing
 
         try:
             listing = ProductListing.objects.get(id=listing_id)
@@ -114,8 +115,8 @@ class ListingService:
         Returns:
             是否成功
         """
-        from ecomm_sync.models import ProductListing
         from ecomm_sync.adapters import get_adapter
+        from ecomm_sync.models import ProductListing
 
         try:
             listing = ProductListing.objects.get(id=listing_id)
@@ -146,8 +147,8 @@ class ListingService:
         Returns:
             是否成功
         """
-        from ecomm_sync.models import ProductListing
         from ecomm_sync.adapters import get_adapter
+        from ecomm_sync.models import ProductListing
 
         try:
             listing = ProductListing.objects.get(id=listing_id)
@@ -177,10 +178,10 @@ class ListingService:
         Returns:
             同步结果
         """
-        from products.models import Product
-        from ecomm_sync.models import ProductListing
         from ecomm_sync.adapters import get_adapter
+        from ecomm_sync.models import ProductListing
         from ecomm_sync.services.stock_sync import StockSyncService
+        from products.models import Product
 
         try:
             product = Product.objects.get(id=product_id)

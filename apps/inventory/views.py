@@ -1,30 +1,31 @@
 """
 Inventory views for the ERP system.
 """
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db import transaction
-from django.core.paginator import Paginator
-from django.db.models import Q, Sum, F, Count
-from django.db.models.functions import TruncDate
-from django.utils import timezone
 from decimal import Decimal
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db import transaction
+from django.db.models import Count, F, Q, Sum
+from django.db.models.functions import TruncDate
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+
 from .models import (
-    Warehouse,
-    Location,
-    InventoryStock,
-    InventoryTransaction,
-    StockAdjustment,
-    StockTransfer,
-    StockTransferItem,
-    StockCount,
-    StockCountItem,
     InboundOrder,
     InboundOrderItem,
+    InventoryStock,
+    InventoryTransaction,
+    Location,
     OutboundOrder,
     OutboundOrderItem,
+    StockAdjustment,
+    StockCount,
+    StockCountItem,
+    StockTransfer,
+    StockTransferItem,
+    Warehouse,
 )
 
 
@@ -490,6 +491,7 @@ def adjustment_create(request):
     """Create a new stock adjustment."""
     if request.method == "POST":
         from decimal import Decimal
+
         from .services import StockAdjustmentService
 
         try:
@@ -562,6 +564,7 @@ def adjustment_update(request, pk):
 
     if request.method == "POST":
         from decimal import Decimal
+
         from .services import StockAdjustmentService
 
         try:
@@ -782,6 +785,7 @@ def transfer_create(request):
     if request.method == "POST":
         import json
         from decimal import Decimal
+
         from .services import StockTransferService
 
         try:
@@ -850,6 +854,7 @@ def transfer_update(request, pk):
     if request.method == "POST":
         import json
         from decimal import Decimal
+
         from .services import StockTransferService
 
         try:
@@ -989,6 +994,7 @@ def transfer_ship(request, pk):
 
     if request.method == "POST":
         from decimal import Decimal
+
         from .services import StockTransferService
 
         try:
@@ -1026,6 +1032,7 @@ def transfer_receive(request, pk):
 
     if request.method == "POST":
         from decimal import Decimal
+
         from .services import StockTransferService
 
         try:
@@ -1184,6 +1191,7 @@ def count_create(request):
     """Create a new stock count."""
     if request.method == "POST":
         import json
+
         from .services import StockCountService
 
         try:
@@ -1218,8 +1226,8 @@ def count_create(request):
             messages.error(request, f"创建失败：{str(e)}")
 
     # GET request - show form
-    from products.models import Product
     from django.contrib.auth import get_user_model
+    from products.models import Product
 
     User = get_user_model()
 
@@ -1251,6 +1259,7 @@ def count_update(request, pk):
 
     if request.method == "POST":
         import json
+
         from .services import StockCountService
 
         try:
@@ -1285,8 +1294,8 @@ def count_update(request, pk):
             messages.error(request, f"更新失败：{str(e)}")
 
     # GET request - show form
-    from products.models import Product
     from django.contrib.auth import get_user_model
+    from products.models import Product
 
     User = get_user_model()
 
@@ -1510,6 +1519,7 @@ def inbound_create(request):
     if request.method == "POST":
         import json
         from decimal import Decimal
+
         from .services import InboundOrderService
 
         try:
@@ -2871,10 +2881,11 @@ def data_export(request):
     data_type = request.GET.get("type", "products")
 
     try:
+        import io
+        from datetime import datetime
+
         import pandas as pd
         from django.http import HttpResponse
-        from datetime import datetime
-        import io
 
         # 根据数据类型导出不同的数据
         if data_type == "products":
@@ -3128,8 +3139,9 @@ def data_import(request):
         return redirect("inventory:stock_import")
 
     try:
-        import pandas as pd
         from io import BytesIO
+
+        import pandas as pd
 
         # 读取文件
         if uploaded_file.name.endswith(".csv"):
@@ -3155,7 +3167,7 @@ def data_import(request):
 
         if data_type == "products":
             # 导入产品
-            from products.models import Product, ProductCategory, Brand, Unit
+            from products.models import Brand, Product, ProductCategory, Unit
 
             for idx, row in df.iterrows():
                 try:
@@ -3367,8 +3379,8 @@ def data_import(request):
 
         elif data_type == "suppliers":
             # 导入供应商
-            from suppliers.models import Supplier, SupplierCategory
             from django.contrib.auth import get_user_model
+            from suppliers.models import Supplier, SupplierCategory
 
             User = get_user_model()
 

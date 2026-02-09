@@ -4,11 +4,12 @@
 自动或手动将 Telegram 用户 ID 映射到系统用户账号
 """
 
-from django.core.management.base import BaseCommand
-from ai_assistant.models import ChannelUserMapping, TelegramConfig
-from users.models import User
-from common.utils import decrypt_api_key
 import requests
+from ai_assistant.models import ChannelUserMapping, TelegramConfig
+from django.core.management.base import BaseCommand
+from users.models import User
+
+from common.utils import decrypt_api_key
 
 
 class Command(BaseCommand):

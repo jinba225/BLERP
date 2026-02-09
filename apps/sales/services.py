@@ -2,13 +2,14 @@
 Sales Order Service
 封装销售订单的业务逻辑
 """
-from django.db import transaction
-from django.contrib import messages
 from decimal import Decimal, InvalidOperation
 
-from ..models import SalesOrder, SalesOrderItem, Quote
-from products.models import Product
 from core.models import Notification
+from django.contrib import messages
+from django.db import transaction
+from products.models import Product
+
+from ..models import Quote, SalesOrder, SalesOrderItem
 
 
 class SalesOrderService:

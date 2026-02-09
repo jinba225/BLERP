@@ -2,9 +2,11 @@
 User serializers for ERP system.
 """
 from typing import Any
-from rest_framework import serializers
+
 from django.contrib.auth import get_user_model
-from .models import Role, UserRole, Permission, UserProfile, LoginLog
+from rest_framework import serializers
+
+from .models import LoginLog, Permission, Role, UserProfile, UserRole
 
 User = get_user_model()
 

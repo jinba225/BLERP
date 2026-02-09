@@ -4,9 +4,9 @@
 支持设置 Telegram、企业微信、钉钉的 Webhook URL
 """
 
-from django.core.management.base import BaseCommand, CommandError
-from django.conf import settings
 import requests
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
@@ -41,6 +41,7 @@ class Command(BaseCommand):
     def _set_telegram_webhook(self, webhook_url):
         """设置 Telegram Webhook"""
         from ai_assistant.models import TelegramConfig
+
         from common.utils import decrypt_api_key
 
         config = TelegramConfig.objects.filter(is_active=True, is_deleted=False).first()

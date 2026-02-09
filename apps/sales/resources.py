@@ -1,24 +1,25 @@
 """
 Sales 模块的导入导出资源配置
 """
-from import_export import resources, fields
-from import_export.widgets import ForeignKeyWidget, DateWidget, DecimalWidget
+from customers.models import Customer
+from django.contrib.auth import get_user_model
+from import_export import fields, resources
+from import_export.widgets import DateWidget, DecimalWidget, ForeignKeyWidget
+from inventory.models import Warehouse
+from products.models import Product
+
 from .models import (
-    Quote,
-    QuoteItem,
-    SalesOrder,
-    SalesOrderItem,
     Delivery,
     DeliveryItem,
-    SalesReturn,
-    SalesReturnItem,
+    Quote,
+    QuoteItem,
     SalesLoan,
     SalesLoanItem,
+    SalesOrder,
+    SalesOrderItem,
+    SalesReturn,
+    SalesReturnItem,
 )
-from django.contrib.auth import get_user_model
-from customers.models import Customer
-from products.models import Product
-from inventory.models import Warehouse
 
 User = get_user_model()
 

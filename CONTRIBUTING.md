@@ -159,18 +159,18 @@ from core.models import BaseModel
 
 class Product(BaseModel):
     """产品模型"""
-    
+
     name = models.CharField('产品名称', max_length=200)
     quantity = models.IntegerField('数量', default=0)
-    
+
     class Meta:
         verbose_name = '产品'
         verbose_name_plural = '产品'
         ordering = ['-created_at']
-    
+
     def __str__(self):
         return self.name
-    
+
     def save(self, *args, **kwargs):
         # 自定义保存逻辑
         super().save(*args, **kwargs)
@@ -376,7 +376,7 @@ from core.tests.test_fixtures import FixtureFactory
 @pytest.mark.django_db
 class TestSalesOrderFlow:
     """销售订单流程测试"""
-    
+
     def test_create_order(self, test_customer, test_products):
         """测试创建订单"""
         order = SalesOrder.objects.create(
@@ -384,16 +384,16 @@ class TestSalesOrderFlow:
             order_date=timezone.now().date(),
             status='draft'
         )
-        
+
         item = SalesOrderItem.objects.create(
             order=order,
             product=test_products[0],
             quantity=Decimal('10'),
             unit_price=Decimal('100.00')
         )
-        
+
         order.calculate_totals()
-        
+
         assert order.items.count() == 1
         assert order.total_amount == Decimal('1000.00')
 ```

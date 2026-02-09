@@ -4,15 +4,16 @@
 处理来自各个渠道的消息，调用AI服务，执行工具
 """
 
+import json
 from typing import Optional
+
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-import json
 
-from .base_channel import IncomingMessage, OutgoingMessage
 from ..services import AIService
 from ..tools import ToolRegistry
-from ..utils.logger import AIAssistantLogger, log_channel_message, log_tool_execution, log_error
+from ..utils.logger import AIAssistantLogger, log_channel_message, log_error, log_tool_execution
+from .base_channel import IncomingMessage, OutgoingMessage
 
 User = get_user_model()
 

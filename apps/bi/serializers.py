@@ -2,16 +2,17 @@
 BI报表序列化器
 """
 from rest_framework import serializers
+
 from .models import (
+    Dashboard,
+    DashboardWidget,
+    DashboardWidgetConfig,
+    InventoryAnalysis,
+    PlatformComparison,
+    ProductSales,
     Report,
     ReportData,
     SalesSummary,
-    ProductSales,
-    InventoryAnalysis,
-    PlatformComparison,
-    DashboardWidget,
-    Dashboard,
-    DashboardWidgetConfig,
 )
 
 

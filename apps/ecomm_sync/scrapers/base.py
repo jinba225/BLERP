@@ -1,11 +1,11 @@
 import abc
 import asyncio
-import random
 import logging
-from typing import Dict, List, Optional
+import random
 from datetime import datetime, timedelta
-from core.models import Platform
+from typing import Dict, List, Optional
 
+from core.models import Platform
 
 logger = logging.getLogger(__name__)
 

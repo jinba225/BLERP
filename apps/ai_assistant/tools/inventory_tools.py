@@ -4,10 +4,12 @@
 提供AI操作库存业务的工具集
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
+
 from django.db.models import Q, Sum
-from products.models import Product
 from inventory.models import InventoryStock, InventoryTransaction
+from products.models import Product
+
 from .base_tool import BaseTool, ToolResult
 
 

@@ -3,37 +3,33 @@ Sales views for the ERP system.
 """
 import json
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from core.models import Notification
 from django.contrib import messages
-from django.db import transaction
-from django.http import JsonResponse, HttpResponse
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.utils import timezone
-from django.db.models import Q, Sum, Count, Avg, F
-from django.db.models.functions import TruncMonth, TruncDate
+from django.db import transaction
+from django.db.models import Avg, Count, F, Q, Sum
+from django.db.models.functions import TruncDate, TruncMonth
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 
+from common.utils import DocumentNumberGenerator
+
+from .forms import ConvertToOrderForm, QuoteForm, QuoteItemFormSet, QuoteSearchForm
 from .models import (
-    Quote,
-    QuoteItem,
-    SalesOrder,
-    SalesOrderItem,
     Delivery,
     DeliveryItem,
-    SalesReturn,
-    SalesReturnItem,
+    Quote,
+    QuoteItem,
     SalesLoan,
     SalesLoanItem,
+    SalesOrder,
+    SalesOrderItem,
+    SalesReturn,
+    SalesReturnItem,
 )
-from .forms import (
-    QuoteForm,
-    QuoteItemFormSet,
-    QuoteSearchForm,
-    ConvertToOrderForm,
-)
-from common.utils import DocumentNumberGenerator
-from core.models import Notification
 
 
 def _create_return_notification(sales_return, action, recipient, extra_message=""):
@@ -364,8 +360,9 @@ def quote_convert_to_order(request, pk):
         else:
             messages.error(request, "请检查表单数据")
     else:
-        from django.utils import timezone
         from datetime import timedelta
+
+        from django.utils import timezone
 
         form = ConvertToOrderForm(
             initial={
@@ -430,8 +427,8 @@ def quote_print(request, pk):
     )
 
     # 使用新的模板选择服务
-    from core.services.template_selector import TemplateSelector
     from core.models import PrintTemplate
+    from core.services.template_selector import TemplateSelector
 
     # 确定完整的单据类型
     document_type_full = (
@@ -533,7 +530,7 @@ def quote_duplicate(request, pk):
 @login_required
 def order_list(request):
     """List all sales orders with search and filter."""
-    from sales.models import SalesReturnItem, SalesOrderItem
+    from sales.models import SalesOrderItem, SalesReturnItem
 
     orders = SalesOrder.objects.filter(is_deleted=False).select_related("customer", "sales_rep")
 
@@ -630,6 +627,7 @@ def order_create(request):
     if request.method == "POST":
         import json
         from decimal import Decimal
+
         from .services import OrderService
 
         # Extract form data
@@ -680,8 +678,8 @@ def order_create(request):
 
     # GET request
     from customers.models import Customer
-    from products.models import Product
     from django.contrib.auth import get_user_model
+    from products.models import Product
 
     User = get_user_model()
 
@@ -704,6 +702,7 @@ def order_update(request, pk):
     """Update an existing sales order."""
     import json
     from decimal import Decimal
+
     from .services import OrderService
 
     order = get_object_or_404(SalesOrder, pk=pk, is_deleted=False)
@@ -759,8 +758,8 @@ def order_update(request, pk):
 
     # GET request
     from customers.models import Customer
-    from products.models import Product
     from django.contrib.auth import get_user_model
+    from products.models import Product
 
     User = get_user_model()
 
@@ -807,8 +806,8 @@ def get_customer_info(request, customer_id):
     """
     AJAX API to get customer contact information.
     """
-    from django.http import JsonResponse
     from customers.models import Customer, CustomerContact
+    from django.http import JsonResponse
 
     try:
         customer = Customer.objects.get(pk=customer_id, is_deleted=False)
@@ -1216,8 +1215,8 @@ def delivery_ship(request, pk):
         try:
             # 从POST数据中获取实际发货数量
             # 格式: shipped_quantity_[item_id] = actual_quantity
-            from decimal import Decimal
             import json
+            from decimal import Decimal
 
             # 处理JSON格式的发货数量数据
             items_data_json = request.POST.get("items_data", "[]")
@@ -1373,8 +1372,9 @@ def delivery_ship(request, pk):
 
             # 生成发票和应收账款（仅针对本次实际发货的数量）
             from decimal import Decimal
-            from finance.models import CustomerAccount, Invoice, InvoiceItem
+
             from core.utils.document_number import DocumentNumberGenerator
+            from finance.models import CustomerAccount, Invoice, InvoiceItem
 
             invoice_number = DocumentNumberGenerator.generate("invoice")
             invoice = Invoice.objects.create(
@@ -1600,7 +1600,8 @@ def return_create(request, order_pk):
             items_json = request.POST.get("items_json", "[]")
             items_data = json.loads(items_json)
 
-            from decimal import Decimal, ROUND_HALF_UP
+            from decimal import ROUND_HALF_UP, Decimal
+
             from django.db.models import Sum
 
             total_refund = Decimal("0.00")
@@ -1811,8 +1812,9 @@ def return_approve(request, pk):
             if not existing_payment:
                 # 生成唯一单号（带重试机制）
                 def generate_unique_payment_number():
-                    from common.utils import DocumentNumberGenerator
                     from django.db import IntegrityError
+
+                    from common.utils import DocumentNumberGenerator
 
                     max_retries = 5
                     for attempt in range(max_retries):
@@ -1854,9 +1856,11 @@ def return_approve(request, pk):
                 sales_return.save()
 
                 # 自动创建退款应付
-                from finance.models import Payment, SupplierAccount
-                from common.utils import DocumentNumberGenerator
                 from decimal import Decimal
+
+                from finance.models import Payment, SupplierAccount
+
+                from common.utils import DocumentNumberGenerator
 
                 # 检查是否已经存在关联的应付账款记录
                 existing_supplier_account = SupplierAccount.objects.filter(
@@ -1953,6 +1957,7 @@ def return_receive(request, pk):
 
             # 1. 创建库存调整单 - 将退货商品退回库存
             from inventory.models import InventoryTransaction
+
             from common.utils import DocumentNumberGenerator
 
             # 获取原发货的仓库
@@ -1991,8 +1996,9 @@ def return_receive(request, pk):
                 )
 
             # 2. 创建或更新退款记录并更新客户账户
-            from finance.models import CustomerAccount, Payment
             from decimal import Decimal
+
+            from finance.models import CustomerAccount, Payment
 
             # 查找原订单关联的客户账款
             customer_account = CustomerAccount.objects.filter(
@@ -2037,8 +2043,9 @@ def return_receive(request, pk):
                 payment_number = None
 
                 def generate_unique_payment_number():
-                    from common.utils import DocumentNumberGenerator
                     from django.db import IntegrityError
+
+                    from common.utils import DocumentNumberGenerator
 
                     max_retries = 5
                     for attempt in range(max_retries):
@@ -2164,6 +2171,7 @@ def return_process(request, pk):
 
                 # 1. 创建库存调整单 - 将退货商品退回库存
                 from inventory.models import InventoryTransaction
+
                 from common.utils import DocumentNumberGenerator
 
                 # 获取原发货的仓库
@@ -2202,8 +2210,9 @@ def return_process(request, pk):
                     )
 
                 # 2. 创建退款记录并更新客户账户
-                from finance.models import CustomerAccount, Payment
                 from decimal import Decimal
+
+                from finance.models import CustomerAccount, Payment
 
                 # 查找原订单关联的客户账款
                 customer_account = CustomerAccount.objects.filter(
@@ -2240,8 +2249,9 @@ def return_process(request, pk):
                         payment_number = None
 
                         def generate_unique_payment_number():
-                            from common.utils import DocumentNumberGenerator
                             from django.db import IntegrityError
+
+                            from common.utils import DocumentNumberGenerator
 
                             max_retries = 5
                             for attempt in range(max_retries):
@@ -2399,8 +2409,8 @@ def return_reject(request, pk):
 @login_required
 def return_statistics(request):
     """Sales return statistics and analysis report."""
-    from datetime import datetime, timedelta
     import json
+    from datetime import datetime, timedelta
 
     # Get date range from request
     date_from = request.GET.get("date_from")
@@ -2563,8 +2573,8 @@ def api_get_available_templates(request):
             'current_template_id': 1
         }
     """
+    from core.models import DefaultTemplateMapping, PrintTemplate
     from core.services.template_selector import TemplateSelector
-    from core.models import PrintTemplate, DefaultTemplateMapping
 
     document_type = request.GET.get("document_type", "quote")
     quote_type = request.GET.get("quote_type", "").upper()
@@ -2618,7 +2628,7 @@ def api_set_default_template(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "仅支持POST请求"}, status=405)
 
-    from core.models import PrintTemplate, DefaultTemplateMapping
+    from core.models import DefaultTemplateMapping, PrintTemplate
 
     try:
         template_id = request.POST.get("template_id")
@@ -2698,8 +2708,8 @@ def sales_order_report(request):
     - 交付日期范围
     """
     from customers.models import Customer
-    from users.models import User
     from products.models import Product
+    from users.models import User
 
     # 基础查询集
     queryset = (
@@ -2936,9 +2946,9 @@ def loan_list(request):
 def loan_create(request):
     """创建借用单"""
     from customers.models import Customer
-    from products.models import Product
     from django.contrib.auth import get_user_model
-    from inventory.models import Warehouse, InventoryTransaction
+    from inventory.models import InventoryTransaction, Warehouse
+    from products.models import Product
 
     User = get_user_model()
 
@@ -2973,7 +2983,7 @@ def loan_create(request):
             items_json = request.POST.get("items_json", "[]")
             items_data = json.loads(items_json)
 
-            from decimal import Decimal, ROUND_HALF_UP
+            from decimal import ROUND_HALF_UP, Decimal
 
             for item_data in items_data:
                 product_id = item_data.get("product_id")
@@ -3068,8 +3078,8 @@ def loan_detail(request, pk):
 def loan_update(request, pk):
     """编辑借用单"""
     from customers.models import Customer
-    from products.models import Product
     from django.contrib.auth import get_user_model
+    from products.models import Product
 
     User = get_user_model()
 
@@ -3101,7 +3111,7 @@ def loan_update(request, pk):
             items_json = request.POST.get("items_json", "[]")
             items_data = json.loads(items_json)
 
-            from decimal import Decimal, ROUND_HALF_UP
+            from decimal import ROUND_HALF_UP, Decimal
 
             for item_data in items_data:
                 product_id = item_data.get("product_id")
@@ -3166,7 +3176,7 @@ def loan_delete(request, pk):
 @transaction.atomic
 def loan_return(request, pk):
     """处理归还（支持部分归还）"""
-    from inventory.models import Warehouse, InventoryTransaction
+    from inventory.models import InventoryTransaction, Warehouse
 
     loan = get_object_or_404(SalesLoan, pk=pk, is_deleted=False)
 

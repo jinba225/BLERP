@@ -4,11 +4,12 @@
 支持自定义权限模型
 """
 
+from typing import List, Optional
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from django.core.cache import cache
 from django.db.models import Q
-from typing import List, Optional
 
 User = get_user_model()
 
@@ -41,7 +42,7 @@ class CustomBackend(ModelBackend):
             return cached_perms
 
         # 从数据库获取用户的自定义权限
-        from users.models import Permission, UserRole, Role
+        from users.models import Permission, Role, UserRole
 
         try:
             permissions = {}
@@ -165,7 +166,7 @@ class CustomBackend(ModelBackend):
         if not user_obj or user_obj.is_anonymous:
             return []
 
-        from users.models import Role, UserRole, Permission
+        from users.models import Permission, Role, UserRole
 
         try:
             # 获取用户的所有角色

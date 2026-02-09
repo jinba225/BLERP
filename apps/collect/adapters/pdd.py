@@ -2,14 +2,14 @@
 拼多多采集适配器
 支持拼多多开放平台API对接
 """
-import re
-import time
 import hashlib
 import logging
-from typing import Dict, Any
-from .base import BaseCollectAdapter
-from ..exceptions import CollectException, DataParseException, APIResponseException
+import re
+import time
+from typing import Any, Dict
 
+from ..exceptions import APIResponseException, CollectException, DataParseException
+from .base import BaseCollectAdapter
 
 logger = logging.getLogger(__name__)
 

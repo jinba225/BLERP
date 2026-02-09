@@ -2,14 +2,8 @@
 表单模块
 """
 from django import forms
-from .models import (
-    CollectTask,
-    FieldMapRule,
-    Platform,
-    Shop,
-    PricingRule,
-    ProductListing,
-)
+
+from .models import CollectTask, FieldMapRule, Platform, PricingRule, ProductListing, Shop
 
 
 class CollectTaskForm(forms.ModelForm):

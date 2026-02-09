@@ -9,9 +9,11 @@ Google Gemini Provider
 官方文档：https://ai.google.dev/gemini-api/docs
 """
 
-from typing import Dict, Any
-from .base import BaseAIProvider, AIResponse, ProviderException
+from typing import Any, Dict
+
 import requests
+
+from .base import AIResponse, BaseAIProvider, ProviderException
 
 
 class GeminiProvider(BaseAIProvider):

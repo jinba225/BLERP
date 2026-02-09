@@ -1,16 +1,18 @@
 """
 测试库存查询性能的管理命令
 """
-from django.core.management.base import BaseCommand
-from django.db import connection
-from django.core.paginator import Paginator
-from apps.inventory.models import InventoryStock, Warehouse
-from django.conf import settings
 import time
+
+from django.conf import settings
+from django.core.management.base import BaseCommand
+from django.core.paginator import Paginator
+from django.db import connection
+
+from apps.inventory.models import InventoryStock, Warehouse
 
 
 class Command(BaseCommand):
-    help = '测试库存查询性能'
+    help = "测试库存查询性能"
 
     def handle(self, *args, **options):
         # 启用查询日志
@@ -36,15 +38,13 @@ class Command(BaseCommand):
         self.stdout.write("-" * 80)
         start = time.time()
 
-        stocks = InventoryStock.objects.filter(
-            is_deleted=False
-        ).select_related(
-            'product',
-            'product__category',
-            'product__unit',
-            'warehouse',
-            'location'
-        ).order_by('-created_at')
+        stocks = (
+            InventoryStock.objects.filter(is_deleted=False)
+            .select_related(
+                "product", "product__category", "product__unit", "warehouse", "location"
+            )
+            .order_by("-created_at")
+        )
 
         paginator = Paginator(stocks, 20)
         page_obj = paginator.get_page(1)

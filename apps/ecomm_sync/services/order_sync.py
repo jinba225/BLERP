@@ -1,6 +1,7 @@
-from django.utils import timezone
-from datetime import timedelta
 import logging
+from datetime import timedelta
+
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,8 @@ class OrderSyncService:
         Returns:
             同步结果
         """
-        from ecomm_sync.models import PlatformOrder, PlatformOrderItem
         from ecomm_sync.adapters import get_adapter
+        from ecomm_sync.models import PlatformOrder, PlatformOrderItem
 
         results = {"total": 0, "success": 0, "failed": 0, "errors": []}
 
@@ -137,8 +138,8 @@ class OrderSyncService:
         Returns:
             是否成功
         """
-        from ecomm_sync.models import PlatformOrder
         from ecomm_sync.adapters import get_adapter
+        from ecomm_sync.models import PlatformOrder
 
         try:
             order = PlatformOrder.objects.get(platform_order_id=platform_order_id)

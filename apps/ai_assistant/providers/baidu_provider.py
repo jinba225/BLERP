@@ -4,16 +4,18 @@
 支持 ERNIE-Bot-4.0, ERNIE-Bot-turbo 等模型
 """
 
-from typing import List, Dict, Any, Optional, Iterator
-import requests
 import json
+from typing import Any, Dict, Iterator, List, Optional
+
+import requests
+
 from .base import (
-    BaseAIProvider,
     AIResponse,
+    BaseAIProvider,
     ProviderAPIException,
     ProviderAuthException,
-    ProviderTimeoutException,
     ProviderRateLimitException,
+    ProviderTimeoutException,
 )
 
 

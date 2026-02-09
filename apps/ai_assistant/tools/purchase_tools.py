@@ -4,11 +4,13 @@
 提供AI操作采购业务的工具集
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
+
 from django.db.models import Q
-from suppliers.models import Supplier
-from purchase.models import PurchaseRequest, PurchaseOrder
 from products.models import Product
+from purchase.models import PurchaseOrder, PurchaseRequest
+from suppliers.models import Supplier
+
 from .base_tool import BaseTool, ToolResult
 
 
@@ -109,8 +111,10 @@ class CreatePurchaseRequestTool(BaseTool):
     ) -> ToolResult:
         """执行创建采购申请"""
         try:
-            from django.db import transaction
             from datetime import datetime
+
+            from django.db import transaction
+
             from common.utils import DocumentNumberGenerator
 
             # 验证产品

@@ -4,9 +4,9 @@
 用于在多轮对话中收集业务对象的明细列表，如订单明细、调拨明细等
 """
 
-from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class CollectionStatus(Enum):

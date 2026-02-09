@@ -1,8 +1,8 @@
 """电商同步URL配置"""
 from django.urls import path
+
 from . import api_views
 from .views.listing_views import listing_list
-
 
 urlpatterns = [
     # 前台视图路由

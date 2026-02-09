@@ -4,16 +4,18 @@ OpenAI Provider
 支持 GPT-4, GPT-3.5-turbo 等模型
 """
 
-from typing import List, Dict, Any, Optional, Iterator
+from typing import Any, Dict, Iterator, List, Optional
+
 import openai
 from openai import OpenAI
+
 from .base import (
-    BaseAIProvider,
     AIResponse,
+    BaseAIProvider,
     ProviderAPIException,
     ProviderAuthException,
-    ProviderTimeoutException,
     ProviderRateLimitException,
+    ProviderTimeoutException,
 )
 
 

@@ -4,10 +4,11 @@ Mock AI Provider - 用于测试
 模拟AI响应，无需真实API Key
 """
 
-import time
 import json
-from typing import List, Dict, Any, Optional
-from .base import BaseAIProvider, AIResponse
+import time
+from typing import Any, Dict, List, Optional
+
+from .base import AIResponse, BaseAIProvider
 
 
 class MockAIProvider(BaseAIProvider):

@@ -131,7 +131,7 @@ log "6. 启动服务..."
 
 if [ "$ENVIRONMENT" = "production" ]; then
     log "   生产环境启动..."
-    
+
     # 使用Docker Compose
     if command -v docker-compose &> /dev/null; then
         docker-compose -f docker-compose.prod.yml up -d
@@ -160,6 +160,6 @@ else
     log ""
     log "   按 Ctrl+C 停止服务器"
     echo ""
-    
+
     python3 manage.py runserver 0.0.0.0:8000
 fi

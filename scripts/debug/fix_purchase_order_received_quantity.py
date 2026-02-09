@@ -16,14 +16,16 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
 # 设置 Django 环境
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_erp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 
 import django
+
 django.setup()
 
-from purchase.models import PurchaseOrder, PurchaseReceiptItem
-from django.db.models import Sum
 from decimal import Decimal
+
+from django.db.models import Sum
+from purchase.models import PurchaseOrder, PurchaseReceiptItem
 
 
 def fix_order_received_quantities(order_number=None):
@@ -34,14 +36,11 @@ def fix_order_received_quantities(order_number=None):
         order_number: 指定订单号，如果为None则修复所有订单
     """
     if order_number:
-        orders = PurchaseOrder.objects.filter(
-            order_number=order_number,
-            is_deleted=False
-        )
+        orders = PurchaseOrder.objects.filter(order_number=order_number, is_deleted=False)
     else:
-        orders = PurchaseOrder.objects.filter(
-            is_deleted=False
-        ).exclude(status__in=['draft', 'cancelled'])
+        orders = PurchaseOrder.objects.filter(is_deleted=False).exclude(
+            status__in=["draft", "cancelled"]
+        )
 
     fixed_count = 0
     total_count = orders.count()
@@ -59,25 +58,23 @@ def fix_order_received_quantities(order_number=None):
             # 计算该订单明细的实际已收货数量
             # 从所有已收货状态的收货单明细中汇总
             actual_received = PurchaseReceiptItem.objects.filter(
-                order_item=item,
-                is_deleted=False,
-                receipt__status='received'  # 只计算已确认收货的
-            ).aggregate(
-                total=Sum('received_quantity')
-            )['total'] or Decimal('0')
+                order_item=item, is_deleted=False, receipt__status="received"  # 只计算已确认收货的
+            ).aggregate(total=Sum("received_quantity"))["total"] or Decimal("0")
 
             old_quantity = item.received_quantity
 
             # 如果数量不一致，更新
             if old_quantity != int(actual_received):
                 item.received_quantity = int(actual_received)
-                item.save(update_fields=['received_quantity', 'updated_at'])
-                updated_items.append({
-                    'item_id': item.id,
-                    'product': item.product.name,
-                    'old': old_quantity,
-                    'new': int(actual_received)
-                })
+                item.save(update_fields=["received_quantity", "updated_at"])
+                updated_items.append(
+                    {
+                        "item_id": item.id,
+                        "product": item.product.name,
+                        "old": old_quantity,
+                        "new": int(actual_received),
+                    }
+                )
                 print(f"  ✓ 产品: {item.product.name}")
                 print(f"    旧值: {old_quantity}, 新值: {int(actual_received)}")
 
@@ -94,21 +91,12 @@ def fix_order_received_quantities(order_number=None):
     print("=" * 80)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='修复采购订单已收货数量')
-    parser.add_argument(
-        '--order',
-        type=str,
-        help='指定订单号（可选）',
-        default=None
-    )
-    parser.add_argument(
-        '--yes',
-        action='store_true',
-        help='跳过确认直接执行'
-    )
+    parser = argparse.ArgumentParser(description="修复采购订单已收货数量")
+    parser.add_argument("--order", type=str, help="指定订单号（可选）", default=None)
+    parser.add_argument("--yes", action="store_true", help="跳过确认直接执行")
 
     args = parser.parse_args()
 
@@ -129,7 +117,7 @@ if __name__ == '__main__':
         else:
             confirm = input("确认要修复所有订单吗？(yes/no): ")
 
-        if confirm.lower() not in ['yes', 'y']:
+        if confirm.lower() not in ["yes", "y"]:
             print("操作已取消")
             sys.exit(0)
 

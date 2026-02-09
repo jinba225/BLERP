@@ -1,14 +1,15 @@
 """
 Core tasks for the ERP system.
 """
+import logging
+import shlex
+import subprocess
+from datetime import timedelta
+from pathlib import Path
+
 from celery import shared_task
 from django.conf import settings
-from pathlib import Path
-import subprocess
-import shlex
 from django.utils import timezone
-from datetime import timedelta
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -67,8 +68,9 @@ def backup_database():
 def send_system_notifications():
     """Send system notifications via email."""
     try:
-        from django.core.mail import send_mail
         from django.conf import settings
+        from django.core.mail import send_mail
+
         from .models import Notification
 
         # Get notifications created in the last hour
@@ -127,8 +129,8 @@ def send_system_notifications():
 def update_system_status():
     """Update system status metrics."""
     try:
-        from django.db import connection
         from django.core.cache import cache
+        from django.db import connection
 
         # Check database connection
         with connection.cursor() as cursor:
@@ -158,8 +160,8 @@ def generate_daily_summary():
     """Generate daily summary report."""
     try:
         from django.contrib.auth import get_user_model
-        from sales.models import SalesOrder
         from purchase.models import PurchaseOrder
+        from sales.models import SalesOrder
 
         User = get_user_model()
         today = timezone.now().date()

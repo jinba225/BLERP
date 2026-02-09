@@ -3,9 +3,9 @@
 
 支持多物流公司对接、物流追踪、成本管理等功能
 """
-from django.db import models
-from django.core.validators import URLValidator
 from core.models import BaseModel
+from django.core.validators import URLValidator
+from django.db import models
 
 
 class LogisticsCompany(BaseModel):

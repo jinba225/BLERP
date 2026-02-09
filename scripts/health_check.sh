@@ -61,7 +61,7 @@ fi
 # 检查环境变量文件
 if [ -f .env ]; then
     check_pass ".env文件存在"
-    
+
     # 检查DEBUG模式
     if grep -q "DEBUG=False" .env; then
         check_pass "生产环境配置: DEBUG=False"
@@ -70,7 +70,7 @@ if [ -f .env ]; then
     else
         check_fail "DEBUG未配置"
     fi
-    
+
     # 检查SECRET_KEY
     if grep -q "SECRET_KEY=django-insecure" .env; then
         check_fail "使用默认SECRET_KEY（不安全）"
@@ -92,7 +92,7 @@ echo "💾 数据库检查..."
 if [ -f db.sqlite3 ]; then
     DB_SIZE=$(du -h db.sqlite3 | cut -f1)
     check_pass "SQLite数据库存在: $DB_SIZE"
-    
+
     # 检查数据库权限
     if [ -r db.sqlite3 ] && [ -w db.sqlite3 ]; then
         check_pass "数据库权限正常"
@@ -276,7 +276,7 @@ if [ -d "backups" ]; then
     if [ "$BACKUP_COUNT" -gt 0 ]; then
         LATEST_BACKUP=$(ls -t backups/*.sql.gz backups/*.sqlite3.gz 2>/dev/null | head -1)
         BACKUP_AGE=$(find "$LATEST_BACKUP" -mtime +1 2>/dev/null && echo "old" || echo "recent")
-        
+
         if [ "$BACKUP_AGE" = "recent" ]; then
             check_pass "备份存在: $BACKUP_COUNT 个文件（最新备份24小时内）"
         else

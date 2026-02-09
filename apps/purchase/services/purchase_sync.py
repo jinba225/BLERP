@@ -8,17 +8,20 @@
 - 采购单自动补货提醒
 """
 import logging
-from django.utils import timezone
-from django.db.models import Q, F
-from django.db import transaction, models
 from decimal import Decimal
 
-from purchase.models import PurchaseOrder, PurchaseOrderItem
-from purchase.models import PurchaseOrderItemPlatformMap, PurchaseSyncQueue
+from django.db import models, transaction
+from django.db.models import F, Q
+from django.utils import timezone
 from ecomm_sync.adapters import get_adapter as get_platform_adapter
 from ecomm_sync.models import ProductListing
 from inventory.models import InventoryStock
-
+from purchase.models import (
+    PurchaseOrder,
+    PurchaseOrderItem,
+    PurchaseOrderItemPlatformMap,
+    PurchaseSyncQueue,
+)
 
 logger = logging.getLogger(__name__)
 

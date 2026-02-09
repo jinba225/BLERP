@@ -4,10 +4,11 @@ AI助手异步任务
 提供消息处理、会话清理等异步任务
 """
 
+import logging
+from datetime import timedelta
+
 from celery import shared_task
 from django.utils import timezone
-from datetime import timedelta
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +26,11 @@ def process_message_async(self, message_data: dict, user_id: int):
         处理结果
     """
     try:
-        from django.contrib.auth import get_user_model
+        from datetime import datetime
+
         from ai_assistant.channels.base_channel import IncomingMessage
         from ai_assistant.channels.message_handler import MessageHandler
-        from datetime import datetime
+        from django.contrib.auth import get_user_model
 
         User = get_user_model()
 
@@ -90,8 +92,8 @@ def execute_tool_async(self, tool_name: str, user_id: int, parameters: dict):
         工具执行结果
     """
     try:
-        from django.contrib.auth import get_user_model
         from ai_assistant.tools.registry import ToolRegistry
+        from django.contrib.auth import get_user_model
 
         User = get_user_model()
 

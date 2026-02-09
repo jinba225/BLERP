@@ -1,11 +1,12 @@
 import logging
-from typing import List, Dict
-from django.utils import timezone
+from typing import Dict, List
+
 from django.db import transaction
-from .api import WooCommerceAPI
-from .mapper import WooCommerceMapper
+from django.utils import timezone
 from ecomm_sync.models import EcommProduct, ProductChangeLog, SyncLog
 
+from .api import WooCommerceAPI
+from .mapper import WooCommerceMapper
 
 logger = logging.getLogger(__name__)
 

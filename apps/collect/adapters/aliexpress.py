@@ -2,16 +2,16 @@
 阿里国际站（AliExpress）采集适配器
 支持AliExpress开放平台API对接
 """
+import base64
+import hashlib
+import hmac
+import logging
 import re
 import time
-import hmac
-import hashlib
-import base64
-import logging
-from typing import Dict, Any, List
-from .base import BaseCollectAdapter
-from ..exceptions import CollectException, DataParseException, APIResponseException
+from typing import Any, Dict, List
 
+from ..exceptions import APIResponseException, CollectException, DataParseException
+from .base import BaseCollectAdapter
 
 logger = logging.getLogger(__name__)
 

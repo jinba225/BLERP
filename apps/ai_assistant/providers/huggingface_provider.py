@@ -10,9 +10,11 @@ Hugging Face Provider - 开源模型平台
 官方文档：https://huggingface.co/docs/api-inference
 """
 
-from typing import Dict, Any
-from .base import BaseAIProvider, AIResponse
+from typing import Any, Dict
+
 import requests
+
+from .base import AIResponse, BaseAIProvider
 
 
 class HuggingFaceProvider(BaseAIProvider):

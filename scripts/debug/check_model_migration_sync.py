@@ -5,8 +5,8 @@
 找出所有在迁移中添加但模型中缺失的字段
 """
 import os
-import sys
 import re
+import sys
 from pathlib import Path
 
 # 设置 Django 环境
@@ -17,8 +17,8 @@ import django
 
 django.setup()
 
-from django.db import models
 from django.apps import apps
+from django.db import models
 
 
 def get_migration_fields():

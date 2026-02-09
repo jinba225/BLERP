@@ -4,22 +4,25 @@
 提供财务业务的创建功能，包括凭证、收付款、预付款、费用等
 """
 
-from typing import Dict, Any
+from datetime import datetime
+from typing import Any, Dict
+
+from customers.models import Customer
 from django.db import transaction
 from django.utils import timezone
-from datetime import datetime
 from finance.models import (
+    Account,
+    CustomerPrepayment,
+    Expense,
     Journal,
     JournalEntry,
     Payment,
-    CustomerPrepayment,
     SupplierPrepayment,
-    Expense,
-    Account,
 )
-from customers.models import Customer
 from suppliers.models import Supplier
+
 from common.utils import DocumentNumberGenerator
+
 from .base_tool import BaseTool, ToolResult
 
 

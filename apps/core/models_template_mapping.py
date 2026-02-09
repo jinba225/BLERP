@@ -2,8 +2,8 @@
 Default template mapping models.
 Defines which template is the default for each document type.
 """
-from django.db import models
 from core.models import BaseModel
+from django.db import models
 
 
 class DefaultTemplateMapping(BaseModel):

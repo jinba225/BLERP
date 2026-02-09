@@ -1,15 +1,14 @@
 """
 高级分析数据模型
 """
-from django.db import models
-from django.db.models import Count, Sum, Avg, F, Q, Func, Window
-from django.db.models.functions import Trunc, Extract
-from django.db.models.expressions import RowNumber
-from django.utils import timezone
-
+from bi.models import Dashboard, InventoryAnalysis, PlatformComparison, ProductSales, SalesSummary
 from core.models import BaseModel, Platform, Shop
+from django.db import models
+from django.db.models import Avg, Count, F, Func, Q, Sum, Window
+from django.db.models.expressions import RowNumber
+from django.db.models.functions import Extract, Trunc
+from django.utils import timezone
 from products.models import Product
-from bi.models import SalesSummary, ProductSales, InventoryAnalysis, PlatformComparison, Dashboard
 
 
 class TrendPrediction(BaseModel):

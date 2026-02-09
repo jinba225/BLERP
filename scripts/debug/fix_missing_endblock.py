@@ -4,17 +4,18 @@
 """
 from pathlib import Path
 
+
 def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     """修复extra_js块缺少闭合标签的问题"""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    lines = content.split('\n')
+    lines = content.split("\n")
 
     # 查找 {% block extra_js %}
     extra_js_start = -1
     for i, line in enumerate(lines):
-        if '{% block extra_js %}' in line:
+        if "{% block extra_js %}" in line:
             extra_js_start = i
             break
 
@@ -24,7 +25,7 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     # 从extra_js开始，查找</script>标签
     script_end = -1
     for i in range(extra_js_start, len(lines)):
-        if '</script>' in lines[i]:
+        if "</script>" in lines[i]:
             script_end = i
             break
 
@@ -35,7 +36,7 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     has_endblock = False
     endblock_line = -1
     for i in range(script_end + 1, min(script_end + 10, len(lines))):
-        if '{% endblock %}' in lines[i]:
+        if "{% endblock %}" in lines[i]:
             has_endblock = True
             endblock_line = i
             break
@@ -43,15 +44,15 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     # 如果没有找到{% endblock %}，添加一个
     if not has_endblock:
         # 在</script>后添加{% endblock %}
-        lines.insert(script_end + 1, '{% endblock %}')
+        lines.insert(script_end + 1, "{% endblock %}")
 
         # 删除之后的所有内容
-        new_lines = lines[:script_end + 2]
+        new_lines = lines[: script_end + 2]
 
-        new_content = '\n'.join(new_lines)
+        new_content = "\n".join(new_lines)
 
         if new_content != content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
             return True
     else:
@@ -64,16 +65,16 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
 
         if has_more_content:
             # 删除endblock后的所有内容
-            new_lines = lines[:endblock_line + 1]
+            new_lines = lines[: endblock_line + 1]
 
             # 清理末尾的空行
             while new_lines and not new_lines[-1].strip():
                 new_lines.pop()
 
-            new_content = '\n'.join(new_lines)
+            new_content = "\n".join(new_lines)
 
             if new_content != content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(new_content)
                 return True
 

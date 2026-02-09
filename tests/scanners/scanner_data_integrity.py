@@ -277,8 +277,9 @@ class DataConsistencyScanner:
 
     def scan_purchase_orders(self):
         """扫描采购订单数据一致性"""
-        from apps.purchase.models import PurchaseOrder, PurchaseOrderItem
         from django.db.models import Sum
+
+        from apps.purchase.models import PurchaseOrder, PurchaseOrderItem
 
         issues = []
 
@@ -306,8 +307,9 @@ class DataConsistencyScanner:
 
     def scan_sales_orders(self):
         """扫描销售订单数据一致性"""
-        from apps.sales.models import SalesOrder, SalesOrderItem
         from django.db.models import Sum
+
+        from apps.sales.models import SalesOrder, SalesOrderItem
 
         issues = []
 

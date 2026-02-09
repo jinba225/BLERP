@@ -4,16 +4,18 @@
 提供采购业务的高级查询和操作工具，包括询价、收货、退货、借出等功能
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
+
 from django.db.models import Q
 from purchase.models import (
+    Borrow,
     PurchaseInquiry,
-    SupplierQuotation,
     PurchaseReceipt,
     PurchaseReturn,
-    Borrow,
+    SupplierQuotation,
 )
 from suppliers.models import Supplier
+
 from .base_tool import BaseTool, ToolResult
 
 

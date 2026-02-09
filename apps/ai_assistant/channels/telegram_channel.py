@@ -4,15 +4,16 @@ Telegram Bot集成
 通过Telegram Bot API实现消息收发
 """
 
-from typing import Optional
-from datetime import datetime
 import json
+from datetime import datetime
+from typing import Optional
+
 import requests
 from django.http import HttpRequest
 
-from .base_channel import BaseChannel, IncomingMessage, OutgoingMessage
 from ..models import TelegramConfig
 from ..utils import decrypt_api_key
+from .base_channel import BaseChannel, IncomingMessage, OutgoingMessage
 
 
 class TelegramChannel(BaseChannel):

@@ -4,23 +4,26 @@
 提供采购业务的创建功能，包括询价、收货、退货等
 """
 
-from typing import Dict, Any
+from datetime import datetime, timedelta
+from typing import Any, Dict
+
 from django.db import transaction
 from django.utils import timezone
-from datetime import datetime, timedelta
+from products.models import Product
 from purchase.models import (
     PurchaseInquiry,
     PurchaseInquiryItem,
-    SupplierQuotation,
-    SupplierQuotationItem,
     PurchaseReceipt,
     PurchaseReceiptItem,
     PurchaseReturn,
     PurchaseReturnItem,
+    SupplierQuotation,
+    SupplierQuotationItem,
 )
 from suppliers.models import Supplier
-from products.models import Product
+
 from common.utils import DocumentNumberGenerator
+
 from .base_tool import BaseTool, ToolResult
 
 

@@ -16,7 +16,7 @@
 **文件**: `apps/purchase/tests/test_e2e_purchase_flow.py`
 
 ✅ `test_complete_purchase_flow_single_receipt` - 一次性收货完整流程
-✅ `test_complete_purchase_flow_batch_receipt` - 分批收货完整流程  
+✅ `test_complete_purchase_flow_batch_receipt` - 分批收货完整流程
 ✅ `test_purchase_with_return_flow` - 收货后退货流程
 ✅ `test_purchase_edge_cases` - 边界条件测试
 
@@ -258,7 +258,7 @@ python -m pytest -n auto apps/**/test_e2e_*.py
 ### 修复4: 销售退货明细字段错误
 **问题**: `TypeError: SalesReturnItem() got unexpected keyword arguments: 'sales_return'`
 
-**解决**: 
+**解决**:
 - `sales_return` → `return_order`
 - `delivery_item` → `order_item`
 

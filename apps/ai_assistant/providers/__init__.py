@@ -2,18 +2,18 @@
 AI Providers 模块
 """
 
-from ai_assistant.providers.base import BaseAIProvider, AIResponse, ProviderException
-
-# 原有的 Provider
-from ai_assistant.providers.openai_provider import OpenAIProvider
 from ai_assistant.providers.anthropic_provider import AnthropicProvider
+from ai_assistant.providers.azure_provider import AzureProvider
 from ai_assistant.providers.baidu_provider import BaiduProvider
-from ai_assistant.providers.mock_provider import MockAIProvider
+from ai_assistant.providers.base import AIResponse, BaseAIProvider, ProviderException
 from ai_assistant.providers.deepseek_provider import DeepSeekProvider
 
 # 新增 10 个 Provider
 from ai_assistant.providers.google_provider import GeminiProvider as GoogleProvider
-from ai_assistant.providers.azure_provider import AzureProvider
+from ai_assistant.providers.mock_provider import MockAIProvider
+
+# 原有的 Provider
+from ai_assistant.providers.openai_provider import OpenAIProvider
 
 # AWS Bedrock Provider（如需要请取消注释并安装 boto3）
 # try:

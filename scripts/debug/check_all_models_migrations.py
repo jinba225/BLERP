@@ -5,8 +5,8 @@
 找出所有在迁移中添加但模型中缺失的字段
 """
 import os
-import sys
 import re
+import sys
 from pathlib import Path
 
 # 设置 Django 环境

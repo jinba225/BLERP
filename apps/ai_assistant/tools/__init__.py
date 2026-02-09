@@ -1,42 +1,38 @@
 """
 AI Assistant Tools
- 
+
 提供AI调用ERP系统的各类工具
 """
 
 from .base_tool import BaseTool, ToolResult
-from .registry import ToolRegistry
 
-# 销售工具
-from .sales_tools import (
-    SearchCustomerTool,
-    CreateSalesQuoteTool,
-    CreateSalesOrderTool,
-    QuerySalesOrdersTool,
-    GetOrderDetailTool,
-    ApproveSalesOrderTool,
-)
+# 库存工具
+from .inventory_tools import CheckInventoryTool, GetLowStockAlertTool, SearchProductTool
 
 # 采购工具
 from .purchase_tools import (
-    SearchSupplierTool,
+    ApprovePurchaseOrderTool,
     CreatePurchaseRequestTool,
     QueryPurchaseOrdersTool,
-    ApprovePurchaseOrderTool,
+    SearchSupplierTool,
 )
-
-# 库存工具
-from .inventory_tools import (
-    CheckInventoryTool,
-    SearchProductTool,
-    GetLowStockAlertTool,
-)
+from .registry import ToolRegistry
 
 # 报表工具
 from .report_tools import (
-    GenerateSalesReportTool,
-    GeneratePurchaseReportTool,
     GenerateInventoryReportTool,
+    GeneratePurchaseReportTool,
+    GenerateSalesReportTool,
+)
+
+# 销售工具
+from .sales_tools import (
+    ApproveSalesOrderTool,
+    CreateSalesOrderTool,
+    CreateSalesQuoteTool,
+    GetOrderDetailTool,
+    QuerySalesOrdersTool,
+    SearchCustomerTool,
 )
 
 __all__ = [

@@ -8,20 +8,21 @@ AI Service 统一服务接口
 4. Token统计
 """
 
-from typing import List, Dict, Any, Optional, Iterator
+import time
+import uuid
 from datetime import datetime
+from typing import Any, Dict, Iterator, List, Optional
+
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-import uuid
-import time
 
-from ..models import AIModelConfig, AIConversation, AIMessage
-from ..utils import decrypt_api_key
-from ..providers.base import BaseAIProvider, AIResponse
-from ..providers.openai_provider import OpenAIProvider
+from ..models import AIConversation, AIMessage, AIModelConfig
 from ..providers.anthropic_provider import AnthropicProvider
 from ..providers.baidu_provider import BaiduProvider
+from ..providers.base import AIResponse, BaseAIProvider
 from ..providers.mock_provider import MockAIProvider
+from ..providers.openai_provider import OpenAIProvider
+from ..utils import decrypt_api_key
 
 User = get_user_model()
 

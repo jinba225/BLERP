@@ -8,9 +8,11 @@ Groq Provider - 高性能、低延迟
 官方文档：https://console.groq.com/docs
 """
 
-from typing import Dict, Any, Optional
-from .base import BaseAIProvider, AIResponse
+from typing import Any, Dict, Optional
+
 import openai
+
+from .base import AIResponse, BaseAIProvider
 
 
 class GroqProvider(BaseAIProvider):

@@ -1,20 +1,21 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
+
 from .models import (
-    PurchaseOrder,
-    PurchaseOrderItem,
-    PurchaseRequest,
-    PurchaseRequestItem,
-    PurchaseReceipt,
-    PurchaseReceiptItem,
-    PurchaseReturn,
-    PurchaseReturnItem,
-    PurchaseInquiry,
-    PurchaseInquiryItem,
-    SupplierQuotation,
-    SupplierQuotationItem,
     Borrow,
     BorrowItem,
+    PurchaseInquiry,
+    PurchaseInquiryItem,
+    PurchaseOrder,
+    PurchaseOrderItem,
+    PurchaseReceipt,
+    PurchaseReceiptItem,
+    PurchaseRequest,
+    PurchaseRequestItem,
+    PurchaseReturn,
+    PurchaseReturnItem,
+    SupplierQuotation,
+    SupplierQuotationItem,
 )
 from .resources import (
     PurchaseOrderResource,

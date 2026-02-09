@@ -4,16 +4,17 @@ AI助手 Admin 后台管理
 
 from django.contrib import admin
 from django.utils.html import format_html
+
 from .models import (
-    AIModelConfig,
     AIConversation,
     AIMessage,
+    AIModelConfig,
     AITool,
-    WeChatConfig,
-    DingTalkConfig,
-    TelegramConfig,
     AIToolExecutionLog,
     ChannelUserMapping,
+    DingTalkConfig,
+    TelegramConfig,
+    WeChatConfig,
 )
 
 

@@ -2,17 +2,18 @@
 告警服务 - 规则引擎和通知服务
 支持钉钉、邮件通知，告警收敛，规则引擎
 """
-import time
-import logging
 import json
-from typing import Dict, List, Optional
+import logging
+import time
 from datetime import datetime, timedelta
-from django.core.cache import cache
-from django.conf import settings
-from decouple import config
-from .monitor import get_monitor
-from .config import ALERT_RULES, DINGTALK_CONFIG, EMAIL_ALERT_CONFIG
+from typing import Dict, List, Optional
 
+from decouple import config
+from django.conf import settings
+from django.core.cache import cache
+
+from .config import ALERT_RULES, DINGTALK_CONFIG, EMAIL_ALERT_CONFIG
+from .monitor import get_monitor
 
 logger = logging.getLogger(__name__)
 
@@ -219,11 +220,12 @@ class AlertingService:
             return
 
         try:
-            import requests
-            import hmac
-            import hashlib
             import base64
+            import hashlib
+            import hmac
             import urllib.parse
+
+            import requests
 
             # 构造消息
             title = f"【{rule['severity'].upper()}】{rule['name']}"
@@ -294,8 +296,8 @@ class AlertingService:
             return
 
         try:
-            from django.core.mail import send_mail
             from django.conf import settings
+            from django.core.mail import send_mail
 
             # 构造邮件
             subject = f"{EMAIL_ALERT_CONFIG['subject_prefix']}{rule['name']} - {alert['platform']}"

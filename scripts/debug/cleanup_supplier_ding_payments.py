@@ -13,13 +13,14 @@
 3. 重新核销应付账款明细
 """
 import os
+
 import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 django.setup()
 
-from finance.models import Payment, SupplierAccount, SupplierAccountDetail
 from django.db import transaction
+from finance.models import Payment, SupplierAccount, SupplierAccountDetail
 
 
 @transaction.atomic

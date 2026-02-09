@@ -1,36 +1,36 @@
 """
 BI报表API视图
 """
-from rest_framework import viewsets, status
+from django.db.models import Avg, Count, F, Sum
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Sum, Count, Avg, F
 
 from .models import (
+    Dashboard,
+    DashboardWidget,
+    InventoryAnalysis,
+    PlatformComparison,
+    ProductSales,
     Report,
     ReportData,
     SalesSummary,
-    ProductSales,
-    InventoryAnalysis,
-    PlatformComparison,
-    Dashboard,
-    DashboardWidget,
 )
 from .serializers import (
-    ReportSerializer,
-    ReportDataSerializer,
-    SalesSummarySerializer,
-    ProductSalesSerializer,
-    InventoryAnalysisSerializer,
-    PlatformComparisonSerializer,
     DashboardSerializer,
     DashboardWidgetSerializer,
+    InventoryAnalysisSerializer,
+    PlatformComparisonSerializer,
+    ProductSalesSerializer,
+    ReportDataSerializer,
+    ReportSerializer,
+    SalesSummarySerializer,
 )
 from .services import (
-    SalesReportService,
     InventoryReportService,
     PlatformComparisonService,
     ReportGenerator,
+    SalesReportService,
 )
 
 
@@ -322,6 +322,7 @@ class DataExportViewSet(viewsets.ViewSet):
         if format == "csv":
             # 生成CSV格式
             import csv
+
             from django.http import HttpResponse
 
             response = HttpResponse(content_type="text/csv")

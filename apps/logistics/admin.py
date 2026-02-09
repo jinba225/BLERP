@@ -4,9 +4,9 @@
 from django.contrib import admin
 from logistics.models import (
     LogisticsCompany,
+    LogisticsCost,
     ShippingOrder,
     TrackingInfo,
-    LogisticsCost,
     WaybillTemplate,
 )
 

@@ -1,22 +1,23 @@
 """
 Authentication views for the ERP system.
 """
-from drf_spectacular.utils import extend_schema, OpenApiResponse
+from django.conf import settings
+from django.contrib.auth import get_user_model, login, logout
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from django.contrib.auth import login, logout, get_user_model
-from django.conf import settings
+
+from .authentication import generate_jwt_token
 from .serializers import (
     LoginSerializer,
-    TokenSerializer,
     PasswordChangeSerializer,
-    PasswordResetSerializer,
     PasswordResetConfirmSerializer,
+    PasswordResetSerializer,
+    TokenSerializer,
     UserInfoSerializer,
 )
-from .authentication import generate_jwt_token
 
 User = get_user_model()
 
@@ -88,8 +89,8 @@ def login_view(request):
 def logout_view(request):
     """User logout API."""
     # Update login log
-    from users.models import LoginLog
     from django.utils import timezone
+    from users.models import LoginLog
 
     try:
         login_log = LoginLog.objects.filter(user=request.user, logout_time__isnull=True).latest(
@@ -176,9 +177,9 @@ def password_reset_view(request):
 
             # Generate token and uid
             from django.contrib.auth.tokens import default_token_generator
-            from django.utils.http import urlsafe_base64_encode
-            from django.utils.encoding import force_bytes
             from django.core.mail import send_mail
+            from django.utils.encoding import force_bytes
+            from django.utils.http import urlsafe_base64_encode
 
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -244,8 +245,8 @@ def password_reset_confirm_view(request):
         new_password = serializer.validated_data["new_password"]
 
         from django.contrib.auth.tokens import default_token_generator
-        from django.utils.http import urlsafe_base64_decode
         from django.utils.encoding import force_str
+        from django.utils.http import urlsafe_base64_decode
 
         try:
             uid_str = force_str(urlsafe_base64_decode(uid))

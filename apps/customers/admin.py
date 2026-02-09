@@ -3,15 +3,16 @@ Customer admin configuration.
 """
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
+
 from .models import (
-    CustomerCategory,
     Customer,
-    CustomerContact,
     CustomerAddress,
+    CustomerCategory,
+    CustomerContact,
     CustomerCreditHistory,
     CustomerVisit,
 )
-from .resources import CustomerResource, CustomerContactResource
+from .resources import CustomerContactResource, CustomerResource
 
 
 @admin.register(CustomerCategory)

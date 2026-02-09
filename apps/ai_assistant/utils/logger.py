@@ -6,8 +6,8 @@ AI助手日志工具
 
 import logging
 import sys
-from typing import Optional, Any, Dict
 from datetime import datetime
+from typing import Any, Dict, Optional
 
 
 class AIAssistantLogger:

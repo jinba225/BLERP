@@ -1,8 +1,9 @@
 """
 Custom template filters for inventory app.
 """
-from django import template
 from decimal import Decimal
+
+from django import template
 
 register = template.Library()
 

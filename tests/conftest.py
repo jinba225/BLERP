@@ -4,10 +4,10 @@ pytest全局配置和fixtures
 提供标准测试数据fixtures，用于所有E2E测试
 """
 
-import pytest
 from decimal import Decimal
-from django.contrib.auth import get_user_model
 
+import pytest
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 

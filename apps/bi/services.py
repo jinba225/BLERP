@@ -1,27 +1,27 @@
 """
 BI报表服务
 """
-from datetime import datetime, date, timedelta
-from typing import Dict, List, Optional
+from datetime import date, datetime, timedelta
 from decimal import Decimal
-from django.db.models import Sum, Count, Avg, F, Q, Case, When, Value, IntegerField
-from django.db.models.functions import Coalesce
+from typing import Dict, List, Optional
+
+from core.models import Platform, Shop
+from django.db.models import Avg, Case, Count, F, IntegerField, Q, Sum, Value, When
 from django.db.models.expressions import Window
-from django.db.models.functions import Rank
+from django.db.models.functions import Coalesce, Rank
+from ecomm_sync.models import PlatformOrder, PlatformOrderItem
+from products.models import Product
 
 from .models import (
+    Dashboard,
+    DashboardWidget,
+    InventoryAnalysis,
+    PlatformComparison,
+    ProductSales,
     Report,
     ReportData,
     SalesSummary,
-    ProductSales,
-    InventoryAnalysis,
-    PlatformComparison,
-    Dashboard,
-    DashboardWidget,
 )
-from ecomm_sync.models import PlatformOrder, PlatformOrderItem
-from core.models import Platform, Shop
-from products.models import Product
 
 
 class SalesReportService:

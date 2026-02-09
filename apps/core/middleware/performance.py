@@ -3,11 +3,12 @@
 
 监控页面响应时间和数据库查询性能，识别慢请求。
 """
-import time
 import logging
+import time
+
+from django.conf import settings
 from django.db import connection
 from django.utils.deprecation import MiddlewareMixin
-from django.conf import settings
 
 logger = logging.getLogger("django_erp.performance")
 

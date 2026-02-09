@@ -1,7 +1,7 @@
 import asyncio
 import logging
-from celery import shared_task
 
+from celery import shared_task
 
 logger = logging.getLogger(__name__)
 
@@ -383,8 +383,8 @@ def sync_jumia_products_task(self, platform_account_id: int, limit: int = 100):
         platform_account_id: 平台账号ID
         limit: 同步数量限制
     """
-    from ecomm_sync.models import PlatformAccount
     from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步Jumia商品: 账号ID={platform_account_id}")
 
@@ -412,9 +412,10 @@ def sync_jumia_orders_task(self, platform_account_id: int, hours: int = 24):
         platform_account_id: 平台账号ID
         hours: 同步最近多少小时的订单
     """
-    from ecomm_sync.models import PlatformAccount
-    from ecomm_sync.adapters.base import get_adapter
     from datetime import datetime, timedelta
+
+    from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步Jumia订单: 账号ID={platform_account_id}, 最近{hours}小时")
 
@@ -445,8 +446,8 @@ def sync_cdiscount_products_task(self, platform_account_id: int, limit: int = 10
         platform_account_id: 平台账号ID
         limit: 同步数量限制
     """
-    from ecomm_sync.models import PlatformAccount
     from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步Cdiscount商品: 账号ID={platform_account_id}")
 
@@ -474,9 +475,10 @@ def sync_cdiscount_orders_task(self, platform_account_id: int, hours: int = 24):
         platform_account_id: 平台账号ID
         hours: 同步最近多少小时的订单
     """
-    from ecomm_sync.models import PlatformAccount
-    from ecomm_sync.adapters.base import get_adapter
     from datetime import datetime, timedelta
+
+    from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步Cdiscount订单: 账号ID={platform_account_id}, 最近{hours}小时")
 
@@ -507,8 +509,8 @@ def sync_shopee_products_task(self, platform_account_id: int, limit: int = 100):
         platform_account_id: 平台账号ID
         limit: 同步数量限制
     """
-    from ecomm_sync.models import PlatformAccount
     from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步Shopee商品: 账号ID={platform_account_id}")
 
@@ -536,9 +538,10 @@ def sync_shopee_orders_task(self, platform_account_id: int, hours: int = 24):
         platform_account_id: 平台账号ID
         hours: 同步最近多少小时的订单
     """
-    from ecomm_sync.models import PlatformAccount
-    from ecomm_sync.adapters.base import get_adapter
     from datetime import datetime, timedelta
+
+    from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步Shopee订单: 账号ID={platform_account_id}, 最近{hours}小时")
 
@@ -569,8 +572,8 @@ def sync_tiktok_products_task(self, platform_account_id: int, limit: int = 100):
         platform_account_id: 平台账号ID
         limit: 同步数量限制
     """
-    from ecomm_sync.models import PlatformAccount
     from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步TikTok Shop商品: 账号ID={platform_account_id}")
 
@@ -598,9 +601,10 @@ def sync_tiktok_orders_task(self, platform_account_id: int, hours: int = 24):
         platform_account_id: 平台账号ID
         hours: 同步最近多少小时的订单
     """
-    from ecomm_sync.models import PlatformAccount
-    from ecomm_sync.adapters.base import get_adapter
     from datetime import datetime, timedelta
+
+    from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步TikTok Shop订单: 账号ID={platform_account_id}, 最近{hours}小时")
 
@@ -631,8 +635,8 @@ def sync_temu_products_task(self, platform_account_id: int, limit: int = 100):
         platform_account_id: 平台账号ID
         limit: 同步数量限制
     """
-    from ecomm_sync.models import PlatformAccount
     from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步Temu商品: 账号ID={platform_account_id}")
 
@@ -660,9 +664,10 @@ def sync_temu_orders_task(self, platform_account_id: int, hours: int = 24):
         platform_account_id: 平台账号ID
         hours: 同步最近多少小时的订单
     """
-    from ecomm_sync.models import PlatformAccount
-    from ecomm_sync.adapters.base import get_adapter
     from datetime import datetime, timedelta
+
+    from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步Temu订单: 账号ID={platform_account_id}, 最近{hours}小时")
 
@@ -693,8 +698,8 @@ def sync_wish_products_task(self, platform_account_id: int, limit: int = 100):
         platform_account_id: 平台账号ID
         limit: 同步数量限制
     """
-    from ecomm_sync.models import PlatformAccount
     from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步Wish商品: 账号ID={platform_account_id}")
 
@@ -722,9 +727,10 @@ def sync_wish_orders_task(self, platform_account_id: int, hours: int = 24):
         platform_account_id: 平台账号ID
         hours: 同步最近多少小时的订单
     """
-    from ecomm_sync.models import PlatformAccount
-    from ecomm_sync.adapters.base import get_adapter
     from datetime import datetime, timedelta
+
+    from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步Wish订单: 账号ID={platform_account_id}, 最近{hours}小时")
 
@@ -755,8 +761,8 @@ def sync_mercadolibre_products_task(self, platform_account_id: int, limit: int =
         platform_account_id: 平台账号ID
         limit: 同步数量限制
     """
-    from ecomm_sync.models import PlatformAccount
     from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步MercadoLibre商品: 账号ID={platform_account_id}")
 
@@ -784,9 +790,10 @@ def sync_mercadolibre_orders_task(self, platform_account_id: int, hours: int = 2
         platform_account_id: 平台账号ID
         hours: 同步最近多少小时的订单
     """
-    from ecomm_sync.models import PlatformAccount
-    from ecomm_sync.adapters.base import get_adapter
     from datetime import datetime, timedelta
+
+    from ecomm_sync.adapters.base import get_adapter
+    from ecomm_sync.models import PlatformAccount
 
     logger.info(f"开始同步MercadoLibre订单: 账号ID={platform_account_id}, 最近{hours}小时")
 

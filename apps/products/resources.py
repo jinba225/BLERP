@@ -1,8 +1,9 @@
 """
 Products 模块的导入导出资源配置
 """
-from import_export import resources, fields
-from import_export.widgets import ForeignKeyWidget, DecimalWidget
+from import_export import fields, resources
+from import_export.widgets import DecimalWidget, ForeignKeyWidget
+
 from .models import Product, ProductCategory
 
 

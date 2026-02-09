@@ -3,6 +3,7 @@
 运行方式：python manage.py backfill_low_stock_flag
 """
 from django.core.management.base import BaseCommand
+
 from apps.inventory.models import InventoryStock
 
 

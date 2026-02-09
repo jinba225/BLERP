@@ -10,13 +10,11 @@ AWS Bedrock Provider
 官方文档：https://docs.aws.amazon.com/bedrock/
 """
 
-from typing import Dict, Any, Optional
-from .base import BaseAIProvider, AIResponse, ProviderException
+from typing import Any, Dict, Iterator, Optional
+
 import boto3
-from typing import Dict, Any, Optional, Iterator
-from .base import BaseAIProvider, AIResponse, ProviderException
-import boto3
-from .base import BaseAIProvider, AIResponse, ProviderException
+
+from .base import AIResponse, BaseAIProvider, ProviderException
 
 
 class BedrockProvider(BaseAIProvider):

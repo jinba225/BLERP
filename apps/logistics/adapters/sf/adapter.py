@@ -3,17 +3,17 @@
 
 参考顺丰API文档实现
 """
+import base64
 import hashlib
 import hmac
-import base64
-import time
 import logging
+import time
+from typing import Any, Dict, List
+
 import requests
-from typing import Dict, List, Any
 from logistics.adapters.base import LogisticsAdapterBase
 from logistics.adapters.factory import register_adapter
 from logistics.models import ShippingOrder
-
 
 logger = logging.getLogger(__name__)
 

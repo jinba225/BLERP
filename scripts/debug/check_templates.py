@@ -11,24 +11,24 @@ def check_template_syntax(file_path):
     issues = []
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
 
         # 检查连续的 {% endblock %}
         for i in range(len(lines) - 1):
             line1 = lines[i].strip()
-            line2 = lines[i+1].strip()
+            line2 = lines[i + 1].strip()
 
             # 检查连续的endblock
-            if line1 == '{% endblock %}' and line2 == '{% endblock %}':
+            if line1 == "{% endblock %}" and line2 == "{% endblock %}":
                 issues.append(f"第{i+1}行：连续的 {{% endblock %}}")
 
         # 检查未闭合的标签
         open_blocks = 0
         for i, line in enumerate(lines):
-            if '{% block' in line:
+            if "{% block" in line:
                 open_blocks += 1
-            if '{% endblock %}' in line:
+            if "{% endblock %}" in line:
                 open_blocks -= 1
             if open_blocks < 0:
                 issues.append(f"第{i+1}行：多余的 {{% endblock %}}")

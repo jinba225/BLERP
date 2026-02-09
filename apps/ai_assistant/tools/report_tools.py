@@ -4,12 +4,14 @@
 提供AI生成各类业务报表的工具集
 """
 
-from typing import Dict, Any
-from django.db.models import Sum, Count, Q
 from datetime import datetime, timedelta
-from sales.models import SalesOrder
-from purchase.models import PurchaseOrder
+from typing import Any, Dict
+
+from django.db.models import Count, Q, Sum
 from inventory.models import InventoryStock, InventoryTransaction
+from purchase.models import PurchaseOrder
+from sales.models import SalesOrder
+
 from .base_tool import BaseTool, ToolResult
 
 

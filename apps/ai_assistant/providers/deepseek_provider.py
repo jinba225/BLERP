@@ -4,10 +4,12 @@ DeepSeek AI Provider
 DeepSeek API 提供商实现
 """
 
-import httpx
 import asyncio
-from typing import List, Dict, Any, Optional, Iterator
-from .base import BaseAIProvider, AIResponse
+from typing import Any, Dict, Iterator, List, Optional
+
+import httpx
+
+from .base import AIResponse, BaseAIProvider
 
 
 class DeepSeekProvider(BaseAIProvider):

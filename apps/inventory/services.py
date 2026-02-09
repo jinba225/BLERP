@@ -2,21 +2,24 @@
 Inventory services for the ERP system.
 Handles business logic for Stock Adjustments, Transfers, Counts, and Inbound/Outbound Orders.
 """
+from decimal import Decimal
+
 from django.db import transaction
 from django.utils import timezone
-from decimal import Decimal
+
+from common.utils import DocumentNumberGenerator
+
 from .models import (
+    InboundOrder,
+    InboundOrderItem,
     InventoryStock,
     InventoryTransaction,
     StockAdjustment,
-    StockTransfer,
-    StockTransferItem,
     StockCount,
     StockCountItem,
-    InboundOrder,
-    InboundOrderItem,
+    StockTransfer,
+    StockTransferItem,
 )
-from common.utils import DocumentNumberGenerator
 
 
 class StockAdjustmentService:

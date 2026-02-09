@@ -3,13 +3,14 @@
 支持锁续期、死锁检测、超时自动释放
 """
 import asyncio
+import logging
 import time
 import uuid
-import logging
 from typing import Optional, contextmanager
-from django.core.cache import cache
-from ..config import DISTRIBUTED_LOCK_CONFIG
 
+from django.core.cache import cache
+
+from ..config import DISTRIBUTED_LOCK_CONFIG
 
 logger = logging.getLogger(__name__)
 

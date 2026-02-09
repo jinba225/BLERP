@@ -1,8 +1,8 @@
-import os
 import logging
-import requests
+import os
 from typing import List
 
+import requests
 
 logger = logging.getLogger(__name__)
 

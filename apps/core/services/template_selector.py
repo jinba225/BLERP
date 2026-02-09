@@ -3,7 +3,7 @@
 
 提供模板选择和默认模板获取功能，支持基于大类和适用性的智能排序。
 """
-from core.models import PrintTemplate, DefaultTemplateMapping
+from core.models import DefaultTemplateMapping, PrintTemplate
 
 
 class TemplateSelector:

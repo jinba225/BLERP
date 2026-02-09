@@ -5,10 +5,11 @@
 import os
 import shutil
 from datetime import datetime
+from io import StringIO
 from pathlib import Path
+
 from django.conf import settings
 from django.core.management import call_command
-from io import StringIO
 
 
 class BackupManager:

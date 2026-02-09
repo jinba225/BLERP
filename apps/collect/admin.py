@@ -2,14 +2,8 @@
 Admin后台配置
 """
 from django.contrib import admin
-from .models import (
-    Platform,
-    Shop,
-    CollectTask,
-    CollectItem,
-    FieldMapRule,
-    PricingRule,
-)
+
+from .models import CollectItem, CollectTask, FieldMapRule, Platform, PricingRule, Shop
 
 # ProductListing模型已在ecomm_sync/admin.py中注册，无需重复导入
 

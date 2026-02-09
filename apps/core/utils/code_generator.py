@@ -50,8 +50,9 @@ class CodeGenerator:
         Returns:
             str: Generated code like 'C0001', 'S0001', etc.
         """
-        from django.apps import apps
         import re
+
+        from django.apps import apps
 
         # Get the model
         app_label, model_name_only = model_name.split("_", 1)

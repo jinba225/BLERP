@@ -84,7 +84,7 @@
                                   }" x-text="getSyncStatusText(listing.sync_status)"></span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <a :href="`/admin/collect/productlisting/${listing.id}/change/`" 
+                            <a :href="`/admin/collect/productlisting/${listing.id}/change/`"
                                class="text-blue-600 hover:text-blue-900">编辑</a>
                         </td>
                     </tr>
@@ -105,18 +105,18 @@ document.addEventListener('alpine:init', () => {
         search: '',
         filterPlatform: '',
         filterStatus: '',
-        
+
         async initData() {
             await this.fetchPlatforms();
             await this.fetchListings();
         },
-        
+
         async fetchPlatforms() {
             const response = await fetch('/collect/platforms/');
             const data = await response.json();
             this.platforms = data.platforms?.filter(p => p.platform_type === 'cross') || [];
         },
-        
+
         async fetchListings() {
             const params = new URLSearchParams({
                 search: this.search,
@@ -127,11 +127,11 @@ document.addEventListener('alpine:init', () => {
             const data = await response.json();
             this.listings = data.listings || [];
         },
-        
+
         filterListings() {
             this.fetchListings();
         },
-        
+
         getListingStatusText(status) {
             const statusMap = {
                 'draft': '草稿',
@@ -140,7 +140,7 @@ document.addEventListener('alpine:init', () => {
             };
             return statusMap[status] || status;
         },
-        
+
         getSyncStatusText(status) {
             const statusMap = {
                 'pending': '待同步',

@@ -3,19 +3,21 @@
 调试库存列表查询性能
 """
 import os
-import django
 import time
+
+import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 django.setup()
 
-from django.db import connection, reset_queries
-from django.db.models import F, Sum
 from decimal import Decimal
-from apps.inventory.models import InventoryStock
 
 # 启用查询记录
 from django.conf import settings
+from django.db import connection, reset_queries
+from django.db.models import F, Sum
+
+from apps.inventory.models import InventoryStock
 
 settings.DEBUG = True
 

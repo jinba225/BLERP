@@ -3,14 +3,15 @@ TikTok Shop电商平台适配器
 
 TikTok Shop是TikTok旗下的电商平台
 """
-from ..base import BaseAdapter
-from typing import Dict, List
+import base64
 import hashlib
 import hmac
-import base64
 import json
-from datetime import datetime
 import logging
+from datetime import datetime
+from typing import Dict, List
+
+from ..base import BaseAdapter
 
 logger = logging.getLogger(__name__)
 

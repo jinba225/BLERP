@@ -1,9 +1,10 @@
 import asyncio
 import logging
 from typing import Dict, List, Optional
-from .base import BaseScraper
+
 from core.models import Platform
 
+from .base import BaseScraper
 
 logger = logging.getLogger(__name__)
 

@@ -3,13 +3,14 @@ Temu电商平台适配器
 
 Temu是拼多多旗下的跨境电商平台
 """
-from ..base import BaseAdapter
-from typing import Dict, List
 import hashlib
 import hmac
 import json
-from datetime import datetime
 import logging
+from datetime import datetime
+from typing import Dict, List
+
+from ..base import BaseAdapter
 
 logger = logging.getLogger(__name__)
 

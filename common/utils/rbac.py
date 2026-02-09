@@ -5,9 +5,10 @@ This module provides decorators for role and permission checking.
 """
 
 from functools import wraps
-from django.http import JsonResponse
+
 from django.contrib.auth import get_user_model
-from users.models import UserRole, Permission
+from django.http import JsonResponse
+from users.models import Permission, UserRole
 
 User = get_user_model()
 

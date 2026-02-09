@@ -4,25 +4,28 @@
 提供库存业务的创建功能，包括仓库、调拨、盘点、出入库、调整等
 """
 
-from typing import Dict, Any
+from datetime import datetime, timedelta
+from typing import Any, Dict
+
 from django.db import transaction
 from django.utils import timezone
-from datetime import datetime, timedelta
 from inventory.models import (
-    Warehouse,
-    StockTransfer,
-    StockTransferItem,
-    StockCount,
-    StockCountItem,
     InboundOrder,
     InboundOrderItem,
+    InventoryStock,
     OutboundOrder,
     OutboundOrderItem,
     StockAdjustment,
-    InventoryStock,
+    StockCount,
+    StockCountItem,
+    StockTransfer,
+    StockTransferItem,
+    Warehouse,
 )
 from products.models import Product
+
 from common.utils import DocumentNumberGenerator
+
 from .base_tool import BaseTool, ToolResult
 
 

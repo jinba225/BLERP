@@ -1,7 +1,7 @@
 """仪表盘视图"""
 import logging
-from django.utils import timezone
 
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 

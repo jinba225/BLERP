@@ -2,8 +2,10 @@
 Core serializers for ERP system.
 """
 from typing import Any
+
 from rest_framework import serializers
-from .models import Company, SystemConfig, Attachment, AuditLog
+
+from .models import Attachment, AuditLog, Company, SystemConfig
 
 
 class CompanySerializer(serializers.ModelSerializer):

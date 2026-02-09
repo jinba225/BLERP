@@ -144,7 +144,7 @@ function orderForm() {
             orderDateInput.value = today;
         }
     });
-    
+
     return {
         items: {% if action == 'update' %}{{ order.items.all|safe }}{% else %}[] {% endif %},
         taxRate: {{ order.tax_rate|default:13 }},

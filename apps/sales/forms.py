@@ -1,11 +1,12 @@
 """
 Sales forms for the ERP system.
 """
+from datetime import timedelta
+
 from django import forms
 from django.forms import inlineformset_factory
 from django.utils import timezone
-from datetime import timedelta
-from datetime import timedelta
+
 from .models import Quote, QuoteItem, SalesOrder
 
 

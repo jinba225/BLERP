@@ -1,27 +1,28 @@
 """
 Core admin configuration.
 """
-from django.contrib import admin
-from django.contrib import messages
-from django.contrib.admin import helpers
+import re
+import shlex
+import subprocess
+from pathlib import Path
+
 from django import forms
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
+from django.contrib import admin, messages
+from django.contrib.admin import helpers
 from django.utils import timezone
-import subprocess
-import shlex
-import re
-from pathlib import Path
+from django.utils.translation import gettext_lazy as _
+
 from .models import (
-    Company,
-    SystemConfig,
     Attachment,
     AuditLog,
-    Notification,
-    PrintTemplate,
-    DefaultTemplateMapping,
     ChoiceOption,
     ChoiceOptionGroup,
+    Company,
+    DefaultTemplateMapping,
+    Notification,
+    PrintTemplate,
+    SystemConfig,
 )
 
 

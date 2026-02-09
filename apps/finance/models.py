@@ -1,11 +1,12 @@
 """
 Finance models for the ERP system.
 """
-from django.db import models
+from decimal import Decimal
+
+from core.models import BaseModel
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
-from decimal import Decimal
-from core.models import BaseModel
+from django.db import models
 
 User = get_user_model()
 
@@ -1336,8 +1337,8 @@ class Expense(BaseModel):
         if self.status != "approved":
             raise ValueError("只有已审批状态的费用单才能支付")
 
-        from django.utils import timezone
         from core.utils.document_number import DocumentNumberGenerator
+        from django.utils import timezone
 
         self.status = "paid"
         self.paid_by = paid_by_user

@@ -1,9 +1,10 @@
 """
 Authentication serializers for the ERP system.
 """
-from rest_framework import serializers
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
+
 from .authentication import generate_jwt_token
 
 User = get_user_model()

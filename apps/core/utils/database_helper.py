@@ -6,11 +6,12 @@ import os
 import shutil
 import subprocess
 from datetime import datetime
+from io import StringIO
 from pathlib import Path
+
 from django.conf import settings
 from django.core.management import call_command
 from django.db import connection
-from io import StringIO
 
 
 class DatabaseHelper:
@@ -238,13 +239,13 @@ class DatabaseHelper:
             }
 
             # 导入必要的模型
-            from django.db.models import Q
             from customers.models import Customer, CustomerContact
-            from suppliers.models import Supplier, SupplierContact
-            from products.models import Product, ProductCategory, Unit, Brand
-            from users.models import User
-            from inventory.models import Warehouse, Location
+            from django.db.models import Q
             from finance.models import TaxRate
+            from inventory.models import Location, Warehouse
+            from products.models import Brand, Product, ProductCategory, Unit
+            from suppliers.models import Supplier, SupplierContact
+            from users.models import User
 
             # ========== 预清理：硬删除所有已软删除的测试数据（释放唯一性约束）==========
             # 硬删除已软删除的客户
@@ -1368,28 +1369,28 @@ class DatabaseHelper:
             }
 
             # 导入模型
+            from core.models import DocumentNumberSequence
             from customers.models import Customer
-            from suppliers.models import Supplier
-            from products.models import Product, Unit, Brand, ProductCategory
-            from sales.models import SalesOrder, Quote, Delivery, SalesReturn
-            from purchase.models import (
-                PurchaseRequest,
-                PurchaseRequestItem,
-                PurchaseOrder,
-                PurchaseReturn,
-                PurchaseInquiry,
-                PurchaseReceipt,
-                Borrow,
-            )
             from finance.models import (
                 CustomerAccount,
+                FinancialReport,
+                Journal,
                 SupplierAccount,
                 TaxRate,
-                Journal,
-                FinancialReport,
             )
-            from inventory.models import InventoryStock, Warehouse, Location
-            from core.models import DocumentNumberSequence
+            from inventory.models import InventoryStock, Location, Warehouse
+            from products.models import Brand, Product, ProductCategory, Unit
+            from purchase.models import (
+                Borrow,
+                PurchaseInquiry,
+                PurchaseOrder,
+                PurchaseReceipt,
+                PurchaseRequest,
+                PurchaseRequestItem,
+                PurchaseReturn,
+            )
+            from sales.models import Delivery, Quote, SalesOrder, SalesReturn
+            from suppliers.models import Supplier
 
             # 步骤1: 硬删除所有已软删除的数据（释放唯一约束）
             # 遍历每个对象并调用 hard_delete 方法

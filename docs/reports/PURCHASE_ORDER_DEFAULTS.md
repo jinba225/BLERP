@@ -86,7 +86,7 @@ context = {
 <select name="buyer" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
 <option value="">请选择</option>
 {% for buyer in buyers %}
-<option value="{{ buyer.id }}" 
+<option value="{{ buyer.id }}"
     {% if order and order.buyer and order.buyer.id == buyer.id %}selected
     {% elif action == 'create' and default_buyer and default_buyer.id == buyer.id %}selected
     {% endif %}>
@@ -102,7 +102,7 @@ context = {
 <select name="warehouse" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
 <option value="">请选择</option>
 {% for warehouse in warehouses %}
-<option value="{{ warehouse.id }}" 
+<option value="{{ warehouse.id }}"
     {% if order and order.warehouse and order.warehouse.id == warehouse.id %}selected
     {% elif action == 'create' and default_warehouse and default_warehouse.id == warehouse.id %}selected
     {% endif %}>
@@ -114,7 +114,7 @@ context = {
 
 **逻辑说明**:
 1. **编辑模式** (`order` 存在): 使用订单原有的采购员和仓库
-2. **创建模式** (`action == 'create'`): 
+2. **创建模式** (`action == 'create'`):
    - 采购员：默认选中当前登录用户
    - 仓库：默认选中主仓库
 3. **手动选择**: 用户可以手动更改默认选择
@@ -254,5 +254,5 @@ http://127.0.0.1:8000/purchase/orders/create/
 
 ---
 
-*实施时间: 2026-02-08*  
+*实施时间: 2026-02-08*
 *实施人员: Claude (Sonnet 4.5)*

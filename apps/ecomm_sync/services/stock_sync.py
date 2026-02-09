@@ -1,4 +1,5 @@
 import logging
+
 from django.utils import timezone
 
 logger = logging.getLogger(__name__)
@@ -16,9 +17,9 @@ class StockSyncService:
         Returns:
             同步结果
         """
-        from inventory.models import ProductStock
-        from ecomm_sync.models import ProductListing
         from ecomm_sync.adapters import get_adapter
+        from ecomm_sync.models import ProductListing
+        from inventory.models import ProductStock
 
         stock = ProductStock.objects.filter(product__code=sku).first()
         if not stock:
@@ -66,10 +67,9 @@ class StockSyncService:
         Returns:
             同步结果
         """
-        from ecomm_sync.models import PlatformAccount, StockSyncQueue
-        from ecomm_sync.adapters import get_adapter
-
         from django.utils import timezone
+        from ecomm_sync.adapters import get_adapter
+        from ecomm_sync.models import PlatformAccount, StockSyncQueue
 
         platform = PlatformAccount.objects.get(id=platform_id).platform
         accounts = PlatformAccount.objects.filter(platform=platform, is_active=True)
@@ -112,8 +112,8 @@ class StockSyncService:
         Returns:
             处理结果
         """
-        from ecomm_sync.models import StockSyncQueue, ProductListing
         from ecomm_sync.adapters import get_adapter
+        from ecomm_sync.models import ProductListing, StockSyncQueue
         from inventory.models import ProductStock
 
         queues = (

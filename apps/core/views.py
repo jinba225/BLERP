@@ -1,17 +1,18 @@
 """
 Core views for the ERP system.
 """
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+from datetime import datetime, timedelta
+
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_protect
-from django.db.models import Sum, Count, F
+from django.db.models import Count, F, Sum
+from django.shortcuts import redirect, render
 from django.utils import timezone
-from datetime import datetime, timedelta
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_http_methods
+from django.views.generic import TemplateView
 
 
 @csrf_protect

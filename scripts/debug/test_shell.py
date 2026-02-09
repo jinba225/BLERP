@@ -4,21 +4,24 @@
 """
 import os
 import sys
-import django
 import time
+
+import django
 
 # 设置路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_erp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 
 # 启动 Django
 django.setup()
 
+from django.conf import settings
+from django.core.paginator import Paginator
+
 # 现在导入模型
 from django.db import connection
-from django.core.paginator import Paginator
+
 from apps.inventory.models import InventoryStock, Warehouse
-from django.conf import settings
 
 # 启用查询日志
 settings.DEBUG = True
@@ -45,15 +48,11 @@ def main():
     print("-" * 80)
     start = time.time()
 
-    stocks = InventoryStock.objects.filter(
-        is_deleted=False
-    ).select_related(
-        'product',
-        'product__category',
-        'product__unit',
-        'warehouse',
-        'location'
-    ).order_by('-created_at')
+    stocks = (
+        InventoryStock.objects.filter(is_deleted=False)
+        .select_related("product", "product__category", "product__unit", "warehouse", "location")
+        .order_by("-created_at")
+    )
 
     paginator = Paginator(stocks, 20)
     page_obj = paginator.get_page(1)
@@ -74,5 +73,5 @@ def main():
             print(f"{i}. {q['sql'][:150]}... ({q['time']}s)")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

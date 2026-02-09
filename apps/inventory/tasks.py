@@ -1,10 +1,11 @@
 """
 Inventory tasks for the ERP system.
 """
-from celery import shared_task
-from django.utils import timezone
-from django.db.models import F, Sum
 import logging
+
+from celery import shared_task
+from django.db.models import F, Sum
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -13,10 +14,11 @@ logger = logging.getLogger(__name__)
 def update_inventory_status():
     """Update inventory status and alerts."""
     try:
-        from .models import InventoryStock
-        from products.models import Product
         from core.models import Notification
         from django.contrib.auth import get_user_model
+        from products.models import Product
+
+        from .models import InventoryStock
 
         User = get_user_model()
 
@@ -61,10 +63,12 @@ def update_inventory_status():
 def check_expiring_products():
     """Check for products nearing expiration."""
     try:
-        from .models import InventoryTransaction
+        from datetime import timedelta
+
         from core.models import Notification
         from django.contrib.auth import get_user_model
-        from datetime import timedelta
+
+        from .models import InventoryTransaction
 
         User = get_user_model()
 
@@ -107,11 +111,12 @@ def check_expiring_products():
 def auto_reorder_products():
     """Automatically create reorder suggestions."""
     try:
-        from products.models import Product
-        from purchase.models import PurchaseRequest, PurchaseRequestItem
-        from common.utils import DocumentNumberGenerator
         from departments.models import Department
         from django.contrib.auth import get_user_model
+        from products.models import Product
+        from purchase.models import PurchaseRequest, PurchaseRequestItem
+
+        from common.utils import DocumentNumberGenerator
 
         User = get_user_model()
         system_user = User.objects.filter(is_superuser=True).first()  # Use a system user or admin

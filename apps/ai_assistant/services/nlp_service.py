@@ -14,13 +14,13 @@
 - query_order: 查询订单状态
 """
 
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass
-from enum import Enum
 import json
 import re
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
-from ai_assistant.providers import BaseAIProvider, AIResponse
+from ai_assistant.providers import AIResponse, BaseAIProvider
 
 
 class Intent(Enum):

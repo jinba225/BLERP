@@ -4,19 +4,20 @@
 """
 from pathlib import Path
 
+
 def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     """修复extra_js块缺少闭合标签的问题"""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    lines = content.split('\n')
+    lines = content.split("\n")
 
     print(f"文件总行数: {len(lines)}")
 
     # 查找 {% block extra_js %}
     extra_js_start = -1
     for i, line in enumerate(lines):
-        if '{% block extra_js %}' in line:
+        if "{% block extra_js %}" in line:
             extra_js_start = i
             print(f"找到 extra_js 开始于行 {i+1}")
             break
@@ -28,7 +29,7 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     # 从extra_js开始，查找</script>标签
     script_end = -1
     for i in range(extra_js_start, len(lines)):
-        if '</script>' in lines[i]:
+        if "</script>" in lines[i]:
             script_end = i
             print(f"找到 </script> 于行 {i+1}: {lines[i][:50]}")
             break
@@ -45,7 +46,7 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     for i in range(script_end + 1, min(script_end + 10, len(lines))):
         line_content = lines[i].strip()
         print(f"  行{i+1}: '{line_content[:80] if line_content else '(空)'}'")
-        if '{% endblock %}' in lines[i]:
+        if "{% endblock %}" in lines[i]:
             has_endblock = True
             endblock_line = i
             print(f"    --> 找到 endblock 于行 {i+1}!")
@@ -55,18 +56,18 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
     if not has_endblock:
         print(f"\n没有找到 endblock，将在行 {script_end+2} 添加")
         # 在</script>后添加{% endblock %}
-        lines.insert(script_end + 1, '{% endblock %}')
+        lines.insert(script_end + 1, "{% endblock %}")
 
         # 删除之后的所有内容
-        new_lines = lines[:script_end + 2]
+        new_lines = lines[: script_end + 2]
 
-        new_content = '\n'.join(new_lines)
+        new_content = "\n".join(new_lines)
 
         print(f"原文件: {len(content)} 字符, {len(lines)} 行")
         print(f"新文件: {len(new_content)} 字符, {len(new_lines)} 行")
 
         if new_content != content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
             return True
     else:
@@ -83,16 +84,16 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
         if has_more_content:
             print("删除 endblock 后的所有内容...")
             # 删除endblock后的所有内容
-            new_lines = lines[:endblock_line + 1]
+            new_lines = lines[: endblock_line + 1]
 
             # 清理末尾的空行
             while new_lines and not new_lines[-1].strip():
                 new_lines.pop()
 
-            new_content = '\n'.join(new_lines)
+            new_content = "\n".join(new_lines)
 
             if new_content != content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(new_content)
                 return True
         else:
@@ -102,14 +103,16 @@ def fix_missing_extra_js_endblock(file_path: Path) -> bool:
 
 
 def main():
-    test_file = Path("/Users/janjung/Code_Projects/django_erp/templates/modules/customers/customer_list.html")
+    test_file = Path(
+        "/Users/janjung/Code_Projects/django_erp/templates/modules/customers/customer_list.html"
+    )
 
     print(f"🔧 测试修复: {test_file.name}\n")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     result = fix_missing_extra_js_endblock(test_file)
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     if result:
         print("✅ 文件已修复")
     else:

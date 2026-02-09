@@ -4,17 +4,19 @@
 提供库存业务的高级查询和操作工具，包括仓库、调拨、盘点、出入库、调整等功能
 """
 
-from typing import Dict, Any
-from django.db.models import Q, Sum, F
+from typing import Any, Dict
+
+from django.db.models import F, Q, Sum
 from inventory.models import (
-    Warehouse,
-    InventoryStock,
-    StockTransfer,
-    StockCount,
     InboundOrder,
+    InventoryStock,
     OutboundOrder,
     StockAdjustment,
+    StockCount,
+    StockTransfer,
+    Warehouse,
 )
+
 from .base_tool import BaseTool, ToolResult
 
 

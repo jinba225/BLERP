@@ -15,14 +15,12 @@ def test_pytest_django_works():
 
     # 创建一个测试用户
     user = User.objects.create_user(
-        username='testuser',
-        email='test@example.com',
-        password='testpass123'
+        username="testuser", email="test@example.com", password="testpass123"
     )
 
     # 验证用户创建成功
-    assert user.username == 'testuser'
-    assert user.email == 'test@example.com'
+    assert user.username == "testuser"
+    assert user.email == "test@example.com"
     assert User.objects.count() == 1
 
 
@@ -32,7 +30,7 @@ def test_django_config_loaded():
     from django.conf import settings
 
     # 验证INSTALLED_APPS包含核心应用
-    assert 'purchase' in [app.split('.')[-1] for app in settings.INSTALLED_APPS]
-    assert 'sales' in [app.split('.')[-1] for app in settings.INSTALLED_APPS]
-    assert 'inventory' in [app.split('.')[-1] for app in settings.INSTALLED_APPS]
-    assert 'finance' in [app.split('.')[-1] for app in settings.INSTALLED_APPS]
+    assert "purchase" in [app.split(".")[-1] for app in settings.INSTALLED_APPS]
+    assert "sales" in [app.split(".")[-1] for app in settings.INSTALLED_APPS]
+    assert "inventory" in [app.split(".")[-1] for app in settings.INSTALLED_APPS]
+    assert "finance" in [app.split(".")[-1] for app in settings.INSTALLED_APPS]

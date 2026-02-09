@@ -1,31 +1,31 @@
 """
 实时数据服务
 """
+import json
+import logging
 from datetime import datetime, timedelta
 from typing import Dict, List
-import logging
-import json
-from django.db.models import Count, Sum
-from django.core.cache import cache
 
-from .models import (
-    RealtimeData,
-    RealtimeDashboard,
-    RealtimeWidget,
-    RealtimeMetric,
-    Dashboard,
-    DashboardWidget,
-)
-from .analytics.services import (
-    SalesReportService,
-    InventoryReportService,
-    PlatformComparisonService,
-)
-from ecomm_sync.models import PlatformOrder, PlatformOrderItem
+from bi.models import InventoryAnalysis, ProductSales, SalesSummary
 from core.models import Platform, Shop
-from bi.models import SalesSummary, ProductSales, InventoryAnalysis
+from django.core.cache import cache
+from django.db.models import Count, Sum
+from ecomm_sync.models import PlatformOrder, PlatformOrderItem
 from users.models import User
 
+from .analytics.services import (
+    InventoryReportService,
+    PlatformComparisonService,
+    SalesReportService,
+)
+from .models import (
+    Dashboard,
+    DashboardWidget,
+    RealtimeDashboard,
+    RealtimeData,
+    RealtimeMetric,
+    RealtimeWidget,
+)
 
 logger = logging.getLogger(__name__)
 

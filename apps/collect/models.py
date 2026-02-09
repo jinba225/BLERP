@@ -5,11 +5,12 @@
 1. Platform和Shop模型已移至core/models.py，统一管理
 2. ProductListing模型已存在于ecomm_sync/models.py，这里不再重复定义
 """
-from django.db import models
-from core.models import BaseModel, Platform, Shop
-from products.models import Product
-from django.core.exceptions import ValidationError
 import math
+
+from core.models import BaseModel, Platform, Shop
+from django.core.exceptions import ValidationError
+from django.db import models
+from products.models import Product
 
 
 class CollectTask(BaseModel):

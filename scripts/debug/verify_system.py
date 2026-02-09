@@ -6,6 +6,7 @@ Django ERP AI Assistant - 系统验证脚本
 
 import os
 import sys
+
 import django
 
 # 设置Django环境

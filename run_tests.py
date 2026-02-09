@@ -31,8 +31,9 @@ import django
 django.setup()
 
 import unittest
-from django.test.utils import get_runner
+
 from django.conf import settings
+from django.test.utils import get_runner
 
 
 def run_tests(test_labels=None, verbosity=2, keepdb=False):

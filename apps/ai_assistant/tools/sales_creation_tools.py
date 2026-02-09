@@ -4,14 +4,17 @@
 提供销售业务的创建功能，包括发货、退货、借货等
 """
 
-from typing import Dict, Any
+from datetime import datetime, timedelta
+from typing import Any, Dict
+
+from customers.models import Customer
 from django.db import transaction
 from django.utils import timezone
-from datetime import datetime, timedelta
-from sales.models import Delivery, SalesReturn, SalesLoan, Quote
-from customers.models import Customer
 from products.models import Product
+from sales.models import Delivery, Quote, SalesLoan, SalesReturn
+
 from common.utils import DocumentNumberGenerator
+
 from .base_tool import BaseTool, ToolResult
 
 
@@ -63,7 +66,7 @@ class CreateDeliveryTool(BaseTool):
     ) -> ToolResult:
         """执行创建发货单"""
         try:
-            from sales.models import SalesOrder, DeliveryItem
+            from sales.models import DeliveryItem, SalesOrder
 
             # 获取订单
             try:

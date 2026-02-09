@@ -1,8 +1,8 @@
 # 手动创建迁移 - 添加缺失的 updated_by 和 deleted_by 字段
 
+import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
-import django.db.models.deletion
 
 
 class Migration(migrations.Migration):

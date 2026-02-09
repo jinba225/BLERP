@@ -4,21 +4,24 @@
 """
 import os
 import sys
-import django
 import time
+
+import django
 
 # 设置 Django 环境
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_erp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 
 # 必须在 setup 之前设置 DEBUG
 from django.conf import settings
+
 settings.DEBUG = True
 
 django.setup()
 
-from django.db import connection, reset_queries
 from django.core.paginator import Paginator
+from django.db import connection, reset_queries
+
 from apps.inventory.models import InventoryStock
 
 
@@ -35,16 +38,11 @@ def test_query_performance():
     reset_queries()
     start_time = time.time()
 
-    stocks = InventoryStock.objects.filter(
-        is_deleted=False,
-        is_low_stock_flag=True
-    ).select_related(
-        'product',
-        'product__category',
-        'product__unit',
-        'warehouse',
-        'location'
-    ).order_by('-created_at')
+    stocks = (
+        InventoryStock.objects.filter(is_deleted=False, is_low_stock_flag=True)
+        .select_related("product", "product__category", "product__unit", "warehouse", "location")
+        .order_by("-created_at")
+    )
 
     # 执行查询
     list(stocks)  # 强制评估
@@ -69,15 +67,11 @@ def test_query_performance():
     reset_queries()
     start_time = time.time()
 
-    stocks = InventoryStock.objects.filter(
-        is_deleted=False
-    ).select_related(
-        'product',
-        'product__category',
-        'product__unit',
-        'warehouse',
-        'location'
-    ).order_by('-created_at')
+    stocks = (
+        InventoryStock.objects.filter(is_deleted=False)
+        .select_related("product", "product__category", "product__unit", "warehouse", "location")
+        .order_by("-created_at")
+    )
 
     paginator = Paginator(stocks, 20)
     page_obj = paginator.get_page(1)
@@ -105,15 +99,11 @@ def test_query_performance():
     reset_queries()
     start_time = time.time()
 
-    stocks = InventoryStock.objects.filter(
-        is_deleted=False
-    ).select_related(
-        'product',
-        'product__category',
-        'product__unit',
-        'warehouse',
-        'location'
-    ).order_by('-created_at')
+    stocks = (
+        InventoryStock.objects.filter(is_deleted=False)
+        .select_related("product", "product__category", "product__unit", "warehouse", "location")
+        .order_by("-created_at")
+    )
 
     paginator = Paginator(stocks, 20)
     page_obj = paginator.get_page(1)
@@ -147,10 +137,11 @@ def test_query_performance():
             print(f"耗时: {query['time']} 秒")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         test_query_performance()
     except Exception as e:
         print(f"❌ 错误: {e}")
         import traceback
+
         traceback.print_exc()

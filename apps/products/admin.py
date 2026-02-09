@@ -3,17 +3,18 @@ Product admin configuration.
 """
 from django.contrib import admin
 from django.utils.html import format_html
-from mptt.admin import MPTTModelAdmin
 from import_export.admin import ImportExportModelAdmin
+from mptt.admin import MPTTModelAdmin
+
 from .models import (
-    ProductCategory,
     Brand,
-    Unit,
     Product,
-    ProductImage,
     ProductAttribute,
     ProductAttributeValue,
+    ProductCategory,
+    ProductImage,
     ProductPrice,
+    Unit,
 )
 from .resources import ProductCategoryResource, ProductResource
 

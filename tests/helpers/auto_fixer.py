@@ -16,8 +16,9 @@ Django ERP 自动修复器
 """
 
 from decimal import Decimal
-from django.db.models import Sum
+
 from django.db import transaction
+from django.db.models import Sum
 
 
 class AutoFixer:

@@ -3,11 +3,12 @@ Django settings for django_erp project.
 """
 
 import os
-import sys
 import secrets
+import sys
 from pathlib import Path
-from decouple import config
+
 from celery.schedules import crontab
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -310,8 +311,8 @@ LOGGING = {
 # ============================================
 if not DEBUG:
     import sentry_sdk
-    from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.django import DjangoIntegration
 
     SENTRY_DSN = config("SENTRY_DSN", default=None)
 

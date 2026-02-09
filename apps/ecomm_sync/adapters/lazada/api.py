@@ -1,8 +1,9 @@
-from ..base import BaseAdapter
-from typing import Dict, List
-import time
 import hashlib
 import logging
+import time
+from typing import Dict, List
+
+from ..base import BaseAdapter
 
 logger = logging.getLogger(__name__)
 

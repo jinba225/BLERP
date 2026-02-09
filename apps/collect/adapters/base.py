@@ -2,19 +2,21 @@
 采集适配器模块
 采用适配器模式封装不同平台的采集逻辑
 """
-import requests
 import hashlib
-import time
 import re
+import time
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
+
+import requests
 from django.conf import settings
+
 from ..exceptions import (
-    CollectException,
-    PlatformConfigException,
-    NetworkException,
     APIResponseException,
+    CollectException,
     DataParseException,
+    NetworkException,
+    PlatformConfigException,
 )
 
 

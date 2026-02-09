@@ -1,19 +1,21 @@
 #!/usr/bin/env python
 """调试借用单一键全部入库功能"""
 import os
+
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_erp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 django.setup()
 
-from apps.purchase.models import Borrow
 from decimal import Decimal
+
+from apps.purchase.models import Borrow
 
 print("=" * 60)
 print("借用单调试信息")
 print("=" * 60)
 
-borrow = Borrow.objects.filter(pk=6).select_related('supplier').first()
+borrow = Borrow.objects.filter(pk=6).select_related("supplier").first()
 
 if not borrow:
     print("\n❌ 借用单 #6 不存在或已删除")
@@ -36,7 +38,7 @@ else:
 print("\n借用明细:")
 print("-" * 60)
 items = borrow.items.filter(is_deleted=False)
-total_borrowable = Decimal('0')
+total_borrowable = Decimal("0")
 
 for item in items:
     print(f"\n产品: {item.product.name} ({item.product.code})")

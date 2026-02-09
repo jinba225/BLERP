@@ -3,8 +3,9 @@ Supplier admin configuration.
 """
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
-from .models import SupplierCategory, Supplier, SupplierContact, SupplierProduct, SupplierEvaluation
-from .resources import SupplierResource, SupplierContactResource
+
+from .models import Supplier, SupplierCategory, SupplierContact, SupplierEvaluation, SupplierProduct
+from .resources import SupplierContactResource, SupplierResource
 
 
 @admin.register(SupplierCategory)

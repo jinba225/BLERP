@@ -4,9 +4,10 @@
 设置 DeepSeek API Key 并启用它作为默认 AI Provider
 """
 
-from django.core.management.base import BaseCommand
-from django.conf import settings
 from ai_assistant.models import AIModelConfig
+from django.conf import settings
+from django.core.management.base import BaseCommand
+
 from common.utils import encrypt_api_key
 
 

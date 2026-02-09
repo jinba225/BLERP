@@ -4,16 +4,18 @@ Anthropic Claude Provider
 支持 Claude-3-5-Sonnet, Claude-3-Opus 等模型
 """
 
-from typing import List, Dict, Any, Optional, Iterator
+from typing import Any, Dict, Iterator, List, Optional
+
 import anthropic
 from anthropic import Anthropic
+
 from .base import (
-    BaseAIProvider,
     AIResponse,
+    BaseAIProvider,
     ProviderAPIException,
     ProviderAuthException,
-    ProviderTimeoutException,
     ProviderRateLimitException,
+    ProviderTimeoutException,
 )
 
 

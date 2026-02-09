@@ -1,7 +1,6 @@
 """邮件通知器"""
 from django.core.mail import send_mail
 
-
 logger = logging.getLogger(__name__)
 
 

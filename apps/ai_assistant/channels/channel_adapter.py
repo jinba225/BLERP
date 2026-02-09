@@ -4,9 +4,9 @@
 将 AI 响应转换为不同渠道的特定格式
 """
 
-from typing import Dict, Any, Optional
-from ai_assistant.channels.base_channel import IncomingMessage, OutgoingMessage
+from typing import Any, Dict, Optional
 
+from ai_assistant.channels.base_channel import IncomingMessage, OutgoingMessage
 
 # SVG 图标
 SUCCESS_ICON = '<svg class="icon-success" viewBox="0 0 20 20"><path fill="currentColor" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>'

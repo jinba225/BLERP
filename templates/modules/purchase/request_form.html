@@ -69,14 +69,12 @@
 <table class="min-w-full">
 <thead class="bg-gray-50">
 <tr>
-<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase w-8">#</th>
+<th class="w-12 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">#</th>
 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">产品 *</th>
-<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">申请数量 *</th>
-<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">预估单价</th>
-<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">预估总价</th>
-<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase w-40">首选供应商</th>
-<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase w-32">规格要求</th>
-<th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-16">操作</th>
+<th class="w-32 px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">申请数量 *</th>
+<th class="w-44 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">首选供应商</th>
+<th class="w-40 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">规格要求</th>
+<th class="w-20 px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">操作</th>
 </tr>
 </thead>
 <tbody>
@@ -84,12 +82,109 @@
 <tr class="border-t">
 <td class="px-3 py-2 text-sm text-gray-500" x-text="index + 1"></td>
 <td class="px-3 py-2">
-<select x-model="item.product_id" @change="onProductChange(index)" class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-theme-500 transition-colors" required>
-<option value="">选择产品</option>
-{% for p in products %}
-<option value="{{ p.id }}" data-unit="{{ p.unit.symbol|default:'' }}">{{ p.code }} - {{ p.name }}</option>
-{% endfor %}
-</select>
+<div class="relative" x-data="{
+    isOpen: false,
+    searchValue: '',
+    dropdownStyle: '',
+    get filteredProducts() {
+        if (!this.searchValue || !this.searchValue.trim()) {
+            return window.productsData || [];
+        }
+        const query = this.searchValue.toLowerCase().trim();
+        return (window.productsData || []).filter(product =>
+            product.name.toLowerCase().includes(query) ||
+            (product.code && product.code.toLowerCase().includes(query))
+        );
+    },
+    selectProduct(product) {
+        item.product_id = product.id;
+        this.searchValue = product.name + ' (' + product.code + ')';
+        this.isOpen = false;
+    },
+    selectFirstProduct() {
+        if (this.filteredProducts.length > 0) {
+            this.selectProduct(this.filteredProducts[0]);
+        }
+    },
+    updateDropdownPosition() {
+        if (!this.$el) return;
+        const input = this.$el.querySelector('input');
+        const rect = input.getBoundingClientRect();
+        const width = input.offsetWidth;
+        this.dropdownStyle = `position: fixed; top: ${rect.bottom + 4}px; left: ${rect.left}px; width: ${width}px; z-index: 9999;`;
+    },
+    init() {
+        if (item.product_id) {
+            const product = (window.productsData || []).find(p => p.id === parseInt(item.product_id));
+            if (product) {
+                this.searchValue = product.name + ' (' + product.code + ')';
+            }
+        }
+    }
+}" x-init="$watch('isOpen', value => { if (value) { $nextTick(() => updateDropdownPosition()); } })">
+<!-- 搜索输入框 -->
+<div class="relative">
+<input
+    x-ref="searchInput"
+    type="text"
+    x-model="searchValue"
+    @input="isOpen = true"
+    @keydown.enter="selectFirstProduct()"
+    @keydown.escape="isOpen = false"
+    @focus="isOpen = true; $nextTick(() => updateDropdownPosition())"
+    @blur="setTimeout(() => isOpen = false, 150)"
+    placeholder="搜索或选择产品"
+    class="w-full px-3 py-2 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:border-theme-500 outline-none transition-all text-sm"
+>
+<!-- 下拉箭头 -->
+<button
+    type="button"
+    @click="isOpen = !isOpen"
+    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+>
+    <svg x-show="!isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+    <svg x-show="isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+    </svg>
+</button>
+</div>
+
+<!-- 下拉选项面板 -->
+<div
+    x-show="isOpen && filteredProducts.length > 0"
+    x-transition:enter="transition ease-out duration-100"
+    x-transition:enter-start="opacity-0 scale-95"
+    x-transition:enter-end="opacity-100 scale-100"
+    x-transition:leave="transition ease-in duration-75"
+    x-transition:leave-start="opacity-100 scale-100"
+    x-transition:leave-end="opacity-0 scale-95"
+    class="max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200"
+    :style="dropdownStyle"
+    style="display: none;"
+>
+    <template x-for="product in filteredProducts" :key="product.id">
+        <div
+            @click="selectProduct(product)"
+            class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors text-gray-800"
+            :class="{ 'bg-theme-100 font-medium': item.product_id && item.product_id === product.id }"
+            x-text="product.name + ' (' + product.code + ')'"
+        >
+        </div>
+    </template>
+</div>
+
+<!-- 无匹配结果提示 -->
+<div
+    x-show="isOpen && filteredProducts.length === 0"
+    class="bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-3 text-gray-500"
+    :style="dropdownStyle"
+    style="display: none;"
+>
+    未找到匹配的产品
+</div>
+</div>
 </td>
 <td class="px-3 py-2">
 <input type="number" x-model="item.quantity" step="1" min="0" class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors" required>
@@ -113,7 +208,7 @@
 </tr>
 </template>
 <template x-if="items.length === 0">
-<tr><td colspan="8" class="px-3 py-8 text-center text-gray-500 text-sm">暂无明细,请点击"添加产品"按钮添加申请项目</td></tr>
+<tr><td colspan="6" class="px-3 py-8 text-center text-gray-500 text-sm">暂无明细,请点击"添加产品"按钮添加申请项目</td></tr>
 </template>
 </tbody>
 </table>
@@ -137,6 +232,9 @@
 </div>
 
 <script>
+// 初始化数据
+window.productsData = {{ products|safe }};
+
 function requestForm() {
     // 设置默认日期为当天
     document.addEventListener('DOMContentLoaded', function() {
@@ -179,10 +277,6 @@ function requestForm() {
 
         removeItem(index) {
             this.items.splice(index, 1);
-        },
-
-        onProductChange(index) {
-            // 产品选择变化时可以在这里添加逻辑
         },
 
         prepareSubmit(e) {

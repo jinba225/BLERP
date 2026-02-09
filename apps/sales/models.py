@@ -1,13 +1,14 @@
 """
 Sales models for the ERP system.
 """
-from django.db import models
-from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
-from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
-from core.models import BaseModel, PAYMENT_METHOD_CHOICES
+
+from core.models import PAYMENT_METHOD_CHOICES, BaseModel
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
+from django.db import models
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -187,9 +188,9 @@ class SalesOrder(BaseModel):
         return False
 
     def approve_order(self, approved_by_user, warehouse=None, auto_create_delivery=None):
-        from django.utils import timezone
-        from core.utils.document_number import DocumentNumberGenerator
         from core.models import SystemConfig
+        from core.utils.document_number import DocumentNumberGenerator
+        from django.utils import timezone
 
         # Check if already approved
         if self.approved_by:

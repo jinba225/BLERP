@@ -4,6 +4,7 @@ drf-spectacular extensions for custom authentication classes.
 
 from drf_spectacular.extensions import OpenApiAuthenticationExtension
 from rest_framework.authentication import BaseAuthentication
+
 from .authentication import JWTAuthentication
 
 

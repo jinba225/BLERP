@@ -1,10 +1,9 @@
 """
 Core models for the ERP system.
 """
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.utils import timezone
-
 
 # Payment method choices - shared across the system
 PAYMENT_METHOD_CHOICES = [
@@ -358,15 +357,15 @@ class Notification(models.Model):
 
 
 # ============================================
+# Dynamic Choice Options (统一选项管理)
+# ============================================
+from .models_choice import ChoiceOption, ChoiceOptionGroup
+
+# ============================================
 # Print Template Models (moved from sales module)
 # ============================================
 from .models_print_template import PrintTemplate
 from .models_template_mapping import DefaultTemplateMapping
-
-# ============================================
-# Dynamic Choice Options (统一选项管理)
-# ============================================
-from .models_choice import ChoiceOption, ChoiceOptionGroup
 
 
 # ============================================

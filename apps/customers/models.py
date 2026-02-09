@@ -1,10 +1,10 @@
 """
 Customer models for the ERP system.
 """
-from django.db import models
+from core.models import PAYMENT_METHOD_CHOICES, BaseModel
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
-from core.models import BaseModel, PAYMENT_METHOD_CHOICES
+from django.db import models
 
 User = get_user_model()
 

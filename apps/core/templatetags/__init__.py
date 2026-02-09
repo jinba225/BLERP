@@ -1,8 +1,9 @@
 """
 Custom template filters for the ERP system.
 """
-from django import template
 from decimal import Decimal
+
+from django import template
 
 register = template.Library()
 

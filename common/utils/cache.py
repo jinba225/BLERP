@@ -4,10 +4,11 @@ AI助手缓存工具
 提供统一的缓存接口，支持Redis和本地内存缓存
 """
 
-from django.core.cache import cache
-from typing import Optional, Any
 import json
 from datetime import timedelta
+from typing import Any, Optional
+
+from django.core.cache import cache
 
 
 class AIAssistantCache:
