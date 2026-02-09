@@ -11,16 +11,7 @@ from django.utils import timezone
 from apps.customers.models import Customer
 from apps.inventory.models import Warehouse
 from apps.products.models import Product, ProductCategory, Unit
-from apps.sales.models import (
-    Delivery,
-    DeliveryItem,
-    Quote,
-    QuoteItem,
-    SalesOrder,
-    SalesOrderItem,
-    SalesReturn,
-    SalesReturnItem,
-)
+from apps.sales.models import Delivery, Quote, SalesOrder, SalesOrderItem, SalesReturn
 
 User = get_user_model()
 

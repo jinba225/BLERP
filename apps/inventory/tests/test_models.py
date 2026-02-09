@@ -384,7 +384,7 @@ class StockTransferModelTest(TestCase):
 
     def test_transfer_str_representation(self):
         """Test transfer string representation."""
-        expected = f"TF2025110001 - 源仓库 → 目标仓库"
+        expected = "TF2025110001 - 源仓库 → 目标仓库"
         self.assertEqual(str(self.transfer), expected)
 
 

@@ -11,13 +11,10 @@ from django.utils import timezone
 from apps.products.models import Product, ProductCategory, Unit
 from apps.purchase.models import (
     PurchaseInquiry,
-    PurchaseInquiryItem,
     PurchaseOrder,
     PurchaseOrderItem,
     PurchaseRequest,
     PurchaseRequestItem,
-    SupplierQuotation,
-    SupplierQuotationItem,
 )
 from apps.suppliers.models import Supplier
 

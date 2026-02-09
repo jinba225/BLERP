@@ -1,31 +1,17 @@
 """
 实时数据服务
 """
-import json
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List
+from datetime import date, datetime
+from typing import Dict
 
-from bi.models import InventoryAnalysis, ProductSales, SalesSummary
+from bi.models import SalesSummary
 from core.models import Platform, Shop
-from django.core.cache import cache
-from django.db.models import Count, Sum
-from ecomm_sync.models import PlatformOrder, PlatformOrderItem
-from users.models import User
+from django.db.models import Avg, Coalesce, Count, Q, Sum
+from django.utils import timezone
+from ecomm_sync.models import PlatformOrder
 
-from .analytics.services import (
-    InventoryReportService,
-    PlatformComparisonService,
-    SalesReportService,
-)
-from .models import (
-    Dashboard,
-    DashboardWidget,
-    RealtimeDashboard,
-    RealtimeData,
-    RealtimeMetric,
-    RealtimeWidget,
-)
+from .models import Dashboard, RealtimeData
 
 logger = logging.getLogger(__name__)
 
@@ -33,12 +19,15 @@ logger = logging.getLogger(__name__)
 class RealtimeDataService:
     """实时数据服务"""
 
-    def update_sales_realtime_data(self, platform_id: int, limit: int = 100) -> RealtimeData:
+    def update_sales_realtime_data(
+        self, platform_id: int, platform_account_id: int = None, limit: int = 100
+    ) -> RealtimeData:
         """
         更新销售实时数据
 
         Args:
             platform_id: 平台ID
+            platform_account_id: 平台账户ID（可选）
             limit: 数据条数限制
 
         Returns:

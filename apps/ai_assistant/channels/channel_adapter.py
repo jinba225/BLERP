@@ -4,13 +4,22 @@
 将 AI 响应转换为不同渠道的特定格式
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from ai_assistant.channels.base_channel import IncomingMessage, OutgoingMessage
 
 # SVG 图标
-SUCCESS_ICON = '<svg class="icon-success" viewBox="0 0 20 20"><path fill="currentColor" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>'
-ERROR_ICON = '<svg class="icon-error" viewBox="0 0 20 20"><path fill="currentColor" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/></svg>'
+SUCCESS_ICON = (
+    '<svg class="icon-success" viewBox="0 0 20 20">'
+    '<path fill="currentColor" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414'
+    'L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>'
+)
+ERROR_ICON = (
+    '<svg class="icon-error" viewBox="0 0 20 20">'
+    '<path fill="currentColor" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414'
+    "L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414"
+    'L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/></svg>'
+)
 
 
 class ChannelAdapter:

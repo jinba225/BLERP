@@ -359,13 +359,10 @@ class Notification(models.Model):
 # ============================================
 # Dynamic Choice Options (统一选项管理)
 # ============================================
-from .models_choice import ChoiceOption, ChoiceOptionGroup
 
 # ============================================
 # Print Template Models (moved from sales module)
 # ============================================
-from .models_print_template import PrintTemplate
-from .models_template_mapping import DefaultTemplateMapping
 
 
 # ============================================

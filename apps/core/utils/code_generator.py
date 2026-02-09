@@ -6,7 +6,7 @@ Generates sequential codes with prefix:
 - Supplier: S0001, S0002, S0003, ...
 """
 
-from django.db import models, transaction
+from django.db import transaction
 
 
 class CodeGenerator:
@@ -50,7 +50,6 @@ class CodeGenerator:
         Returns:
             str: Generated code like 'C0001', 'S0001', etc.
         """
-        import re
 
         from django.apps import apps
 

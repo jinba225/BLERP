@@ -3,7 +3,7 @@ BI报表数据模型
 """
 from core.models import BaseModel, Platform, Shop
 from django.db import models
-from ecomm_sync.models import PlatformAccount, PlatformOrder
+from ecomm_sync.models import PlatformAccount
 from products.models import Product
 
 

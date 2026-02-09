@@ -76,7 +76,10 @@ class BaiduProvider(BaseAIProvider):
         if self.api_base:
             return f"{self.api_base}/{endpoint}?access_token={self.access_token}"
         else:
-            return f"https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/{endpoint}?access_token={self.access_token}"
+            return (
+                f"https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/"
+                f"{endpoint}?access_token={self.access_token}"
+            )
 
     def chat(
         self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None

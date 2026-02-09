@@ -8,9 +8,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import Avg, Count, F, Q, Sum
-from django.db.models.functions import TruncDate, TruncMonth
-from django.http import HttpResponse, JsonResponse
+from django.db.models import Count, F, Q, Sum
+from django.db.models.functions import TruncMonth
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -530,7 +530,7 @@ def quote_duplicate(request, pk):
 @login_required
 def order_list(request):
     """List all sales orders with search and filter."""
-    from sales.models import SalesOrderItem, SalesReturnItem
+    from sales.models import SalesReturnItem
 
     orders = SalesOrder.objects.filter(is_deleted=False).select_related("customer", "sales_rep")
 
@@ -1402,7 +1402,8 @@ def delivery_ship(request, pk):
                     "100"
                 )
                 # Calculate tax-exclusive unit price
-                # SalesOrder uses tax-inclusive pricing, but Invoice uses tax-exclusive pricing + tax
+                # SalesOrder uses tax-inclusive pricing, but Invoice uses tax-exclusive
+                # pricing + tax
                 unit_price_after_discount = oi.unit_price * discount_factor
                 tax_rate_decimal = order.tax_rate / Decimal("100")
                 unit_price_exclusive = unit_price_after_discount / (Decimal("1") + tax_rate_decimal)
@@ -1442,7 +1443,9 @@ def delivery_ship(request, pk):
                 paid_amount=Decimal("0"),
                 balance=invoice.total_amount,
                 currency=order.currency,
-                notes=f'发货单 {delivery.delivery_number} 对应应收账款（{"全部发货" if delivery.is_fully_shipped else "部分发货"}）',
+                notes=f'发货单 {
+                    delivery.delivery_number} 对应应收账款（{
+                    "全部发货" if delivery.is_fully_shipped else "部分发货"}）',
                 created_by=request.user,
             )
 
@@ -1452,7 +1455,9 @@ def delivery_ship(request, pk):
             else:
                 messages.success(
                     request,
-                    f"发货单 {delivery.delivery_number} 部分发货成功，并生成销售发票与应收账款。剩余未发货数量: {delivery.total_unshipped_quantity}",
+                    f"发货单 {
+                        delivery.delivery_number} 部分发货成功，并生成销售发票与应收账款。剩余未发货数量: {
+                        delivery.total_unshipped_quantity}",
                 )
             return redirect("sales:delivery_detail", pk=pk)
 
@@ -1628,7 +1633,8 @@ def return_create(request, order_pk):
                     )
                     if quantity > available_return_quantity:
                         raise ValueError(
-                            f"产品 {order_item.product.name} 的退货数量 ({quantity}) 不能大于可退数量 ({available_return_quantity})"
+                            f"产品 {
+                                order_item.product.name} 的退货数量 ({quantity}) 不能大于可退数量 ({available_return_quantity})"
                         )
 
                     unit_price_raw = item_data.get("unit_price", None)
@@ -1693,7 +1699,7 @@ def return_create(request, order_pk):
             if sales_return:
                 try:
                     sales_return.delete()
-                except:
+                except BaseException:
                     pass  # 如果删除失败，忽略错误
             messages.error(request, f"创建失败：{str(e)}")
             return redirect("sales:order_detail", pk=order_pk)
@@ -1860,8 +1866,6 @@ def return_approve(request, pk):
 
                 from finance.models import Payment, SupplierAccount
 
-                from common.utils import DocumentNumberGenerator
-
                 # 检查是否已经存在关联的应付账款记录
                 existing_supplier_account = SupplierAccount.objects.filter(
                     is_deleted=False,
@@ -1957,8 +1961,6 @@ def return_receive(request, pk):
 
             # 1. 创建库存调整单 - 将退货商品退回库存
             from inventory.models import InventoryTransaction
-
-            from common.utils import DocumentNumberGenerator
 
             # 获取原发货的仓库
             warehouse = sales_return.delivery.warehouse if sales_return.delivery else None
@@ -2089,7 +2091,9 @@ def return_receive(request, pk):
                     reference_id=str(sales_return.id),
                     reference_number=sales_return.return_number,
                     description=f"销售退货退款 - {sales_return.return_number}",
-                    notes=f"退货单号: {sales_return.return_number}, 原订单号: {sales_return.sales_order.order_number}",
+                    notes=f"退货单号: {
+                        sales_return.return_number}, 原订单号: {
+                        sales_return.sales_order.order_number}",
                     created_by=request.user,
                 )
 
@@ -2127,7 +2131,7 @@ def return_receive(request, pk):
                 )
 
             messages.success(
-                request, f"退货单 {sales_return.return_number} 已收货并处理完成。" f"已创建库存入库记录，退款已更新。"
+                request, f"退货单 {sales_return.return_number} 已收货并处理完成。" "已创建库存入库记录，退款已更新。"
             )
             return redirect("sales:return_detail", pk=pk)
         except Exception as e:
@@ -2171,8 +2175,6 @@ def return_process(request, pk):
 
                 # 1. 创建库存调整单 - 将退货商品退回库存
                 from inventory.models import InventoryTransaction
-
-                from common.utils import DocumentNumberGenerator
 
                 # 获取原发货的仓库
                 warehouse = sales_return.delivery.warehouse if sales_return.delivery else None
@@ -2295,7 +2297,9 @@ def return_process(request, pk):
                             reference_id=str(sales_return.id),
                             reference_number=sales_return.return_number,
                             description=f"销售退货退款 - {sales_return.return_number}",
-                            notes=f"退货单号: {sales_return.return_number}, 原订单号: {sales_return.sales_order.order_number}",
+                            notes=f"退货单号: {
+                                sales_return.return_number}, 原订单号: {
+                                sales_return.sales_order.order_number}",
                             created_by=request.user,
                         )
 
@@ -2309,7 +2313,9 @@ def return_process(request, pk):
                         sales_return,
                         "processed",
                         sales_return.created_by,
-                        f"处理人：{request.user.username}\n实际退款：¥{actual_refund}\n重新入库费：¥{sales_return.restocking_fee}",
+                        f"处理人：{
+                            request.user.username}\n实际退款：¥{actual_refund}\n重新入库费：¥{
+                            sales_return.restocking_fee}",
                     )
 
                 if sales_return.approved_by and sales_return.approved_by != sales_return.created_by:
@@ -2573,7 +2579,6 @@ def api_get_available_templates(request):
             'current_template_id': 1
         }
     """
-    from core.models import DefaultTemplateMapping, PrintTemplate
     from core.services.template_selector import TemplateSelector
 
     document_type = request.GET.get("document_type", "quote")
@@ -2581,7 +2586,7 @@ def api_get_available_templates(request):
 
     # 确定完整的单据类型（如果是报价单，区分国内/海外）
     if document_type == "quote" and quote_type:
-        document_type_full = f"quote_domestic" if quote_type == "DOMESTIC" else "quote_overseas"
+        document_type_full = "quote_domestic" if quote_type == "DOMESTIC" else "quote_overseas"
     else:
         document_type_full = document_type
 
@@ -3155,7 +3160,6 @@ def loan_update(request, pk):
 @login_required
 def loan_delete(request, pk):
     """删除借用单（软删除）"""
-    from django.views.decorators.http import require_POST
 
     loan = get_object_or_404(SalesLoan, pk=pk, is_deleted=False)
 

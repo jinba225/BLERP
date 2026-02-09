@@ -8,13 +8,10 @@
 - 采购单自动补货提醒
 """
 import logging
-from decimal import Decimal
 
-from django.db import models, transaction
-from django.db.models import F, Q
+from django.db import transaction
+from django.db.models import F
 from django.utils import timezone
-from ecomm_sync.adapters import get_adapter as get_platform_adapter
-from ecomm_sync.models import ProductListing
 from inventory.models import InventoryStock
 from purchase.models import (
     PurchaseOrder,
@@ -220,7 +217,6 @@ class PurchaseSyncService:
         Returns:
             dict: 同步结果
         """
-        from ecomm_sync.adapters import get_adapter as get_platform_adapter
 
         # 获取采购订单
         try:
@@ -281,7 +277,6 @@ class PurchaseSyncService:
                 'errors': 错误列表
             }
         """
-        from ecomm_sync.adapters import get_adapter as get_platform_adapter
 
         # 获取待处理的同步任务
         sync_queues = PurchaseSyncQueue.objects.filter(status="pending")[:limit]

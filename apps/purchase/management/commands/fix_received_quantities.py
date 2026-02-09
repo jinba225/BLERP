@@ -77,7 +77,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING(f"\n✓ 订单 {order.order_number} 数据正确，无需修复"))
 
         self.stdout.write("\n" + "=" * 80)
-        self.stdout.write(self.style.SUCCESS(f"修复完成！"))
+        self.stdout.write(self.style.SUCCESS("修复完成！"))
         self.stdout.write(f"检查订单数: {total_count}")
         self.stdout.write(f"修复订单数: {fixed_count}")
         self.stdout.write("=" * 80)

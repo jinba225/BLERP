@@ -4,11 +4,7 @@
 通过钉钉企业应用API实现消息收发
 """
 
-import base64
-import hashlib
-import hmac
 import json
-import time
 from datetime import datetime
 from typing import Optional
 

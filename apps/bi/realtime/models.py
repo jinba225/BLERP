@@ -1,11 +1,8 @@
 """
 实时大屏模型
 """
-from django.core.exceptions import ValidationError
+from core.models import BaseModel
 from django.db import models
-from django.db.models import JSONField
-
-from .models import Dashboard, DashboardWidget
 
 
 class RealtimeDashboard(BaseModel):

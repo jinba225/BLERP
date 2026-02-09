@@ -3,19 +3,18 @@
 """
 
 import os
-import sys
+from datetime import datetime
 
 import django
+from ai_assistant.providers import MockAIProvider
+from django.contrib.auth import get_user_model
+from django.test import TestCase
 
 # 设置 Django 环境
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "better_laser_erp.settings")
 django.setup()
 
-from datetime import datetime
-
-from ai_assistant.providers import MockAIProvider
-from ai_assistant.services import ConversationFlowManager, NLPService
-from django.test import TestCase
+User = get_user_model()
 
 
 class SimplifiedConversationFlowTest(TestCase):

@@ -5,13 +5,12 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.db import transaction
 from django.test import TestCase
 from django.utils import timezone
 
 from apps.customers.models import Customer
 from apps.finance.models import CustomerAccount
-from apps.inventory.models import InventoryStock, InventoryTransaction, Warehouse
+from apps.inventory.models import InventoryStock, Warehouse
 from apps.products.models import Product, ProductCategory, Unit
 from apps.sales.models import (
     Delivery,

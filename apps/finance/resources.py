@@ -6,7 +6,6 @@ from departments.models import Department
 from django.contrib.auth import get_user_model
 from import_export import fields, resources
 from import_export.widgets import DateWidget, DecimalWidget, ForeignKeyWidget
-from products.models import Product
 from suppliers.models import Supplier
 
 from .models import Account, Expense, Invoice, Journal, JournalEntry, Payment
@@ -77,12 +76,10 @@ class ExpenseResource(resources.ModelResource):
     def before_import_row(self, row, **kwargs):
         """导入前的数据预处理"""
         # 可以在这里添加自定义的数据验证和转换逻辑
-        pass
 
     def after_import_row(self, row, row_result, **kwargs):
         """导入后的处理"""
         # 可以在这里添加导入后的逻辑，比如发送通知等
-        pass
 
 
 class InvoiceResource(resources.ModelResource):

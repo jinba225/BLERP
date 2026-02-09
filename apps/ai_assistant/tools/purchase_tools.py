@@ -132,7 +132,7 @@ class CreatePurchaseRequestTool(BaseTool):
                     try:
                         required_date = datetime.strptime(required_date, "%Y-%m-%d").date()
                     except ValueError:
-                        return ToolResult(success=False, error=f"需求日期格式错误，应为 YYYY-MM-DD")
+                        return ToolResult(success=False, error="需求日期格式错误，应为 YYYY-MM-DD")
 
                 validated_items.append(
                     {

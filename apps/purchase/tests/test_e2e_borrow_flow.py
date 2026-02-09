@@ -16,7 +16,6 @@ import uuid
 from decimal import Decimal
 
 import pytest
-from core.tests.test_fixtures import FixtureFactory
 from django.utils import timezone
 from inventory.models import InventoryStock, InventoryTransaction
 from purchase.models import Borrow, BorrowItem, PurchaseOrder, PurchaseOrderItem

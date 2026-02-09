@@ -341,7 +341,7 @@ class NLGGenerator:
         Returns:
             确认提示文本
         """
-        lines = [f"⚠️ 请确认操作", f"", f"操作：{action}", f"对象：{entity}", f"", f"详细信息："]
+        lines = ["⚠️ 请确认操作", "", f"操作：{action}", f"对象：{entity}", "", "详细信息："]
 
         for key, value in details.items():
             lines.append(f"  • {key}: {value}")
@@ -464,7 +464,7 @@ class NLGGenerator:
         try:
             amount_decimal = Decimal(str(amount))
             return f"{currency}{amount_decimal:,.2f}"
-        except:
+        except BaseException:
             return str(amount)
 
     def format_percentage(self, value: float, decimals: int = 1) -> str:
@@ -478,7 +478,7 @@ class NLGGenerator:
         Returns:
             格式化的百分比字符串
         """
-        return f"{value:.{decimalsf}}%"
+        return f"{value:.{decimals}f}%"
 
     def generate_multi_language_response(self, data: Dict[str, Any], language: str = "zh") -> str:
         """

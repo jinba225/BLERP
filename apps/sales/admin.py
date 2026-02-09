@@ -2,7 +2,6 @@
 Sales admin configuration.
 """
 # 打印模板模型已移至 core 模块
-from core.models import DefaultTemplateMapping, PrintTemplate
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 

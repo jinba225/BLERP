@@ -11,11 +11,10 @@ Microsoft Azure OpenAI Provider
 官方文档：https://learn.microsoft.com/zh-cn/azure/ai-services/openai/
 """
 
-from typing import Any, Dict
 
-import openai
+import requests
 
-from .base import AIResponse, BaseAIProvider, ProviderException
+from .base import AIResponse, BaseAIProvider
 
 
 class AzureProvider(BaseAIProvider):
@@ -40,7 +39,10 @@ class AzureProvider(BaseAIProvider):
         }
 
         # 构建 URL
-        url = f"https://{self.resource_name}.openai.azure.com/openai/deployments/{self.deployment_id}/chat/completions"
+        url = (
+            f"https://{self.resource_name}.openai.azure.com/openai/deployments/"
+            f"{self.deployment_id}/chat/completions"
+        )
 
         response = requests.post(url, json=payload, headers=headers, timeout=self.timeout)
         response.raise_for_status()

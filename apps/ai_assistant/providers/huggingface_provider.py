@@ -10,7 +10,6 @@ Hugging Face Provider - 开源模型平台
 官方文档：https://huggingface.co/docs/api-inference
 """
 
-from typing import Any, Dict
 
 import requests
 

@@ -34,7 +34,7 @@ class TelegramChannel(BaseChannel):
             # 如果是加密的 Token，尝试解密
             try:
                 self.bot_token = decrypt_api_key(config.bot_token)
-            except:
+            except BaseException:
                 # 解密失败，使用明文 Token
                 self.bot_token = "8291865352:AAEKO7TxzThbgRMoqqgHTUqkRTnNnLJrrdE"
         else:

@@ -9,7 +9,6 @@ import json
 from typing import Any, Dict, Optional
 
 from django.core.cache import cache
-from django.utils import timezone
 
 
 class CacheService:
@@ -348,7 +347,6 @@ class AIModelConfigCache:
     @classmethod
     def invalidate_all_configs(cls):
         """使所有配置缓存失效"""
-        from django.core.cache import cache
 
         # 删除默认配置缓存
         cls.invalidate_default_config()

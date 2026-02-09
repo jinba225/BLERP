@@ -11,4 +11,3 @@ class AiAssistantConfig(AppConfig):
     def ready(self):
         """应用启动时执行"""
         # 可以在这里导入信号处理器等
-        pass

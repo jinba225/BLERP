@@ -3,11 +3,9 @@
 支持实时监控、历史查询、告警触发
 """
 import logging
-import time
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
-from django.conf import settings
 from django.core.cache import cache
 
 from ..config import MONITOR_CONFIG

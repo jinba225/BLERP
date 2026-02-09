@@ -1,27 +1,16 @@
 """
 BI报表服务
 """
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from core.models import Platform, Shop
-from django.db.models import Avg, Case, Count, F, IntegerField, Q, Sum, Value, When
-from django.db.models.expressions import Window
-from django.db.models.functions import Coalesce, Rank
+from django.db.models import Avg, Count, F, Q, Sum
 from ecomm_sync.models import PlatformOrder, PlatformOrderItem
 from products.models import Product
 
-from .models import (
-    Dashboard,
-    DashboardWidget,
-    InventoryAnalysis,
-    PlatformComparison,
-    ProductSales,
-    Report,
-    ReportData,
-    SalesSummary,
-)
+from .models import InventoryAnalysis, PlatformComparison, ProductSales, SalesSummary
 
 
 class SalesReportService:
@@ -330,7 +319,7 @@ class InventoryReportService:
 
             stock_item = StockItem.objects.filter(product=product, shop_id=shop_id).first()
             return stock_item.quantity if stock_item else 0
-        except:
+        except BaseException:
             # 如果stock模块不存在，返回0
             return 0
 
@@ -347,7 +336,7 @@ class InventoryReportService:
 
             total_quantity = sales["total_quantity"] or 0
             return Decimal(str(total_quantity / 30)).quantize(Decimal("0.00"))
-        except:
+        except BaseException:
             return Decimal("0")
 
     def _calculate_turnover_rate(self, product, shop_id) -> Decimal:
@@ -373,7 +362,7 @@ class InventoryReportService:
 
             turnover_rate = annual_sales_cost / avg_stock_value
             return turnover_rate.quantize(Decimal("0.00"))
-        except:
+        except BaseException:
             return Decimal("0")
 
     def _determine_stock_status(
@@ -523,7 +512,7 @@ class PlatformComparisonService:
 
             growth_rate = ((current_value - previous_value) / previous_value) * 100
             return growth_rate.quantize(Decimal("0.00"))
-        except:
+        except BaseException:
             return Decimal("0")
 
     def _calculate_rankings(

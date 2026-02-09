@@ -5,12 +5,10 @@
 """
 
 from collections import defaultdict
-from datetime import datetime, timedelta
-from decimal import Decimal
-from typing import Any, Dict, List, Optional
+from datetime import timedelta
+from typing import Any, Dict, List
 
 from django.core.cache import cache
-from django.db import models
 from django.utils import timezone
 
 
@@ -112,7 +110,6 @@ class ToolMonitor:
         """记录执行到日志（预留数据库日志接口）"""
         # TODO: 如果需要持久化日志，可以在这里写入数据库
         # 例如创建ToolExecutionLog模型
-        pass
 
     def get_tool_stats(self, tool_name: str) -> Dict[str, Any]:
         """

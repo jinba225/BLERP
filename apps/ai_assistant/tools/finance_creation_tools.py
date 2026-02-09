@@ -270,7 +270,10 @@ class CreatePaymentTool(BaseTool):
                     "payment_date": payment.payment_date.strftime("%Y-%m-%d"),
                     "payment_method": payment.get_payment_method_display(),
                 },
-                message=f"{payment.get_payment_type_display()} {payment.payment_number} 创建成功，金额 {amount:.2f} 元",
+                message=f"{
+                    payment.get_payment_type_display()} {
+                    payment.payment_number} 创建成功，金额 {
+                    amount:.2f} 元",
             )
 
         except Exception as e:

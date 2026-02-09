@@ -7,7 +7,7 @@ import logging
 import random
 import time
 from functools import wraps
-from typing import Any, Callable, Optional, Tuple, Type
+from typing import Any, Callable, Optional
 
 from ..config import RETRY_CONFIG
 

@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.db import transaction
 from purchase.models import PurchaseOrder, PurchaseOrderItem
 

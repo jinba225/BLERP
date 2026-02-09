@@ -320,9 +320,9 @@ class ItemCollectionHelper:
             required_fields = ["product_id", "quantity"]
 
         for i, item in enumerate(items, 1):
-            for field in required_fields:
-                if field not in item or item[field] is None:
-                    return False, f"第{i}行缺少必填字段: {field}"
+            for field_name in required_fields:
+                if field_name not in item or item[field_name] is None:
+                    return False, f"第{i}行缺少必填字段: {field_name}"
 
             if "quantity" in item and item["quantity"] <= 0:
                 return False, f"第{i}行数量必须大于0"

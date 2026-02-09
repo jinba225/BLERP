@@ -13,7 +13,6 @@ from apps.core.models import DefaultTemplateMapping, PrintTemplate
 from apps.customers.models import Customer, CustomerCategory
 from apps.departments.models import Department
 from apps.products.models import Brand, Product, ProductCategory, Unit
-from apps.sales.models import SalesOrder, SalesOrderItem
 
 User = get_user_model()
 

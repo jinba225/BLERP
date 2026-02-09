@@ -5,7 +5,6 @@
     python manage.py fix_specific_borrow_order BO260116001 PO260116001 [--dry-run]
 """
 from django.core.management.base import BaseCommand
-from django.db import transaction
 
 from apps.inventory.models import InventoryStock, InventoryTransaction, Warehouse
 from apps.purchase.models import Borrow, PurchaseOrder, PurchaseReceipt
@@ -64,9 +63,9 @@ class Command(BaseCommand):
         self.stdout.write(f"  - 来源借用单: {order.source_borrow.first()}")
 
         # 1. 修复关联关系
-        self.stdout.write(f"\n1. 检查关联关系...")
+        self.stdout.write("\n1. 检查关联关系...")
         if borrow.converted_order_id is None:
-            self.stdout.write(self.style.WARNING(f"   ⚠️  借用单未关联到采购订单"))
+            self.stdout.write(self.style.WARNING("   ⚠️  借用单未关联到采购订单"))
             if not dry_run:
                 borrow.converted_order = order
                 borrow.save()
@@ -80,10 +79,10 @@ class Command(BaseCommand):
                 self.style.WARNING(f"   ⚠️  借用单已关联到其他订单: {borrow.converted_order.order_number}")
             )
         else:
-            self.stdout.write(self.style.SUCCESS(f"   ✅ 关联正确"))
+            self.stdout.write(self.style.SUCCESS("   ✅ 关联正确"))
 
         # 2. 检查转采购时的库存调拨事务
-        self.stdout.write(f"\n2. 检查转采购时的库存调拨事务...")
+        self.stdout.write("\n2. 检查转采购时的库存调拨事务...")
 
         try:
             borrow_wh = Warehouse.get_borrow_warehouse()
@@ -92,10 +91,10 @@ class Command(BaseCommand):
             ).first()
 
             if not borrow_wh:
-                self.stdout.write(self.style.ERROR(f"   ❌ 借用仓不存在"))
+                self.stdout.write(self.style.ERROR("   ❌ 借用仓不存在"))
                 return
             if not main_wh:
-                self.stdout.write(self.style.ERROR(f"   ❌ 主仓不存在"))
+                self.stdout.write(self.style.ERROR("   ❌ 主仓不存在"))
                 return
 
             # 检查调拨事务
@@ -108,7 +107,7 @@ class Command(BaseCommand):
             )
 
             if transfer_out.exists() and transfer_in.exists():
-                self.stdout.write(self.style.SUCCESS(f"   ✅ 调拨事务存在"))
+                self.stdout.write(self.style.SUCCESS("   ✅ 调拨事务存在"))
             else:
                 self.stdout.write(
                     self.style.WARNING(
@@ -127,7 +126,7 @@ class Command(BaseCommand):
                                 warehouse=borrow_wh,
                                 quantity=-item.conversion_quantity,
                                 reference_number=borrow.borrow_number,
-                                notes=f"借用转采购，从借用仓调出到主仓",
+                                notes="借用转采购，从借用仓调出到主仓",
                                 operator=borrow.updated_by or borrow.created_by,
                                 created_by=borrow.created_by,
                             )
@@ -139,18 +138,18 @@ class Command(BaseCommand):
                                 warehouse=main_wh,
                                 quantity=item.conversion_quantity,
                                 reference_number=borrow.borrow_number,
-                                notes=f"借用转采购，从借用仓调入",
+                                notes="借用转采购，从借用仓调入",
                                 operator=borrow.updated_by or borrow.created_by,
                                 created_by=borrow.created_by,
                             )
 
-                    self.stdout.write(self.style.SUCCESS(f"   ✅ 已创建调拨事务"))
+                    self.stdout.write(self.style.SUCCESS("   ✅ 已创建调拨事务"))
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"   ❌ 创建调拨事务失败: {str(e)}"))
 
         # 3. 检查收货时的重复库存事务
-        self.stdout.write(f"\n3. 检查收货时的重复库存事务...")
+        self.stdout.write("\n3. 检查收货时的重复库存事务...")
 
         receipts = PurchaseReceipt.objects.filter(purchase_order=order, is_deleted=False)
         for receipt in receipts:
@@ -171,10 +170,10 @@ class Command(BaseCommand):
                     count, _ = receipt_transactions.delete()
                     self.stdout.write(self.style.SUCCESS(f"   ✅ 已删除 {count} 个重复事务"))
             else:
-                self.stdout.write(self.style.SUCCESS(f"   ✅ 无重复事务"))
+                self.stdout.write(self.style.SUCCESS("   ✅ 无重复事务"))
 
         # 4. 显示当前库存状态
-        self.stdout.write(f"\n4. 当前库存状态:")
+        self.stdout.write("\n4. 当前库存状态:")
         for item in borrow.items.filter(is_deleted=False):
             borrow_stock = InventoryStock.objects.filter(
                 product=item.product, warehouse=borrow_wh

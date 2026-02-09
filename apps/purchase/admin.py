@@ -5,7 +5,6 @@ from .models import (
     Borrow,
     BorrowItem,
     PurchaseInquiry,
-    PurchaseInquiryItem,
     PurchaseOrder,
     PurchaseOrderItem,
     PurchaseReceipt,
@@ -15,7 +14,6 @@ from .models import (
     PurchaseReturn,
     PurchaseReturnItem,
     SupplierQuotation,
-    SupplierQuotationItem,
 )
 from .resources import (
     PurchaseOrderResource,

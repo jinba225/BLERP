@@ -3,14 +3,13 @@ Core模块 - API测试
 测试CompanyViewSet, SystemConfigViewSet, AttachmentViewSet, AuditLogViewSet的REST API端点
 """
 import unittest
-from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from apps.core.models import Attachment, AuditLog, Company, SystemConfig
+from apps.core.models import AuditLog, Company, SystemConfig
 from apps.departments.models import Department
 
 User = get_user_model()

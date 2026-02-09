@@ -1,28 +1,12 @@
 """
 BI模块测试
 """
-from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
-from bi.services import (
-    InventoryReportService,
-    PlatformComparisonService,
-    ReportGenerator,
-    SalesReportService,
-)
-from django.utils import timezone
+from bi.services import InventoryReportService, ReportGenerator, SalesReportService
 
-from apps.bi.models import (
-    Dashboard,
-    DashboardWidget,
-    InventoryAnalysis,
-    PlatformComparison,
-    ProductSales,
-    Report,
-    ReportData,
-    SalesSummary,
-)
+from apps.bi.models import Dashboard, DashboardWidget, Report
 
 
 @pytest.mark.django_db

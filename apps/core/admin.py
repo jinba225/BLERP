@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.utils import timezone
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from .models import (
@@ -172,7 +173,9 @@ class SystemConfigAdmin(admin.ModelAdmin):
         name = db.get("NAME")
         backup_dir = "/var/backups/better-laser-erp"
         sql_gz = f"{backup_dir}/database_{ts}.sql.gz"
-        cmd = f"gunzip -c {shlex.quote(sql_gz)} | mysql -h{shlex.quote(host)} -P{shlex.quote(port)} -u{shlex.quote(user)} -p{shlex.quote(password)} {shlex.quote(name)}"
+cmd = (
+    f"gunzip -c {shlex.quote(sql_gz)} | mysql -h{shlex.quote(host)} -P{shlex.quote(port)} -u{shlex.quote(user)} -p{shlex.quote(password)} {shlex.quote(name)}"
+)
         result = subprocess.run(
             ["bash", "-lc", cmd], cwd=settings.BASE_DIR, capture_output=True, text=True
         )
@@ -340,7 +343,6 @@ class DefaultTemplateMappingAdmin(admin.ModelAdmin):
 # ============================================
 # 选项配置管理 (Dynamic Choice Options)
 # ============================================
-from django.utils.html import format_html
 
 
 @admin.register(ChoiceOption)

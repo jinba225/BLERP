@@ -227,7 +227,7 @@ class ConversationFlowManager:
             Intent.QUERY_ORDER: "查询订单",
         }.get(context.intent, "未知操作")
 
-        reply = f"确认要执行以下操作：\n\n"
+        reply = "确认要执行以下操作：\n\n"
         reply += f"操作类型: {intent_name}\n"
 
         # 显示收集的数据
@@ -340,7 +340,13 @@ class ConversationFlowManager:
         product_name = context.collected_data.get("product_name", "")
         quantity = context.collected_data.get("quantity", "")
 
-        return f"✅ 成功创建销售订单！\n客户: {customer_name}\n产品: {product_name}\n数量: {quantity}\n\n订单号: SO{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        return (
+            f"✅ 成功创建销售订单！\n"
+            f"客户: {customer_name}\n"
+            f"产品: {product_name}\n"
+            f"数量: {quantity}\n\n"
+            f"订单号: SO{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        )
 
     def _create_quote(self, context: ConversationContext) -> str:
         """创建报价单（示例实现）"""
@@ -348,7 +354,13 @@ class ConversationFlowManager:
         product_name = context.collected_data.get("product_name", "")
         quantity = context.collected_data.get("quantity", "")
 
-        return f"✅ 成功创建报价单！\n客户: {customer_name}\n产品: {product_name}\n数量: {quantity}\n\n报价单号: QT{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        return (
+            f"✅ 成功创建报价单！\n"
+            f"客户: {customer_name}\n"
+            f"产品: {product_name}\n"
+            f"数量: {quantity}\n\n"
+            f"报价单号: QT{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        )
 
     def _approve_order(self, context: ConversationContext) -> str:
         """审核订单（示例实现）"""
@@ -359,13 +371,6 @@ class ConversationFlowManager:
         """拒绝订单（示例实现）"""
         order_number = context.collected_data.get("order_number", "")
         return f"❌ 已拒绝订单 {order_number}。"
-
-    def _query_customer(self, context: ConversationContext) -> str:
-        """查询客户（示例实现）"""
-        customer_name = context.collected_data.get("customer_name", "")
-        return (
-            f"📋 客户信息:\n客户名称: {customer_name}\n客户代码: CUST001\n联系人: 张三\n电话: 13800138000\n地址: 北京市朝阳区"
-        )
 
     def _query_product(self, context: ConversationContext) -> str:
         """查询产品（真实实现）"""
@@ -476,7 +481,7 @@ class ConversationFlowManager:
                 customers = Customer.objects.filter(is_deleted=False)[:10]
 
             if not customers:
-                return f"📋 未找到匹配的客户"
+                return "📋 未找到匹配的客户"
 
             reply = f"📋 找到 {len(customers)} 个客户：\n\n"
             for i, customer in enumerate(customers, 1):
@@ -511,7 +516,7 @@ class ConversationFlowManager:
                 orders = SalesOrder.objects.filter(is_deleted=False).order_by("-created_at")[:10]
 
             if not orders:
-                return f"📋 未找到匹配的订单"
+                return "📋 未找到匹配的订单"
 
             reply = f"📋 找到 {len(orders)} 个订单：\n\n"
             for i, order in enumerate(orders, 1):
@@ -526,15 +531,6 @@ class ConversationFlowManager:
 
         except Exception as e:
             return f"❌ 查询订单时发生错误: {str(e)}"
-
-    def _query_inventory(self, context: ConversationContext) -> str:
-        """查询库存（示例实现）"""
-        return f"📊 库存信息:\n笔记本电脑: 100 台\n显示器: 50 台\n键盘: 200 个"
-
-    def _query_order(self, context: ConversationContext) -> str:
-        """查询订单（示例实现）"""
-        order_number = context.collected_data.get("order_number", "")
-        return f"📋 订单信息:\n订单号: {order_number}\n状态: 已审核\n总金额: ¥50,000.00\n创建时间: 2025-01-26"
 
     def reset_context(self, session_id: str) -> None:
         """重置对话上下文"""

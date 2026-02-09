@@ -3,10 +3,8 @@ Core模块 - 服务层测试
 测试DocumentNumberGenerator单据号生成服务
 """
 import threading
-import time
 import unittest
-from datetime import date, timedelta
-from decimal import Decimal
+from datetime import date
 
 from core.utils.document_number import DocumentNumberGenerator
 from django.conf import settings

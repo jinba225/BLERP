@@ -3,6 +3,7 @@ Purchase views for the ERP system.
 """
 import logging
 
+from core.models import PAYMENT_METHOD_CHOICES
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -11,10 +12,6 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
-
-logger = logging.getLogger(__name__)
-
-from core.models import PAYMENT_METHOD_CHOICES
 
 from common.utils import DocumentNumberGenerator
 
@@ -28,12 +25,12 @@ from .models import (
     PurchaseReceipt,
     PurchaseReceiptItem,
     PurchaseRequest,
-    PurchaseRequestItem,
     PurchaseReturn,
     PurchaseReturnItem,
     SupplierQuotation,
-    SupplierQuotationItem,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -1033,7 +1030,7 @@ def receipt_create(request, order_pk):
 
                 try:
                     received_qty = Decimal(received_qty)
-                except:
+                except BaseException:
                     received_qty = Decimal("0")
 
                 # 只处理有收货数量的明细
@@ -1140,7 +1137,7 @@ def receipt_receive(request, pk):
             received_qty = request.POST.get(quantity_key, "0")
             try:
                 received_qty = Decimal(received_qty)
-            except:
+            except BaseException:
                 received_qty = Decimal("0")
 
             # Update item with received quantity, batch number and notes
@@ -1358,8 +1355,6 @@ def order_request_payment(request, pk):
         # 生成应付账款编号（使用PAY前缀）
         from django.utils import timezone
 
-        from common.utils import DocumentNumberGenerator
-
         # 手动生成PAY格式的编号
         today = timezone.now().date()
         date_str = today.strftime("%y%m%d")
@@ -1529,7 +1524,9 @@ def return_create(request, order_pk):
                     # 验证1: 退货总量不能超过订单数量
                     if return_quantity > order_item.quantity:
                         raise ValueError(
-                            f"产品 {order_item.product.name} 的退货数量 ({return_quantity}) 不能超过订单数量 ({order_item.quantity})"
+                            f"产品 {
+                                order_item.product.name} 的退货数量 ({return_quantity}) 不能超过订单数量 ({
+                                order_item.quantity})"
                         )
 
                     # 验证2: 退货数量不能超过可退货数量
@@ -1779,7 +1776,7 @@ def return_approve(request, pk):
                 f"已扣减订单数量，生成 ¥{total_refund:.2f} 的负应付明细，应付主单已自动归集",
             )
         else:
-            messages.success(request, f"退货单 {return_order.return_number} 审核通过！" f"已扣减订单数量（未收货部分退货）")
+            messages.success(request, f"退货单 {return_order.return_number} 审核通过！" "已扣减订单数量（未收货部分退货）")
 
         return redirect("purchase:return_detail", pk=pk)
 
@@ -2709,7 +2706,6 @@ def purchase_order_report(request):
 @login_required
 def borrow_list(request):
     """借用单列表"""
-    from django.db.models import Count
     from suppliers.models import Supplier
 
     # 基础查询
@@ -3126,16 +3122,16 @@ def borrow_confirm_all_receipt(request, pk):
     print(f"[DEBUG] 可借用数量: {total_borrowable}")
 
     if total_borrowable == 0:
-        print(f"[DEBUG] 没有可入库数量")
+        print("[DEBUG] 没有可入库数量")
         messages.warning(request, "该借用单的所有产品已全部入库，无需再次入库")
         logger.info(f"借用单 {borrow.borrow_number} 没有可入库数量")
         return redirect("purchase:borrow_detail", pk=pk)
 
     try:
-        print(f"[DEBUG] 开始执行入库操作...")
+        print("[DEBUG] 开始执行入库操作...")
         # 调用模型的入库确认方法（传入None表示全部入库，模型会自动处理）
         borrow.confirm_borrow_receipt(request.user, None)
-        print(f"[DEBUG] 入库操作完成")
+        print("[DEBUG] 入库操作完成")
         messages.success(request, f"借用单 {borrow.borrow_number} 已全部入库成功！共入库 {total_borrowable} 件产品")
         logger.info(f"借用单 {borrow.borrow_number} 全部入库成功，入库数量: {total_borrowable}，将重定向到借用单详情页")
         print(f"[DEBUG] 准备重定向到: purchase:borrow_detail, pk={pk}")

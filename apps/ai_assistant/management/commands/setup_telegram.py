@@ -32,14 +32,14 @@ class Command(BaseCommand):
             is_active=True,
         )
 
-        self.stdout.write(self.style.SUCCESS(f"\n✅ Telegram Bot 配置创建成功！"))
+        self.stdout.write(self.style.SUCCESS("\n✅ Telegram Bot 配置创建成功！"))
         self.stdout.write(f"   配置 ID: {config.id}")
         self.stdout.write(f"   Bot 用户名: @{config.bot_username}")
         self.stdout.write(f"   Token (加密后): {config.bot_token[:20]}...")
         self.stdout.write(f'   状态: {"激活" if config.is_active else "未激活"}')
         self.stdout.write(
             self.style.SUCCESS(
-                f'\n📝 下一步: 运行 "python manage.py test_channel --channel telegram" 验证配置'
+                '\n📝 下一步: 运行 "python manage.py test_channel --channel telegram" 验证配置'
             )
         )
-        self.stdout.write(self.style.WARNING(f"\n⚠️  请记得通过 Admin 后台或直接修改数据库更新 bot_username"))
+        self.stdout.write(self.style.WARNING("\n⚠️  请记得通过 Admin 后台或直接修改数据库更新 bot_username"))

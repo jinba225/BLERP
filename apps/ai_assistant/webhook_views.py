@@ -12,8 +12,8 @@ from django.views.decorators.http import require_http_methods
 from .channels import DingTalkChannel, TelegramChannel, WeChatChannel
 
 # from .services import ChannelAIService  # 暂时注释，ChannelAIService尚未实现
-from .channels.base_channel import IncomingMessage, OutgoingMessage
-from .models import ChannelUserMapping, DingTalkConfig, TelegramConfig, WeChatConfig
+from .channels.base_channel import OutgoingMessage
+from .models import DingTalkConfig, TelegramConfig, WeChatConfig
 
 # 判断是否启用异步处理
 USE_ASYNC_PROCESSING = (

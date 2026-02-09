@@ -4,7 +4,7 @@
 提供库存业务的创建功能，包括仓库、调拨、盘点、出入库、调整等
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict
 
 from django.db import transaction
@@ -13,11 +13,8 @@ from inventory.models import (
     InboundOrder,
     InboundOrderItem,
     InventoryStock,
-    OutboundOrder,
-    OutboundOrderItem,
     StockAdjustment,
     StockCount,
-    StockCountItem,
     StockTransfer,
     StockTransferItem,
     Warehouse,
@@ -156,10 +153,10 @@ class CreateStockTransferTool(BaseTool):
                 source_warehouse = Warehouse.objects.get(id=source_warehouse_id, is_deleted=False)
                 target_warehouse = Warehouse.objects.get(id=target_warehouse_id, is_deleted=False)
             except Warehouse.DoesNotExist:
-                return ToolResult(success=False, error=f"仓库ID不存在")
+                return ToolResult(success=False, error="仓库ID不存在")
 
             if source_warehouse_id == target_warehouse_id:
-                return ToolResult(success=False, error=f"源仓库和目标仓库不能相同")
+                return ToolResult(success=False, error="源仓库和目标仓库不能相同")
 
             # 验证明细
             validated_items = []

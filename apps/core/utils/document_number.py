@@ -8,7 +8,7 @@ Example: SO20251108001
 """
 from datetime import date
 
-from django.db import models, transaction
+from django.db import transaction
 from django.utils import timezone
 
 
@@ -69,7 +69,31 @@ class DocumentNumberGenerator:
          通过 transaction_type 或 reference_type 区分具体的单据类型。
 
     兼容旧前缀（直接传入前缀字符串）：
-    - QT, SO, SD, SR, PI, PO, PR, PT, SI, ST, SA, SP, QI, SC, PC, LC, PP, WO, MR, MT, PM, PY, IV, EX, DL, RF
+    - QT,
+    SO,
+    SD,
+    SR,
+    PI,
+    PO,
+    PR,
+    PT,
+    SI,
+    ST,
+    SA,
+    SP,
+    QI,
+    SC,
+    PC,
+    LC,
+    PP,
+    WO,
+    MR,
+    MT,
+    PM,
+    PY,
+    IV,
+    EX,
+    DL, RF
     """
 
     # 前缀配置键名映射表

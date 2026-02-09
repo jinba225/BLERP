@@ -12,12 +12,6 @@ from purchase.services import PurchaseOrderService, PurchaseRequestService
 from apps.departments.models import Department
 from apps.inventory.models import Warehouse
 from apps.products.models import Brand, Product, ProductCategory, Unit
-from apps.purchase.models import (
-    PurchaseOrder,
-    PurchaseOrderItem,
-    PurchaseRequest,
-    PurchaseRequestItem,
-)
 from apps.suppliers.models import Supplier, SupplierCategory
 
 User = get_user_model()

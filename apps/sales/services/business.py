@@ -2,10 +2,8 @@
 Sales services for the ERP system.
 Handles business logic for Quotes and Sales Orders.
 """
-from decimal import Decimal
 
 from django.db import transaction
-from django.utils import timezone
 from sales.models import Quote, QuoteItem, SalesOrder, SalesOrderItem
 
 from common.utils import DocumentNumberGenerator

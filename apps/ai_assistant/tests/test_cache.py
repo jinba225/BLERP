@@ -2,7 +2,6 @@
 测试Redis缓存功能
 """
 
-import json
 
 from ai_assistant.utils.cache import AIAssistantCache
 from django.core.cache import cache

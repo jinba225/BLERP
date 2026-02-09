@@ -13,9 +13,8 @@ from datetime import date
 from decimal import Decimal
 
 from django.db.models import Q, Sum
-from django.utils import timezone
 
-from .models import Account, FinancialReport, Journal, JournalEntry
+from .models import Account, FinancialReport, JournalEntry
 
 logger = logging.getLogger(__name__)
 

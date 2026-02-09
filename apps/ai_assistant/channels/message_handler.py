@@ -5,10 +5,8 @@
 """
 
 import json
-from typing import Optional
 
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 
 from ..services import AIService
 from ..tools import ToolRegistry

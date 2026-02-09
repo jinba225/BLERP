@@ -6,7 +6,6 @@
 
 from typing import Any, Dict
 
-from django.db.models import Q
 from purchase.models import (
     Borrow,
     PurchaseInquiry,
@@ -14,7 +13,6 @@ from purchase.models import (
     PurchaseReturn,
     SupplierQuotation,
 )
-from suppliers.models import Supplier
 
 from .base_tool import BaseTool, ToolResult
 

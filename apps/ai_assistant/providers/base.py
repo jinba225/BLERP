@@ -64,7 +64,6 @@ class BaseAIProvider(ABC):
         Returns:
             AIResponse对象
         """
-        pass
 
     @abstractmethod
     def stream_chat(
@@ -80,7 +79,6 @@ class BaseAIProvider(ABC):
         Yields:
             生成的文本片段
         """
-        pass
 
     def _build_messages(self, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
         """
@@ -124,28 +122,18 @@ class BaseAIProvider(ABC):
 class ProviderException(Exception):
     """Provider异常基类"""
 
-    pass
-
 
 class ProviderAPIException(ProviderException):
     """API调用异常"""
-
-    pass
 
 
 class ProviderAuthException(ProviderException):
     """认证失败异常"""
 
-    pass
-
 
 class ProviderTimeoutException(ProviderException):
     """超时异常"""
 
-    pass
-
 
 class ProviderRateLimitException(ProviderException):
     """频率限制异常"""
-
-    pass

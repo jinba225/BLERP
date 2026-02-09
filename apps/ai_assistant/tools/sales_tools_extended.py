@@ -6,8 +6,6 @@
 
 from typing import Any, Dict
 
-from customers.models import Customer
-from django.db.models import Q
 from sales.models import Delivery, SalesLoan, SalesReturn
 
 from .base_tool import BaseTool, ToolResult

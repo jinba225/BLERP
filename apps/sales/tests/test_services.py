@@ -6,9 +6,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.db import transaction
-from django.test import TestCase, TransactionTestCase
-from django.utils import timezone
+from django.test import TestCase
 from sales.services.business import OrderService, QuoteService
 
 from apps.core.models import SystemConfig
@@ -17,7 +15,7 @@ from apps.departments.models import Department
 from apps.finance.models import CustomerAccount
 from apps.inventory.models import Warehouse
 from apps.products.models import Brand, Product, ProductCategory, Unit
-from apps.sales.models import Delivery, DeliveryItem, Quote, QuoteItem, SalesOrder, SalesOrderItem
+from apps.sales.models import Delivery, Quote, SalesOrder
 
 User = get_user_model()
 

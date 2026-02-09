@@ -171,7 +171,7 @@ def template_set_default(request, pk):
     messages.info(
         request,
         f"模板 {template.name} 属于 {template.get_template_category_display()} 类别。"
-        f'请前往 Admin 后台的"单据默认模板配置"页面,为具体的单据类型(如"报价单-国内"、"报价单-海外")设置默认模板。',
+        '请前往 Admin 后台的"单据默认模板配置"页面,为具体的单据类型(如"报价单-国内"、"报价单-海外")设置默认模板。',
     )
 
     # 重定向到 Admin 的 DefaultTemplateMapping 列表页

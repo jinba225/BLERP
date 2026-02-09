@@ -9,17 +9,15 @@
 5. 边界条件测试（零值、负值、精度等）
 6. 异常处理测试（无效数据、重复操作等）
 """
-from datetime import date, timedelta
+from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
-from django.urls import reverse
+from django.test import TestCase
 
 from apps.products.models import Product, Unit
-from apps.purchase.models import Borrow, BorrowItem, PurchaseOrder
+from apps.purchase.models import Borrow, BorrowItem
 from apps.suppliers.models import Supplier
-from common.utils import DocumentNumberGenerator
 
 User = get_user_model()
 

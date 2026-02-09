@@ -4,7 +4,7 @@
 提供统一的权限检查接口，支持自定义 Permission 模型
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -33,7 +33,7 @@ def has_custom_permission(user: User, permission_code: str) -> bool:
         return False
 
     try:
-        from users.models import Permission, Role, UserRole
+        from users.models import UserRole
 
         # 尝试从缓存获取
         cache_key = f"user_custom_perms:{user.id}"
@@ -99,7 +99,7 @@ def get_user_permissions(user: User) -> List[Dict[str, str]]:
         ]
 
     try:
-        from users.models import Permission, Role, UserRole
+        from users.models import Permission, UserRole
 
         # 获取用户的所有角色
         user_roles = (
@@ -145,7 +145,7 @@ def get_user_roles(user: User) -> List[Dict[str, any]]:
         return []
 
     try:
-        from users.models import Role, UserRole
+        from users.models import UserRole
 
         user_roles = (
             UserRole.objects.filter(user=user, is_active=True, is_deleted=False)

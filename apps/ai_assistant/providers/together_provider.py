@@ -9,9 +9,8 @@ Together AI Provider - 开源模型聚合平台
 官方文档：https://docs.together.ai/
 """
 
-from typing import Any, Dict
 
-import requests
+import openai
 
 from .base import AIResponse, BaseAIProvider
 

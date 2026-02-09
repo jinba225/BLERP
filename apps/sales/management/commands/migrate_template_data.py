@@ -117,7 +117,7 @@ class Command(BaseCommand):
                 self.style.WARNING("💡 执行 python manage.py migrate_template_data 进行实际迁移")
             )
         else:
-            self.stdout.write(self.style.SUCCESS(f"✅ 数据迁移完成！"))
+            self.stdout.write(self.style.SUCCESS("✅ 数据迁移完成！"))
             self.stdout.write(f"  - 更新模板: {updated_count} 个")
             self.stdout.write(f"  - 创建默认映射: {created_mappings_count} 个")
         self.stdout.write("=" * 80)

@@ -2,20 +2,10 @@
 BI模块简化测试（避免依赖ecomm_sync模块的模型错误）
 """
 from datetime import date
-from decimal import Decimal
 
 import pytest
 
-from apps.bi.models import (
-    Dashboard,
-    DashboardWidget,
-    InventoryAnalysis,
-    PlatformComparison,
-    ProductSales,
-    Report,
-    ReportData,
-    SalesSummary,
-)
+from apps.bi.models import Dashboard, DashboardWidget, Report
 
 
 @pytest.mark.django_db
@@ -169,6 +159,6 @@ class TestDashboardAPI:
             reverse("bi:data-export-inventory")
 
             assert True
-        except:
+        except BaseException:
             # URL可能不存在，但模块结构应该正常
             pass

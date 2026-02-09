@@ -2,19 +2,16 @@
 Management command to migrate data from legacy ERP system.
 """
 import csv
-import json
 import os
-from datetime import datetime
 from decimal import Decimal
 
-from customers.models import Customer, CustomerAddress, CustomerCategory, CustomerContact
+from customers.models import Customer, CustomerCategory
 from departments.models import Department
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from products.models import Brand, Product, ProductCategory, Unit
-from suppliers.models import Supplier, SupplierCategory, SupplierContact
-from users.models import Role, UserRole
+from suppliers.models import Supplier, SupplierCategory
 
 User = get_user_model()
 

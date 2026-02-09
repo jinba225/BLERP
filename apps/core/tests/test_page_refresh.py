@@ -3,7 +3,6 @@
 """
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase, override_settings
-from django.urls import reverse
 
 User = get_user_model()
 
@@ -59,7 +58,6 @@ class PageRefreshTestCase(TestCase):
 
     def test_context_processor_available(self):
         """测试context processor是否可用"""
-        from django.template import Context
         from django.test import RequestFactory
 
         from apps.core.context_processors import page_refresh_config

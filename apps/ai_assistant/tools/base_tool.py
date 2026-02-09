@@ -4,10 +4,9 @@ ERP工具基类
 提供AI调用ERP系统的标准工具接口
 """
 
-import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -86,7 +85,6 @@ class BaseTool(ABC):
         Returns:
             JSON Schema格式的参数定义
         """
-        pass
 
     @abstractmethod
     def execute(self, **kwargs) -> ToolResult:
@@ -99,7 +97,6 @@ class BaseTool(ABC):
         Returns:
             ToolResult对象
         """
-        pass
 
     def check_permission(self) -> bool:
         """

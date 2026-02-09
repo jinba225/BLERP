@@ -2,7 +2,6 @@
 数据库管理视图
 提供数据库备份、还原、测试数据管理等功能的Web界面
 """
-import json
 from pathlib import Path
 
 from django.contrib import messages

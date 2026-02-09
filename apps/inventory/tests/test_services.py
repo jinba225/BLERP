@@ -15,18 +15,7 @@ from inventory.services import (
 )
 
 from apps.departments.models import Department
-from apps.inventory.models import (
-    InboundOrder,
-    InboundOrderItem,
-    InventoryStock,
-    InventoryTransaction,
-    StockAdjustment,
-    StockCount,
-    StockCountItem,
-    StockTransfer,
-    StockTransferItem,
-    Warehouse,
-)
+from apps.inventory.models import InventoryStock, InventoryTransaction, Warehouse
 from apps.products.models import Brand, Product, ProductCategory, Unit
 
 User = get_user_model()

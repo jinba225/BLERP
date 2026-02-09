@@ -1,7 +1,7 @@
 """
 BI报表API视图
 """
-from django.db.models import Avg, Count, F, Sum
+from django.db.models import Avg, Count, Sum
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -22,16 +22,10 @@ from .serializers import (
     InventoryAnalysisSerializer,
     PlatformComparisonSerializer,
     ProductSalesSerializer,
-    ReportDataSerializer,
     ReportSerializer,
     SalesSummarySerializer,
 )
-from .services import (
-    InventoryReportService,
-    PlatformComparisonService,
-    ReportGenerator,
-    SalesReportService,
-)
+from .services import ReportGenerator
 
 
 class ReportViewSet(viewsets.ModelViewSet):

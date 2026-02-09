@@ -30,7 +30,7 @@ class Command(BaseCommand):
 
         # 测试新的识别逻辑
         borrow_numbers = [b for b in order.notes.split() if b.startswith("BO")]
-        self.stdout.write(f"\n2. 新的识别逻辑:")
+        self.stdout.write("\n2. 新的识别逻辑:")
         self.stdout.write(f"   - 提取的借用单号: {borrow_numbers}")
 
         if borrow_numbers:
@@ -43,13 +43,13 @@ class Command(BaseCommand):
                     self.style.SUCCESS(f"   ✅ 正确识别借用单: {source_borrow.borrow_number}")
                 )
             else:
-                self.stdout.write(self.style.ERROR(f"   ❌ 未找到借用单"))
+                self.stdout.write(self.style.ERROR("   ❌ 未找到借用单"))
         else:
-            self.stdout.write(self.style.ERROR(f"   ❌ 未能从备注中提取借用单号"))
+            self.stdout.write(self.style.ERROR("   ❌ 未能从备注中提取借用单号"))
 
         # 检查收货单
         receipts = PurchaseReceipt.objects.filter(purchase_order=order, is_deleted=False)
-        self.stdout.write(f"\n3. 收货单情况:")
+        self.stdout.write("\n3. 收货单情况:")
         for receipt in receipts:
             self.stdout.write(f"   - {receipt.receipt_number}: {receipt.get_status_display()}")
 
@@ -63,7 +63,7 @@ class Command(BaseCommand):
                     self.style.SUCCESS(f"     ✅ 有关联调拨单: {transfers.first().transfer_number}")
                 )
             else:
-                self.stdout.write(self.style.WARNING(f"     ⚠️  没有关联调拨单（需要重新确认收货）"))
+                self.stdout.write(self.style.WARNING("     ⚠️  没有关联调拨单（需要重新确认收货）"))
 
         # 测试结果
         self.stdout.write("\n" + "=" * 60)

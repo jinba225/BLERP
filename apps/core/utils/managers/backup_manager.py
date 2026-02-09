@@ -5,11 +5,9 @@
 import os
 import shutil
 from datetime import datetime
-from io import StringIO
 from pathlib import Path
 
 from django.conf import settings
-from django.core.management import call_command
 
 
 class BackupManager:
@@ -156,6 +154,6 @@ class BackupManager:
                 backup_path.unlink()
                 return True, f"备份文件 {backup_filename} 已删除"
             else:
-                return False, f"备份文件不存在"
+                return False, "备份文件不存在"
         except Exception as e:
             return False, f"删除备份失败：{str(e)}"

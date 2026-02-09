@@ -5,32 +5,21 @@
 """
 
 import os
-import sys
+import time
+from datetime import datetime
 
 import django
+from ai_assistant.providers import MockAIProvider
+from ai_assistant.services import ConversationFlowManager, NLPService
+from django.contrib.auth import get_user_model
+from django.test import TestCase
 
 # 设置 Django 环境
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "better_laser_erp.settings")
 
-import django
 
 django.setup()
 
-import json
-import time
-from datetime import datetime, timedelta
-
-from ai_assistant.channels import BaseChannel, IncomingMessage
-from ai_assistant.providers import MockAIProvider
-from ai_assistant.services import (
-    ConversationContext,
-    ConversationFlowManager,
-    ConversationState,
-    Intent,
-    NLPService,
-)
-from django.contrib.auth import get_user_model
-from django.test import TestCase
 
 User = get_user_model()
 
@@ -246,7 +235,7 @@ class ToolExecutionTest(TestCase):
 
     def test_customer_search_tool(self):
         """测试客户搜索工具"""
-        from ai_assistant.tools import SearchCustomerTool, ToolRegistry
+        from ai_assistant.tools import ToolRegistry
 
         tool = ToolRegistry.get_tool("search_customer", self.user)
         self.assertIsNotNone(tool, "客户搜索工具应该存在")
@@ -259,7 +248,7 @@ class ToolExecutionTest(TestCase):
 
     def test_product_search_tool(self):
         """测试产品搜索工具"""
-        from ai_assistant.tools import SearchProductTool, ToolRegistry
+        from ai_assistant.tools import ToolRegistry
 
         tool = ToolRegistry.get_tool("search_product", self.user)
         self.assertIsNotNone(tool, "产品搜索工具应该存在")
@@ -272,7 +261,7 @@ class ToolExecutionTest(TestCase):
 
     def test_inventory_check_tool(self):
         """测试库存检查工具"""
-        from ai_assistant.tools import CheckInventoryTool, ToolRegistry
+        from ai_assistant.tools import ToolRegistry
 
         tool = ToolRegistry.get_tool("check_inventory", self.user)
         self.assertIsNotNone(tool, "库存检查工具应该存在")
@@ -291,7 +280,7 @@ class ToolExecutionTest(TestCase):
 
     def test_low_stock_alert_tool(self):
         """测试低库存预警工具"""
-        from ai_assistant.tools import GetLowStockAlertTool, ToolRegistry
+        from ai_assistant.tools import ToolRegistry
 
         tool = ToolRegistry.get_tool("get_low_stock_alert", self.user)
         self.assertIsNotNone(tool, "低库存预警工具应该存在")
@@ -389,7 +378,6 @@ class MultiChannelIntegrationTest(TestCase):
 
     def test_conversation_context_management(self):
         """测试对话上下文管理"""
-        from ai_assistant.channels import IncomingMessage
         from ai_assistant.services import ConversationFlowManager, NLPService
 
         # 创建 Mock AI Provider
@@ -479,12 +467,12 @@ class ErrorHandlingTest(TestCase):
                 content=user_message,
                 timestamp=datetime.now(),
                 message_type="text",
-                conversation_id=f"test_invalid_test_user",
+                conversation_id="test_invalid_test_user",
             )
 
             response = service.process_message(message)
 
-            self.assertIsNotNone(response, f"应该返回回复，即使是无效输入")
+            self.assertIsNotNone(response, "应该返回回复，即使是无效输入")
 
     def test_conversation_reset(self):
         """测试对话重置"""
@@ -565,7 +553,6 @@ class PerformanceTest(TestCase):
 
     def test_response_time(self):
         """测试响应时间"""
-        from ai_assistant.tools import ToolRegistry
 
         from apps.ai_assistant.models import AIModelConfig
         from common.utils import decrypt_api_key

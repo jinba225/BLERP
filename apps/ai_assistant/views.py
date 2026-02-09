@@ -15,7 +15,7 @@ from django.views.decorators.http import require_POST
 from .models import AIModelConfig
 
 # from .services import AIService  # 暂时注释，AIService尚未实现
-from .utils import decrypt_api_key, encrypt_api_key
+from .utils import encrypt_api_key
 
 
 @login_required

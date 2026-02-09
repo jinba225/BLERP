@@ -7,7 +7,6 @@ import logging
 import time
 from typing import Dict, Optional
 
-from django.conf import settings
 from django.core.cache import cache
 
 from ..config import DEFAULT_RATE_LIMIT, PLATFORM_RATE_LIMITS

@@ -118,7 +118,9 @@ def generate_balance_sheet(request):
 
             logger.info(
                 f"Balance sheet generated successfully: report_id={report.id}, "
-                f'total_assets={report.total_assets}, is_balanced={report.report_data.get("is_balanced")}'
+                f'total_assets={
+                    report.total_assets}, is_balanced={
+                    report.report_data.get("is_balanced")}'
             )
 
             messages.success(

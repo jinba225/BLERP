@@ -9,7 +9,6 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from django.contrib.auth import get_user_model
-from django.db import transaction
 from django.utils import timezone
 
 User = get_user_model()

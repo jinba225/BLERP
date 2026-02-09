@@ -3,7 +3,6 @@
 
 提供常见的数据库查询优化工具函数，减少N+1查询问题和内存占用。
 """
-from django.db.models import QuerySet
 
 
 def get_optimized_choices(queryset, value_field="id", label_field="name", filter_kwargs=None):

@@ -132,7 +132,10 @@ class ConsolidatePrepaymentTool(BaseTool):
                     "consolidated_amount": float(total_amount),
                     "source_count": len(source_prepayment_ids),
                 },
-                message=f"已将 {len(source_prepayment_ids)} 笔预付款合并到 {target_prepayment.prepayment_number}，总金额 {total_amount:.2f} 元",
+                message=f"已将 {
+                    len(source_prepayment_ids)} 笔预付款合并到 {
+                    target_prepayment.prepayment_number}，总金额 {
+                    total_amount:.2f} 元",
             )
 
         except Exception as e:
@@ -188,7 +191,7 @@ class ProcessPaymentTool(BaseTool):
                 )
 
             if payment.status == "completed":
-                return ToolResult(success=False, error=f"付款记录已完成，无需重复处理")
+                return ToolResult(success=False, error="付款记录已完成，无需重复处理")
 
             # 处理付款
             with transaction.atomic():
@@ -291,7 +294,10 @@ class ApproveBudgetTool(BaseTool):
 
                 old_amount = float(budget.amount) if budget.amount else 0
                 budget.amount = new_amount
-                budget.notes = f"{budget.notes or ''}\n调整记录: 原金额 {old_amount:.2f}，新金额 {new_amount:.2f}，原因: {notes}"
+                budget.notes = f"{
+                    budget.notes or ''}\n调整记录: 原金额 {
+                    old_amount:.2f}，新金额 {
+                    new_amount:.2f}，原因: {notes}"
                 budget.last_modified_at = timezone.now()
                 budget.last_modified_by = self.user
                 budget.save()
@@ -310,7 +316,7 @@ class ApproveBudgetTool(BaseTool):
             elif action == "freeze":
                 # 冻结预算
                 if budget.status != "approved":
-                    return ToolResult(success=False, error=f"只有已批准的预算才能冻结")
+                    return ToolResult(success=False, error="只有已批准的预算才能冻结")
 
                 budget.status = "frozen"
                 budget.notes = f"{budget.notes or ''}\n冻结原因: {notes}"

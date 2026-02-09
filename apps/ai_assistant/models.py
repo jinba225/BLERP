@@ -552,4 +552,5 @@ class ChannelUserMapping(BaseModel):
         ]
 
     def __str__(self):
-        return f"{self.get_channel_display()} - {self.external_username or self.external_user_id} → {self.user.username}"
+        return f"{self.get_channel_display()} \
+            {self.external_username or self.external_user_id} → {self.user.username}"

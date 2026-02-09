@@ -7,9 +7,8 @@ from decimal import Decimal, InvalidOperation
 from core.models import Notification
 from django.contrib import messages
 from django.db import transaction
-from products.models import Product
 
-from ..models import Quote, SalesOrder, SalesOrderItem
+from ..models import SalesOrder, SalesOrderItem
 
 
 class SalesOrderService:
@@ -209,7 +208,13 @@ class SalesOrderService:
                 Notification.create_notification(
                     recipient=order.customer,
                     title=f"订单 {order.order_number} 状态已更新",
-                    message=f"订单状态：{status_messages.get(old_status, old_status)} → {status_messages.get(status, status)}",
+                    message=f"订单状态：{
+                        status_messages.get(
+                            old_status,
+                            old_status)} → {
+                        status_messages.get(
+                            status,
+                            status)}",
                     notification_type="info",
                     category="sales_order",
                     reference_type="SalesOrder",

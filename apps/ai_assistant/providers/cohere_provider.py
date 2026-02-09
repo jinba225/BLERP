@@ -10,7 +10,6 @@ Cohere Provider - 专注于 RAG（检索增强生成）
 官方文档：https://docs.cohere.com/
 """
 
-from typing import Any, Dict
 
 import cohere
 

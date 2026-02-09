@@ -5,6 +5,7 @@ DeepSeek API 提供商实现
 """
 
 import asyncio
+import json
 from typing import Any, Dict, Iterator, List, Optional
 
 import httpx

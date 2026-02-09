@@ -21,14 +21,6 @@ from core.tests.test_fixtures import FixtureFactory
 from django.utils import timezone
 from finance.models import CustomerAccount
 from inventory.models import InventoryStock, InventoryTransaction
-from sales.models import (
-    Delivery,
-    DeliveryItem,
-    SalesOrder,
-    SalesOrderItem,
-    SalesReturn,
-    SalesReturnItem,
-)
 
 
 @pytest.mark.django_db

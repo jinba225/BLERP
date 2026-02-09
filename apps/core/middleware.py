@@ -23,7 +23,7 @@ class TimezoneMiddleware(MiddlewareMixin):
                 # Try to get timezone from user profile
                 user_timezone = request.user.userprofile.timezone
                 timezone.activate(pytz.timezone(user_timezone))
-            except:
+            except BaseException:
                 # Fall back to default timezone
                 timezone.deactivate()
         else:

@@ -1,7 +1,6 @@
 """
 Finance模块pytest配置
 """
-from decimal import Decimal
 
 import pytest
 from django.contrib.auth import get_user_model

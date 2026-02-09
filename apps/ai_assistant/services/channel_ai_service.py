@@ -9,13 +9,8 @@ from typing import Optional
 from ai_assistant.channels import ChannelAdapter
 from ai_assistant.channels.base_channel import IncomingMessage, OutgoingMessage
 from ai_assistant.providers import BaseAIProvider
-from ai_assistant.services import (
-    ConversationContext,
-    ConversationFlowManager,
-    ConversationState,
-    Intent,
-    NLPService,
-)
+from ai_assistant.services import ConversationContext, ConversationFlowManager, NLPService
+from ai_assistant.services.customer_ai_service import CustomerAIService
 from django.contrib.auth import get_user_model
 
 from common.utils import decrypt_api_key
@@ -65,8 +60,6 @@ class ChannelAIService:
             BaseAIProvider 实例，如果没有配置则返回 None
         """
         from ai_assistant.models import AIModelConfig
-
-        from common.utils import decrypt_api_key
 
         # 1. 优先使用客户级别的配置
         if self.user_ai_config and self.user_ai_config.model_config:

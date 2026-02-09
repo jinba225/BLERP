@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from apps.customers.models import Customer
 from apps.products.models import Product, ProductCategory, Unit
-from apps.sales.models import Quote, QuoteItem, SalesOrder, SalesOrderItem
+from apps.sales.models import Quote, SalesOrder, SalesOrderItem
 
 User = get_user_model()
 
@@ -31,7 +31,7 @@ class SalesOrderListViewTest(TestCase):
         # Create test orders
         for i in range(3):
             SalesOrder.objects.create(
-                order_number=f"SO202511000{i+1}",
+                order_number=f"SO202511000{i + 1}",
                 customer=self.customer,
                 order_date=timezone.now().date(),
                 created_by=self.user,
@@ -138,7 +138,7 @@ class QuoteListViewTest(TestCase):
         # Create test quotes
         for i in range(2):
             Quote.objects.create(
-                quote_number=f"QT202511000{i+1}",
+                quote_number=f"QT202511000{i + 1}",
                 customer=self.customer,
                 quote_date=timezone.now().date(),
                 valid_until=timezone.now().date(),

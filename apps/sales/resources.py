@@ -6,20 +6,8 @@ from django.contrib.auth import get_user_model
 from import_export import fields, resources
 from import_export.widgets import DateWidget, DecimalWidget, ForeignKeyWidget
 from inventory.models import Warehouse
-from products.models import Product
 
-from .models import (
-    Delivery,
-    DeliveryItem,
-    Quote,
-    QuoteItem,
-    SalesLoan,
-    SalesLoanItem,
-    SalesOrder,
-    SalesOrderItem,
-    SalesReturn,
-    SalesReturnItem,
-)
+from .models import Delivery, Quote, SalesLoan, SalesOrder, SalesReturn
 
 User = get_user_model()
 

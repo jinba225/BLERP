@@ -11,7 +11,7 @@ from customers.models import Customer
 from django.db import transaction
 from django.utils import timezone
 from products.models import Product
-from sales.models import Delivery, Quote, SalesLoan, SalesReturn
+from sales.models import Delivery, Quote, SalesLoan, SalesOrder, SalesReturn
 
 from common.utils import DocumentNumberGenerator
 
@@ -424,7 +424,9 @@ class CreateSalesLoanTool(BaseTool):
                     "expected_return_date": loan.expected_return_date.strftime("%Y-%m-%d"),
                     "items_count": len(validated_items),
                 },
-                message=f"借货单 {loan.loan_number} 创建成功，预计归还日期 {loan.expected_return_date.strftime('%Y-%m-%d')}",
+                message=f"借货单 {
+                    loan.loan_number} 创建成功，预计归还日期 {
+                    loan.expected_return_date.strftime('%Y-%m-%d')}",
             )
 
         except Exception as e:
@@ -458,7 +460,7 @@ class ConvertQuoteToOrderTool(BaseTool):
     ) -> ToolResult:
         """执行转换"""
         try:
-            from sales.models import QuoteItem, SalesOrder, SalesOrderItem
+            from sales.models import SalesOrder, SalesOrderItem
 
             # 获取报价单
             try:

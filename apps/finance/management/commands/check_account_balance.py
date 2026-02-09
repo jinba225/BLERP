@@ -35,9 +35,9 @@ class Command(BaseCommand):
 
     def check_account(self, account, fix=False):
         """检查单个账户"""
-        self.stdout.write(f'\n{"="*60}')
+        self.stdout.write(f'\n{"=" * 60}')
         self.stdout.write(f"检查账户: {account.invoice_number} (ID: {account.id})")
-        self.stdout.write(f'{"="*60}')
+        self.stdout.write(f'{"=" * 60}')
         self.stdout.write(f'供应商: {account.supplier.name if account.supplier else "N/A"}')
         self.stdout.write(
             f'订单号: {account.purchase_order.order_number if account.purchase_order else "N/A"}'
@@ -83,8 +83,7 @@ class Command(BaseCommand):
             if account.invoice_amount != total_detail_amount:
                 self.stdout.write(
                     self.style.WARNING(
-                        f"  ⚠ 实际应付不一致! "
-                        f"主单¥{account.invoice_amount} vs 明细汇总¥{total_detail_amount}"
+                        "  ⚠ 实际应付不一致! " f"主单¥{account.invoice_amount} vs 明细汇总¥{total_detail_amount}"
                     )
                 )
             else:
@@ -93,7 +92,7 @@ class Command(BaseCommand):
             if account.paid_amount != total_allocated:
                 self.stdout.write(
                     self.style.WARNING(
-                        f"  ⚠ 已核销金额不一致! " f"主单¥{account.paid_amount} vs 明细汇总¥{total_allocated}"
+                        "  ⚠ 已核销金额不一致! " f"主单¥{account.paid_amount} vs 明细汇总¥{total_allocated}"
                     )
                 )
             else:
@@ -102,7 +101,7 @@ class Command(BaseCommand):
             if account.balance != expected_balance:
                 self.stdout.write(
                     self.style.ERROR(
-                        f"  ✗ 未付余额不一致! " f"主单¥{account.balance} vs 应该¥{expected_balance}"
+                        "  ✗ 未付余额不一致! " f"主单¥{account.balance} vs 应该¥{expected_balance}"
                     )
                 )
 
@@ -122,7 +121,7 @@ class Command(BaseCommand):
             expected_balance_calc = account.invoice_amount - account.paid_amount
             self.stdout.write("")
             self.stdout.write("【公式验证】")
-            self.stdout.write(f"  未付余额 = 实际应付 - 已核销")
+            self.stdout.write("  未付余额 = 实际应付 - 已核销")
             self.stdout.write(
                 f"  ¥{account.balance} = ¥{account.invoice_amount} - ¥{account.paid_amount}"
             )
@@ -130,7 +129,7 @@ class Command(BaseCommand):
             if abs(account.balance - expected_balance_calc) > Decimal("0.01"):
                 self.stdout.write(
                     self.style.ERROR(
-                        f"  ✗ 公式不成立! "
+                        "  ✗ 公式不成立! "
                         f"¥{account.balance} ≠ ¥{account.invoice_amount} - ¥{account.paid_amount} = ¥{expected_balance_calc}"
                     )
                 )
@@ -144,7 +143,7 @@ class Command(BaseCommand):
             expected_balance_calc = account.invoice_amount - account.paid_amount
             self.stdout.write("")
             self.stdout.write("【公式验证】")
-            self.stdout.write(f"  未付余额 = 实际应付 - 已核销")
+            self.stdout.write("  未付余额 = 实际应付 - 已核销")
             self.stdout.write(
                 f"  ¥{account.balance} = ¥{account.invoice_amount} - ¥{account.paid_amount}"
             )
@@ -152,7 +151,7 @@ class Command(BaseCommand):
             if abs(account.balance - expected_balance_calc) > Decimal("0.01"):
                 self.stdout.write(
                     self.style.ERROR(
-                        f"  ✗ 公式不成立! "
+                        "  ✗ 公式不成立! "
                         f"¥{account.balance} ≠ ¥{account.invoice_amount} - ¥{account.paid_amount} = ¥{expected_balance_calc}"
                     )
                 )

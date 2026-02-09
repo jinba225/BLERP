@@ -5,19 +5,18 @@
 """
 
 import os
-import sys
 
 import django
+from ai_assistant.providers import MockAIProvider
+from ai_assistant.services import ConversationFlowManager, NLPService
+from django.contrib.auth import get_user_model
+from django.test import TestCase
 
 # 设置 Django 环境
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "better_laser_erp.settings")
 django.setup()
 
-from datetime import datetime
-
-from ai_assistant.providers import MockAIProvider
-from ai_assistant.services import ConversationFlowManager, NLPService
-from django.test import TestCase
+User = get_user_model()
 
 
 class SimplifiedConversationFlowTest(TestCase):
@@ -34,7 +33,6 @@ class SimplifiedConversationFlowTest(TestCase):
 
     def test_intent_recognition(self):
         """测试意图识别"""
-        from ai_assistant.services import Intent
 
         provider = MockAIProvider(api_key="test_key", model_name="mock-model", timeout=30)
         nlp_service = NLPService(provider)

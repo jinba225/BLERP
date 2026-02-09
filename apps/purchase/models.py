@@ -184,7 +184,7 @@ class PurchaseOrder(BaseModel):
                         receipt_warehouse = Warehouse.objects.filter(
                             is_active=True, is_deleted=False
                         ).first()
-                except:
+                except BaseException:
                     pass
 
             # Create receipt

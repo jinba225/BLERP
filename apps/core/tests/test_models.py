@@ -2,10 +2,8 @@
 Core models tests.
 """
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from django.utils import timezone
 
 from apps.core.models import (
     Attachment,

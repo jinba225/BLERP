@@ -14,11 +14,10 @@ Django ERP 财务报表端到端测试
 """
 
 import uuid
-from datetime import date, timedelta
+from datetime import date
 from decimal import Decimal
 
 import pytest
-from core.tests.test_fixtures import FixtureFactory
 from django.utils import timezone
 from finance.models import Account, Journal, JournalEntry
 from finance.report_generator import FinancialReportGenerator

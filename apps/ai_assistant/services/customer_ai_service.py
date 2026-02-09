@@ -7,8 +7,6 @@
 from typing import Any, Dict, List, Optional
 
 from ai_assistant.models import AIModelConfig, AITool, CustomerAIConfig
-from django.core.exceptions import PermissionDenied
-from django.db import transaction
 
 
 class CustomerAIService:

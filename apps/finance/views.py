@@ -19,10 +19,8 @@ from suppliers.models import Supplier
 from .models import (
     Account,
     Budget,
-    BudgetLine,
     CustomerAccount,
     CustomerPrepayment,
-    FinancialReport,
     Invoice,
     InvoiceItem,
     Journal,
@@ -151,14 +149,16 @@ def _create_invoice_from_order_post(request, order, invoice_type, party_field):
     from common.utils import DocumentNumberGenerator
 
     logger.info(
-        f"User {request.user.username} attempting to create {invoice_type} invoice from order {order.order_number}"
+        f"User {
+            request.user.username} attempting to create {invoice_type} invoice from order {
+            order.order_number}"
     )
 
     try:
         # 数据验证
         invoice_date = request.POST.get("invoice_date")
         if not invoice_date:
-            logger.warning(f"Invoice creation failed: missing invoice_date")
+            logger.warning("Invoice creation failed: missing invoice_date")
             return False, None, "开票日期是必填项"
 
         try:
@@ -167,13 +167,13 @@ def _create_invoice_from_order_post(request, order, invoice_type, party_field):
                 logger.warning(f"Invoice creation failed: invalid tax_rate {tax_rate}")
                 return False, None, "税率必须在0-100之间"
         except (InvalidOperation, ValueError):
-            logger.warning(f"Invoice creation failed: invalid tax_rate format")
+            logger.warning("Invoice creation failed: invalid tax_rate format")
             return False, None, "税率格式无效"
 
         # 验证明细
         item_count = int(request.POST.get("item_count", 0))
         if item_count == 0:
-            logger.warning(f"Invoice creation failed: no items")
+            logger.warning("Invoice creation failed: no items")
             return False, None, "发票至少需要一个明细项"
 
         # 生成发票号
@@ -227,14 +227,16 @@ def _create_invoice_from_order_post(request, order, invoice_type, party_field):
                 item_tax_rate = Decimal(request.POST.get(f"item_{i}_tax_rate", "13"))
 
                 if quantity <= 0:
-                    raise ValueError(f"第{i+1}行：数量必须大于0")
+                    raise ValueError(f"第{i + 1}行：数量必须大于0")
                 if unit_price < 0:
-                    raise ValueError(f"第{i+1}行：单价不能为负数")
+                    raise ValueError(f"第{i + 1}行：单价不能为负数")
 
             except (InvalidOperation, ValueError) as e:
                 # 如果出错，删除已创建的发票
                 logger.error(
-                    f"Invoice item validation failed: {str(e)}, rolling back invoice {invoice.invoice_number}"
+                    f"Invoice item validation failed: {
+                        str(e)}, rolling back invoice {
+                        invoice.invoice_number}"
                 )
                 invoice.delete()
                 return False, None, str(e)
@@ -270,13 +272,16 @@ def _create_invoice_from_order_post(request, order, invoice_type, party_field):
         invoice.calculate_totals()
         invoice.save()
         logger.info(
-            f"Invoice {invoice.invoice_number} completed: total={invoice.total_amount}, tax={invoice.tax_amount}"
+            f"Invoice {
+                invoice.invoice_number} completed: total={
+                invoice.total_amount}, tax={
+                invoice.tax_amount}"
         )
 
         return True, invoice, None
 
     except Product.DoesNotExist:
-        logger.error(f"Product not found during invoice creation")
+        logger.error("Product not found during invoice creation")
         return False, None, "指定的产品不存在"
     except Exception as e:
         logger.exception(
@@ -2283,7 +2288,9 @@ def invoice_verify(request, pk):
                         f"已自动生成应付账款，应付金额：¥{account.invoice_amount}，到期日期：{account.due_date}",
                     )
                     logger.info(
-                        f"Auto-generated supplier account {account.id} for verified invoice {invoice.invoice_number}"
+                        f"Auto-generated supplier account {
+                            account.id} for verified invoice {
+                            invoice.invoice_number}"
                     )
                 elif error and "已生成应付账款" in error:
                     # 如果已经存在应付账款，只提示认证成功
@@ -2295,7 +2302,8 @@ def invoice_verify(request, pk):
                     invoice.save()
                     messages.error(request, f"发票认证成功，但生成应付账款失败：{error}")
                     logger.error(
-                        f"Failed to generate supplier account for invoice {invoice.invoice_number}: {error}"
+                        f"Failed to generate supplier account for invoice {
+                            invoice.invoice_number}: {error}"
                     )
             else:
                 # 销售发票只更新状态
@@ -3049,8 +3057,6 @@ def account_report(request):
     - 逾期状态
     - 结清状态
     """
-    from purchase.models import PurchaseOrder
-    from sales.models import SalesOrder
 
     # 获取账款类型
     account_type = request.GET.get("account_type", "receivable").strip()
@@ -3139,7 +3145,6 @@ def supplier_account_payment_list(request):
     """
     供应商应付账款列表（支持按明细核销）
     """
-    from finance.models import SupplierAccountDetail
 
     accounts = (
         SupplierAccount.objects.filter(is_deleted=False, supplier__isnull=False)  # 只显示供应商应付
@@ -3207,7 +3212,6 @@ def supplier_account_payment_allocate(request, pk):
     """
     应付账款付款核销（按明细核销）
     """
-    from finance.models import SupplierAccountDetail
 
     account = get_object_or_404(
         SupplierAccount.objects.prefetch_related("details__receipt", "details__return_order"),

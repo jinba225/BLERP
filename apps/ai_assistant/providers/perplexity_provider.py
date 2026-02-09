@@ -10,11 +10,10 @@ Perplexity Provider - 强大的 AI 搜索
 官方文档：https://docs.perplexity.ai/
 """
 
-from typing import Any, Dict
 
 import openai
 
-from .base import AIResponse, BaseAIProvider, ProviderException
+from .base import AIResponse, BaseAIProvider
 
 
 class PerplexityProvider(BaseAIProvider):

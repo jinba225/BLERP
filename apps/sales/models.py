@@ -4,9 +4,8 @@ Sales models for the ERP system.
 from datetime import timedelta
 from decimal import Decimal
 
-from core.models import PAYMENT_METHOD_CHOICES, BaseModel
+from core.models import BaseModel
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -291,7 +290,6 @@ class SalesOrder(BaseModel):
         Raises:
             ValueError: If order cannot be unapproved
         """
-        from django.utils import timezone
 
         # Check if order is approved
         if not self.approved_by:

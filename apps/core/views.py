@@ -1,7 +1,7 @@
 """
 Core views for the ERP system.
 """
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -113,7 +113,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         # Inventory statistics
         try:
-            from inventory.models import InventoryStock
             from products.models import Product
 
             # Low stock items

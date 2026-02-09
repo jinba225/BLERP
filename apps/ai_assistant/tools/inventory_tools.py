@@ -7,7 +7,7 @@
 from typing import Any, Dict
 
 from django.db.models import Q, Sum
-from inventory.models import InventoryStock, InventoryTransaction
+from inventory.models import InventoryStock
 from products.models import Product
 
 from .base_tool import BaseTool, ToolResult

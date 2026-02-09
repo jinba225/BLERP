@@ -7,8 +7,8 @@
 from datetime import datetime, timedelta
 from typing import Any, Dict
 
-from django.db.models import Count, Q, Sum
-from inventory.models import InventoryStock, InventoryTransaction
+from django.db.models import Count, Sum
+from inventory.models import InventoryStock
 from purchase.models import PurchaseOrder
 from sales.models import SalesOrder
 
@@ -254,7 +254,7 @@ class GenerateInventoryReportTool(BaseTool):
     ) -> ToolResult:
         """执行生成报表"""
         try:
-            from products.models import Product
+            pass
 
             # 查询库存
             inventories = InventoryStock.objects.filter(is_deleted=False)

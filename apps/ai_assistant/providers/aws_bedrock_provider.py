@@ -10,11 +10,12 @@ AWS Bedrock Provider
 官方文档：https://docs.aws.amazon.com/bedrock/
 """
 
-from typing import Any, Dict, Iterator, Optional
+import json
+from typing import Dict
 
 import boto3
 
-from .base import AIResponse, BaseAIProvider, ProviderException
+from .base import AIResponse, BaseAIProvider, ProviderAPIException
 
 
 class BedrockProvider(BaseAIProvider):
@@ -59,9 +60,6 @@ class BedrockProvider(BaseAIProvider):
         # 解析 Bedrock 响应
         response_body = json.loads(response["Body"].read())
         content = response_body.get("output", {}).get("text", "")
-        usage = response_body.get("inputTokenCount", 0) + response_body.get(
-            "generationTokenCount", 0
-        )
 
         return AIResponse(
             content=content,

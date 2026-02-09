@@ -8,7 +8,6 @@ Groq Provider - 高性能、低延迟
 官方文档：https://console.groq.com/docs
 """
 
-from typing import Any, Dict, Optional
 
 import openai
 

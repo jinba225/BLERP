@@ -5,9 +5,7 @@
 import random
 from datetime import datetime, timedelta
 from decimal import Decimal
-from pathlib import Path
 
-from django.conf import settings
 from django.core.management import call_command
 
 
@@ -32,9 +30,9 @@ class TestDataGenerator:
 
         for i in range(count):
             product = {
-                "code": f"TEST-{i+1:04d}",
-                "name": f"测试产品{i+1}",
-                "sku": f"TEST-{i+1:04d}",
+                "code": f"TEST-{i + 1:04d}",
+                "name": f"测试产品{i + 1}",
+                "sku": f"TEST-{i + 1:04d}",
                 "cost_price": Decimal(random.uniform(10, 100)),
                 "stock": random.randint(10, 100),
                 "status": random.choice(["active", "inactive"]),
@@ -50,11 +48,11 @@ class TestDataGenerator:
 
         for i in range(count):
             customer = {
-                "code": f"CUST-{i+1:04d}",
-                "name": f"测试客户{i+1}",
+                "code": f"CUST-{i + 1:04d}",
+                "name": f"测试客户{i + 1}",
                 "phone": f"1{random.randint(10000000000, 19999999999)}",
-                "address": f"测试地址{i+1}",
-                "contact_person": f"测试联系人{i+1}",
+                "address": f"测试地址{i + 1}",
+                "contact_person": f"测试联系人{i + 1}",
             }
             customers.append(customer)
 
@@ -68,7 +66,7 @@ class TestDataGenerator:
         for i in range(count):
             order_date = datetime.now() - timedelta(days=random.randint(0, 30))
             order = {
-                "order_number": f'ORD-{datetime.now().strftime("%Y%m%d")}-{i+1:04d}',
+                "order_number": f'ORD-{datetime.now().strftime("%Y%m%d")}-{i + 1:04d}',
                 "customer_code": f"CUST-{random.randint(1, 5):04d}",
                 "total_amount": Decimal(random.uniform(100, 1000)),
                 "status": random.choice(["pending", "confirmed", "completed"]),

@@ -82,12 +82,12 @@ class Command(BaseCommand):
             )
 
             if created:
-                self.stdout.write(self.style.SUCCESS(f"✅ 用户绑定成功！"))
+                self.stdout.write(self.style.SUCCESS("✅ 用户绑定成功！"))
                 self.stdout.write(f"   Telegram ID: {telegram_user_id}")
                 self.stdout.write(f'   Telegram 用户名: {telegram_username or "无"}')
                 self.stdout.write(f"   系统用户: {user.username}")
             else:
-                self.stdout.write(self.style.WARNING(f"ℹ️  用户已绑定"))
+                self.stdout.write(self.style.WARNING("ℹ️  用户已绑定"))
                 self.stdout.write(f"   当前绑定的系统用户: {mapping.user.username}")
 
         except User.DoesNotExist:

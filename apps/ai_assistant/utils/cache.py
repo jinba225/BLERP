@@ -5,7 +5,6 @@ AI助手缓存工具
 """
 
 import json
-from datetime import timedelta
 from typing import Any, Optional
 
 from django.core.cache import cache

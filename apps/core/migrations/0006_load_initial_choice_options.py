@@ -13,7 +13,7 @@ def load_initial_choice_options(apps, schema_editor):
     # 获取第一个超级用户作为创建人（如果存在）
     try:
         admin_user = User.objects.filter(is_superuser=True).first()
-    except:
+    except BaseException:
         admin_user = None
 
     # 批量创建选项

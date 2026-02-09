@@ -24,8 +24,6 @@ from apps.finance.models import (
     SupplierAccount,
 )
 from apps.products.models import Product, ProductCategory, Unit
-from apps.purchase.models import PurchaseOrder
-from apps.sales.models import SalesOrder
 from apps.suppliers.models import Supplier
 
 User = get_user_model()

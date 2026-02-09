@@ -7,8 +7,6 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 
-User = get_user_model()
-
 from apps.customers.models import Customer
 
 from ..models import (
@@ -19,10 +17,10 @@ from ..models import (
     AIToolExecutionLog,
     ChannelUserMapping,
     CustomerAIConfig,
-    DingTalkConfig,
     TelegramConfig,
-    WeChatConfig,
 )
+
+User = get_user_model()
 
 
 class CustomerAIConfigModelTest(TestCase):
@@ -281,7 +279,7 @@ class AIToolModelTest(TestCase):
             tool = AITool.objects.create(
                 tool_name=f"test_tool_{tool_type}",
                 tool_type=tool_type,
-                function_name=f"test_func",
+                function_name="test_func",
                 created_by=self.user,
             )
             self.assertEqual(tool.tool_type, tool_type)

@@ -9,7 +9,6 @@ Mistral Provider - 法国 Mistral AI 的开源大模型
 官方文档：https://docs.mistral.ai/
 """
 
-from typing import Any, Dict
 
 import requests
 
@@ -24,7 +23,7 @@ class MistralProvider(BaseAIProvider):
     def __init__(self, api_key: str, model_id: str = "mistral-7b-instruct"):
         self.api_key = api_key
         self.model_id = model_id
-        self.base_url = DEFAULT_BASE_URL
+        self.base_url = self.DEFAULT_BASE_URL
 
     def chat(self, messages: list, **kwargs) -> AIResponse:
         """调用 Mistral API"""

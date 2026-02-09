@@ -5,14 +5,14 @@
 import json
 import logging
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Optional
 
+from celery import shared_task
 from decouple import config
-from django.conf import settings
 from django.core.cache import cache
 
-from .config import ALERT_RULES, DINGTALK_CONFIG, EMAIL_ALERT_CONFIG
+from .config import ALERT_RULES, EMAIL_ALERT_CONFIG
 from .monitor import get_monitor
 
 logger = logging.getLogger(__name__)
@@ -229,7 +229,7 @@ class AlertingService:
 
             # 构造消息
             title = f"【{rule['severity'].upper()}】{rule['name']}"
-            text = f"""
+            text = """
 ## {title}
 
 **平台**: {alert['platform']}
@@ -301,7 +301,7 @@ class AlertingService:
 
             # 构造邮件
             subject = f"{EMAIL_ALERT_CONFIG['subject_prefix']}{rule['name']} - {alert['platform']}"
-            message = f"""
+            message = """
 平台: {alert['platform']}
 告警类型: {alert['alert_type']}
 严重程度: {rule['severity']}
@@ -350,7 +350,7 @@ class AlertingService:
                 key = f"alert_history:{platform}"
                 keys = [key]
             else:
-                pattern = f"alert_history:*"
+                pattern = "alert_history:*"
                 keys = self._redis_keys(pattern)
 
             # 获取所有告警历史
@@ -361,7 +361,7 @@ class AlertingService:
                     try:
                         alert = json.loads(data)
                         all_alerts.append(alert)
-                    except:
+                    except BaseException:
                         pass
 
             # 按时间排序
@@ -415,7 +415,6 @@ def get_alerting() -> AlertingService:
 
 
 # Celery定时任务
-from celery import shared_task
 
 
 @shared_task

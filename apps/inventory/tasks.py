@@ -18,8 +18,6 @@ def update_inventory_status():
         from django.contrib.auth import get_user_model
         from products.models import Product
 
-        from .models import InventoryStock
-
         User = get_user_model()
 
         # Find low stock items
@@ -44,7 +42,10 @@ def update_inventory_status():
                     Notification.create_notification(
                         recipient=recipient,
                         title=f"库存预警: {product.name}",
-                        message=f"产品 {product.name} ({product.code}) 库存不足。\n当前库存: {total_quantity}\n最小库存: {product.min_stock}",
+                        message=f"产品 {
+                            product.name} ({
+                            product.code}) 库存不足。\n当前库存: {total_quantity}\n最小库存: {
+                            product.min_stock}",
                         notification_type="warning",
                         category="inventory",
                         reference_type="product",
@@ -79,7 +80,8 @@ def check_expiring_products():
             expiry_date__lte=expiry_threshold,
             expiry_date__gte=timezone.now().date(),
             quantity__gt=0,
-            transaction_type="in",  # Only check inbound transactions that are still in stock (simplified logic)
+            transaction_type="in",
+            # Only check inbound transactions that are still in stock (simplified logic)
         ).select_related("product", "warehouse")
 
         expiring_count = expiring_items.count()
@@ -92,7 +94,11 @@ def check_expiring_products():
                     Notification.create_notification(
                         recipient=recipient,
                         title=f"产品过期预警: {item.product.name}",
-                        message=f"产品 {item.product.name} (批次: {item.batch_number}) 即将过期。\n过期日期: {item.expiry_date}\n仓库: {item.warehouse.name}",
+                        message=f"产品 {
+                            item.product.name} (批次: {
+                            item.batch_number}) 即将过期。\n过期日期: {
+                            item.expiry_date}\n仓库: {
+                            item.warehouse.name}",
                         notification_type="warning",
                         category="inventory",
                         reference_type="inventory_transaction",

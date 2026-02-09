@@ -2559,7 +2559,6 @@ def inventory_order_report(request):
     Unified inventory order report - all document types in one view.
     Filters by document type, warehouse, status, and date range.
     """
-    from datetime import datetime, timedelta
 
     # Get filter parameters
     document_type = request.GET.get("document_type", "inbound")  # Default: inbound
@@ -3139,7 +3138,7 @@ def data_import(request):
         return redirect("inventory:stock_import")
 
     try:
-        from io import BytesIO
+        pass
 
         import pandas as pd
 
@@ -3226,7 +3225,7 @@ def data_import(request):
                     )
                     success_count += 1
                 except Exception as e:
-                    error_messages.append(f"第{idx+2}行：{str(e)}")
+                    error_messages.append(f"第{idx + 2}行：{str(e)}")
 
         elif data_type == "locations":
             # 导入库位
@@ -3239,7 +3238,7 @@ def data_import(request):
                     ).first()
 
                     if not warehouse:
-                        error_messages.append(f"第{idx+2}行：找不到仓库 {warehouse_code}")
+                        error_messages.append(f"第{idx + 2}行：找不到仓库 {warehouse_code}")
                         continue
 
                     # 创建库位
@@ -3260,7 +3259,7 @@ def data_import(request):
                     )
                     success_count += 1
                 except Exception as e:
-                    error_messages.append(f"第{idx+2}行：{str(e)}")
+                    error_messages.append(f"第{idx + 2}行：{str(e)}")
 
         elif data_type == "units":
             # 导入计量单位
@@ -3281,7 +3280,7 @@ def data_import(request):
                     )
                     success_count += 1
                 except Exception as e:
-                    error_messages.append(f"第{idx+2}行：{str(e)}")
+                    error_messages.append(f"第{idx + 2}行：{str(e)}")
 
         elif data_type == "tax_rates":
             # 导入税率
@@ -3313,7 +3312,7 @@ def data_import(request):
                     )
                     success_count += 1
                 except Exception as e:
-                    error_messages.append(f"第{idx+2}行：{str(e)}")
+                    error_messages.append(f"第{idx + 2}行：{str(e)}")
 
         elif data_type == "customers":
             # 导入客户
@@ -3375,7 +3374,7 @@ def data_import(request):
                     )
                     success_count += 1
                 except Exception as e:
-                    error_messages.append(f"第{idx+2}行：{str(e)}")
+                    error_messages.append(f"第{idx + 2}行：{str(e)}")
 
         elif data_type == "suppliers":
             # 导入供应商
@@ -3447,7 +3446,7 @@ def data_import(request):
                     )
                     success_count += 1
                 except Exception as e:
-                    error_messages.append(f"第{idx+2}行：{str(e)}")
+                    error_messages.append(f"第{idx + 2}行：{str(e)}")
 
         # 显示导入结果
         if success_count > 0:

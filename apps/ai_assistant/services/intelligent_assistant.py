@@ -4,9 +4,7 @@
 提供上下文感知的建议、自动补全和历史记录分析
 """
 
-from collections import Counter
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from django.db.models import Q
 from django.utils import timezone
@@ -258,7 +256,7 @@ class IntelligentAssistant:
             total_on_order = sum(stock.quantity_on_order for stock in stocks)
 
             return f"可用:{total_available}, 在途:{total_on_order}"
-        except:
+        except BaseException:
             return "库存未知"
 
     def get_recent_entities(self, entity_type: str, limit: int = 5) -> List[Dict[str, Any]]:
@@ -400,7 +398,7 @@ class IntelligentAssistant:
             if status == "pending":
                 suggestions.append(f"审核订单 {order_number}")
             elif status in ["confirmed", "in_production", "ready_to_ship"]:
-                suggestions.append(f"创建发货单")
+                suggestions.append("创建发货单")
 
         elif tool_name == "create_delivery":
             delivery_number = data.get("delivery_number")

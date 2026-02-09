@@ -4,10 +4,8 @@
 测试 Telegram、企业微信、钉钉的连接和配置
 """
 
-import json
 
 import requests
-from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 
@@ -53,7 +51,7 @@ class Command(BaseCommand):
             raise CommandError("未找到激活的 Telegram 配置")
 
         self.stdout.write("=" * 60)
-        self.stdout.write(f"Telegram 配置测试")
+        self.stdout.write("Telegram 配置测试")
         self.stdout.write("=" * 60)
         self.stdout.write(f"Bot 用户名: {config.bot_username}")
         self.stdout.write(f"允许群组: {config.allow_groups}")
@@ -81,7 +79,9 @@ class Command(BaseCommand):
                 if bot_info:
                     self.stdout.write(
                         self.style.SUCCESS(
-                            f'✅ Bot 连接成功！\n   Bot ID: {bot_info.get("id")}\n   Bot 用户名: {bot_info.get("username")}'
+                            f'✅ Bot 连接成功！\n   Bot ID: {
+                                bot_info.get("id")}\n   Bot 用户名: {
+                                bot_info.get("username")}'
                         )
                     )
                 else:
@@ -113,7 +113,8 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(
                     self.style.WARNING(
-                        "\n⚠️  Webhook URL 未配置，请使用以下命令设置：\n   python manage.py set_webhook --channel telegram --url <your-webhook-url>"
+                        "\n⚠️  Webhook URL 未配置，请使用以下命令设置：\n"
+                        "   python manage.py set_webhook --channel telegram --url <your-webhook-url>"
                     )
                 )
 
@@ -122,8 +123,6 @@ class Command(BaseCommand):
     def _test_wechat(self, action):
         """测试企业微信"""
         from ai_assistant.models import WeChatConfig
-
-        from common.utils import decrypt_api_key
 
         config = WeChatConfig.objects.filter(is_active=True, is_deleted=False).first()
 
@@ -164,8 +163,6 @@ class Command(BaseCommand):
     def _test_dingtalk(self, action):
         """测试钉钉"""
         from ai_assistant.models import DingTalkConfig
-
-        from common.utils import decrypt_api_key
 
         config = DingTalkConfig.objects.filter(is_active=True, is_deleted=False).first()
 

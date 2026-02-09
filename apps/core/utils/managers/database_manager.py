@@ -2,7 +2,6 @@
 数据库管理器
 处理数据库连接和基础操作
 """
-import os
 from pathlib import Path
 
 from django.conf import settings

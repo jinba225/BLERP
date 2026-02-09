@@ -22,8 +22,6 @@ from apps.finance.models import Payment, SupplierAccount, SupplierAccountDetail
 from apps.inventory.models import InventoryStock, InventoryTransaction, Location, Warehouse
 from apps.products.models import Product, Unit
 from apps.purchase.models import (
-    PurchaseOrder,
-    PurchaseOrderItem,
     PurchaseReceipt,
     PurchaseReceiptItem,
     PurchaseRequest,
@@ -131,7 +129,7 @@ class Test1CompletePurchaseFlow(TestCase):
         self.product1, self.product2 = create_test_products(self.unit)
         self.warehouse, self.location = create_test_warehouse(self.users["warehouse_admin"])
         self.today = timezone.now().date()
-        print(f"✅ 测试数据准备完成")
+        print("✅ 测试数据准备完成")
         print("========== 测试数据准备完成 ==========\n")
 
     def test_1_to_9_complete_flow(self):
@@ -325,7 +323,7 @@ class Test2PurchaseReturnFlow(TestCase):
         self.product1, self.product2 = create_test_products(self.unit)
         self.warehouse, self.location = create_test_warehouse(self.users["warehouse_admin"])
         self.today = timezone.now().date()
-        print(f"✅ 测试数据准备完成")
+        print("✅ 测试数据准备完成")
         print("========== 测试数据准备完成 ==========\n")
 
     def test_1_to_6_complete_return_flow(self):
@@ -526,7 +524,7 @@ class Test3BatchProcessing(TestCase):
         self.product1, self.product2 = create_test_products(self.unit)
         self.warehouse, self.location = create_test_warehouse(self.users["warehouse_admin"])
         self.today = timezone.now().date()
-        print(f"✅ 测试数据准备完成")
+        print("✅ 测试数据准备完成")
         print("========== 测试数据准备完成 ==========\n")
 
     def test_batch_scenario(self):

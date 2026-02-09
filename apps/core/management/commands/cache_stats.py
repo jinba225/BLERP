@@ -23,9 +23,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         cache_alias = options["cache"]
 
-        self.stdout.write(f'\n{"="*60}')
+        self.stdout.write(f'\n{"=" * 60}')
         self.stdout.write(f"缓存统计信息: {cache_alias}")
-        self.stdout.write(f'{"="*60}\n')
+        self.stdout.write(f'{"=" * 60}\n')
 
         try:
             # 获取缓存后端信息
@@ -61,8 +61,8 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(self.style.WARNING("⚠ 缓存状态: 可能存在问题"))
 
-            self.stdout.write(f'\n{"="*60}\n')
+            self.stdout.write(f'\n{"=" * 60}\n')
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"✗ 获取缓存信息失败: {str(e)}"))
-            self.stdout.write(f"\n提示: 请确保缓存已正确配置\n")
+            self.stdout.write("\n提示: 请确保缓存已正确配置\n")

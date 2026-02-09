@@ -4,19 +4,9 @@ Purchase 模块的导入导出资源配置
 from django.contrib.auth import get_user_model
 from import_export import fields, resources
 from import_export.widgets import DateWidget, DecimalWidget, ForeignKeyWidget
-from products.models import Product
 from suppliers.models import Supplier
 
-from .models import (
-    PurchaseOrder,
-    PurchaseOrderItem,
-    PurchaseReceipt,
-    PurchaseReceiptItem,
-    PurchaseReturn,
-    PurchaseReturnItem,
-    SupplierQuotation,
-    SupplierQuotationItem,
-)
+from .models import PurchaseOrder, PurchaseReceipt, PurchaseReturn, SupplierQuotation
 
 User = get_user_model()
 

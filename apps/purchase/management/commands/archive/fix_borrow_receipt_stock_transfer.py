@@ -14,10 +14,9 @@
     python manage.py fix_borrow_receipt_stock_transfer [--dry-run]
 """
 from django.core.management.base import BaseCommand
-from django.db import transaction
 
 from apps.inventory.models import InventoryStock, InventoryTransaction, Warehouse
-from apps.purchase.models import Borrow, PurchaseOrder, PurchaseReceipt, PurchaseReceiptItem
+from apps.purchase.models import Borrow, PurchaseReceipt
 
 
 class Command(BaseCommand):
@@ -54,7 +53,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR("❌ 主仓不存在"))
             return
 
-        self.stdout.write(f"\n仓库信息:")
+        self.stdout.write("\n仓库信息:")
         self.stdout.write(f"  - 借用仓: {borrow_wh.code} - {borrow_wh.name}")
         self.stdout.write(f"  - 主仓: {main_wh.code} - {main_wh.name}")
 
@@ -78,13 +77,13 @@ class Command(BaseCommand):
                 continue
 
             stats["total"] += 1
-            self.stdout.write(f'\n{"="*60}')
+            self.stdout.write(f'\n{"=" * 60}')
             self.stdout.write(f"借用单: {borrow.borrow_number}")
             self.stdout.write(f"采购订单: {order.order_number} (状态: {order.status})")
 
             # 1. 删除转采购时创建的错误调拨事务
             # 识别规则：notes 包含"借用转采购"但 reference_type 不是 'purchase_receipt'
-            self.stdout.write(f"\n1. 检查并删除转采购时的错误调拨事务...")
+            self.stdout.write("\n1. 检查并删除转采购时的错误调拨事务...")
 
             wrong_transactions = InventoryTransaction.objects.filter(
                 reference_number=borrow.borrow_number,
@@ -99,7 +98,12 @@ class Command(BaseCommand):
 
                 for t in wrong_transactions:
                     self.stdout.write(
-                        f"      - {t.transaction_type}: {t.product.name} | {t.warehouse.name} | 数量: {t.quantity} | ref_type: {t.reference_type}"
+                        f"      - {
+                            t.transaction_type}: {
+                            t.product.name} | {
+                            t.warehouse.name} | 数量: {
+                            t.quantity} | ref_type: {
+                            t.reference_type}"
                     )
 
                 if not dry_run:
@@ -107,13 +111,13 @@ class Command(BaseCommand):
                     stats["deleted_wrong_transfer"] += count
                     self.stdout.write(self.style.SUCCESS(f"   ✅ 已删除 {count} 个错误事务"))
             else:
-                self.stdout.write(self.style.SUCCESS(f"   ✅ 无错误调拨事务"))
+                self.stdout.write(self.style.SUCCESS("   ✅ 无错误调拨事务"))
 
             # 2. 检查收货单
             receipts = PurchaseReceipt.objects.filter(purchase_order=order, is_deleted=False)
 
             if receipts.exists():
-                self.stdout.write(f"\n2. 检查收货单...")
+                self.stdout.write("\n2. 检查收货单...")
 
                 for receipt in receipts:
                     self.stdout.write(f"   收货单: {receipt.receipt_number} (状态: {receipt.status})")
@@ -122,7 +126,7 @@ class Command(BaseCommand):
                     receipt_items = receipt.items.filter(received_quantity__gt=0)
 
                     if not receipt_items.exists():
-                        self.stdout.write(f"      ⚠️  无已收货明细")
+                        self.stdout.write("      ⚠️  无已收货明细")
                         continue
 
                     # 检查是否已有正确的调拨事务
@@ -134,9 +138,9 @@ class Command(BaseCommand):
                     )
 
                     if existing_transfer.exists():
-                        self.stdout.write(self.style.SUCCESS(f"      ✅ 已有正确的调拨事务"))
+                        self.stdout.write(self.style.SUCCESS("      ✅ 已有正确的调拨事务"))
                     else:
-                        self.stdout.write(self.style.WARNING(f"      ⚠️  缺少调拨事务，需要创建"))
+                        self.stdout.write(self.style.WARNING("      ⚠️  缺少调拨事务，需要创建"))
 
                         if not dry_run:
                             # 为每个收货明细创建调拨事务
@@ -175,12 +179,12 @@ class Command(BaseCommand):
                                 stats["created_correct_transfer"] += 2
 
                             stats["fixed_receipts"] += 1
-                            self.stdout.write(self.style.SUCCESS(f"      ✅ 已创建调拨事务"))
+                            self.stdout.write(self.style.SUCCESS("      ✅ 已创建调拨事务"))
             else:
-                self.stdout.write(self.style.SUCCESS(f"\n2. 订单未收货，无需修复"))
+                self.stdout.write(self.style.SUCCESS("\n2. 订单未收货，无需修复"))
 
             # 3. 显示最终库存状态
-            self.stdout.write(f"\n3. 当前库存状态:")
+            self.stdout.write("\n3. 当前库存状态:")
             for item in borrow.items.filter(is_deleted=False):
                 if item.conversion_quantity > 0:
                     borrow_stock = InventoryStock.objects.filter(

@@ -96,7 +96,6 @@ class BaseChannel(ABC):
         Returns:
             是否合法
         """
-        pass
 
     @abstractmethod
     def parse_message(self, request) -> Optional[IncomingMessage]:
@@ -109,7 +108,6 @@ class BaseChannel(ABC):
         Returns:
             IncomingMessage对象，如果无法解析则返回None
         """
-        pass
 
     @abstractmethod
     def send_message(self, external_user_id: str, message: OutgoingMessage) -> bool:
@@ -123,7 +121,6 @@ class BaseChannel(ABC):
         Returns:
             是否发送成功
         """
-        pass
 
     def get_or_create_user_mapping(self, external_user_id: str) -> Optional[User]:
         """

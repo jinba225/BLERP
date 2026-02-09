@@ -141,7 +141,11 @@ class PurchaseRequestService:
             warehouse_id=warehouse_id,
             reference_number=purchase_request.request_number,
             notes=f"由采购申请单 {purchase_request.request_number} 转换",
-            internal_notes=f'申请部门：{purchase_request.department.name if purchase_request.department else "无"}\n申请人：{purchase_request.requester.get_full_name() or purchase_request.requester.username}\n申请用途：{purchase_request.purpose}',
+            internal_notes=(
+                f'申请部门：{purchase_request.department.name if purchase_request.department else "无"}\n'
+                f"申请人：{purchase_request.requester.get_full_name() or purchase_request.requester.username}\n"
+                f"申请用途：{purchase_request.purpose}"
+            ),
             created_by=user,
             status="draft",
         )

@@ -45,9 +45,9 @@ class Command(BaseCommand):
             try:
                 payment_number = DocumentNumberGenerator.generate("payment_receipt")
                 test_numbers.append(payment_number)
-                self.stdout.write(f"   第 {i+1} 次生成: {payment_number}")
+                self.stdout.write(f"   第 {i + 1} 次生成: {payment_number}")
             except Exception as e:
-                self.stdout.write(self.style.ERROR(f"   第 {i+1} 次生成失败: {str(e)}"))
+                self.stdout.write(self.style.ERROR(f"   第 {i + 1} 次生成失败: {str(e)}"))
 
         if len(test_numbers) == 3:
             unique_numbers = len(set(test_numbers))
@@ -98,7 +98,7 @@ class Command(BaseCommand):
                         reference_id="test",
                         description="测试付款记录2",
                     )
-                self.stdout.write(self.style.ERROR(f"   ✗ 第二条记录创建成功（不应该成功）"))
+                self.stdout.write(self.style.ERROR("   ✗ 第二条记录创建成功（不应该成功）"))
             except IntegrityError as e:
                 self.stdout.write(self.style.SUCCESS(f"   ✓ 第二条记录被唯一约束阻止: {str(e)}"))
 
@@ -120,7 +120,7 @@ class Command(BaseCommand):
             for item in duplicates:
                 self.stdout.write(f'     - {item["payment_number"]}: {item["count"]} 次')
         else:
-            self.stdout.write(self.style.SUCCESS(f"   ✓ 没有发现重复的单号"))
+            self.stdout.write(self.style.SUCCESS("   ✓ 没有发现重复的单号"))
 
         # 总结
         self.stdout.write("\n" + "=" * 60)

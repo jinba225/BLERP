@@ -21,16 +21,8 @@ import pytest
 from core.tests.test_fixtures import FixtureFactory
 from django.db.models import Sum
 from django.utils import timezone
-from finance.models import SupplierAccount, SupplierAccountDetail, SupplierPrepayment
+from finance.models import SupplierAccount, SupplierAccountDetail
 from inventory.models import InventoryStock, InventoryTransaction
-from purchase.models import (
-    PurchaseOrder,
-    PurchaseOrderItem,
-    PurchaseReceipt,
-    PurchaseReceiptItem,
-    PurchaseReturn,
-    PurchaseReturnItem,
-)
 
 
 @pytest.mark.django_db

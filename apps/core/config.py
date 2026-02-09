@@ -9,6 +9,8 @@
 # 令牌桶算法参数：
 # - rate: 每秒生成的令牌数（平均速率）
 # - burst: 桶的容量（突发流量上限）
+from enum import Enum
+
 PLATFORM_RATE_LIMITS = {
     # 采集平台
     "taobao": {
@@ -250,7 +252,6 @@ DISTRIBUTED_LOCK_CONFIG = {
 # ============================================
 # 数据冲突解决策略配置
 # ============================================
-from enum import Enum
 
 
 class ResolutionStrategy(Enum):

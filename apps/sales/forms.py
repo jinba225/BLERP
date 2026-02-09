@@ -7,7 +7,7 @@ from django import forms
 from django.forms import inlineformset_factory
 from django.utils import timezone
 
-from .models import Quote, QuoteItem, SalesOrder
+from .models import Quote, QuoteItem
 
 
 class QuoteForm(forms.ModelForm):

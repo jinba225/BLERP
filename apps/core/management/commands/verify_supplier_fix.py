@@ -35,7 +35,7 @@ class Command(BaseCommand):
                 supplier_id=supplier_id, is_deleted=False
             ).order_by("invoice_number")
 
-            self.stdout.write(f"   - 详细账户:")
+            self.stdout.write("   - 详细账户:")
             for acc in accounts:
                 self.stdout.write(f"     * {acc.invoice_number}: ¥{acc.balance:.2f}")
 
@@ -63,9 +63,9 @@ class Command(BaseCommand):
             self.stdout.write(f"   - account_count: {supplier_summary['account_count']}")
 
             if supplier_summary and supplier_summary["account_count"] > 1:
-                self.stdout.write(self.style.SUCCESS(f"   ✅ 模板条件满足，将显示汇总信息"))
+                self.stdout.write(self.style.SUCCESS("   ✅ 模板条件满足，将显示汇总信息"))
             else:
-                self.stdout.write(self.style.ERROR(f"   ❌ 模板条件不满足"))
+                self.stdout.write(self.style.ERROR("   ❌ 模板条件不满足"))
 
         self.stdout.write(self.style.SUCCESS("\n🎯 修复总结:"))
         self.stdout.write("1. ✅ 视图函数添加了 supplier_summary 查询")

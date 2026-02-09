@@ -2,15 +2,12 @@
 数据库管理工具类
 提供数据库备份、还原、测试数据管理等功能
 """
-import os
 import shutil
 import subprocess
 from datetime import datetime
-from io import StringIO
 from pathlib import Path
 
 from django.conf import settings
-from django.core.management import call_command
 from django.db import connection
 
 
@@ -1167,19 +1164,19 @@ class DatabaseHelper:
 
             message = (
                 f"✅ 测试数据添加完成！共创建 {total_created} 条记录\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"  📦 基础数据:\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                "  📦 基础数据:\n"
                 f'    • 计量单位: {stats["units_created"]} 个\n'
                 f'    • 品牌: {stats["brands_created"]} 个\n'
                 f'    • 产品分类: {stats["categories_created"]} 个\n'
                 f'    • 仓库: {stats["warehouses_created"]} 个\n'
-                f"  👥 客户数据:\n"
+                "  👥 客户数据:\n"
                 f'    • 客户: {stats["customers"]} 家\n'
                 f'    • 客户联系人: {stats["customer_contacts"]} 个\n'
-                f"  🏭 供应商数据:\n"
+                "  🏭 供应商数据:\n"
                 f'    • 供应商: {stats["suppliers"]} 家\n'
                 f'    • 供应商联系人: {stats["supplier_contacts"]} 个\n'
-                f"  🔧 产品数据:\n"
+                "  🔧 产品数据:\n"
                 f'    • 产品: {stats["products"]} 个\n'
                 f'    • 税率: {stats["tax_rates_created"]} 个'
             )

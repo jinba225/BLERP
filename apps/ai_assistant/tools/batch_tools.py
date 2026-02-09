@@ -6,8 +6,6 @@
 
 from typing import Any, Dict, List
 
-from django.db import transaction
-
 from .base_tool import BaseTool, ToolResult
 
 
@@ -165,7 +163,10 @@ class BatchApproveTool(BaseTool):
                     "error_count": len(errors),
                     "errors": errors,
                 },
-                message=f"批量审核完成，成功 {len([r for r in results if r['success']])} 个，失败 {len(errors)} 个",
+                message=(
+                    f"批量审核完成，成功 {len([r for r in results if r['success']])} 个，"
+                    f"失败 {len(errors)} 个"
+                ),
             )
 
         except Exception as e:
@@ -331,7 +332,10 @@ class BatchCreateTool(BaseTool):
                     "error_count": len(errors),
                     "errors": errors,
                 },
-                message=f"批量创建完成，成功 {len([r for r in results if r['result']['success']])} 个，失败 {len(errors)} 个",
+                message=(
+                    f"批量创建完成，成功 {len([r for r in results if r['result']['success']])} 个，"
+                    f"失败 {len(errors)} 个"
+                ),
             )
 
         except Exception as e:

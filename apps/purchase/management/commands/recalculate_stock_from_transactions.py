@@ -5,7 +5,6 @@
     python manage.py recalculate_stock_from_transactions
 """
 from django.core.management.base import BaseCommand
-from django.db import transaction
 from inventory.models import InventoryStock, InventoryTransaction, Warehouse
 from products.models import Product
 
@@ -17,7 +16,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.WARNING("=== 重新计算库存 ==="))
 
         # 清空所有库存
-        self.stdout.write(f"\n1. 清空所有库存...")
+        self.stdout.write("\n1. 清空所有库存...")
         current_stocks = InventoryStock.objects.all()
         count = current_stocks.count()
         current_stocks.update(quantity=0)
@@ -28,7 +27,7 @@ class Command(BaseCommand):
         products = Product.objects.filter(is_deleted=False)
 
         # 遍历所有库存事务，重新计算库存
-        self.stdout.write(f"\n2. 重新计算库存...")
+        self.stdout.write("\n2. 重新计算库存...")
 
         stats = {
             "transactions_processed": 0,
@@ -67,7 +66,7 @@ class Command(BaseCommand):
                     self.stdout.write(f"   {product.name} | {wh.name}: {net_quantity}")
 
         # 输出最终库存状态
-        self.stdout.write(f"\n3. 最终库存状态:")
+        self.stdout.write("\n3. 最终库存状态:")
         stocks = InventoryStock.objects.all()
         for s in stocks:
             if s.quantity > 0:

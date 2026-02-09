@@ -14,9 +14,6 @@ from purchase.models import (
     PurchaseInquiry,
     PurchaseInquiryItem,
     PurchaseReceipt,
-    PurchaseReceiptItem,
-    PurchaseReturn,
-    PurchaseReturnItem,
     SupplierQuotation,
     SupplierQuotationItem,
 )

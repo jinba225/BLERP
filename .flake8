@@ -1,0 +1,36 @@
+[flake8]
+# 最大行长度设置为120（比默认的80更宽松）
+max-line-length = 120
+
+# 排除的目录和文件
+exclude =
+    .git,
+    __pycache__,
+    .pytest_cache,
+    venv,
+    env,
+    .venv,
+    migrations,
+    manage.py,
+    settings.py,
+
+# 忽略的错误代码
+# F841: 未使用的局部变量（通常是 except 块中的异常变量）
+# E203: 字典冒号前的空格（与 black 格式化工具冲突）
+# W503: 二元运算符前换行（PEP 8 已更新，不再推荐）
+extend-ignore =
+    F841,
+    E203,
+    W503
+
+# 启用的额外检查
+# E501: 行太长（已通过 max-line-length = 120 放宽）
+# F401: 未使用的导入（需要修复）
+# F821: 未定义的名称（需要修复）
+# E722: 使用裸 except（需要修复）
+
+# 每行允许的最大复杂度
+max-complexity = 18
+
+# 文档字符串中允许的空行数
+docstring-convention = pep257

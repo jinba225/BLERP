@@ -1,14 +1,10 @@
 """
 高级分析数据模型
 """
-from bi.models import Dashboard, InventoryAnalysis, PlatformComparison, ProductSales, SalesSummary
+from bi.models import Dashboard
 from core.models import BaseModel, Platform, Shop
 from django.db import models
-from django.db.models import Avg, Count, F, Func, Q, Sum, Window
-from django.db.models.expressions import RowNumber
-from django.db.models.functions import Extract, Trunc
 from django.utils import timezone
-from products.models import Product
 
 
 class TrendPrediction(BaseModel):
@@ -416,7 +412,9 @@ class AIAssistant(BaseModel):
         ]
 
     def __str__(self):
-        return f"{self.user.username} - {self.get_analysis_type_display()} - {self.analysis_date.strftime('%Y-%m-%d')}"
+        return f"{self.user.username} \
+            {self.get_analysis_type_display()} \
+            {self.analysis_date.strftime('%Y-%m-%d')}"
 
 
 class ReportTemplate(BaseModel):
