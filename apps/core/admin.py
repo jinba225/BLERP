@@ -14,17 +14,10 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from .models import (
-    Attachment,
-    AuditLog,
-    ChoiceOption,
-    ChoiceOptionGroup,
-    Company,
-    DefaultTemplateMapping,
-    Notification,
-    PrintTemplate,
-    SystemConfig,
-)
+from .models import Attachment, AuditLog, Company, Notification, SystemConfig
+from .models_choice import ChoiceOption, ChoiceOptionGroup
+from .models_print_template import PrintTemplate
+from .models_template_mapping import DefaultTemplateMapping
 
 
 @admin.register(Company)
