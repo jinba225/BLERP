@@ -196,7 +196,7 @@
                 </div>
                 {% endif %}
             </div> <!-- Address Information -->
-            {% if supplier.address or supplier.city or supplier.province or supplier.country %}
+            {% if supplier.address or supplier.city or supplier.province %}
             <div class="bg-white rounded-lg shadow p-6">
                 <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">地址信息</h4>
                 <dl class="grid grid-cols-2 gap-4">
@@ -216,12 +216,6 @@
                     <div>
                         <dt class="text-sm font-medium text-gray-500">省份</dt>
                         <dd class="mt-1 text-sm text-gray-900">{{ supplier.province }}</dd>
-                    </div>
-                    {% endif %}
-                    {% if supplier.country %}
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">国家</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.country }}</dd>
                     </div>
                     {% endif %}
                 </dl>
