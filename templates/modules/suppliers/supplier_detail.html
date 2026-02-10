@@ -196,31 +196,23 @@
                 </div>
                 {% endif %}
             </div> <!-- Address Information -->
-            {% if supplier.address or supplier.city or supplier.province %}
             <div class="bg-white rounded-lg shadow p-6">
                 <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">地址信息</h4>
                 <dl class="grid grid-cols-2 gap-4">
-                    {% if supplier.address %}
                     <div class="col-span-2">
                         <dt class="text-sm font-medium text-gray-500">详细地址</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.address }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.address|default:'-' }}</dd>
                     </div>
-                    {% endif %}
-                    {% if supplier.city %}
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">城市</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.city }}</dd>
-                    </div>
-                    {% endif %}
-                    {% if supplier.province %}
                     <div>
                         <dt class="text-sm font-medium text-gray-500">省份</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.province }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.province|default:'-' }}</dd>
                     </div>
-                    {% endif %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">城市</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.city|default:'-' }}</dd>
+                    </div>
                 </dl>
-            </div>
-            {% endif %} {% if supplier.notes %}
+            </div> {% if supplier.notes %}
             <div class="bg-white rounded-lg shadow p-6">
                 <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">备注</h4>
                 <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ supplier.notes }}</p>
