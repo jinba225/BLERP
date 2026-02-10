@@ -73,29 +73,6 @@
                     </div>
                     {% endif %}
                 </dl>
-            </div> <!-- Contact Information -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">联系信息</h4>
-                <dl class="grid grid-cols-2 gap-4">
-                    {% if supplier.contact_person %}
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">联系人</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.contact_person }}</dd>
-                    </div>
-                    {% endif %}
-                    {% if supplier.phone %}
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">电话</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.phone }}</dd>
-                    </div>
-                    {% endif %}
-                    {% if supplier.email %}
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">邮箱</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.email }}</dd>
-                    </div>
-                    {% endif %}
-                </dl>
             </div> <!-- Contacts Section -->
             <div class="bg-white rounded-lg shadow p-6" x-data="contactManager()">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b">
