@@ -28,27 +28,34 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">供应商 <span class="text-red-500">*</span></label>
-                    <div x-data="supplierSelect()" class="relative">
+                    <div x-data="searchableSelect({
+                        options: window.suppliersData,
+                        value: '{% if borrow %}{{ borrow.supplier.id }}{% elif form_data.supplier %}{{ form_data.supplier }}{% endif %}',
+                        searchFields: ['name', 'code'],
+                        displayField: 'name',
+                        placeholder: '搜索供应商名称或代码',
+                        required: true
+                    })" class="relative">
                         <!-- 隐藏的input用于表单提交 -->
-                        <input type="hidden" name="supplier" :value="selectedSupplier ? selectedSupplier.id : ''">
+                        <input type="hidden" name="supplier" :value="value">
 
                         <!-- 搜索输入框 -->
                         <div class="relative">
                             <input
                                 type="text"
-                                x-model="searchValue"
-                                @input="filterSuppliers()"
-                                @keydown.enter="selectFirstMatch()"
-                                @keydown.escape="isOpen = false"
+                                x-model="search"
+                                @input="isOpen = true"
+                                @keydown.enter="selectFirst()"
+                                @keydown.escape="close()"
                                 @focus="isOpen = true"
-                                @blur="setTimeout(() => isOpen = false, 150)"
-                                placeholder="请选择供应商"
-                                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500  outline-none transition-all"
+                                @blur="setTimeout(() => close(), 150)"
+                                :placeholder="placeholder"
+                                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 outline-none transition-all"
                             >
                             <!-- 下拉箭头 -->
                             <button
                                 type="button"
-                                @click="isOpen = !isOpen"
+                                @click="toggle()"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                             >
                                 <svg x-show="!isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +69,7 @@
 
                         <!-- 下拉选项面板 -->
                         <div
-                            x-show="isOpen && filteredSuppliers.length > 0"
+                            x-show="isOpen && filtered.length > 0"
                             x-transition:enter="transition ease-out duration-100"
                             x-transition:enter-start="opacity-0 scale-95"
                             x-transition:enter-end="opacity-100 scale-100"
@@ -72,12 +79,12 @@
                             class="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200"
                             style="display: none;"
                         >
-                            <template x-for="supplier in filteredSuppliers" :key="supplier.id">
+                            <template x-for="option in filtered" :key="option.id">
                                 <div
-                                    @click="selectSupplier(supplier)"
-                                    class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors text-gray-800"
-                                    :class="{ 'bg-theme-100 font-medium': selectedSupplier && selectedSupplier.id === supplier.id }"
-                                    x-text="supplier.name"
+                                    @click="select(option)"
+                                    class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors"
+                                    :class="getHighlightClass($index)"
+                                    x-text="option.name"
                                 >
                                 </div>
                             </template>
@@ -85,7 +92,7 @@
 
                         <!-- 无匹配结果提示 -->
                         <div
-                            x-show="isOpen && filteredSuppliers.length === 0"
+                            x-show="isOpen && filtered.length === 0"
                             class="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-3 text-gray-500"
                             style="display: none;"
                         >
@@ -168,65 +175,6 @@ window.productsData = {{ products|safe }};
 const existingItems = {{ existing_items|default:"[]"|safe }};
 
 let itemsData = [];
-
-// Alpine.js供应商选择器组件
-document.addEventListener('alpine:init', () => {
-    Alpine.data('supplierSelect', () => ({
-        // 状态
-        isOpen: false,
-        searchValue: '',
-        selectedSupplier: null,
-        allSuppliers: window.suppliersData || [],
-
-        // 计算属性：过滤后的供应商
-        get filteredSuppliers() {
-            if (!this.searchValue.trim()) {
-                return this.allSuppliers;
-            }
-            const query = this.searchValue.toLowerCase().trim();
-            return this.allSuppliers.filter(supplier =>
-                supplier.name.toLowerCase().includes(query) ||
-                (supplier.code && supplier.code.toLowerCase().includes(query))
-            );
-        },
-
-        // 方法：过滤供应商
-        filterSuppliers() {
-            this.isOpen = true;
-        },
-
-        // 方法：选择供应商
-        selectSupplier(supplier) {
-            this.selectedSupplier = supplier;
-            this.searchValue = supplier.name;
-            this.isOpen = false;
-        },
-
-        // 方法：回车选择第一个匹配项
-        selectFirstMatch() {
-            if (this.filteredSuppliers.length > 0) {
-                this.selectSupplier(this.filteredSuppliers[0]);
-            }
-        },
-
-        // 初始化：设置已选供应商
-        init() {
-            {% if borrow %}
-            const initialId = {{ borrow.supplier.id }};
-            this.selectedSupplier = this.allSuppliers.find(s => s.id === initialId);
-            if (this.selectedSupplier) {
-                this.searchValue = this.selectedSupplier.name;
-            }
-            {% elif form_data.supplier %}
-            const initialId = {{ form_data.supplier }};
-            this.selectedSupplier = this.allSuppliers.find(s => s.id === initialId);
-            if (this.selectedSupplier) {
-                this.searchValue = this.selectedSupplier.name;
-            }
-            {% endif %}
-        }
-    }));
-});
 
 // Alpine.js表格行产品选择器组件
 document.addEventListener('alpine:init', () => {

@@ -154,7 +154,6 @@ def customer_create(request):
                                         f"contacts[{index}][department]", ""
                                     ),
                                     "phone": request.POST.get(f"contacts[{index}][phone]", ""),
-                                    "mobile": request.POST.get(f"contacts[{index}][mobile]", ""),
                                     "email": request.POST.get(f"contacts[{index}][email]", ""),
                                     "notes": request.POST.get(f"contacts[{index}][notes]", ""),
                                 }
@@ -169,9 +168,7 @@ def customer_create(request):
                     customer=customer,
                     name=contact_data["name"],
                     position=contact_data["position"],
-                    department=contact_data["department"],
                     phone=contact_data["phone"],
-                    mobile=contact_data["mobile"],
                     email=contact_data["email"],
                     notes=contact_data["notes"],
                     created_by=request.user,
@@ -267,7 +264,6 @@ def customer_update(request, pk):
                                         f"contacts[{index}][department]", ""
                                     ),
                                     "phone": request.POST.get(f"contacts[{index}][phone]", ""),
-                                    "mobile": request.POST.get(f"contacts[{index}][mobile]", ""),
                                     "email": request.POST.get(f"contacts[{index}][email]", ""),
                                     "notes": request.POST.get(f"contacts[{index}][notes]", ""),
                                 }
@@ -278,9 +274,7 @@ def customer_update(request, pk):
                     customer=customer,
                     name=contact_data["name"],
                     position=contact_data["position"],
-                    department=contact_data["department"],
                     phone=contact_data["phone"],
-                    mobile=contact_data["mobile"],
                     email=contact_data["email"],
                     notes=contact_data["notes"],
                     created_by=request.user,
@@ -397,7 +391,6 @@ def contact_list(request):
             Q(name__icontains=search)
             | Q(customer__name__icontains=search)
             | Q(phone__icontains=search)
-            | Q(mobile__icontains=search)
             | Q(email__icontains=search)
         )
 
@@ -487,9 +480,7 @@ def contact_create(request):
                 customer=customer,
                 name=name,
                 position=request.POST.get("position", ""),
-                department=request.POST.get("department", ""),
                 phone=request.POST.get("phone", ""),
-                mobile=request.POST.get("mobile", ""),
                 email=request.POST.get("email", ""),
                 is_primary=is_primary,
                 notes=request.POST.get("notes", ""),
@@ -539,9 +530,7 @@ def contact_update(request, pk):
         contact.customer = customer
         contact.name = request.POST.get("name")
         contact.position = request.POST.get("position", "")
-        contact.department = request.POST.get("department", "")
         contact.phone = request.POST.get("phone", "")
-        contact.mobile = request.POST.get("mobile", "")
         contact.email = request.POST.get("email", "")
         is_primary = request.POST.get("is_primary") == "on"
         contact.notes = request.POST.get("notes", "")
@@ -609,7 +598,7 @@ def api_get_customer_contacts(request, customer_id):
         customer = get_object_or_404(Customer, pk=customer_id, is_deleted=False)
         contacts = (
             customer.contacts.filter(is_deleted=False)
-            .values("id", "name", "position", "department", "phone", "mobile", "email", "notes")
+            .values("id", "name", "position" "phone" "email", "notes")
             .order_by("name")
         )
 

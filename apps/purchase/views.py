@@ -125,13 +125,29 @@ def order_detail(request, pk):
         purchase_order=order, status="pending", is_deleted=False
     ).first()
 
-    # 检查是否可以申请付款（已审核且有已收货产品，且未申请过付款）
+    # 检查是否可以申请付款(已审核且有已收货产品,且未申请过付款)
     total_received = sum(item.received_quantity for item in order.items.all())
     can_request_payment = (
         order.status in ["approved", "partial_received", "fully_received"]
         and total_received > 0
         and order.payment_status == "unpaid"
     )
+
+    # 查询关联的入库单
+    from inventory.models import InboundOrder
+    inbound_orders = InboundOrder.objects.filter(
+        reference_type="purchase_order",
+        reference_id=order.id,
+        is_deleted=False
+    ).order_by("-created_at")
+
+    # 查询关联的出库单(采购退货)
+    from inventory.models import OutboundOrder
+    outbound_orders = OutboundOrder.objects.filter(
+        reference_type="purchase_return",
+        reference_id__in=order.returns.filter(is_deleted=False).values_list("id", flat=True),
+        is_deleted=False
+    ).order_by("-created_at")
 
     context = {
         "order": order,
@@ -141,6 +157,8 @@ def order_detail(request, pk):
         "can_approve": order.status == "draft",
         "pending_receipt": pending_receipt,
         "can_request_payment": can_request_payment,
+        "inbound_orders": inbound_orders,
+        "outbound_orders": outbound_orders,
     }
     return render(request, "modules/purchase/order_detail.html", context)
 
@@ -201,17 +219,54 @@ def order_create(request):
         except Exception as e:
             messages.error(request, f"创建失败：{str(e)}")
 
+    import json
+
     from django.contrib.auth import get_user_model
+    from django.core.serializers.json import DjangoJSONEncoder
     from inventory.models import Warehouse
     from products.models import Product
     from suppliers.models import Supplier
 
     User = get_user_model()
 
-    suppliers = Supplier.objects.filter(is_deleted=False, is_approved=True)
+    # 查询数据（保留原有查询用于兼容）
+    suppliers = Supplier.objects.filter(is_deleted=False, is_approved=True).prefetch_related('contacts')
     warehouses = Warehouse.objects.filter(is_deleted=False, is_active=True)
     buyers = User.objects.filter(is_active=True)
     products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+
+    # 序列化JSON数据用于可搜索下拉框（包含联系人信息）
+    suppliers_data = []
+    for supplier in suppliers:
+        # 获取主要联系人或第一个联系人
+        primary_contact = None
+        if hasattr(supplier, 'contacts') and supplier.contacts.exists():
+            primary_contact = supplier.contacts.filter(is_deleted=False, is_active=True).order_by('-is_primary').first()
+            if primary_contact:
+                primary_contact = {
+                    'name': primary_contact.name,
+                    'phone': primary_contact.phone or primary_contact.mobile or '',
+                    'email': primary_contact.email or ''
+                }
+
+        suppliers_data.append({
+            'id': supplier.id,
+            'name': supplier.name,
+            'code': supplier.code,
+            'payment_terms': supplier.payment_terms or '',
+            'address': supplier.address or '',
+            'primary_contact': primary_contact or {}
+        })
+
+    suppliers_json = json.dumps(suppliers_data, cls=DjangoJSONEncoder)
+    warehouses_json = json.dumps(
+        list(warehouses.values('id', 'name', 'code')),
+        cls=DjangoJSONEncoder
+    )
+    products_json = json.dumps(
+        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'cost_price', 'selling_price')),
+        cls=DjangoJSONEncoder
+    )
 
     # 获取默认采购员（当前登录用户）
     default_buyer = request.user if request.user.is_active else None
@@ -228,6 +283,9 @@ def order_create(request):
         "warehouses": warehouses,
         "buyers": buyers,
         "products": products,
+        "suppliers_json": suppliers_json,
+        "warehouses_json": warehouses_json,
+        "products_json": products_json,
         "PAYMENT_METHOD_CHOICES": PAYMENT_METHOD_CHOICES,
         "action": "create",
         "default_buyer": default_buyer,
@@ -304,17 +362,35 @@ def order_update(request, pk):
             messages.error(request, f"更新失败：{str(e)}")
 
     # GET request
+    import json
+
     from django.contrib.auth import get_user_model
+    from django.core.serializers.json import DjangoJSONEncoder
     from inventory.models import Warehouse
     from products.models import Product
     from suppliers.models import Supplier
 
     User = get_user_model()
 
+    # 查询数据（保留原有查询用于兼容）
     suppliers = Supplier.objects.filter(is_deleted=False, is_approved=True)
     warehouses = Warehouse.objects.filter(is_deleted=False)
     buyers = User.objects.filter(is_active=True)
     products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+
+    # 序列化JSON数据用于可搜索下拉框
+    suppliers_json = json.dumps(
+        list(suppliers.values('id', 'name', 'code', 'payment_method', 'contact_person', 'contact_phone', 'contact_email', 'address')),
+        cls=DjangoJSONEncoder
+    )
+    warehouses_json = json.dumps(
+        list(warehouses.values('id', 'name', 'code')),
+        cls=DjangoJSONEncoder
+    )
+    products_json = json.dumps(
+        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'cost_price', 'selling_price')),
+        cls=DjangoJSONEncoder
+    )
 
     context = {
         "order": order,
@@ -322,6 +398,9 @@ def order_update(request, pk):
         "warehouses": warehouses,
         "buyers": buyers,
         "products": products,
+        "suppliers_json": suppliers_json,
+        "warehouses_json": warehouses_json,
+        "products_json": products_json,
         "PAYMENT_METHOD_CHOICES": PAYMENT_METHOD_CHOICES,
         "action": "update",
     }
@@ -1471,11 +1550,20 @@ def return_detail(request, pk):
         pk=pk,
     )
 
+    # 查询关联的出库单
+    from inventory.models import OutboundOrder
+    outbound_order = OutboundOrder.objects.filter(
+        reference_type="purchase_return",
+        reference_id=return_order.id,
+        is_deleted=False
+    ).first()
+
     context = {
         "return": return_order,
         "items": return_order.items.all(),
         "can_edit": return_order.status == "pending",
         "can_approve": return_order.status == "pending",
+        "outbound_order": outbound_order,
     }
     return render(request, "modules/purchase/return_detail.html", context)
 
@@ -1524,9 +1612,8 @@ def return_create(request, order_pk):
                     # 验证1: 退货总量不能超过订单数量
                     if return_quantity > order_item.quantity:
                         raise ValueError(
-                            f"产品 {
-                                order_item.product.name} 的退货数量 ({return_quantity}) 不能超过订单数量 ({
-                                order_item.quantity})"
+                            f"产品 {order_item.product.name} 的退货数量 ({return_quantity}) "
+                            f"不能超过订单数量 ({order_item.quantity})"
                         )
 
                     # 验证2: 退货数量不能超过可退货数量
@@ -1659,7 +1746,7 @@ def return_approve(request, pk):
         return_order.approved_at = timezone.now()
         return_order.save()
 
-        # 获取订单的默认仓库（从收货单获取，如果有的话）
+        # 获取订单的默认仓库(从收货单获取,如果有的话)
         warehouse = None
         first_receipt = (
             return_order.purchase_order.receipts.filter(is_deleted=False)
@@ -1668,6 +1755,27 @@ def return_approve(request, pk):
         )
         if first_receipt and first_receipt.warehouse:
             warehouse = first_receipt.warehouse
+
+        # 创建出库单
+        from inventory.models import OutboundOrder, OutboundOrderItem
+
+        from common.utils import DocumentNumberGenerator
+
+        outbound_order = None
+        if warehouse:
+            outbound_order = OutboundOrder.objects.create(
+                order_number=DocumentNumberGenerator.generate("OBO"),
+                warehouse=warehouse,
+                order_type="purchase_return",  # 采购退货出库
+                status="approved",  # 退货审核即完成出库
+                order_date=timezone.now().date(),
+                supplier=return_order.purchase_order.supplier,
+                reference_number=return_order.return_number,
+                reference_type="purchase_return",
+                reference_id=return_order.id,
+                notes=f"采购退货单 {return_order.return_number} 审核自动生成",
+                created_by=request.user,
+            )
 
         total_refund = Decimal("0")
 
@@ -1704,7 +1812,7 @@ def return_approve(request, pk):
                     # 退货记录单独存储在PurchaseReturn表中
                     # 可退货数量 = received_quantity - 已退货数量
 
-                    # 创建库存交易（退货出库）
+                    # 创建库存交易(退货出库)
                     if warehouse:
                         from inventory.models import InventoryTransaction
 
@@ -1721,6 +1829,18 @@ def return_approve(request, pk):
                             notes=f"采购退货：{return_order.return_number}",
                             created_by=request.user,
                         )
+
+                        # 创建出库单明细
+                        if outbound_order:
+                            OutboundOrderItem.objects.create(
+                                outbound_order=outbound_order,
+                                product=order_item.product,
+                                location=None,
+                                quantity=received_return,
+                                batch_number=item.batch_number,
+                                notes=item.notes,
+                                created_by=request.user,
+                            )
 
                     # 累计退款金额
                     total_refund += received_return * item.unit_price
@@ -1773,10 +1893,10 @@ def return_approve(request, pk):
             messages.success(
                 request,
                 f"退货单 {return_order.return_number} 审核通过！"
-                f"已扣减订单数量，生成 ¥{total_refund:.2f} 的负应付明细，应付主单已自动归集",
+                f"已扣减订单数量,生成 ¥{total_refund:.2f} 的负应付明细,应付主单已自动归集,已自动生成出库单",
             )
         else:
-            messages.success(request, f"退货单 {return_order.return_number} 审核通过！" "已扣减订单数量（未收货部分退货）")
+            messages.success(request, f"退货单 {return_order.return_number} 审核通过！" "已扣减订单数量(未收货部分退货)")
 
         return redirect("purchase:return_detail", pk=pk)
 
@@ -3357,3 +3477,44 @@ def borrow_request_conversion(request, pk):
 
 
 # borrow_approve_conversion 视图已删除 - 转采购无需审核，直接生成订单
+
+
+@login_required
+def supplier_contacts_api(request, supplier_id):
+    """
+    API: 获取供应商的联系人列表
+    用于采购订单表单的联系人下拉选择
+    """
+    from django.http import JsonResponse
+    from suppliers.models import Supplier, SupplierContact
+
+    try:
+        supplier = get_object_or_404(Supplier, pk=supplier_id, is_deleted=False)
+
+        # 获取所有启用的联系人，按主联系人排序
+        contacts = supplier.contacts.filter(
+            is_deleted=False,
+            is_active=True
+        ).order_by('-is_primary', 'id')
+
+        contacts_data = []
+        for contact in contacts:
+            contacts_data.append({
+                'id': contact.id,
+                'name': contact.name,
+                'position': contact.position or '',
+                'phone': contact.phone or '',
+                'email': contact.email or '',
+                'is_primary': contact.is_primary
+            })
+
+        return JsonResponse({
+            'success': True,
+            'contacts': contacts_data
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)

@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from .models import Supplier, SupplierCategory, SupplierContact
 
@@ -312,3 +313,155 @@ def supplier_delete(request, pk):
         "orders_count": orders_count,
     }
     return render(request, "modules/suppliers/supplier_confirm_delete.html", context)
+
+
+# ============================================================================
+# Supplier Contact Views
+# ============================================================================
+
+
+@login_required
+@transaction.atomic
+def contact_create(request):
+    """
+    Create a new supplier contact.
+    """
+    if request.method == "POST":
+        supplier_id = request.POST.get("supplier")
+        supplier = get_object_or_404(Supplier, pk=supplier_id, is_deleted=False)
+
+        # Check if setting as primary contact
+        is_primary = request.POST.get("is_primary") == "on"
+
+        # If setting as primary, unset other primary contacts
+        if is_primary:
+            SupplierContact.objects.filter(
+                supplier=supplier, is_deleted=False, is_primary=True
+            ).update(is_primary=False)
+
+        # Create new contact
+        contact = SupplierContact.objects.create(
+            supplier=supplier,
+            name=request.POST.get("name"),
+            position=request.POST.get("position", ""),
+            phone=request.POST.get("phone", ""),
+            email=request.POST.get("email", ""),
+            qq=request.POST.get("qq", ""),
+            wechat=request.POST.get("wechat", ""),
+            is_primary=is_primary,
+            is_active=True,
+            created_by=request.user,
+            updated_by=request.user,
+        )
+
+        messages.success(request, f"联系人 {contact.name} 已创建")
+
+        # Check if should return to supplier detail page
+        if request.POST.get("from_supplier_detail"):
+            return redirect("suppliers:supplier_detail", pk=supplier_id)
+
+        return redirect("suppliers:contact_list")
+
+    # GET request - show create form
+    suppliers = Supplier.objects.filter(is_deleted=False, is_approved=True)
+    context = {
+        "suppliers": suppliers,
+    }
+    return render(request, "modules/suppliers/contact_form.html", context)
+
+
+@login_required
+def contact_update(request, pk):
+    """
+    Update an existing supplier contact.
+    """
+    contact = get_object_or_404(SupplierContact, pk=pk, is_deleted=False)
+
+    if request.method == "POST":
+        # Check if setting as primary contact
+        is_primary = request.POST.get("is_primary") == "on"
+
+        # If setting as primary and not already primary, unset other primary contacts
+        if is_primary and not contact.is_primary:
+            SupplierContact.objects.filter(
+                supplier=contact.supplier, is_deleted=False, is_primary=True
+            ).update(is_primary=False)
+
+        # Update contact
+        contact.name = request.POST.get("name")
+        contact.position = request.POST.get("position", "")
+        contact.phone = request.POST.get("phone", "")
+        contact.email = request.POST.get("email", "")
+        contact.qq = request.POST.get("qq", "")
+        contact.wechat = request.POST.get("wechat", "")
+        contact.is_primary = is_primary
+        contact.is_active = request.POST.get("is_active") == "on"
+        contact.updated_by = request.user
+        contact.save()
+
+        messages.success(request, f"联系人 {contact.name} 已更新")
+        return redirect("suppliers:supplier_detail", pk=contact.supplier.pk)
+
+    # GET request - show update form
+    context = {
+        "contact": contact,
+    }
+    return render(request, "modules/suppliers/contact_form.html", context)
+
+
+@login_required
+def contact_delete(request, pk):
+    """
+    Delete (soft delete) a supplier contact.
+    """
+    contact = get_object_or_404(SupplierContact, pk=pk, is_deleted=False)
+
+    if request.method == "POST":
+        supplier_id = contact.supplier.pk
+        contact_name = contact.name
+
+        contact.is_deleted = True
+        contact.deleted_by = request.user
+        contact.deleted_at = timezone.now()
+        contact.save()
+
+        messages.success(request, f"联系人 {contact_name} 已删除")
+        return redirect("suppliers:supplier_detail", pk=supplier_id)
+
+    context = {
+        "contact": contact,
+    }
+    return render(request, "modules/suppliers/contact_confirm_delete.html", context)
+
+
+@login_required
+def contact_list(request):
+    """
+    List all supplier contacts.
+    """
+    contacts = (
+        SupplierContact.objects.filter(is_deleted=False)
+        .select_related("supplier")
+        .order_by("supplier__name", "-is_primary", "name")
+    )
+
+    # Search functionality
+    search_query = request.GET.get("search", "")
+    if search_query:
+        contacts = contacts.filter(
+            Q(name__icontains=search_query)
+            | Q(supplier__name__icontains=search_query)
+            | Q(phone__icontains=search_query)
+            | Q(email__icontains=search_query)
+        )
+
+    # Pagination
+    paginator = Paginator(contacts, 20)
+    page_number = request.GET.get("page", 1)
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "page_obj": page_obj,
+        "search_query": search_query,
+    }
+    return render(request, "modules/suppliers/contact_list.html", context)

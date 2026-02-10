@@ -38,7 +38,7 @@
                     </label>
                     <select name="order_type"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">请选择出库类型</option>
                         {% for type_code, type_name in order_types %}
                         <option value="{{ type_code }}" {% if outbound and outbound.order_type == type_code %}selected{% endif %}>
@@ -52,17 +52,77 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         仓库 <span class="text-red-500">*</span>
                     </label>
-                    <select name="warehouse"
-                            required
-                            id="warehouseSelect"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
-                        <option value="">请选择仓库</option>
-                        {% for w in warehouses %}
-                        <option value="{{ w.id }}" {% if outbound and outbound.warehouse_id == w.id %}selected{% endif %}>
-                            {{ w.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    <div x-data="searchableSelect({
+                        options: window.warehousesData,
+                        value: '{% if outbound and outbound.warehouse_id %}{{ outbound.warehouse_id }}{% endif %}',
+                        searchFields: ['name', 'code'],
+                        displayField: 'name',
+                        placeholder: '搜索仓库名称或代码',
+                        required: true
+                    })" class="relative">
+                        <!-- 隐藏input用于表单提交 -->
+                        <input type="hidden" name="warehouse" id="warehouseSelect" :value="value">
+
+                        <!-- 搜索输入框 -->
+                        <div class="relative">
+                            <input
+                                type="text"
+                                x-model="search"
+                                @input="isOpen = true"
+                                @keydown.enter="selectFirst()"
+                                @keydown.escape="close()"
+                                @focus="isOpen = true"
+                                @blur="setTimeout(() => close(), 150)"
+                                :placeholder="placeholder"
+                                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 transition-all"
+                            >
+                            <!-- 下拉箭头 -->
+                            <button
+                                type="button"
+                                @click="toggle()"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <svg x-show="!isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                                <svg x-show="isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- 下拉选项面板 -->
+                        <div
+                            x-show="isOpen && filtered.length > 0"
+                            x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            class="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200"
+                            style="display: none;"
+                        >
+                            <template x-for="option in filtered" :key="option.id">
+                                <div
+                                    @click="select(option)"
+                                    class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors"
+                                    :class="getHighlightClass($index)"
+                                    x-text="option.name"
+                                >
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- 无匹配提示 -->
+                        <div
+                            x-show="isOpen && filtered.length === 0"
+                            class="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-3 text-gray-500"
+                            style="display: none;"
+                        >
+                            未找到匹配的仓库
+                        </div>
+                    </div>
                 </div>
 
                 <div>
@@ -78,15 +138,80 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">客户</label>
-                    <select name="customer"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
-                        <option value="">请选择客户</option>
-                        {% for c in customers %}
-                        <option value="{{ c.id }}" {% if outbound and outbound.customer_id == c.id %}selected{% endif %}>
-                            {{ c.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    <div x-data="searchableSelect({
+                        options: window.customersData,
+                        value: '{% if outbound and outbound.customer_id %}{{ outbound.customer_id }}{% endif %}',
+                        searchFields: ['name', 'code', 'contact'],
+                        displayField: 'name',
+                        placeholder: '搜索客户名称、代码或联系人'
+                    })" class="relative">
+                        <!-- 隐藏input用于表单提交 -->
+                        <input type="hidden" name="customer" :value="value">
+
+                        <!-- 搜索输入框 -->
+                        <div class="relative">
+                            <input
+                                type="text"
+                                x-model="search"
+                                @input="isOpen = true"
+                                @keydown.enter="selectFirst()"
+                                @keydown.escape="close()"
+                                @focus="isOpen = true"
+                                @blur="setTimeout(() => close(), 150)"
+                                :placeholder="placeholder"
+                                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 transition-all"
+                            >
+                            <!-- 下拉箭头 -->
+                            <button
+                                type="button"
+                                @click="toggle()"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <svg x-show="!isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                                <svg x-show="isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- 下拉选项面板 -->
+                        <div
+                            x-show="isOpen && filtered.length > 0"
+                            x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            class="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200"
+                            style="display: none;"
+                        >
+                            <template x-for="option in filtered" :key="option.id">
+                                <div
+                                    @click="select(option)"
+                                    class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors"
+                                    :class="getHighlightClass($index)"
+                                >
+                                    <div class="flex justify-between items-center">
+                                        <span x-text="option.name" class="font-medium"></span>
+                                        <span x-show="option.code" x-text="'(' + option.code + ')'" class="text-sm text-gray-500"></span>
+                                    </div>
+                                    <div x-show="option.contact" x-text="option.contact" class="text-sm text-gray-500"></div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- 无匹配提示 -->
+                        <div
+                            x-show="isOpen && filtered.length === 0"
+                            class="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-3 text-gray-500"
+                            style="display: none;"
+                        >
+                            未找到匹配的客户
+                        </div>
+                    </div>
                 </div>
 
                 <div>
@@ -176,6 +301,10 @@
 </div>
 
 <script>
+// 初始化可搜索下拉框数据
+window.warehousesData = {{ warehouses_json|safe }};
+window.customersData = {{ customers_json|safe }};
+
 // 设置出库日期默认为当天
 document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
@@ -201,14 +330,14 @@ function addItem() {
 
     row.innerHTML = `
         <td class="py-2 pr-2">
-            <select class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-theme-500"
+            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     id="product-${itemIndex}">
                 <option value="">请选择产品</option>
                 ${products.map(p => `<option value="${p.id}">${p.name} (${p.code})</option>`).join('')}
             </select>
         </td>
         <td class="py-2 pr-2">
-            <select class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-theme-500"
+            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     id="location-${itemIndex}">
                 <option value="">请选择库位</option>
                 ${locations.map(loc => `<option value="${loc.id}">${loc.name}</option>`).join('')}

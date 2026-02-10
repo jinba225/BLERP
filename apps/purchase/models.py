@@ -206,6 +206,35 @@ class PurchaseOrder(BaseModel):
                     created_by=approved_by_user,
                 )
 
+            # 自动创建入库单
+            from inventory.models import InboundOrder, InboundOrderItem
+
+            inbound_order = InboundOrder.objects.create(
+                order_number=DocumentNumberGenerator.generate("IBO"),
+                warehouse=receipt_warehouse,
+                order_type="purchase",  # 采购入库
+                status="pending",  # 待审核
+                order_date=timezone.now().date(),
+                supplier=self.supplier,
+                reference_number=self.order_number,
+                reference_type="purchase_order",
+                reference_id=self.id,
+                notes=f"采购订单 {self.order_number} 审核自动生成",
+                created_by=approved_by_user,
+            )
+
+            # 创建入库单明细
+            for receipt_item in receipt.items.all():
+                InboundOrderItem.objects.create(
+                    inbound_order=inbound_order,
+                    product=receipt_item.order_item.product,
+                    location=None,
+                    quantity=0,  # 初始为0,收货确认后更新
+                    batch_number="",
+                    notes=f"等待收货确认",
+                    created_by=approved_by_user,
+                )
+
         return receipt
 
     def calculate_totals(self):

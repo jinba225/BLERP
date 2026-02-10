@@ -55,7 +55,7 @@
             </div> <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
                 <select name="status"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     <option value="">全部状态</option>
                     {% for status_code, status_name in payment_statuses %}
                     <option value="{{ status_code }}" {% if status == status_code %}selected{% endif %}>
@@ -66,7 +66,7 @@
             </div> <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">付款方式</label>
                 <select name="payment_method"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     <option value="">全部方式</option>
                     {% for method_code, method_name in payment_methods %}
                     <option value="{{ method_code }}" {% if payment_method == method_code %}selected{% endif %}>
@@ -77,7 +77,7 @@
             </div> <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">供应商</label>
                 <select name="supplier"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     <option value="">全部供应商</option>
                     {% for s in suppliers %}
                     <option value="{{ s.id }}" {% if supplier_id|stringformat:"s" == s.id|stringformat:"s" %}selected{% endif %}>

@@ -57,7 +57,7 @@
                 {% endif %} <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">客户等级</label>
                     <select name="customer_level"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         {% for code, label in customer_levels %}
                         <option value="{{ code }}" {% if customer.customer_level == code or code == 'C' and not customer %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
@@ -65,7 +65,7 @@
                 </div> <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
                     <select name="status"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         {% for code, label in customer_statuses %}
                         <option value="{{ code }}" {% if customer.status == code or code == 'active' and not customer %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
@@ -73,7 +73,7 @@
                 </div> <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">客户分类</label>
                     <select name="category"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">未分类</option>
                         {% for cat in categories %}
                         <option value="{{ cat.id }}" {% if customer.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
@@ -369,7 +369,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">销售代表</label>
                     <select name="sales_rep"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">未指定</option>
                         {% for rep in sales_reps %}
                         <option value="{{ rep.id }}" {% if customer.sales_rep_id == rep.id %}selected{% endif %}>{{ rep.username }}</option>
@@ -392,7 +392,7 @@
                 </div> <div class="col-span-full">
                     <label class="block text-sm font-medium text-gray-700 mb-2">付款方式</label>
                     <select name="payment_terms"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">请选择付款方式</option>
                         {% for code, label in payment_terms %}
                         <option value="{{ code }}" {% if customer.payment_terms == code %}selected{% endif %}>{{ label }}</option>

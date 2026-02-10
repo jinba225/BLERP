@@ -255,6 +255,35 @@ class SalesOrder(BaseModel):
                     created_by=approved_by_user,
                 )
 
+            # 自动创建出库单
+            from inventory.models import OutboundOrder, OutboundOrderItem
+
+            outbound_order = OutboundOrder.objects.create(
+                order_number=DocumentNumberGenerator.generate("OBO"),
+                warehouse=warehouse,
+                order_type="sales",  # 销售出库
+                status="pending",  # 待审核
+                order_date=timezone.now().date(),
+                customer=self.customer,
+                reference_number=self.order_number,
+                reference_type="sales_order",
+                reference_id=self.id,
+                notes=f"销售订单 {self.order_number} 审核自动生成",
+                created_by=approved_by_user,
+            )
+
+            # 创建出库单明细
+            for delivery_item in delivery.items.all():
+                OutboundOrderItem.objects.create(
+                    outbound_order=outbound_order,
+                    product=delivery_item.order_item.product,
+                    location=None,
+                    quantity=0,  # 初始为0,发货确认后更新
+                    batch_number="",
+                    notes=f"等待发货确认",
+                    created_by=approved_by_user,
+                )
+
         # 2. Create Customer Account (应收账款)
         from finance.models import CustomerAccount
 

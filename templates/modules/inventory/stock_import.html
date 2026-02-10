@@ -249,7 +249,7 @@
                         选择仓库 <span class="text-red-500">*</span>
                     </label>
                     <select id="warehouse" name="warehouse" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">请选择仓库</option>
                         {% for warehouse in warehouses %}
                         <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
@@ -262,7 +262,7 @@
                         选择产品 <span class="text-red-500">*</span>
                     </label>
                     <select id="product" name="product" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">请选择产品</option>
                         {% for product in products %}
                         <option value="{{ product.id }}">{{ product.code }} - {{ product.name }}</option>

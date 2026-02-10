@@ -494,7 +494,7 @@ class InboundOrder(BaseModel):
 
     ORDER_TYPES = [
         ("purchase", "采购入库"),
-        ("return", "退货入库"),
+        ("sales_return", "销售退货入库"),
         ("transfer", "调拨入库"),
         ("other", "其他入库"),
     ]
@@ -542,6 +542,18 @@ class InboundOrder(BaseModel):
         db_table = "inventory_inbound_order"
         ordering = ["-order_date", "-created_at"]
 
+    def clean(self):
+        """模型验证"""
+        from django.core.exceptions import ValidationError
+
+        # 如果是"其他入库",必须填写备注
+        if self.order_type == "other" and not self.notes:
+            raise ValidationError({"notes": "其他入库必须填写备注说明原因"})
+
+    def save(self, *args, **kwargs):
+        self.clean()  # 调用验证
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.order_number} - {self.warehouse.name}"
 
@@ -579,6 +591,7 @@ class OutboundOrder(BaseModel):
 
     ORDER_TYPES = [
         ("sales", "销售出库"),
+        ("purchase_return", "采购退货出库"),
         ("production", "生产出库"),
         ("transfer", "调拨出库"),
         ("other", "其他出库"),
@@ -626,6 +639,18 @@ class OutboundOrder(BaseModel):
         verbose_name_plural = "出库单"
         db_table = "inventory_outbound_order"
         ordering = ["-order_date", "-created_at"]
+
+    def clean(self):
+        """模型验证"""
+        from django.core.exceptions import ValidationError
+
+        # 如果是"其他出库",必须填写备注
+        if self.order_type == "other" and not self.notes:
+            raise ValidationError({"notes": "其他出库必须填写备注说明原因"})
+
+    def save(self, *args, **kwargs):
+        self.clean()  # 调用验证
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.order_number} - {self.warehouse.name}"

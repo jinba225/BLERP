@@ -74,7 +74,7 @@
                         <span class="text-base font-medium text-gray-700">逾期状态</span>
                     </label>
                     <select name="overdue_status" id="overdue_status"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">全部</option>
                         <option value="overdue" {% if filter_overdue_status == 'overdue' %}selected{% endif %}>已逾期</option>
                         <option value="not_overdue" {% if filter_overdue_status == 'not_overdue' %}selected{% endif %}>未逾期</option>
@@ -85,7 +85,7 @@
                         <span class="text-base font-medium text-gray-700">结清状态</span>
                     </label>
                     <select name="settlement_status" id="settlement_status"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">全部</option>
                         <option value="settled" {% if filter_settlement_status == 'settled' %}selected{% endif %}>已结清</option>
                         <option value="unsettled" {% if filter_settlement_status == 'unsettled' %}selected{% endif %}>未结清</option>

@@ -83,4 +83,10 @@ urlpatterns = [
     path("quotations/<int:pk>/edit/", views.quotation_update, name="quotation_update"),
     path("quotations/<int:pk>/select/", views.quotation_select, name="quotation_select"),
     path("reports/", views.purchase_order_report, name="order_report"),
+    # API路由
+    path(
+        "api/suppliers/<int:supplier_id>/contacts/",
+        views.supplier_contacts_api,
+        name="supplier_contacts_api",
+    ),
 ]

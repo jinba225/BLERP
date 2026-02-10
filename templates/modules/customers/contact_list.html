@@ -46,7 +46,7 @@
             </div>
             </div> <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">客户</label>
-                <select name="customer" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                <select name="customer" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     <option value="">全部客户</option>
                     {% for customer in customers %}
                     <option value="{{ customer.pk }}" {% if customer_id == customer.pk|stringformat:"s" %}selected{% endif %}>
@@ -56,7 +56,7 @@
                 </select>
             </div> <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">主联系人</label>
-                <select name="is_primary" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                <select name="is_primary" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     <option value="">全部</option>
                     <option value="true" {% if is_primary == 'true' %}selected{% endif %}>是</option>
                     <option value="false" {% if is_primary == 'false' %}selected{% endif %}>否</option>

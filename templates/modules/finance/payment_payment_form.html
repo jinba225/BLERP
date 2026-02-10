@@ -37,7 +37,7 @@
                     </label>
                     <select name="supplier"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">请选择供应商</option>
                         {% for s in suppliers %}
                         <option value="{{ s.id }}" {% if payment and payment.supplier_id == s.id %}selected{% endif %}>
@@ -78,7 +78,7 @@
                     </label>
                     <select name="currency"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="CNY" {% if not payment or payment.currency == 'CNY' %}selected{% endif %}>人民币 (CNY)</option>
                         <option value="USD" {% if payment and payment.currency == 'USD' %}selected{% endif %}>美元 (USD)</option>
                         <option value="EUR" {% if payment and payment.currency == 'EUR' %}selected{% endif %}>欧元 (EUR)</option>
@@ -91,7 +91,7 @@
                     </label>
                     <select name="payment_method"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">请选择付款方式</option>
                         {% for method_code, method_name in payment_methods %}
                         <option value="{{ method_code }}" {% if payment and payment.payment_method == method_code %}selected{% endif %}>
@@ -107,7 +107,7 @@
                     </label>
                     <select name="status"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         {% for status_code, status_name in payment_statuses %}
                         <option value="{{ status_code }}" {% if payment and payment.status == status_code %}selected{% elif not payment and status_code == 'pending' %}selected{% endif %}>
                             {{ status_name }}

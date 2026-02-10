@@ -60,7 +60,7 @@
                     </label>
                     <select name="warehouse_type"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         {% for type_code, type_name in warehouse_types %}
                         <option value="{{ type_code }}" {% if action == 'update' and warehouse.warehouse_type == type_code %}selected{% endif %}>{{ type_name }}</option>
                         {% endfor %}
@@ -72,7 +72,7 @@
                         管理员
                     </label>
                     <select name="manager"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">请选择管理员</option>
                         {% for manager in managers %}
                         <option value="{{ manager.id }}" {% if action == 'update' and warehouse.manager_id == manager.id %}selected{% endif %}>{{ manager.username }}</option>

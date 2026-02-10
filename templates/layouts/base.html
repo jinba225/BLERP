@@ -185,6 +185,9 @@
     <!-- Alpine.js -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <!-- 可搜索下拉框工具库 -->
+    <script src="{% static 'js/searchable-utils.js' %}"></script>
+
     <!-- Custom CSS -->
     <style>
         /* Alpine.js x-cloak 指令样式 */
@@ -1796,57 +1799,123 @@
         });
     </script>
 
-    <!-- Alpine.js 可搜索下拉框组件 -->
+    <!-- Alpine.js 可搜索下拉框组件 (改进版) -->
     <script>
         document.addEventListener('alpine:init', function() {
-            Alpine.data('searchableSelect', function(options = [], initialValue = '') {
+            /**
+             * 通用可搜索下拉框组件
+             * @param {Object} config - 配置对象
+             *   - options: Array 选项数组或返回数组的函数
+             *   - value: String|Number 初始选中值
+             *   - searchFields: Array 要搜索的字段名，默认 ['name', 'code']
+             *   - displayField: String 显示字段名，默认 'name'
+             *   - placeholder: String 占位符文本
+             *   - required: Boolean 是否必填
+             *   - multiple: Boolean 是否多选（未实现）
+             *   - disabled: Boolean 是否禁用
+             *   - onSelect: Function 选择选项后的回调函数
+             */
+            Alpine.data('searchableSelect', function(config = {}) {
                 return {
+                    // 内部状态
                     isOpen: false,
                     search: '',
-                    selectedValue: initialValue,
-                    selectedIndex: -1,
+                    selected: null,
                     highlightIndex: -1,
+                    uniqueId: null,
 
+                    // 配置参数
+                    _options: config.options || [],
+                    _value: config.value || '',
+                    _searchFields: config.searchFields || ['name', 'code'],
+                    _displayField: config.displayField || 'name',
+                    _placeholder: config.placeholder || '请选择',
+                    _required: config.required || false,
+                    _disabled: config.disabled || false,
+                    _onSelect: config.onSelect || null,
+
+                    // 计算属性：选项数据
                     get options() {
-                        return typeof options === 'function' ? options() : options;
+                        return typeof this._options === 'function' ? this._options() : this._options;
                     },
 
-                    get filteredOptions() {
-                        if (!this.search) return this.options;
-                        const search = this.search.toLowerCase();
-                        return this.options.filter(opt =>
-                            String(opt.name || opt.label || opt).toLowerCase().includes(search) ||
-                            String(opt.code || '').toLowerCase().includes(search)
-                        );
+                    // 计算属性：过滤后的选项
+                    get filtered() {
+                        if (!this.search || !this.search.trim()) {
+                            return this.options;
+                        }
+
+                        // 使用工具库的filterByFields函数
+                        if (window.SearchableUtils) {
+                            return window.SearchableUtils.filterByFields(
+                                this.options,
+                                this.search,
+                                this._searchFields
+                            );
+                        }
+
+                        // 降级方案
+                        const query = this.search.toLowerCase().trim();
+                        return this.options.filter(opt => {
+                            return this._searchFields.some(field => {
+                                const value = opt[field];
+                                if (value === null || value === undefined) return false;
+                                return String(value).toLowerCase().includes(query);
+                            });
+                        });
                     },
 
-                    get selectedOption() {
-                        if (!this.selectedValue) return null;
-                        return this.options.find(opt => opt.id == this.selectedValue || opt.value == this.selectedValue);
+                    // 计算属性：当前选中的值（用于表单提交）
+                    get value() {
+                        return this.selected ? this.selected.id || this.selected.value : '';
                     },
 
-                    get displayValue() {
-                        if (this.selectedOption) {
-                            return this.selectedOption.name || this.selectedOption.label || this.selectedOption;
+                    // 计算属性：显示文本
+                    get displayText() {
+                        if (this.selected) {
+                            return this.selected[this._displayField] ||
+                                   this.selected.name ||
+                                   this.selected.label ||
+                                   String(this.selected.id || '');
                         }
                         return this.search;
                     },
 
-                    init() {
-                        // 如果没有初始值且有选项，默认选择第一个
-                        if (!this.selectedValue && this.options.length > 0) {
-                            // 不自动选择，让用户手动选择
+                    // 方法：选择选项
+                    select(option) {
+                        this.selected = option;
+                        this.search = option[this._displayField] || option.name || '';
+                        this.isOpen = false;
+                        this.highlightIndex = -1;
+
+                        // 调用选择回调（如果有）
+                        if (this._onSelect && typeof this._onSelect === 'function') {
+                            this._onSelect(option);
+                        }
+
+                        // 派发自定义事件（保留用于向后兼容）
+                        this.$dispatch('option-selected', option);
+                        this.$dispatch('change', this.value);
+                    },
+
+                    // 方法：选择第一个匹配项
+                    selectFirst() {
+                        if (this.filtered.length > 0) {
+                            this.select(this.filtered[0]);
                         }
                     },
 
-                    selectOption(option) {
-                        this.selectedValue = option.id || option.value;
+                    // 方法：清除选择
+                    clear() {
+                        this.selected = null;
                         this.search = '';
-                        this.isOpen = false;
-                        this.$dispatch('change', this.selectedValue);
+                        this._value = '';
+                        this.$dispatch('change', '');
                     },
 
-                    toggleDropdown() {
+                    // 方法：切换下拉面板
+                    toggle() {
+                        if (this._disabled) return;
                         this.isOpen = !this.isOpen;
                         if (this.isOpen) {
                             this.$nextTick(() => {
@@ -1855,14 +1924,17 @@
                         }
                     },
 
-                    closeDropdown() {
+                    // 方法：关闭下拉面板
+                    close() {
                         this.isOpen = false;
-                        this.search = '';
                         this.highlightIndex = -1;
                     },
 
+                    // 方法：处理键盘事件
                     handleKeydown(event) {
-                        const filtered = this.filteredOptions;
+                        if (this._disabled) return;
+
+                        const filtered = this.filtered;
 
                         switch(event.key) {
                             case 'ArrowDown':
@@ -1870,34 +1942,101 @@
                                 if (!this.isOpen) {
                                     this.isOpen = true;
                                 } else {
-                                    this.highlightIndex = Math.min(this.highlightIndex + 1, filtered.length - 1);
+                                    this.highlightIndex = Math.min(
+                                        this.highlightIndex + 1,
+                                        filtered.length - 1
+                                    );
+                                    // 滚动到高亮项
+                                    this.$nextTick(() => {
+                                        const highlighted = this.$el.querySelectorAll('[data-option-index]')[this.highlightIndex];
+                                        if (highlighted && window.SearchableUtils) {
+                                            window.SearchableUtils.scrollIntoView(highlighted);
+                                        }
+                                    });
                                 }
                                 break;
+
                             case 'ArrowUp':
                                 event.preventDefault();
-                                this.highlightIndex = Math.max(this.highlightIndex - 1, -1);
+                                if (this.isOpen) {
+                                    this.highlightIndex = Math.max(this.highlightIndex - 1, 0);
+                                    // 滚动到高亮项
+                                    this.$nextTick(() => {
+                                        const highlighted = this.$el.querySelectorAll('[data-option-index]')[this.highlightIndex];
+                                        if (highlighted && window.SearchableUtils) {
+                                            window.SearchableUtils.scrollIntoView(highlighted);
+                                        }
+                                    });
+                                }
                                 break;
+
                             case 'Enter':
                                 event.preventDefault();
                                 if (this.isOpen && this.highlightIndex >= 0) {
-                                    this.selectOption(filtered[this.highlightIndex]);
+                                    this.select(filtered[this.highlightIndex]);
+                                } else if (this.isOpen && filtered.length === 1) {
+                                    // 只有一个匹配项时，直接选择
+                                    this.select(filtered[0]);
                                 } else if (!this.isOpen) {
-                                    this.toggleDropdown();
+                                    this.toggle();
                                 }
                                 break;
+
                             case 'Escape':
-                                this.closeDropdown();
+                                event.preventDefault();
+                                this.close();
                                 break;
+
                             case 'Tab':
-                                this.closeDropdown();
+                                this.close();
                                 break;
                         }
                     },
 
-                    highlightClass(index) {
+                    // 方法：获取高亮CSS类
+                    getHighlightClass(index) {
                         return index === this.highlightIndex
-                            ? 'bg-gray-100'
-                            : 'hover:bg-gray-50';
+                            ? 'bg-theme-100 font-medium'
+                            : 'hover:bg-theme-50';
+                    },
+
+                    // 初始化
+                    init() {
+                        // 生成唯一ID
+                        this.uniqueId = 'ss-' + Math.random().toString(36).substr(2, 9);
+
+                        // 恢复已选择的值
+                        if (this._value) {
+                            this.selected = this.options.find(opt =>
+                                (opt.id || opt.value) == this._value
+                            );
+                            if (this.selected) {
+                                this.search = this.selected[this._displayField] ||
+                                             this.selected.name ||
+                                             '';
+                            }
+                        }
+
+                        // 监听外部值变化
+                        this.$watch('_value', (newValue) => {
+                            if (newValue !== this.value) {
+                                this.selected = this.options.find(opt =>
+                                    (opt.id || opt.value) == newValue
+                                );
+                                if (this.selected) {
+                                    this.search = this.selected[this._displayField] ||
+                                                 this.selected.name ||
+                                                 '';
+                                }
+                            }
+                        });
+
+                        // 点击外部关闭
+                        document.addEventListener('click', (event) => {
+                            if (!this.$el.contains(event.target)) {
+                                this.close();
+                            }
+                        });
                     }
                 };
             });

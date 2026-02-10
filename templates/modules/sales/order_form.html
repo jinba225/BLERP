@@ -34,12 +34,82 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-2">客户 <span class="text-red-500">*</span></label>
-<select name="customer" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-    <option value="">请选择客户</option>
-    {% for customer in customers %}
-    <option value="{{ customer.id }}" {% if order and order.customer_id == customer.id %}selected{% endif %}>{{ customer.name }}</option>
-    {% endfor %}
-</select>
+<div x-data="searchableSelect({
+    options: window.customersData,
+    value: '{% if order and order.customer_id %}{{ order.customer_id }}{% endif %}',
+    searchFields: ['name', 'code', 'contact'],
+    displayField: 'name',
+    placeholder: '搜索客户名称、代码或联系人',
+    required: true,
+    onSelect: (customer) => window.salesOrderFormInstance?.handleCustomerSelected(customer)
+})" class="relative">
+    <!-- 隐藏input用于表单提交 -->
+    <input type="hidden" name="customer" :value="value">
+
+    <!-- 搜索输入框 -->
+    <div class="relative">
+        <input
+            type="text"
+            x-model="search"
+            @input="isOpen = true"
+            @keydown.enter="selectFirst()"
+            @keydown.escape="close()"
+            @focus="isOpen = true"
+            @blur="setTimeout(() => close(), 150)"
+            :placeholder="placeholder"
+            class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 transition-all"
+        >
+        <!-- 下拉箭头 -->
+        <button
+            type="button"
+            @click="toggle()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+            <svg x-show="!isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            <svg x-show="isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- 下拉选项面板 -->
+    <div
+        x-show="isOpen && filtered.length > 0"
+        x-transition:enter="transition ease-out duration-100"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-75"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95"
+        class="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200"
+        style="display: none;"
+    >
+        <template x-for="option in filtered" :key="option.id">
+            <div
+                @click="select(option)"
+                class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors"
+                :class="getHighlightClass($index)"
+            >
+                <div class="flex justify-between items-center">
+                    <span x-text="option.name" class="font-medium"></span>
+                    <span x-show="option.code" x-text="'(' + option.code + ')'" class="text-sm text-gray-500"></span>
+                </div>
+                <div x-show="option.contact" x-text="option.contact" class="text-sm text-gray-500"></div>
+            </div>
+        </template>
+    </div>
+
+    <!-- 无匹配提示 -->
+    <div
+        x-show="isOpen && filtered.length === 0"
+        class="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-3 text-gray-500"
+        style="display: none;"
+    >
+        未找到匹配的客户
+    </div>
+</div>
 </div>
 <div><label class="block text-sm font-medium text-gray-700 mb-2">联系人</label><select name="contact_person" class="w-full px-3 py-2 border border-gray-300 rounded-lg" :disabled="!contacts.length"><option value="">请选择联系人</option><template x-for="contact in contacts" :key="contact.id"><option :value="contact.id" x-text="contact.name + (contact.position ? ' (' + contact.position + ')' : '')"></option></template></select></div>
 
@@ -85,14 +155,74 @@
 <tr class="border-t">
 <td class="px-3 py-2 text-sm text-gray-500" x-text="index + 1"></td>
 <td class="px-3 py-2">
-<select x-model="item.product_id" @change="onProductChange(index)" class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-theme-500 transition-colors" required>
-<option value="">选择产品</option>
-{% for p in products %}
-<option value="{{ p.id }}" data-price="{{ p.selling_price }}" data-unit="{{ p.unit.symbol|default:'' }}">{{ p.code }} - {{ p.name }}</option>
-{% endfor %}
-</select>
+    <input type="hidden" x-model="item.product_id">
+    <div x-data="tableProductSelect(item.product_id, index)"
+         @product-selected="handleProductSelected($event)"
+         class="relative">
+        <!-- 搜索输入框 -->
+        <div class="relative">
+            <input
+                type="text"
+                x-model="search"
+                @input="openDropdown()"
+                @keydown.enter="selectFirst()"
+                @keydown.escape="isOpen = false"
+                @focus="openDropdown()"
+                @blur="setTimeout(() => isOpen = false, 150)"
+                placeholder="搜索产品代码或名称"
+                class="w-full px-2 py-1 pr-10 border border-gray-300 rounded text-sm focus:outline-none focus:border-theme-500 transition-colors"
+            >
+            <!-- 下拉箭头 -->
+            <button
+                type="button"
+                @click="isOpen = !isOpen; updateDropdownPosition()"
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+                <svg x-show="!isOpen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+                <svg x-show="isOpen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- 下拉选项面板 - 使用fixed定位 -->
+        <div
+            x-show="isOpen && filtered.length > 0"
+            x-transition:enter="transition ease-out duration-100"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-75"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+            class="max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200"
+            :style="dropdownStyle"
+            style="display: none;"
+        >
+            <template x-for="product in filtered" :key="product.id">
+                <div
+                    @click="selectProduct(product)"
+                    class="px-3 py-2 hover:bg-theme-50 cursor-pointer transition-colors text-sm"
+                >
+                    <div class="font-medium" x-text="product.code + ' - ' + product.name"></div>
+                    <div x-show="product.specifications" x-text="product.specifications" class="text-xs text-gray-500"></div>
+                </div>
+            </template>
+        </div>
+
+        <!-- 无匹配提示 - 使用fixed定位 -->
+        <div
+            x-show="isOpen && filtered.length === 0"
+            class="max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200 px-3 py-2 text-gray-500 text-sm"
+            :style="dropdownStyle"
+            style="display: none;"
+        >
+            未找到匹配的产品
+        </div>
+    </div>
 </td>
-<td class="px-3 py-2"><input type="number" x-model="item.quantity" @input="calculateLineTotal(index)" step="0.01" min="0" class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors" required></td>
+<td class="px-3 py-2"><input type="number" x-model="item.quantity" @input="calculateLineTotal(index)" step="1" min="0" class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors" required></td>
 <td class="px-3 py-2"><input type="number" x-model="item.unit_price" @input="calculateLineTotal(index)" step="0.01" min="0" class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors" required></td>
 <td class="px-3 py-2"><input type="number" x-model="item.discount_rate" @input="calculateLineTotal(index)" step="0.01" min="0" max="100" class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors"></td>
 <td class="px-3 py-2 text-sm text-right font-medium text-gray-900" x-text="formatMoney(item.line_total)"></td>
@@ -126,8 +256,15 @@
 <div class="bg-white rounded-lg shadow mb-6 p-6">
 <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">收货信息</h4>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div><label class="block text-sm font-medium text-gray-700 mb-2">收货联系人</label><input type="text" name="shipping_contact" value="{{ order.shipping_contact|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
-<div><label class="block text-sm font-medium text-gray-700 mb-2">收货电话</label><input type="text" name="shipping_phone" value="{{ order.shipping_phone|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">收货联系人</label>
+<select name="shipping_contact" x-model="selectedContactId" @change="handleContactChange" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+    <option value="">请选择联系人</option>
+    <template x-for="contact in customerContacts" :key="contact.id">
+        <option :value="contact.id" x-text="contact.name + (contact.phone ? ' - ' + contact.phone : '')"></option>
+    </template>
+</select>
+</div>
+<div><label class="block text-sm font-medium text-gray-700 mb-2">收货电话</label><input type="text" name="shipping_phone" x-model="selectedContactPhone" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"></div>
 <div class="col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">收货地址</label><textarea name="shipping_address" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg">{{ order.shipping_address|default:'' }}</textarea></div>
 </div>
 </div>
@@ -135,6 +272,88 @@
 </div>
 
 <script>
+// 初始化可搜索下拉框数据
+window.customersData = {{ customers_json|safe }};
+window.productsData = {{ products_json|safe }};
+
+// 表格行产品选择器组件
+document.addEventListener('alpine:init', () => {
+    Alpine.data('tableProductSelect', (initialProductId = null, rowIndex = null) => ({
+        isOpen: false,
+        search: '',
+        selected: null,
+        rowIndex: rowIndex,
+        dropdownStyle: '',
+
+        get filtered() {
+            if (!this.search || !this.search.trim()) {
+                return window.productsData;
+            }
+            const query = this.search.toLowerCase().trim();
+            return window.productsData.filter(product =>
+                product.name.toLowerCase().includes(query) ||
+                (product.code && product.code.toLowerCase().includes(query))
+            );
+        },
+
+        selectProduct(product) {
+            this.selected = product;
+            this.search = product.code + ' - ' + product.name;
+            this.isOpen = false;
+
+            // 通知父组件产品已选择
+            this.$dispatch('product-selected', {
+                rowIndex: this.rowIndex,
+                product: product
+            });
+        },
+
+        selectFirst() {
+            if (this.filtered.length > 0) {
+                this.selectProduct(this.filtered[0]);
+            }
+        },
+
+        updateDropdownPosition() {
+            if (!this.isOpen) return;
+            this.$nextTick(() => {
+                const input = this.$el.querySelector('input[type="text"]');
+                if (!input) return;
+
+                const rect = input.getBoundingClientRect();
+                const dropdownHeight = 240; // max-h-60 = 240px
+
+                // 计算下拉面板位置
+                let top = rect.bottom + window.scrollY + 4;
+                const left = rect.left + window.scrollX;
+                const width = rect.width;
+
+                // 检查底部空间是否足够
+                if (top + dropdownHeight > window.innerHeight + window.scrollY) {
+                    // 底部空间不足，显示在输入框上方
+                    top = rect.top + window.scrollY - dropdownHeight - 4;
+                }
+
+                this.dropdownStyle = `position: fixed; top: ${top}px; left: ${left}px; width: ${width}px; z-index: 9999;`;
+            });
+        },
+
+        openDropdown() {
+            this.isOpen = true;
+            this.updateDropdownPosition();
+        },
+
+        init() {
+            if (initialProductId) {
+                this.selected = window.productsData.find(p => p.id == initialProductId);
+                if (this.selected) {
+                    this.search = this.selected.code + ' - ' + this.selected.name;
+                }
+            }
+        }
+    }));
+});
+
 function orderForm() {
     // 设置默认日期为当天
     document.addEventListener('DOMContentLoaded', function() {
@@ -154,6 +373,10 @@ function orderForm() {
         totalAmount: 0,
         itemsJSON: '[]',
         contacts: [],
+        // 客户联系人相关
+        customerContacts: [],
+        selectedContactId: '',
+        selectedContactPhone: '',
 
         init() {
             {% if action == 'update' %}
@@ -171,6 +394,9 @@ function orderForm() {
             ];
             {% endif %}
             this.calculateTotals();
+
+            // 将实例保存到全局，供 searchableSelect 的 onSelect 回调使用
+            window.salesOrderFormInstance = this;
         },
 
         onCustomerChange(event) {
@@ -188,6 +414,89 @@ function orderForm() {
                     });
             } else {
                 this.contacts = [];
+            }
+        },
+
+        handleCustomerSelected(customer) {
+            // 处理客户选择后的自动填充
+            console.log('=== handleCustomerSelected 触发 ===');
+            console.log('客户数据:', customer);
+
+            if (!customer) {
+                console.log('客户数据为空，跳过自动填充');
+                this.customerContacts = [];
+                this.selectedContactId = '';
+                this.selectedContactPhone = '';
+                return;
+            }
+
+            // 自动填充收货地址
+            if (customer.address) {
+                const addressInput = document.querySelector('textarea[name="shipping_address"]');
+                if (addressInput) {
+                    console.log('填充收货地址:', customer.address);
+                    addressInput.value = customer.address;
+                }
+            }
+
+            // 自动填充付款条件
+            if (customer.payment_terms) {
+                const paymentTermsInput = document.querySelector('input[name="payment_terms"]');
+                if (paymentTermsInput) {
+                    console.log('填充付款条件:', customer.payment_terms);
+                    paymentTermsInput.value = customer.payment_terms;
+                }
+            }
+
+            // 加载客户联系人列表
+            this.loadCustomerContacts(customer.id);
+        },
+
+        loadCustomerContacts(customerId) {
+            console.log('加载客户联系人列表, customerId:', customerId);
+
+            fetch(`/sales/api/customers/${customerId}/contacts/`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('联系人数据:', data);
+                    if (data.success && data.contacts) {
+                        this.customerContacts = data.contacts;
+
+                        // 默认选择主联系人
+                        const primaryContact = data.contacts.find(c => c.is_primary);
+                        if (primaryContact) {
+                            this.selectedContactId = primaryContact.id;
+                            this.selectedContactPhone = primaryContact.phone;
+                            console.log('默认选择主联系人:', primaryContact.name);
+                        } else if (data.contacts.length > 0) {
+                            // 如果没有主联系人，选择第一个
+                            this.selectedContactId = data.contacts[0].id;
+                            this.selectedContactPhone = data.contacts[0].phone;
+                            console.log('默认选择第一个联系人:', data.contacts[0].name);
+                        }
+                    } else {
+                        this.customerContacts = [];
+                        this.selectedContactId = '';
+                        this.selectedContactPhone = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('加载联系人失败:', error);
+                    this.customerContacts = [];
+                    this.selectedContactId = '';
+                    this.selectedContactPhone = '';
+                });
+        },
+
+        handleContactChange() {
+            // 处理联系人选择变化
+            console.log('联系人选择变化:', this.selectedContactId);
+            const selectedContact = this.customerContacts.find(c => c.id == this.selectedContactId);
+            if (selectedContact) {
+                this.selectedContactPhone = selectedContact.phone || '';
+                console.log('更新电话:', this.selectedContactPhone);
+            } else {
+                this.selectedContactPhone = '';
             }
         },
 
@@ -213,6 +522,17 @@ function orderForm() {
             if (option.dataset.price) {
                 this.items[index].unit_price = parseFloat(option.dataset.price);
                 this.calculateLineTotal(index);
+            }
+        },
+
+        handleProductSelected(event) {
+            // 处理表格产品选择器派发的事件
+            const { rowIndex, product } = event;
+            if (rowIndex !== null && rowIndex !== undefined && product) {
+                this.items[rowIndex].product_id = product.id;
+                // 使用销售价
+                this.items[rowIndex].unit_price = parseFloat(product.sale_price || 0);
+                this.calculateLineTotal(rowIndex);
             }
         },
 

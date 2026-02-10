@@ -46,7 +46,7 @@
             </div>
                 </div>
                 <div class="w-48">
-                    <select name="voucher_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                    <select name="voucher_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">全部凭证类型</option>
                         <option value="receipt" {% if voucher_type == 'receipt' %}selected{% endif %}>收款凭证</option>
                         <option value="payment" {% if voucher_type == 'payment' %}selected{% endif %}>付款凭证</option>
@@ -54,7 +54,7 @@
                     </select>
                 </div>
                 <div class="w-48">
-                    <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                    <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">全部状态</option>
                         <option value="draft" {% if status == 'draft' %}selected{% endif %}>草稿</option>
                         <option value="submitted" {% if status == 'submitted' %}selected{% endif %}>待审核</option>

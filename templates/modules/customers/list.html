@@ -32,14 +32,14 @@
             </button>
         </div>
     </div>
-    
+
     <!-- Filters -->
     <div class="bg-white rounded-lg shadow p-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">搜索</label>
-                <input 
-                    type="text" 
+                <input
+                    type="text"
                     x-model="filters.search"
                     @input="debounceSearch()"
                     class="form-input"
@@ -48,7 +48,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">客户类型</label>
-                <select x-model="filters.customer_type" @change="loadCustomers()" class="form-select">
+                <select x-model="filters.customer_type" @change="loadCustomers()" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     <option value="">全部类型</option>
                     <option value="individual">个人客户</option>
                     <option value="enterprise">企业客户</option>
@@ -58,7 +58,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">客户等级</label>
-                <select x-model="filters.level" @change="loadCustomers()" class="form-select">
+                <select x-model="filters.level" @change="loadCustomers()" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     <option value="">全部等级</option>
                     <option value="A">A级客户</option>
                     <option value="B">B级客户</option>
@@ -68,7 +68,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
-                <select x-model="filters.is_active" @change="loadCustomers()" class="form-select">
+                <select x-model="filters.is_active" @change="loadCustomers()" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     <option value="">全部状态</option>
                     <option value="true">启用</option>
                     <option value="false">停用</option>
@@ -76,7 +76,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Customer List -->
     <div class="bg-white rounded-lg shadow">
         <div class="p-6 border-b border-gray-200">
@@ -87,7 +87,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="overflow-x-auto">
             <table class="table">
                 <thead class="table-header">
@@ -157,7 +157,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Loading State -->
         <div x-show="loading" class="p-8 text-center">
             <svg class="icon text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -165,7 +165,7 @@
 </svg>
             <p class="text-gray-500">加载中...</p>
         </div>
-        
+
         <!-- Empty State -->
         <div x-show="!loading && customers.length === 0" class="p-8 text-center">
             <svg class="icon text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,17 +173,17 @@
 </svg>
             <p class="text-gray-500">暂无客户数据</p>
         </div>
-        
+
         <!-- Pagination -->
         <div x-show="pagination.count > 0" class="p-6 border-t border-gray-200">
             <div class="flex items-center justify-between">
                 <div class="text-sm text-gray-700">
-                    显示第 <span x-text="(pagination.current_page - 1) * pagination.page_size + 1"></span> 
-                    到 <span x-text="Math.min(pagination.current_page * pagination.page_size, pagination.count)"></span> 
+                    显示第 <span x-text="(pagination.current_page - 1) * pagination.page_size + 1"></span>
+                    到 <span x-text="Math.min(pagination.current_page * pagination.page_size, pagination.count)"></span>
                     条，共 <span x-text="pagination.count"></span> 条记录
                 </div>
                 <div class="flex items-center space-x-2">
-                    <button 
+                    <button
                         @click="loadPage(pagination.current_page - 1)"
                         :disabled="!pagination.previous"
                         class="btn btn-outline btn-sm"
@@ -193,7 +193,7 @@
                     <span class="text-sm text-gray-700">
                         第 <span x-text="pagination.current_page"></span> 页，共 <span x-text="pagination.total_pages"></span> 页
                     </span>
-                    <button 
+                    <button
                         @click="loadPage(pagination.current_page + 1)"
                         :disabled="!pagination.next"
                         class="btn btn-outline btn-sm"
@@ -227,11 +227,11 @@ function customerList() {
             previous: null
         },
         searchTimeout: null,
-        
+
         init() {
             this.loadCustomers();
         },
-        
+
         async loadCustomers() {
             this.loading = true;
             try {
@@ -240,14 +240,14 @@ function customerList() {
                     page_size: this.pagination.page_size,
                     ...this.filters
                 };
-                
+
                 // Remove empty filters
                 Object.keys(params).forEach(key => {
                     if (params[key] === '') delete params[key];
                 });
-                
+
                 const response = await api.getCustomers(params);
-                
+
                 this.customers = response.results || [];
                 this.pagination = {
                     count: response.count || 0,
@@ -264,14 +264,14 @@ function customerList() {
                 this.loading = false;
             }
         },
-        
+
         loadPage(page) {
             if (page >= 1 && page <= this.pagination.total_pages) {
                 this.pagination.current_page = page;
                 this.loadCustomers();
             }
         },
-        
+
         debounceSearch() {
             clearTimeout(this.searchTimeout);
             this.searchTimeout = setTimeout(() => {
@@ -279,7 +279,7 @@ function customerList() {
                 this.loadCustomers();
             }, 500);
         },
-        
+
         toggleSelectAll() {
             if (this.selectedIds.length === this.customers.length) {
                 this.selectedIds = [];
@@ -287,22 +287,22 @@ function customerList() {
                 this.selectedIds = this.customers.map(c => c.id);
             }
         },
-        
+
         openCreateModal() {
             // TODO: Open create customer modal
             console.log('Open create customer modal');
         },
-        
+
         viewCustomer(customer) {
             // TODO: Open customer detail view
             console.log('View customer:', customer);
         },
-        
+
         editCustomer(customer) {
             // TODO: Open edit customer modal
             console.log('Edit customer:', customer);
         },
-        
+
         async deleteCustomer(customer) {
             if (confirm(`确定要删除客户 "${customer.name}" 吗？`)) {
                 try {
@@ -315,12 +315,12 @@ function customerList() {
                 }
             }
         },
-        
+
         exportData() {
             // TODO: Export customer data
             console.log('Export customer data');
         },
-        
+
         getCustomerTypeDisplay(type) {
             const types = {
                 'individual': '个人客户',
@@ -330,7 +330,7 @@ function customerList() {
             };
             return types[type] || type;
         },
-        
+
         getLevelBadgeClass(level) {
             const classes = {
                 'A': 'badge-success',
@@ -340,18 +340,18 @@ function customerList() {
             };
             return classes[level] || 'badge-secondary';
         },
-        
+
         formatDate(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
             return date.toLocaleDateString('zh-CN');
         },
-        
+
         showSuccess(message) {
             // TODO: Show success notification
             console.log('Success:', message);
         },
-        
+
         showError(message) {
             // TODO: Show error notification
             console.log('Error:', message);

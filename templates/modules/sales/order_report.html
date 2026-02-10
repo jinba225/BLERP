@@ -55,7 +55,7 @@
                         <span class="text-base font-medium text-gray-700">订单状态</span>
                     </label>
                     <select name="status" id="status"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">全部</option>
                         {% for value, label in status_choices %}
                         <option value="{{ value }}" {% if filter_status == value %}selected{% endif %}>
@@ -84,7 +84,7 @@
                         <span class="text-base font-medium text-gray-700">客户</span>
                     </label>
                     <select name="customer" id="customer"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">全部</option>
                         {% for customer in customers %}
                         <option value="{{ customer.id }}" {% if filter_customer == customer.id|stringformat:"s" %}selected{% endif %}>
@@ -101,7 +101,7 @@
                         <span class="text-base font-medium text-gray-700">业务员</span>
                     </label>
                     <select name="salesperson" id="salesperson"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">全部</option>
                         {% for person in salespersons %}
                         <option value="{{ person.id }}" {% if filter_salesperson == person.id|stringformat:"s" %}selected{% endif %}>
@@ -115,7 +115,7 @@
                         <span class="text-base font-medium text-gray-700">产品</span>
                     </label>
                     <select name="product" id="product"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">全部</option>
                         {% for prod in products %}
                         <option value="{{ prod.id }}" {% if filter_product == prod.id|stringformat:"s" %}selected{% endif %}>

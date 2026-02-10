@@ -65,7 +65,7 @@
                     <label class="block mb-2">
                         <span class="text-base font-medium text-gray-700">仓库</span>
                     </label>
-                    <select name="warehouse" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                    <select name="warehouse" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">全部</option>
                         {% for w in warehouses %}
                         <option value="{{ w.id }}" {% if warehouse_id == w.id|stringformat:"s" %}selected{% endif %}>
@@ -78,7 +78,7 @@
                     <label class="block mb-2">
                         <span class="text-base font-medium text-gray-700">产品分类</span>
                     </label>
-                    <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                    <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">全部</option>
                         {% for cat in categories %}
                         <option value="{{ cat.id }}" {% if category_id == cat.id|stringformat:"s" %}selected{% endif %}>
@@ -94,7 +94,7 @@
                     <label class="block mb-2">
                         <span class="text-base font-medium text-gray-700">库存状态</span>
                     </label>
-                    <select name="low_stock" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500">
+                    <select name="low_stock" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">全部</option>
                         <option value="1" {% if show_low_stock == '1' %}selected{% endif %}>仅显示低库存</option>
                     </select>

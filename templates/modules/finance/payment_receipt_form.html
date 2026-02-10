@@ -37,7 +37,7 @@
                     </label>
                     <select name="customer"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">请选择客户</option>
                         {% for c in customers %}
                         <option value="{{ c.id }}" {% if payment and payment.customer_id == c.id %}selected{% endif %}>
@@ -78,7 +78,7 @@
                     </label>
                     <select name="currency"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="CNY" {% if not payment or payment.currency == 'CNY' %}selected{% endif %}>人民币 (CNY)</option>
                         <option value="USD" {% if payment and payment.currency == 'USD' %}selected{% endif %}>美元 (USD)</option>
                         <option value="EUR" {% if payment and payment.currency == 'EUR' %}selected{% endif %}>欧元 (EUR)</option>
@@ -91,7 +91,7 @@
                     </label>
                     <select name="payment_method"
                             required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                         <option value="">请选择收款方式</option>
                         {% for method_code, method_name in payment_methods %}
                         <option value="{{ method_code }}" {% if payment and payment.payment_method == method_code %}selected{% endif %}>

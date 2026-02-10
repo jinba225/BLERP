@@ -62,25 +62,93 @@
                     {% endif %}
                 </div> <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">客户 *</label>
-                    <select name="customer" x-ref="customerSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors" required @change="onCustomerChange($event)">
-                        <option value="">请选择客户</option>
-                        {% for choice in form.customer.field.queryset %}
-                        <option value="{{ choice.pk }}" {% if form.customer.value == choice.pk|stringformat:"s" %}selected{% endif %}>
-                            {{ choice.code }} - {{ choice.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    <div x-data="searchableSelect({
+                        options: window.customersData,
+                        value: '{% if form.customer.value %}{{ form.customer.value }}{% endif %}',
+                        searchFields: ['name', 'code', 'contact'],
+                        displayField: 'name',
+                        placeholder: '搜索客户名称、代码或联系人',
+                        required: true,
+                        onSelect: (customer) => window.quoteFormInstance?.handleCustomerSelected(customer)
+                    })" class="relative">
+                        <!-- 隐藏input用于表单提交 -->
+                        <input type="hidden" name="customer" x-ref="customerSelect" :value="value">
+
+                        <!-- 搜索输入框 -->
+                        <div class="relative">
+                            <input
+                                type="text"
+                                x-model="search"
+                                @input="isOpen = true"
+                                @keydown.enter="selectFirst()"
+                                @keydown.escape="close()"
+                                @focus="isOpen = true"
+                                @blur="setTimeout(() => close(), 150)"
+                                :placeholder="placeholder"
+                                class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 transition-all"
+                            >
+                            <!-- 下拉箭头 -->
+                            <button
+                                type="button"
+                                @click="toggle()"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <svg x-show="!isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                                <svg x-show="isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- 下拉选项面板 -->
+                        <div
+                            x-show="isOpen && filtered.length > 0"
+                            x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            class="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200"
+                            style="display: none;"
+                        >
+                            <template x-for="option in filtered" :key="option.id">
+                                <div
+                                    @click="select(option)"
+                                    class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors"
+                                    :class="getHighlightClass($index)"
+                                >
+                                    <div class="flex justify-between items-center">
+                                        <span x-text="option.name" class="font-medium"></span>
+                                        <span x-show="option.code" x-text="'(' + option.code + ')'" class="text-sm text-gray-500"></span>
+                                    </div>
+                                    <div x-show="option.contact" x-text="option.contact" class="text-sm text-gray-500"></div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- 无匹配提示 -->
+                        <div
+                            x-show="isOpen && filtered.length === 0"
+                            class="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-3 text-gray-500"
+                            style="display: none;"
+                        >
+                            未找到匹配的客户
+                        </div>
+                    </div>
                     {% if form.customer.errors %}
                         <p class="mt-1 text-sm text-red-600">{{ form.customer.errors.0 }}</p>
                     {% endif %}
                 </div> <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">联系人</label>
-                    <select name="contact_person" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors" x-ref="contactSelect">
+                    <select name="contact_person" class="w-full px-3 py-2 border border-gray-300 rounded-lg" x-ref="contactSelect">
                         <option value="">请先选择客户</option>
                         {% if form.contact_person.field.queryset %}
                             {% for contact in form.contact_person.field.queryset %}
                             <option value="{{ contact.pk }}" {% if form.contact_person.value == contact.pk|stringformat:"s" %}selected{% endif %}>
-                                {{ contact.name }}{% if contact.phone %} - {{ contact.phone }}{% elif contact.mobile %} - {{ contact.mobile }}{% endif %}
+                                {{ contact.name }}{% if contact.phone %} - {{ contact.phone }}{% endif %}
                             </option>
                             {% endfor %}
                         {% endif %}
@@ -169,7 +237,7 @@
             <template id="item-row-template">
                 <tr class="item-row">
                     <td class="px-3 py-2">
-                        <select name="items-__prefix__-product" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm" @change="onProductChange($event, __prefix__)">
+                        <select name="items-__prefix__-product" class="w-full px-3 py-2 border border-gray-300 rounded-lg" @change="onProductChange($event, __prefix__)">
                             <option value="">请选择产品</option>
                             {% for product in products %}
                             <option value="{{ product.pk }}">{{ product.code }} - {{ product.name }}</option>
@@ -237,7 +305,7 @@
                         {% for item_form in formset %}
                         <tr class="item-row">
                             <td class="px-3 py-2">
-                                <select name="{{ item_form.product.html_name }}" class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 transition-colors text-sm"
+                                <select name="{{ item_form.product.html_name }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg"
                                         @change="onProductChange($event, {{ forloop.counter0 }})">
                                     <option value="">请选择产品</option>
                                     {% for choice in item_form.product.field.queryset %}
@@ -355,6 +423,10 @@
 
 {% block extra_js %}
 <script>
+// 初始化可搜索下拉框数据
+window.customersData = {{ customers_json|safe }};
+window.productsData = {{ products_json|safe }};
+
 // 设置默认日期为当天
 document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
@@ -400,7 +472,11 @@ document.addEventListener('alpine:init', () => {
                         lineTotalInput.value = lineTotal.toFixed(2);
                     }
                 }
-            }); this.calculateAllTotals();
+            });
+            this.calculateAllTotals();
+
+            // 将实例保存到全局，供 searchableSelect 的 onSelect 回调使用
+            window.quoteFormInstance = this;
         }, onCustomerChange(event) {
             const customerId = event.target.value;
             const contactSelect = this.$refs.contactSelect;
@@ -489,7 +565,61 @@ document.addEventListener('alpine:init', () => {
                     alert('获取客户信息失败: ' + error.message);
                     contactSelect.innerHTML = '<option value="">加载失败</option>';
                 });
-        }, onProductChange(event, rowIndex) {
+        },
+
+        handleCustomerSelected(customer) {
+            // 处理客户选择后的自动填充
+            console.log('=== handleCustomerSelected 触发 ===');
+            console.log('客户数据:', customer);
+
+            if (!customer) {
+                console.log('客户数据为空，跳过自动填充');
+                return;
+            }
+
+            // 自动填充联系人（从主联系人）
+            if (customer.primary_contact && customer.primary_contact.name) {
+                const contactInput = document.querySelector('input[name="contact"]');
+                if (contactInput) {
+                    console.log('填充联系人:', customer.primary_contact.name);
+                    contactInput.value = customer.primary_contact.name;
+                }
+            }
+
+            // 自动填充电话（从主联系人）
+            if (customer.primary_contact && customer.primary_contact.phone) {
+                const phoneInput = document.querySelector('input[name="phone"]');
+                if (phoneInput) {
+                    console.log('填充电话:', customer.primary_contact.phone);
+                    phoneInput.value = customer.primary_contact.phone;
+                }
+            }
+
+            // 自动填充地址
+            if (customer.address) {
+                const addressInput = document.querySelector('textarea[name="address"]');
+                if (addressInput) {
+                    console.log('填充地址:', customer.address);
+                    addressInput.value = customer.address;
+                }
+            }
+
+            // 自动填充付款条件
+            if (customer.payment_terms) {
+                const paymentTermsInput = document.querySelector('input[name="payment_terms"]');
+                if (paymentTermsInput) {
+                    console.log('填充付款条件:', customer.payment_terms);
+                    paymentTermsInput.value = customer.payment_terms;
+                }
+            }
+
+            // 调用原有的 onCustomerChange 方法来获取联系人列表
+            this.onCustomerChange({ target: { value: customer.id } });
+
+            console.log('=== 客户信息自动填充完成 ===');
+        },
+
+        onProductChange(event, rowIndex) {
             const productId = event.target.value;
             console.log('Product changed:', productId, 'row:', rowIndex);
             if (!productId) return; const url = `/sales/api/products/${productId}/info/`;

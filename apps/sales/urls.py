@@ -78,4 +78,10 @@ urlpatterns = [
         name="loan_approve_conversion",
     ),
     path("reports/", views.sales_order_report, name="order_report"),
+    # API路由
+    path(
+        "api/customers/<int:customer_id>/contacts/",
+        views.customer_contacts_api,
+        name="customer_contacts_api",
+    ),
 ]

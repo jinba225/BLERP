@@ -1570,10 +1570,18 @@ def inbound_create(request):
     )
     locations = Location.objects.filter(is_deleted=False).values("id", "name", "warehouse_id")
 
+    # 序列化JSON数据用于可搜索下拉框
+    warehouses_json = json.dumps(
+        list(warehouses.values("id", "name", "code")), cls=DjangoJSONEncoder
+    )
+    suppliers_json = json.dumps(list(suppliers.values("id", "name", "code")), cls=DjangoJSONEncoder)
+
     context = {
         "action": "create",
         "warehouses": warehouses,
         "suppliers": suppliers,
+        "warehouses_json": warehouses_json,
+        "suppliers_json": suppliers_json,
         "products": json.dumps(list(products), cls=DjangoJSONEncoder),
         "locations": json.dumps(list(locations), cls=DjangoJSONEncoder),
         "order_types": InboundOrder.ORDER_TYPES,
@@ -1640,11 +1648,19 @@ def inbound_update(request, pk):
     )
     locations = Location.objects.filter(is_deleted=False).values("id", "name", "warehouse_id")
 
+    # 序列化JSON数据用于可搜索下拉框
+    warehouses_json = json.dumps(
+        list(warehouses.values("id", "name", "code")), cls=DjangoJSONEncoder
+    )
+    suppliers_json = json.dumps(list(suppliers.values("id", "name", "code")), cls=DjangoJSONEncoder)
+
     context = {
         "action": "update",
         "inbound": inbound,
         "warehouses": warehouses,
         "suppliers": suppliers,
+        "warehouses_json": warehouses_json,
+        "suppliers_json": suppliers_json,
         "products": json.dumps(list(products), cls=DjangoJSONEncoder),
         "locations": json.dumps(list(locations), cls=DjangoJSONEncoder),
         "order_types": InboundOrder.ORDER_TYPES,
@@ -1954,10 +1970,20 @@ def outbound_create(request):
     )
     locations = Location.objects.filter(is_deleted=False).values("id", "name", "warehouse_id")
 
+    # 序列化JSON数据用于可搜索下拉框
+    warehouses_json = json.dumps(
+        list(warehouses.values("id", "name", "code")), cls=DjangoJSONEncoder
+    )
+    customers_json = json.dumps(
+        list(customers.values("id", "name", "code", "contact")), cls=DjangoJSONEncoder
+    )
+
     context = {
         "action": "create",
         "warehouses": warehouses,
         "customers": customers,
+        "warehouses_json": warehouses_json,
+        "customers_json": customers_json,
         "products": json.dumps(list(products), cls=DjangoJSONEncoder),
         "locations": json.dumps(list(locations), cls=DjangoJSONEncoder),
         "order_types": OutboundOrder.ORDER_TYPES,
@@ -2023,11 +2049,21 @@ def outbound_update(request, pk):
     )
     locations = Location.objects.filter(is_deleted=False).values("id", "name", "warehouse_id")
 
+    # 序列化JSON数据用于可搜索下拉框
+    warehouses_json = json.dumps(
+        list(warehouses.values("id", "name", "code")), cls=DjangoJSONEncoder
+    )
+    customers_json = json.dumps(
+        list(customers.values("id", "name", "code", "contact")), cls=DjangoJSONEncoder
+    )
+
     context = {
         "action": "update",
         "outbound": outbound,
         "warehouses": warehouses,
         "customers": customers,
+        "warehouses_json": warehouses_json,
+        "customers_json": customers_json,
         "products": json.dumps(list(products), cls=DjangoJSONEncoder),
         "locations": json.dumps(list(locations), cls=DjangoJSONEncoder),
         "order_types": OutboundOrder.ORDER_TYPES,

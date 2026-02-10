@@ -210,15 +210,31 @@ def quote_create(request):
         formset = QuoteItemFormSet()
 
     # Get products for the template
+    from customers.models import Customer
+    from django.core.serializers.json import DjangoJSONEncoder
     from products.models import Product
 
+    customers = Customer.objects.filter(is_deleted=False, status="active")
     products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+
+    # 序列化JSON数据用于可搜索下拉框
+    customers_json = json.dumps(
+        list(customers.values('id', 'name', 'code', 'contact', 'phone', 'address')),
+        cls=DjangoJSONEncoder
+    )
+    products_json = json.dumps(
+        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'selling_price', 'cost_price')),
+        cls=DjangoJSONEncoder
+    )
 
     context = {
         "form": form,
         "formset": formset,
         "action": "create",
         "products": products,
+        "customers": customers,
+        "customers_json": customers_json,
+        "products_json": products_json,
     }
     return render(request, "modules/sales/quote_form.html", context)
 
@@ -271,9 +287,22 @@ def quote_update(request, pk):
         formset = QuoteItemFormSet(instance=quote)
 
     # Get products for the template
+    from customers.models import Customer
+    from django.core.serializers.json import DjangoJSONEncoder
     from products.models import Product
 
+    customers = Customer.objects.filter(is_deleted=False, status="active")
     products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+
+    # 序列化JSON数据用于可搜索下拉框
+    customers_json = json.dumps(
+        list(customers.values('id', 'name', 'code', 'contact', 'phone', 'address')),
+        cls=DjangoJSONEncoder
+    )
+    products_json = json.dumps(
+        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'selling_price', 'cost_price')),
+        cls=DjangoJSONEncoder
+    )
 
     context = {
         "form": form,
@@ -281,6 +310,9 @@ def quote_update(request, pk):
         "quote": quote,
         "action": "update",
         "products": products,
+        "customers": customers,
+        "customers_json": customers_json,
+        "products_json": products_json,
     }
     return render(request, "modules/sales/quote_form.html", context)
 
@@ -608,12 +640,30 @@ def order_detail(request, pk):
         # Check if any items have remaining quantity
         can_create_delivery = any(item.remaining_quantity > 0 for item in order.items.all())
 
+    # 查询关联的出库单
+    from inventory.models import OutboundOrder
+    outbound_orders = OutboundOrder.objects.filter(
+        reference_type="sales_order",
+        reference_id=order.id,
+        is_deleted=False
+    ).order_by("-created_at")
+
+    # 查询关联的入库单(销售退货)
+    from inventory.models import InboundOrder
+    inbound_orders = InboundOrder.objects.filter(
+        reference_type="sales_return",
+        reference_id__in=order.returns.filter(is_deleted=False).values_list("id", flat=True),
+        is_deleted=False
+    ).order_by("-created_at")
+
     context = {
         "order": order,
         "items": order.items.all(),
         "can_edit": order.status == "draft",
         "can_approve": order.status in ["draft", "pending"],
         "can_create_delivery": can_create_delivery,
+        "outbound_orders": outbound_orders,
+        "inbound_orders": inbound_orders,
     }
     return render(request, "modules/sales/order_detail.html", context)
 
@@ -679,18 +729,51 @@ def order_create(request):
     # GET request
     from customers.models import Customer
     from django.contrib.auth import get_user_model
+    from django.core.serializers.json import DjangoJSONEncoder
     from products.models import Product
 
     User = get_user_model()
 
-    customers = Customer.objects.filter(is_deleted=False, status="active")
+    # 查询数据（保留原有查询用于兼容）
+    customers = Customer.objects.filter(is_deleted=False, status="active").prefetch_related('contacts')
     sales_reps = User.objects.filter(is_active=True)
     products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+
+    # 序列化JSON数据用于可搜索下拉框（包含主联系人信息）
+    customers_data = []
+    for customer in customers:
+        # 获取主要联系人或第一个联系人
+        primary_contact = None
+        if hasattr(customer, 'contacts') and customer.contacts.exists():
+            primary_contact = customer.contacts.filter(is_deleted=False).order_by('-is_primary').first()
+            if primary_contact:
+                primary_contact = {
+                    'name': primary_contact.name,
+                    'phone': primary_contact.phone or primary_contact.mobile or '',
+                    'email': primary_contact.email or ''
+                }
+
+        customers_data.append({
+            'id': customer.id,
+            'name': customer.name,
+            'code': customer.code,
+            'address': customer.address or '',
+            'payment_terms': customer.payment_terms or '',
+            'primary_contact': primary_contact or {}
+        })
+
+    customers_json = json.dumps(customers_data, cls=DjangoJSONEncoder)
+    products_json = json.dumps(
+        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'selling_price', 'cost_price')),
+        cls=DjangoJSONEncoder
+    )
 
     context = {
         "customers": customers,
         "sales_reps": sales_reps,
         "products": products,
+        "customers_json": customers_json,
+        "products_json": products_json,
         "action": "create",
     }
     return render(request, "modules/sales/order_form.html", context)
@@ -759,19 +842,52 @@ def order_update(request, pk):
     # GET request
     from customers.models import Customer
     from django.contrib.auth import get_user_model
+    from django.core.serializers.json import DjangoJSONEncoder
     from products.models import Product
 
     User = get_user_model()
 
-    customers = Customer.objects.filter(is_deleted=False, status="active")
+    # 查询数据（保留原有查询用于兼容）
+    customers = Customer.objects.filter(is_deleted=False, status="active").prefetch_related('contacts')
     sales_reps = User.objects.filter(is_active=True)
     products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+
+    # 序列化JSON数据用于可搜索下拉框（包含主联系人信息）
+    customers_data = []
+    for customer in customers:
+        # 获取主要联系人或第一个联系人
+        primary_contact = None
+        if hasattr(customer, 'contacts') and customer.contacts.exists():
+            primary_contact = customer.contacts.filter(is_deleted=False).order_by('-is_primary').first()
+            if primary_contact:
+                primary_contact = {
+                    'name': primary_contact.name,
+                    'phone': primary_contact.phone or primary_contact.mobile or '',
+                    'email': primary_contact.email or ''
+                }
+
+        customers_data.append({
+            'id': customer.id,
+            'name': customer.name,
+            'code': customer.code,
+            'address': customer.address or '',
+            'payment_terms': customer.payment_terms or '',
+            'primary_contact': primary_contact or {}
+        })
+
+    customers_json = json.dumps(customers_data, cls=DjangoJSONEncoder)
+    products_json = json.dumps(
+        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'selling_price', 'cost_price')),
+        cls=DjangoJSONEncoder
+    )
 
     context = {
         "order": order,
         "customers": customers,
         "sales_reps": sales_reps,
         "products": products,
+        "customers_json": customers_json,
+        "products_json": products_json,
         "action": "update",
     }
     return render(request, "modules/sales/order_form.html", context)
@@ -821,7 +937,6 @@ def get_customer_info(request, customer_id):
                 "id": contact.id,
                 "name": contact.name,
                 "phone": contact.phone or "",
-                "mobile": contact.mobile or "",
                 "email": contact.email or "",
                 "is_primary": contact.is_primary,
             }
@@ -833,7 +948,6 @@ def get_customer_info(request, customer_id):
         # 从主联系人获取联系信息（如果有的话）
         contact_person_name = primary_contact["name"] if primary_contact else ""
         contact_phone = primary_contact["phone"] if primary_contact else ""
-        contact_mobile = primary_contact["mobile"] if primary_contact else ""
 
         return JsonResponse(
             {
@@ -843,7 +957,6 @@ def get_customer_info(request, customer_id):
                     "name": customer.name,
                     "contact_person": contact_person_name,
                     "phone": contact_phone,
-                    "mobile": contact_mobile,
                     "payment_terms": customer.get_payment_terms_display()
                     if customer.payment_terms
                     else "",
@@ -1443,9 +1556,7 @@ def delivery_ship(request, pk):
                 paid_amount=Decimal("0"),
                 balance=invoice.total_amount,
                 currency=order.currency,
-                notes=f'发货单 {
-                    delivery.delivery_number} 对应应收账款（{
-                    "全部发货" if delivery.is_fully_shipped else "部分发货"}）',
+                notes=f"发货单 {delivery.delivery_number} 对应应收账款（{'全部发货' if delivery.is_fully_shipped else '部分发货'}）",
                 created_by=request.user,
             )
 
@@ -1559,13 +1670,22 @@ def return_detail(request, pk):
         reference_id=str(sales_return.id),
     ).first()
 
+    # 查询关联的入库单
+    from inventory.models import InboundOrder
+    inbound_order = InboundOrder.objects.filter(
+        reference_type="sales_return",
+        reference_id=sales_return.id,
+        is_deleted=False
+    ).first()
+
     context = {
         "return": sales_return,
         "items": sales_return.items.all(),
         "can_approve": sales_return.status == "pending",
         "can_receive": sales_return.status == "approved",
-        "can_process": sales_return.status == "received",  # 在已收货状态时显示处理按钮，但通常不会出现，因为确认收货后直接跳到已处理
+        "can_process": sales_return.status == "received",  # 在已收货状态时显示处理按钮,但通常不会出现,因为确认收货后直接跳到已处理
         "refund_payment": refund_payment,
+        "inbound_order": inbound_order,
     }
     return render(request, "modules/sales/return_detail.html", context)
 
@@ -1861,6 +1981,45 @@ def return_approve(request, pk):
                 sales_return.approved_at = timezone.now()
                 sales_return.save()
 
+                # 自动创建入库单
+                from inventory.models import InboundOrder, InboundOrderItem
+
+                from common.utils import DocumentNumberGenerator
+
+                # 获取默认仓库
+                warehouse = sales_return.delivery.warehouse if sales_return.delivery else None
+                if not warehouse:
+                    from inventory.models import Warehouse
+
+                    warehouse = Warehouse.objects.filter(is_active=True, is_deleted=False).first()
+
+                if warehouse:
+                    inbound_order = InboundOrder.objects.create(
+                        order_number=DocumentNumberGenerator.generate("IBO"),
+                        warehouse=warehouse,
+                        order_type="sales_return",  # 销售退货入库
+                        status="approved",  # 退货审核即完成入库
+                        order_date=timezone.now().date(),
+                        customer=sales_return.sales_order.customer,
+                        reference_number=sales_return.return_number,
+                        reference_type="sales_return",
+                        reference_id=sales_return.id,
+                        notes=f"销售退货单 {sales_return.return_number} 审核自动生成",
+                        created_by=request.user,
+                    )
+
+                    # 创建入库单明细
+                    for item in sales_return.items.all():
+                        InboundOrderItem.objects.create(
+                            inbound_order=inbound_order,
+                            product=item.order_item.product,
+                            location=None,
+                            quantity=item.quantity,
+                            batch_number="",
+                            notes=item.notes,
+                            created_by=request.user,
+                        )
+
                 # 自动创建退款应付
                 from decimal import Decimal
 
@@ -1922,7 +2081,7 @@ def return_approve(request, pk):
                         f"审核人：{request.user.username}",
                     )
 
-                messages.success(request, f"退货单 {sales_return.return_number} 已批准，退款应付已自动生成")
+                messages.success(request, f"退货单 {sales_return.return_number} 已批准,退款应付已自动生成,已自动生成入库单")
                 return redirect("sales:return_detail", pk=pk)
 
         except Exception as e:
@@ -3424,3 +3583,43 @@ def loan_approve_conversion(request, pk):
     except Exception as e:
         messages.error(request, f"审核失败：{str(e)}")
         return redirect("sales:loan_detail", pk=pk)
+
+
+@login_required
+def customer_contacts_api(request, customer_id):
+    """
+    API: 获取客户的联系人列表
+    用于销售订单/报价单表单的联系人下拉选择
+    """
+    from customers.models import Customer, CustomerContact
+    from django.http import JsonResponse
+
+    try:
+        customer = get_object_or_404(Customer, pk=customer_id, is_deleted=False)
+
+        # 获取所有联系人，按主联系人排序
+        contacts = customer.contacts.filter(
+            is_deleted=False
+        ).order_by('-is_primary', 'id')
+
+        contacts_data = []
+        for contact in contacts:
+            contacts_data.append({
+                'id': contact.id,
+                'name': contact.name,
+                'position': contact.position or '',
+                'phone': contact.phone or '',
+                'email': contact.email or '',
+                'is_primary': contact.is_primary
+            })
+
+        return JsonResponse({
+            'success': True,
+            'contacts': contacts_data
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)

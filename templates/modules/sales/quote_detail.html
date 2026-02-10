@@ -52,7 +52,7 @@
             </form> <!-- 打印模板选择和打印按钮 -->
             <div class="inline-flex items-center space-x-2">
                 {% if print_templates.exists %}
-                <select id="printTemplateSelect" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500 text-sm">
+                <select id="printTemplateSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     {% for template in print_templates %}
                     <option value="{{ template.pk }}" {% if template == default_template %}selected{% endif %}>
                         {{ template.name }}{% if template.is_default %} (默认){% endif %}

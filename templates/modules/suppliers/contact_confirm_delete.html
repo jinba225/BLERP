@@ -1,0 +1,61 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}删除联系人 - {{ contact.name }} - BetterLaser ERP{% endblock %}
+{% block page_title %}删除联系人{% endblock %}
+
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="/purchase/orders/" class="text-gray-500 hover:text-gray-700">采购管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'suppliers:supplier_list' %}" class="text-gray-500 hover:text-gray-700">供应商管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">删除联系人</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">删除联系人</h3>
+            <p class="mt-2 text-sm text-gray-500">此操作将删除联系人 {{ contact.name }}，删除后不可恢复。</p>
+        </div> <!-- Contact Details -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <dl class="grid grid-cols-2 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">姓名</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ contact.name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">供应商</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ contact.supplier.name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">职位</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ contact.position|default:'-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">类型</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ contact.get_contact_type_display|default:'-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">电话</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ contact.phone|default:'-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">手机</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ contact.mobile|default:'-' }}</dd>
+                </div>
+            </dl>
+        </div> <!-- Form Actions -->
+        <form method="post" class="flex justify-end space-x-3">
+            {% csrf_token %}
+            <a href="{% url 'suppliers:supplier_detail' contact.supplier.pk %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                取消
+            </a>
+            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                确认删除
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

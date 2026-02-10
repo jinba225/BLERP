@@ -51,7 +51,7 @@
             </div>
             </div>
             <div class="w-48">
-                <select name="account_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                <select name="account_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     <option value="">全部类型</option>
                     <option value="asset" {% if account_type == 'asset' %}selected{% endif %}>资产</option>
                     <option value="liability" {% if account_type == 'liability' %}selected{% endif %}>负债</option>
@@ -61,7 +61,7 @@
                 </select>
             </div>
             <div class="w-48">
-                <select name="is_active" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                <select name="is_active" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     <option value="">全部状态</option>
                     <option value="true" {% if is_active == 'true' %}selected{% endif %}>启用</option>
                     <option value="false" {% if is_active == 'false' %}selected{% endif %}>停用</option>
