@@ -153,8 +153,14 @@ def supplier_create(request):
                                 {
                                     "name": name,
                                     "position": request.POST.get(f"contacts[{i}][position]", ""),
+                                    "contact_type": request.POST.get(
+                                        f"contacts[{i}][contact_type]", "other"
+                                    ),
                                     "phone": request.POST.get(f"contacts[{i}][phone]", ""),
+                                    "mobile": request.POST.get(f"contacts[{i}][mobile]", ""),
                                     "email": request.POST.get(f"contacts[{i}][email]", ""),
+                                    "qq": request.POST.get(f"contacts[{i}][qq]", ""),
+                                    "wechat": request.POST.get(f"contacts[{i}][wechat]", ""),
                                     "notes": request.POST.get(f"contacts[{i}][notes]", ""),
                                     "is_primary": request.POST.get(f"contacts[{i}][is_primary]")
                                     == "on",
@@ -170,8 +176,12 @@ def supplier_create(request):
                     supplier=supplier,
                     name=c["name"],
                     position=c["position"],
+                    contact_type=c["contact_type"] or "other",
                     phone=c["phone"],
+                    mobile=c["mobile"],
                     email=c["email"],
+                    qq=c["qq"],
+                    wechat=c["wechat"],
                     notes=c["notes"],
                     is_primary=is_primary,
                     created_by=request.user,
@@ -336,6 +346,8 @@ def contact_create(request):
             position=request.POST.get("position", ""),
             phone=request.POST.get("phone", ""),
             email=request.POST.get("email", ""),
+            qq=request.POST.get("qq", ""),
+            wechat=request.POST.get("wechat", ""),
             is_primary=is_primary,
             is_active=True,
             created_by=request.user,
@@ -380,6 +392,8 @@ def contact_update(request, pk):
         contact.position = request.POST.get("position", "")
         contact.phone = request.POST.get("phone", "")
         contact.email = request.POST.get("email", "")
+        contact.qq = request.POST.get("qq", "")
+        contact.wechat = request.POST.get("wechat", "")
         contact.is_primary = is_primary
         contact.is_active = request.POST.get("is_active") == "on"
         contact.updated_by = request.user
