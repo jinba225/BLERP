@@ -570,7 +570,7 @@ function orderForm() {
 
             // 自动填充付款方式
             if (supplier.payment_terms) {
-                const paymentMethodInput = document.querySelector('select[name="payment_method"]');
+                const paymentMethodInput = document.querySelector('select[name="payment_terms"]');
                 if (paymentMethodInput) {
                     console.log('填充付款方式:', supplier.payment_terms);
                     paymentMethodInput.value = supplier.payment_terms;
