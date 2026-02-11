@@ -651,11 +651,24 @@ function orderForm() {
         },
 
         calculateTotals() {
-            this.subtotal = this.items.reduce((sum, item) => sum + (parseFloat(item.line_total) || 0), 0);
+            const taxRate = parseFloat(this.taxRate) || 0;
+
+            // 计算未税小计：从含税的line_total反算未税金额
+            // 未税金额 = 含税金额 / (1 + 税率/100)
+            this.subtotal = this.items.reduce((sum, item) => {
+                const lineTotal = parseFloat(item.line_total) || 0;
+                const exTaxAmount = lineTotal / (1 + taxRate / 100);
+                return sum + exTaxAmount;
+            }, 0);
+
+            // 税额 = 未税小计 × 税率
+            this.taxAmount = this.subtotal * (taxRate / 100);
+
+            // 折扣金额
             this.discountAmount = this.subtotal * (parseFloat(this.discountRate) / 100);
-            const afterDiscount = this.subtotal - this.discountAmount;
-            this.taxAmount = afterDiscount * (parseFloat(this.taxRate) / 100);
-            this.totalAmount = afterDiscount + this.taxAmount + parseFloat(this.shippingCost);
+
+            // 总计 = 未税小计 + 税额 + 运费 - 折扣
+            this.totalAmount = this.subtotal + this.taxAmount + parseFloat(this.shippingCost) - this.discountAmount;
         },
 
         formatMoney(value) {
