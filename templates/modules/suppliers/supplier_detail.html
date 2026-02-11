@@ -72,6 +72,12 @@
                         <dd class="mt-1 text-sm text-gray-900">{{ supplier.category.name }}</dd>
                     </div>
                     {% endif %}
+                    {% if supplier.address %}
+                    <div class="col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">详细地址</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.address }}</dd>
+                    </div>
+                    {% endif %}
                 </dl>
             </div> <!-- Contacts Section -->
             <div class="bg-white rounded-lg shadow p-6" x-data="contactManager()">
@@ -199,10 +205,6 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <h4 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">地址信息</h4>
                 <dl class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2">
-                        <dt class="text-sm font-medium text-gray-500">详细地址</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.address|default:'-' }}</dd>
-                    </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">省份</dt>
                         <dd class="mt-1 text-sm text-gray-900">{{ supplier.province|default:'-' }}</dd>
