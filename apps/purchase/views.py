@@ -85,6 +85,17 @@ def order_list(request):
 
     suppliers = Supplier.objects.filter(is_deleted=False, is_approved=True)
 
+    # Calculate statistics
+    all_orders = PurchaseOrder.objects.filter(is_deleted=False)
+    stats = {
+        "draft_count": all_orders.filter(status="draft").count(),
+        "pending_count": all_orders.filter(
+            status__in=["pending", "sent", "confirmed", "partial_received"]
+        ).count(),
+        "approved_count": all_orders.filter(status__in=["approved", "fully_received"]).count(),
+        "completed_count": all_orders.filter(status="completed").count(),
+    }
+
     context = {
         "page_obj": page_obj,
         "search": search,
@@ -95,6 +106,8 @@ def order_list(request):
         "date_to": date_to,
         "suppliers": suppliers,
         "total_count": paginator.count,
+        "stats": stats,
+        "order_statuses": PurchaseOrder.ORDER_STATUS,
     }
     return render(request, "modules/purchase/order_list.html", context)
 
@@ -104,7 +117,7 @@ def order_detail(request, pk):
     """Display purchase order details."""
     order = get_object_or_404(
         PurchaseOrder.objects.filter(is_deleted=False)
-        .select_related("supplier", "buyer", "warehouse", "approved_by")
+        .select_related("supplier", "buyer", "warehouse", "approved_by", "invoice")
         .prefetch_related("items__product"),
         pk=pk,
     )
@@ -133,20 +146,27 @@ def order_detail(request, pk):
         and order.payment_status == "unpaid"
     )
 
+    # 检查是否可以开票
+    can_invoice = (
+        order.status in ["fully_received", "partial_received"]
+        and not order.invoice  # 未关联发票
+        and total_received > 0  # 有已收货产品
+    )
+
     # 查询关联的入库单
     from inventory.models import InboundOrder
+
     inbound_orders = InboundOrder.objects.filter(
-        reference_type="purchase_order",
-        reference_id=order.id,
-        is_deleted=False
+        reference_type="purchase_order", reference_id=order.id, is_deleted=False
     ).order_by("-created_at")
 
     # 查询关联的出库单(采购退货)
     from inventory.models import OutboundOrder
+
     outbound_orders = OutboundOrder.objects.filter(
         reference_type="purchase_return",
         reference_id__in=order.returns.filter(is_deleted=False).values_list("id", flat=True),
-        is_deleted=False
+        is_deleted=False,
     ).order_by("-created_at")
 
     context = {
@@ -155,8 +175,10 @@ def order_detail(request, pk):
         "items_with_remaining": items_with_remaining,
         "can_edit": order.status == "draft",
         "can_approve": order.status == "draft",
+        "can_delete": order.status == "draft",  # 只有草稿状态可以删除
         "pending_receipt": pending_receipt,
         "can_request_payment": can_request_payment,
+        "can_invoice": can_invoice,
         "inbound_orders": inbound_orders,
         "outbound_orders": outbound_orders,
     }
@@ -175,7 +197,7 @@ def order_create(request):
 
         order_data = {
             "supplier_id": request.POST.get("supplier"),
-            "order_date": request.POST.get("order_date"),
+            "order_date": request.POST.get("order_date") or timezone.now().date(),  # 使用 date 对象
             "required_date": request.POST.get("required_date") or None,
             "promised_date": request.POST.get("promised_date") or None,
             "buyer_id": request.POST.get("buyer") or None,
@@ -188,21 +210,38 @@ def order_create(request):
             "delivery_contact": request.POST.get("delivery_contact", ""),
             "delivery_phone": request.POST.get("delivery_phone", ""),
             "payment_terms": request.POST.get("payment_terms", ""),
-            "payment_method": request.POST.get("payment_method", ""),
             "reference_number": request.POST.get("reference_number", ""),
             "notes": request.POST.get("notes", ""),
             "internal_notes": request.POST.get("internal_notes", ""),
             "status": "draft",
         }
 
+        # 处理日期字段 - 将字符串转换为 date 对象
+        from datetime import datetime
+
+        date_fields = ["order_date", "required_date", "promised_date"]
+        for field in date_fields:
+            value = order_data.get(field)
+            if value and isinstance(value, str):
+                try:
+                    order_data[field] = datetime.strptime(value, "%Y-%m-%d").date()
+                except ValueError:
+                    order_data[field] = None
+
         try:
             # Process order items
             items_json = request.POST.get("items_json", "[]")
             items_raw_data = json.loads(items_json)
+            print(f"=== DEBUG: 收到 {len(items_raw_data)} 条明细 ===")
+            print(f"items_json: {items_json}")
             items_data = []
 
             for item in items_raw_data:
-                if item.get("product_id"):
+                product_id = item.get("product_id")
+                print(
+                    f"DEBUG: 处理明细 - product_id={product_id}, 类型={type(product_id)}, 值={repr(product_id)}"
+                )
+                if product_id:
                     items_data.append(
                         {
                             "product_id": item["product_id"],
@@ -211,6 +250,8 @@ def order_create(request):
                             "discount_rate": Decimal(item.get("discount_rate", 0)),
                         }
                     )
+            print(f"DEBUG: 有效明细数量: {len(items_data)}")
+            print(f"DEBUG: items_data={items_data}")
 
             order = PurchaseOrderService.create_order(request.user, order_data, items_data)
 
@@ -230,7 +271,9 @@ def order_create(request):
     User = get_user_model()
 
     # 查询数据（保留原有查询用于兼容）
-    suppliers = Supplier.objects.filter(is_deleted=False, is_approved=True).prefetch_related('contacts')
+    suppliers = Supplier.objects.filter(is_deleted=False, is_approved=True).prefetch_related(
+        "contacts"
+    )
     warehouses = Warehouse.objects.filter(is_deleted=False, is_active=True)
     buyers = User.objects.filter(is_active=True)
     products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
@@ -240,32 +283,41 @@ def order_create(request):
     for supplier in suppliers:
         # 获取主要联系人或第一个联系人
         primary_contact = None
-        if hasattr(supplier, 'contacts') and supplier.contacts.exists():
-            primary_contact = supplier.contacts.filter(is_deleted=False, is_active=True).order_by('-is_primary').first()
+        if hasattr(supplier, "contacts") and supplier.contacts.exists():
+            primary_contact = (
+                supplier.contacts.filter(is_deleted=False, is_active=True)
+                .order_by("-is_primary")
+                .first()
+            )
             if primary_contact:
                 primary_contact = {
-                    'name': primary_contact.name,
-                    'phone': primary_contact.phone or primary_contact.mobile or '',
-                    'email': primary_contact.email or ''
+                    "name": primary_contact.name,
+                    "phone": primary_contact.phone or primary_contact.mobile or "",
+                    "email": primary_contact.email or "",
                 }
 
-        suppliers_data.append({
-            'id': supplier.id,
-            'name': supplier.name,
-            'code': supplier.code,
-            'payment_terms': supplier.payment_terms or '',
-            'address': supplier.address or '',
-            'primary_contact': primary_contact or {}
-        })
+        suppliers_data.append(
+            {
+                "id": supplier.id,
+                "name": supplier.name,
+                "code": supplier.code,
+                "payment_terms": supplier.payment_terms or "",
+                "address": supplier.address or "",
+                "primary_contact": primary_contact or {},
+            }
+        )
 
     suppliers_json = json.dumps(suppliers_data, cls=DjangoJSONEncoder)
     warehouses_json = json.dumps(
-        list(warehouses.values('id', 'name', 'code')),
-        cls=DjangoJSONEncoder
+        list(warehouses.values("id", "name", "code")), cls=DjangoJSONEncoder
     )
     products_json = json.dumps(
-        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'cost_price', 'selling_price')),
-        cls=DjangoJSONEncoder
+        list(
+            products.values(
+                "id", "name", "code", "specifications", "unit__name", "cost_price", "selling_price"
+            )
+        ),
+        cls=DjangoJSONEncoder,
     )
 
     # 获取默认采购员（当前登录用户）
@@ -331,7 +383,6 @@ def order_update(request, pk):
             "delivery_contact": request.POST.get("delivery_contact", ""),
             "delivery_phone": request.POST.get("delivery_phone", ""),
             "payment_terms": request.POST.get("payment_terms", ""),
-            "payment_method": request.POST.get("payment_method", ""),
             "reference_number": request.POST.get("reference_number", ""),
             "notes": request.POST.get("notes", ""),
             "internal_notes": request.POST.get("internal_notes", ""),
@@ -380,16 +431,19 @@ def order_update(request, pk):
 
     # 序列化JSON数据用于可搜索下拉框
     suppliers_json = json.dumps(
-        list(suppliers.values('id', 'name', 'code', 'payment_method', 'contact_person', 'contact_phone', 'contact_email', 'address')),
-        cls=DjangoJSONEncoder
+        list(suppliers.values("id", "name", "code", "payment_terms", "address")),
+        cls=DjangoJSONEncoder,
     )
     warehouses_json = json.dumps(
-        list(warehouses.values('id', 'name', 'code')),
-        cls=DjangoJSONEncoder
+        list(warehouses.values("id", "name", "code")), cls=DjangoJSONEncoder
     )
     products_json = json.dumps(
-        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'cost_price', 'selling_price')),
-        cls=DjangoJSONEncoder
+        list(
+            products.values(
+                "id", "name", "code", "specifications", "unit__name", "cost_price", "selling_price"
+            )
+        ),
+        cls=DjangoJSONEncoder,
     )
 
     context = {
@@ -487,8 +541,18 @@ def request_list(request):
 
     departments = Department.objects.filter(is_deleted=False)
 
+    # Calculate statistics
+    all_requests = PurchaseRequest.objects.filter(is_deleted=False)
+    stats = {
+        "pending_count": all_requests.filter(status="pending").count(),
+        "approved_count": all_requests.filter(status="approved").count(),
+        "converted_count": all_requests.filter(status="converted").count(),
+        "rejected_count": all_requests.filter(status="rejected").count(),
+    }
+
     context = {
         "page_obj": page_obj,
+        "search_query": search,
         "search": search,
         "status": status,
         "priority": priority,
@@ -497,6 +561,8 @@ def request_list(request):
         "date_to": date_to,
         "departments": departments,
         "total_count": paginator.count,
+        "stats": stats,
+        "request_statuses": PurchaseRequest.REQUEST_STATUS,
     }
     return render(request, "modules/purchase/request_list.html", context)
 
@@ -738,27 +804,57 @@ def request_convert_to_order(request, pk):
 
     if request.method == "POST":
         try:
+            from decimal import Decimal
+
             from .services import PurchaseRequestService
 
             # Get supplier from form
             supplier_id = request.POST.get("supplier")
             warehouse_id = request.POST.get("warehouse")
 
+            # Validate supplier
             if not supplier_id:
                 messages.error(request, "请选择供应商")
-                return redirect("purchase:request_detail", pk=pk)
+                return redirect("purchase:request_convert", pk=pk)
 
-            # Convert using service
+            # Collect prices for each item
+            items_prices = {}
+            missing_prices = []
+            for item in purchase_request.items.all():
+                price_key = f"price_{item.id}"
+                price_value = request.POST.get(price_key)
+                if price_value and price_value.strip():
+                    try:
+                        price = Decimal(price_value)
+                        if price < 0:
+                            messages.error(request, f"产品 {item.product.name} 的价格不能为负数")
+                            return redirect("purchase:request_convert", pk=pk)
+                        items_prices[item.id] = price
+                    except Exception:
+                        messages.error(request, f"产品 {item.product.name} 的价格格式不正确")
+                        return redirect("purchase:request_convert", pk=pk)
+                else:
+                    missing_prices.append(item.product.name)
+
+            if missing_prices:
+                messages.error(request, f"请为以下产品输入单价：{', '.join(missing_prices)}")
+                return redirect("purchase:request_convert", pk=pk)
+
+            # Convert using service with prices
             order = PurchaseRequestService.convert_request_to_order(
-                purchase_request, request.user, supplier_id, warehouse_id
+                purchase_request, request.user, supplier_id, warehouse_id, items_prices=items_prices
             )
 
             messages.success(
                 request, f"采购申请单 {purchase_request.request_number} 已成功转换为采购订单 {order.order_number}"
             )
-            return redirect("purchase:order_detail", pk=order.pk)
+            return redirect("purchase:order_update", pk=order.pk)
+        except ValueError as e:
+            messages.error(request, str(e))
+            return redirect("purchase:request_convert", pk=pk)
         except Exception as e:
             messages.error(request, f"转换失败：{str(e)}")
+            return redirect("purchase:request_convert", pk=pk)
 
     # GET request
     from inventory.models import Warehouse
@@ -885,6 +981,54 @@ def request_reject(request, pk):
 
 
 @login_required
+def request_unapprove_confirm(request, pk):
+    """显示撤销采购申请审核确认页面"""
+    purchase_request = get_object_or_404(PurchaseRequest, pk=pk, is_deleted=False)
+
+    if purchase_request.status != "approved":
+        messages.error(request, "只有已审核状态的采购申请单才能撤销")
+        return redirect("purchase:request_detail", pk=pk)
+
+    # 检查是否已转换为采购订单
+    if purchase_request.converted_order:
+        messages.error(request, "采购申请单已转换为采购订单，无法撤销审核")
+        return redirect("purchase:request_detail", pk=pk)
+
+    context = {
+        "purchase_request": purchase_request,
+        "warning_message": "撤销审核后，将恢复为草稿状态。",
+    }
+    return render(request, "modules/purchase/request_confirm_unapprove.html", context)
+
+
+@login_required
+@transaction.atomic
+def request_unapprove(request, pk):
+    """撤销采购申请审核"""
+    if request.method != "POST":
+        purchase_request = get_object_or_404(PurchaseRequest, pk=pk, is_deleted=False)
+        context = {
+            "purchase_request": purchase_request,
+            "warning_message": "撤销审核后，将恢复为草稿状态。",
+        }
+        return render(request, "modules/purchase/request_confirm_unapprove.html", context)
+
+    purchase_request = get_object_or_404(PurchaseRequest, pk=pk, is_deleted=False)
+
+    try:
+        purchase_request.unapprove_request(user=request.user)
+        messages.success(request, f"采购申请单 {purchase_request.request_number} 审核已撤销")
+        return redirect("purchase:request_detail", pk=pk)
+    except ValueError as e:
+        messages.error(request, f"撤销失败：{str(e)}")
+        return redirect("purchase:request_detail", pk=pk)
+    except Exception as e:
+        messages.error(request, f"撤销失败：{str(e)}")
+        logger.error(f"撤销采购申请失败: {str(e)}", exc_info=True)
+        return redirect("purchase:request_detail", pk=pk)
+
+
+@login_required
 @transaction.atomic
 def request_submit(request, pk):
     """
@@ -957,23 +1101,142 @@ def order_approve(request, pk):
 def order_unapprove(request, pk):
     """
     Unapprove (cancel approval) a purchase order.
+    撤销采购订单审核
     """
     if request.method != "POST":
-        messages.error(request, "无效的请求方法")
-        return redirect("purchase:order_detail", pk=pk)
+        order = get_object_or_404(PurchaseOrder, pk=pk, is_deleted=False)
+        # 显示确认页面
+        context = {
+            "order": order,
+            "warning_message": "撤销审核后，订单将恢复到草稿状态，待收货状态的收货单将被删除。",
+        }
+        return render(request, "modules/purchase/order_confirm_unapprove.html", context)
 
     order = get_object_or_404(PurchaseOrder, pk=pk, is_deleted=False)
 
     try:
-        order.unapprove_order()
+        order.unapprove_order(user=request.user)
+        logger.info(f"撤销审核订单 {order.order_number}，添加成功消息")
         messages.success(request, f"采购订单 {order.order_number} 审核已撤销")
+        logger.info(f"消息已添加到请求对象")
         return redirect("purchase:order_detail", pk=pk)
     except ValueError as e:
         messages.error(request, f"撤销失败：{str(e)}")
         return redirect("purchase:order_detail", pk=pk)
     except Exception as e:
         messages.error(request, f"撤销失败：{str(e)}")
+        logger.error(f"撤销订单失败: {str(e)}", exc_info=True)
         return redirect("purchase:order_detail", pk=pk)
+
+
+@login_required
+@transaction.atomic
+def order_invoice(request, pk):
+    """
+    Create supplier invoice for a purchase order.
+    供应商开票：创建发票记录并更新订单状态为已开票
+    """
+    from decimal import Decimal
+
+    order = get_object_or_404(PurchaseOrder, pk=pk, is_deleted=False)
+
+    # 验证：订单必须已收货（部分或全部）
+    if order.status not in ["partial_received", "fully_received"]:
+        messages.error(request, "只有已收货的订单才能开票")
+        return redirect("purchase:order_detail", pk=pk)
+
+    # 验证：订单未开票
+    if order.invoice:
+        messages.warning(request, f"该订单已开票，发票号：{order.invoice.invoice_number}")
+        return redirect("purchase:order_detail", pk=pk)
+
+    # 验证：必须有已收货产品
+    total_received = sum(item.received_quantity for item in order.items.filter(is_deleted=False))
+    if total_received <= 0:
+        messages.error(request, "订单没有已收货的产品，无法开票")
+        return redirect("purchase:order_detail", pk=pk)
+
+    if request.method == "POST":
+        try:
+            from finance.models import Invoice, InvoiceItem
+
+            # 生成发票号
+            invoice_number = f"INV{timezone.now().strftime('%Y%m%d')}{str(order.pk).zfill(6)}"
+
+            # 计算发票金额（基于订单总金额）
+            amount_excluding_tax = order.subtotal
+            tax_rate = order.tax_rate
+            tax_amount = order.tax_amount
+            total_amount = order.total_amount
+
+            # 创建发票
+            invoice = Invoice.objects.create(
+                invoice_number=invoice_number,
+                invoice_type="purchase",  # 采购发票
+                status="received",  # 供应商开具，我们已收到
+                supplier=order.supplier,
+                invoice_date=timezone.now().date(),
+                amount_excluding_tax=amount_excluding_tax,
+                tax_rate=tax_rate,
+                tax_amount=tax_amount,
+                total_amount=total_amount,
+                reference_type="purchase_order",
+                reference_id=str(order.pk),
+                reference_number=order.order_number,
+                remark=f"采购订单 {order.order_number} 供应商开票",
+                created_by=request.user,
+            )
+
+            # 创建发票明细（基于订单明细）
+            for order_item in order.items.filter(is_deleted=False):
+                # 计算明细税额
+                item_subtotal = order_item.line_total
+                item_tax_rate = order_item.tax_rate if hasattr(order_item, "tax_rate") else tax_rate
+                item_tax_amount = item_subtotal * (Decimal(str(item_tax_rate)) / Decimal("100"))
+
+                # 获取产品单位名称（unit是外键，需要获取name属性）
+                unit_name = ""
+                if order_item.product.unit:
+                    unit_name = order_item.product.unit.name
+
+                InvoiceItem.objects.create(
+                    invoice=invoice,
+                    product=order_item.product,
+                    description=order_item.product.name,  # InvoiceItem.description是必填字段
+                    specification=order_item.product.specifications
+                    if hasattr(order_item.product, "specifications")
+                    else "",
+                    unit=unit_name,
+                    quantity=order_item.quantity,
+                    unit_price=order_item.unit_price,
+                    amount=item_subtotal,
+                    tax_rate=item_tax_rate,
+                    tax_amount=item_tax_amount,
+                    sort_order=order_item.sort_order,
+                    created_by=request.user,
+                )
+
+            # 更新订单状态
+            order.invoice = invoice
+            order.status = "invoiced"
+            order.invoiced_by = request.user
+            order.invoiced_at = timezone.now()
+            order.save()
+
+            messages.success(request, f"采购订单 {order.order_number} 已开票，发票号：{invoice.invoice_number}")
+            return redirect("purchase:order_detail", pk=pk)
+
+        except Exception as e:
+            messages.error(request, f"开票失败：{str(e)}")
+            logger.error(f"开票失败: {str(e)}", exc_info=True)
+            return redirect("purchase:order_detail", pk=pk)
+
+    # GET请求：显示开票确认页面
+    context = {
+        "order": order,
+        "total_received": total_received,
+    }
+    return render(request, "modules/purchase/order_invoice_confirm.html", context)
 
 
 # ==================== Purchase Receipt Views ====================
@@ -1087,7 +1350,9 @@ def receipt_create(request, order_pk):
 
     if request.method == "POST":
         receipt_data = {
-            "receipt_number": DocumentNumberGenerator.generate("receipt"),  # 使用 IN 前缀
+            "receipt_number": DocumentNumberGenerator.generate(
+                "receipt", model_class=PurchaseReceipt  # 传递模型类以支持重用已删除单据编号
+            ),  # 使用 IN 前缀
             "purchase_order": order,
             "receipt_date": request.POST.get("receipt_date"),
             "warehouse_id": request.POST.get("warehouse"),
@@ -1353,7 +1618,9 @@ def receipt_receive(request, pk):
             detail_amount = item.received_quantity * item.order_item.unit_price
 
             # 生成明细单号
-            detail_number = DocumentNumberGenerator.generate("account_detail")
+            detail_number = DocumentNumberGenerator.generate(
+                "account_detail", model_class=SupplierAccountDetail  # 传递模型类以支持编号重用
+            )
 
             # 创建正应付明细
             SupplierAccountDetail.objects.create(
@@ -1377,10 +1644,12 @@ def receipt_receive(request, pk):
         order = receipt.purchase_order
         all_received = all(item.received_quantity >= item.quantity for item in order.items.all())
 
-        if all_received:
-            order.status = "fully_received"
-        else:
-            order.status = "partial_received"
+        # 更新订单状态（如果已开票，则保持invoiced状态）
+        if order.status != "invoiced":  # 只有未开票时才更新收货状态
+            if all_received:
+                order.status = "fully_received"
+            else:
+                order.status = "partial_received"
         order.save()
 
         messages.success(
@@ -1389,6 +1658,50 @@ def receipt_receive(request, pk):
         return redirect("purchase:receipt_detail", pk=pk)
     except Exception as e:
         messages.error(request, f"收货确认失败：{str(e)}")
+        return redirect("purchase:receipt_detail", pk=pk)
+
+
+@login_required
+def receipt_unapprove_confirm(request, pk):
+    """显示撤销收货确认页面"""
+    receipt = get_object_or_404(PurchaseReceipt, pk=pk, is_deleted=False)
+
+    if receipt.status != "received":
+        messages.error(request, "只有已收货状态的收货单才能撤销")
+        return redirect("purchase:receipt_detail", pk=pk)
+
+    context = {
+        "receipt": receipt,
+        "warning_message": "撤销收货后，将回滚库存变动，冲销应付账款明细，并更新订单状态。",
+    }
+    return render(request, "modules/purchase/receipt_confirm_unapprove.html", context)
+
+
+@login_required
+@transaction.atomic
+def receipt_unapprove(request, pk):
+    """撤销收货确认"""
+    if request.method != "POST":
+        receipt = get_object_or_404(PurchaseReceipt, pk=pk, is_deleted=False)
+        # 显示确认页面
+        context = {
+            "receipt": receipt,
+            "warning_message": "撤销收货后，将回滚库存变动，冲销应付账款明细，并更新订单状态。",
+        }
+        return render(request, "modules/purchase/receipt_confirm_unapprove.html", context)
+
+    receipt = get_object_or_404(PurchaseReceipt, pk=pk, is_deleted=False)
+
+    try:
+        receipt.unapprove_receipt(user=request.user)
+        messages.success(request, f"收货单 {receipt.receipt_number} 收货已撤销")
+        return redirect("purchase:receipt_detail", pk=pk)
+    except ValueError as e:
+        messages.error(request, f"撤销失败：{str(e)}")
+        return redirect("purchase:receipt_detail", pk=pk)
+    except Exception as e:
+        messages.error(request, f"撤销失败：{str(e)}")
+        logger.error(f"撤销收货失败: {str(e)}", exc_info=True)
         return redirect("purchase:receipt_detail", pk=pk)
 
 
@@ -1552,10 +1865,9 @@ def return_detail(request, pk):
 
     # 查询关联的出库单
     from inventory.models import OutboundOrder
+
     outbound_order = OutboundOrder.objects.filter(
-        reference_type="purchase_return",
-        reference_id=return_order.id,
-        is_deleted=False
+        reference_type="purchase_return", reference_id=return_order.id, is_deleted=False
     ).first()
 
     context = {
@@ -1586,7 +1898,9 @@ def return_create(request, order_pk):
         import json
 
         return_data = {
-            "return_number": DocumentNumberGenerator.generate("purchase_return"),
+            "return_number": DocumentNumberGenerator.generate(
+                "purchase_return", model_class=PurchaseReturn  # 传递模型类以支持重用已删除单据编号
+            ),
             "purchase_order": order,
             "return_date": request.POST.get("return_date"),
             "reason": request.POST.get("reason"),
@@ -1726,6 +2040,10 @@ def return_approve(request, pk):
     案例3：未全收货，退货量>未收货量
     - 订单数量100，已收货60，未收货40
     - 退货50 → 减订单数量40（订单→60） + 扣已收货10（已收货→50） → 生成10件负应付账款
+
+    增强功能（2026-02-11）：
+    - 负应付明细生成后自动直接核销到正应付明细
+    - 如果原订单已开票，自动生成红字发票
     """
     from decimal import Decimal
 
@@ -1759,8 +2077,6 @@ def return_approve(request, pk):
         # 创建出库单
         from inventory.models import OutboundOrder, OutboundOrderItem
 
-        from common.utils import DocumentNumberGenerator
-
         outbound_order = None
         if warehouse:
             outbound_order = OutboundOrder.objects.create(
@@ -1769,7 +2085,6 @@ def return_approve(request, pk):
                 order_type="purchase_return",  # 采购退货出库
                 status="approved",  # 退货审核即完成出库
                 order_date=timezone.now().date(),
-                supplier=return_order.purchase_order.supplier,
                 reference_number=return_order.return_number,
                 reference_type="purchase_return",
                 reference_id=return_order.id,
@@ -1778,6 +2093,8 @@ def return_approve(request, pk):
             )
 
         total_refund = Decimal("0")
+        items_with_received_return = []  # 记录需要生成红字发票明细的项目
+        negative_details = []  # 记录创建的负应付明细
 
         # 处理每个退货明细
         for item in return_order.items.all():
@@ -1849,8 +2166,6 @@ def return_approve(request, pk):
                     # 每个明细单独生成负应付记录
                     from finance.models import SupplierAccount, SupplierAccountDetail
 
-                    from common.utils import DocumentNumberGenerator
-
                     # 获取或创建应付主单
                     parent_account = SupplierAccount.get_or_create_for_order(
                         return_order.purchase_order
@@ -1860,10 +2175,12 @@ def return_approve(request, pk):
                     negative_amount = -(received_return * item.unit_price)
 
                     # 生成明细单号
-                    detail_number = DocumentNumberGenerator.generate("account_detail")
+                    detail_number = DocumentNumberGenerator.generate(
+                        "account_detail", model_class=SupplierAccountDetail  # 传递模型类以支持编号重用
+                    )
 
                     # 创建负应付明细
-                    SupplierAccountDetail.objects.create(
+                    negative_detail = SupplierAccountDetail.objects.create(
                         detail_number=detail_number,
                         detail_type="return",  # 退货负应付
                         supplier=return_order.purchase_order.supplier,
@@ -1876,6 +2193,80 @@ def return_approve(request, pk):
                         notes=f"退货单 {return_order.return_number} 退货 {received_return} 件",
                         created_by=request.user,
                     )
+                    negative_details.append(negative_detail)
+
+                    # 记录需要生成红字发票明细的项目
+                    items_with_received_return.append(
+                        {
+                            "item": item,
+                            "order_item": order_item,
+                            "received_return": received_return,
+                            "negative_detail": negative_detail,
+                        }
+                    )
+
+        # ========== 新增：直接核销负应付明细 ==========
+        if total_refund > 0 and negative_details:
+            written_off_amount = Decimal("0")
+            for negative_detail in negative_details:
+                # 计算该负应付明细的绝对金额
+                abs_amount = abs(negative_detail.amount)
+                # 执行直接核销
+                negative_detail.direct_write_off(amount=abs_amount, write_off_by=request.user)
+                written_off_amount += abs_amount
+
+        # ========== 新增：生成红字发票 ==========
+        original_invoice = return_order.purchase_order.invoice
+        credit_note = None
+        if original_invoice and total_refund > 0:
+            from finance.models import Invoice, InvoiceItem
+
+            # 生成红字发票
+            credit_note = Invoice.objects.create(
+                invoice_number=DocumentNumberGenerator.generate("invoice_cn"),
+                invoice_type="purchase_credit",
+                status="issued",
+                supplier=return_order.purchase_order.supplier,
+                invoice_date=timezone.now().date(),
+                amount_excluding_tax=-total_refund,
+                tax_rate=original_invoice.tax_rate,
+                tax_amount=-(total_refund * original_invoice.tax_rate / Decimal("100")),
+                total_amount=-(
+                    total_refund * (Decimal("100") + original_invoice.tax_rate) / Decimal("100")
+                ),
+                is_credit_note=True,
+                original_invoice=original_invoice,
+                reference_type="purchase_return",
+                reference_id=str(return_order.pk),
+                reference_number=return_order.return_number,
+                remark=f"退货单 {return_order.return_number} 红字发票",
+                created_by=request.user,
+            )
+
+            # 创建红字发票明细
+            for item_data in items_with_received_return:
+                item = item_data["item"]
+                order_item = item_data["order_item"]
+                received_return = item_data["received_return"]
+
+                item_total = received_return * item.unit_price
+                InvoiceItem.objects.create(
+                    invoice=credit_note,
+                    product=order_item.product,
+                    description=order_item.product.name,
+                    specification=order_item.product.specification or "",
+                    unit=order_item.product.unit,
+                    quantity=received_return,
+                    unit_price=item.unit_price,
+                    amount=-item_total,
+                    tax_rate=original_invoice.tax_rate,
+                    tax_amount=-(item_total * original_invoice.tax_rate / Decimal("100")),
+                    created_by=request.user,
+                )
+
+            # 关联红字发票到退货单
+            return_order.credit_note = credit_note
+            return_order.save()
 
         # 如果有已收货退货，自动归集应付主单
         if total_refund > 0:
@@ -1890,11 +2281,18 @@ def return_approve(request, pk):
 
         # 构建成功消息
         if total_refund > 0:
-            messages.success(
-                request,
-                f"退货单 {return_order.return_number} 审核通过！"
-                f"已扣减订单数量,生成 ¥{total_refund:.2f} 的负应付明细,应付主单已自动归集,已自动生成出库单",
-            )
+            msg_parts = [
+                f"退货单 {return_order.return_number} 审核通过！",
+                f"已扣减订单数量,",
+                f"生成 ¥{total_refund:.2f} 的负应付明细并直接核销,",
+                f"应付余额已自动减少。",
+            ]
+            if credit_note:
+                msg_parts.append(f"已生成红字发票 {credit_note.invoice_number}。")
+            else:
+                msg_parts.append("已自动生成出库单。")
+
+            messages.success(request, "".join(msg_parts))
         else:
             messages.success(request, f"退货单 {return_order.return_number} 审核通过！" "已扣减订单数量(未收货部分退货)")
 
@@ -1902,6 +2300,54 @@ def return_approve(request, pk):
 
     except Exception as e:
         messages.error(request, f"审核失败：{str(e)}")
+        return redirect("purchase:return_detail", pk=pk)
+
+
+@login_required
+def return_unapprove_confirm(request, pk):
+    """显示撤销退货审核确认页面"""
+    return_order = get_object_or_404(PurchaseReturn, pk=pk, is_deleted=False)
+
+    if return_order.status not in ["approved", "returned", "completed"]:
+        messages.error(request, "只有已审核、已退货或已完成状态的退货单才能撤销")
+        return redirect("purchase:return_detail", pk=pk)
+
+    # 检查是否已实际退货（已发货或已完成）
+    if return_order.status in ["returned", "completed"]:
+        messages.error(request, "退货单已发货或已完成，无法撤销审核")
+        return redirect("purchase:return_detail", pk=pk)
+
+    context = {
+        "return_order": return_order,
+        "warning_message": "撤销退货后，将回滚库存变动，冲销应收账款。",
+    }
+    return render(request, "modules/purchase/return_confirm_unapprove.html", context)
+
+
+@login_required
+@transaction.atomic
+def return_unapprove(request, pk):
+    """撤销退货审核"""
+    if request.method != "POST":
+        return_order = get_object_or_404(PurchaseReturn, pk=pk, is_deleted=False)
+        context = {
+            "return_order": return_order,
+            "warning_message": "撤销退货后，将回滚库存变动，冲销应收账款。",
+        }
+        return render(request, "modules/purchase/return_confirm_unapprove.html", context)
+
+    return_order = get_object_or_404(PurchaseReturn, pk=pk, is_deleted=False)
+
+    try:
+        return_order.unapprove_return(user=request.user)
+        messages.success(request, f"退货单 {return_order.return_number} 审核已撤销")
+        return redirect("purchase:return_detail", pk=pk)
+    except ValueError as e:
+        messages.error(request, f"撤销失败：{str(e)}")
+        return redirect("purchase:return_detail", pk=pk)
+    except Exception as e:
+        messages.error(request, f"撤销失败：{str(e)}")
+        logger.error(f"撤销退货失败: {str(e)}", exc_info=True)
         return redirect("purchase:return_detail", pk=pk)
 
 
@@ -2265,6 +2711,62 @@ def inquiry_delete(request, pk):
 
 
 @login_required
+def inquiry_cancel_confirm(request, pk):
+    """显示取消询价单确认页面"""
+    inquiry = get_object_or_404(PurchaseInquiry, pk=pk, is_deleted=False)
+
+    if inquiry.status == "cancelled":
+        messages.error(request, "询价单已经是取消状态")
+        return redirect("purchase:inquiry_detail", pk=pk)
+
+    if inquiry.status == "sent":
+        messages.error(request, "询价单已发送给供应商，无法取消")
+        return redirect("purchase:inquiry_detail", pk=pk)
+
+    if inquiry.selected_quotation:
+        messages.error(request, "询价单已选定报价，无法取消")
+        return redirect("purchase:inquiry_detail", pk=pk)
+
+    if inquiry.converted_order:
+        messages.error(request, "询价单已转换为采购订单，无法取消")
+        return redirect("purchase:inquiry_detail", pk=pk)
+
+    context = {
+        "inquiry": inquiry,
+        "warning_message": "取消后，询价单将标记为已取消状态。",
+    }
+    return render(request, "modules/purchase/inquiry_confirm_cancel.html", context)
+
+
+@login_required
+@transaction.atomic
+def inquiry_cancel(request, pk):
+    """取消询价单"""
+    if request.method != "POST":
+        inquiry = get_object_or_404(PurchaseInquiry, pk=pk, is_deleted=False)
+        context = {
+            "inquiry": inquiry,
+            "warning_message": "取消后，询价单将标记为已取消状态。",
+        }
+        return render(request, "modules/purchase/inquiry_confirm_cancel.html", context)
+
+    inquiry = get_object_or_404(PurchaseInquiry, pk=pk, is_deleted=False)
+
+    try:
+        reason = request.POST.get("reason", "")
+        inquiry.cancel_inquiry(user=request.user, reason=reason)
+        messages.success(request, f"询价单 {inquiry.inquiry_number} 已取消")
+        return redirect("purchase:inquiry_detail", pk=pk)
+    except ValueError as e:
+        messages.error(request, f"取消失败：{str(e)}")
+        return redirect("purchase:inquiry_detail", pk=pk)
+    except Exception as e:
+        messages.error(request, f"取消失败：{str(e)}")
+        logger.error(f"取消询价单失败: {str(e)}", exc_info=True)
+        return redirect("purchase:inquiry_detail", pk=pk)
+
+
+@login_required
 @transaction.atomic
 def inquiry_send(request, pk):
     """Send inquiry to suppliers."""
@@ -2607,7 +3109,9 @@ def inquiry_create_order(request, pk):
 
         # Create purchase order
         order = PurchaseOrder.objects.create(
-            order_number=DocumentNumberGenerator.generate("PO"),
+            order_number=DocumentNumberGenerator.generate(
+                "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+            ),
             supplier=supplier,
             status="draft",
             payment_status="unpaid",
@@ -2970,7 +3474,9 @@ def borrow_create(request):
             return render(request, "modules/purchase/borrow_form.html", context)
 
         # 生成借用单号
-        borrow_number = DocumentNumberGenerator.generate("borrow")
+        borrow_number = DocumentNumberGenerator.generate(
+            "borrow", model_class=Borrow  # 传递模型类以支持重用已删除单据编号
+        )
 
         # 创建借用单
         borrow = Borrow.objects.create(
@@ -3396,7 +3902,9 @@ def borrow_request_conversion(request, pk):
         try:
             # 直接创建采购订单
             order = PurchaseOrder.objects.create(
-                order_number=DocumentNumberGenerator.generate("purchase_order"),
+                order_number=DocumentNumberGenerator.generate(
+                    "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+                ),
                 supplier=borrow.supplier,
                 buyer=borrow.buyer,
                 order_date=timezone.now().date(),
@@ -3476,6 +3984,93 @@ def borrow_request_conversion(request, pk):
     return render(request, "modules/purchase/borrow_request_conversion.html", context)
 
 
+@login_required
+def borrow_cancel_conversion_confirm(request, pk):
+    """显示取消借用转采购确认页面"""
+    borrow = get_object_or_404(Borrow, pk=pk, is_deleted=False)
+
+    # 检查是否已转采购
+    if not borrow.converted_order:
+        messages.error(request, "借用单未转换为采购订单，无法取消")
+        return redirect("purchase:borrow_detail", pk=pk)
+
+    # 检查关联的采购订单状态
+    order = borrow.converted_order
+    if order.status not in ["draft", "pending"]:
+        messages.error(request, f"关联的采购订单状态为{order.get_status_display()}，无法取消转采购")
+        return redirect("purchase:borrow_detail", pk=pk)
+
+    context = {
+        "borrow": borrow,
+        "order": order,
+        "warning_message": f"取消转采购后，将删除关联的采购订单 {order.order_number}。",
+    }
+    return render(request, "modules/purchase/borrow_confirm_cancel.html", context)
+
+
+@login_required
+@transaction.atomic
+def borrow_cancel_conversion(request, pk):
+    """取消借用转采购"""
+    if request.method != "POST":
+        borrow = get_object_or_404(Borrow, pk=pk, is_deleted=False)
+        order = borrow.converted_order
+        context = {
+            "borrow": borrow,
+            "order": order,
+            "warning_message": f"取消转采购后，将删除关联的采购订单 {order.order_number}。",
+        }
+        return render(request, "modules/purchase/borrow_confirm_cancel.html", context)
+
+    borrow = get_object_or_404(Borrow, pk=pk, is_deleted=False)
+
+    if not borrow.converted_order:
+        messages.error(request, "借用单未转换为采购订单，无法取消")
+        return redirect("purchase:borrow_detail", pk=pk)
+
+    try:
+        order = borrow.converted_order
+
+        # 检查订单状态
+        if order.status not in ["draft", "pending"]:
+            raise ValueError(f"关联的采购订单状态为{order.get_status_display()}，无法取消转采购")
+
+        # 删除关联的采购订单（软删除）
+        order.is_deleted = True
+        order.deleted_at = timezone.now()
+        order.deleted_by = request.user
+        order.save()
+
+        # 软删除订单明细
+        for item in order.items.all():
+            item.is_deleted = True
+            item.deleted_at = timezone.now()
+            item.deleted_by = request.user
+            item.save()
+
+        # 更新借用单状态
+        borrow.converted_order = None
+        borrow.conversion_approved_by = None
+        borrow.conversion_approved_at = None
+        borrow.conversion_notes = ""
+        # 恢复借用单状态为借用中
+        if borrow.status == "completed":
+            borrow.status = "borrowed"
+        borrow.updated_by = request.user
+        borrow.save()
+
+        messages.success(request, f"已取消转采购，采购订单 {order.order_number} 已删除")
+        return redirect("purchase:borrow_detail", pk=pk)
+
+    except ValueError as e:
+        messages.error(request, f"取消失败：{str(e)}")
+        return redirect("purchase:borrow_detail", pk=pk)
+    except Exception as e:
+        messages.error(request, f"取消失败：{str(e)}")
+        logger.error(f"取消借用转采购失败: {str(e)}", exc_info=True)
+        return redirect("purchase:borrow_detail", pk=pk)
+
+
 # borrow_approve_conversion 视图已删除 - 转采购无需审核，直接生成订单
 
 
@@ -3492,29 +4087,24 @@ def supplier_contacts_api(request, supplier_id):
         supplier = get_object_or_404(Supplier, pk=supplier_id, is_deleted=False)
 
         # 获取所有启用的联系人，按主联系人排序
-        contacts = supplier.contacts.filter(
-            is_deleted=False,
-            is_active=True
-        ).order_by('-is_primary', 'id')
+        contacts = supplier.contacts.filter(is_deleted=False, is_active=True).order_by(
+            "-is_primary", "id"
+        )
 
         contacts_data = []
         for contact in contacts:
-            contacts_data.append({
-                'id': contact.id,
-                'name': contact.name,
-                'position': contact.position or '',
-                'phone': contact.phone or '',
-                'email': contact.email or '',
-                'is_primary': contact.is_primary
-            })
+            contacts_data.append(
+                {
+                    "id": contact.id,
+                    "name": contact.name,
+                    "position": contact.position or "",
+                    "phone": contact.phone or "",
+                    "email": contact.email or "",
+                    "is_primary": contact.is_primary,
+                }
+            )
 
-        return JsonResponse({
-            'success': True,
-            'contacts': contacts_data
-        })
+        return JsonResponse({"success": True, "contacts": contacts_data})
 
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=400)
+        return JsonResponse({"success": False, "error": str(e)}, status=400)

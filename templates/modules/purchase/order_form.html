@@ -73,11 +73,11 @@
         class="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200"
         style="display: none;"
     >
-        <template x-for="option in filtered" :key="option.id">
+        <template x-for="(option, index) in filtered" :key="option.id">
             <div
                 @click="select(option)"
                 class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors"
-                :class="getHighlightClass($index)"
+                :class="getHighlightClass(index)"
                 x-text="option.name"
             >
             </div>
@@ -107,7 +107,7 @@
 <select name="buyer" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
 <option value="">请选择</option>
 {% for buyer in buyers %}
-<option value="{{ buyer.id }}" {% if order and order.buyer and order.buyer.id == buyer.id %}selected{% elif action == 'create' and default_buyer and default_buyer.id == buyer.id %}selected{% endif %}>{{ buyer.get_full_name|default:buyer.username }}</option>
+<option value="{{ buyer.id }}" {% if order and order.buyer and order.buyer.id == buyer.id %}selected{% elif action == 'create' and default_buyer and default_buyer.id == buyer.id %}selected{% endif %}>{{ buyer.get_full_name|default_if_none:"" }}{% if not buyer %}(未指定){% endif %}</option>
 {% endfor %}
 </select>
 </div>
@@ -163,11 +163,11 @@
         class="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200"
         style="display: none;"
     >
-        <template x-for="option in filtered" :key="option.id">
+        <template x-for="(option, index) in filtered" :key="option.id">
             <div
                 @click="select(option)"
                 class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors"
-                :class="getHighlightClass($index)"
+                :class="getHighlightClass(index)"
                 x-text="option.name"
             >
             </div>
@@ -228,15 +228,13 @@
 <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-16">操作</th>
 </tr>
 </thead>
-<tbody>
+<tbody @product-selected="handleProductSelected($event)">
 <template x-for="(item, index) in items" :key="index">
 <tr class="border-t">
 <td class="px-3 py-2 text-sm text-gray-500" x-text="index + 1"></td>
 <td class="px-3 py-2">
     <input type="hidden" x-model="item.product_id">
-    <div x-data="tableProductSelect(item.product_id, index)"
-         @product-selected="handleProductSelected($event)"
-         class="relative">
+    <div x-data="tableProductSelect(item.product_id, index)" class="relative">
         <!-- 搜索输入框 -->
         <div class="relative">
             <input
@@ -398,15 +396,30 @@ document.addEventListener('alpine:init', () => {
         },
 
         selectProduct(product) {
+            console.log('=== tableProductSelect.selectProduct ===');
+            console.log('选择的产品:', product);
+            console.log('产品ID:', product.id, '类型:', typeof product.id);
+            console.log('rowIndex:', this.rowIndex);
+
             this.selected = product;
             this.search = product.code + ' - ' + product.name;
             this.isOpen = false;
 
-            // 通知父组件产品已选择
-            this.$dispatch('product-selected', {
-                rowIndex: this.rowIndex,
-                product: product
-            });
+            // 方法1：通过全局实例直接调用父组件方法
+            if (window.orderFormInstance && typeof window.orderFormInstance.handleProductSelected === 'function') {
+                console.log('通过全局实例调用 handleProductSelected');
+                window.orderFormInstance.handleProductSelected({
+                    rowIndex: this.rowIndex,
+                    product: product
+                });
+            } else {
+                console.log('全局实例不可用，尝试事件派发');
+                // 方法2：通过事件派发
+                this.$dispatch('product-selected', {
+                    rowIndex: this.rowIndex,
+                    product: product
+                });
+            }
         },
 
         selectFirst() {
@@ -521,13 +534,18 @@ function orderForm() {
         },
 
         addItem() {
-            this.items.push({
+            console.log('=== addItem 调用 ===');
+            console.log('当前 items 数量:', this.items.length);
+            const newItem = {
                 product_id: '',
                 quantity: 1,
                 unit_price: 0,
                 discount_rate: 0,
                 line_total: 0
-            });
+            };
+            this.items.push(newItem);
+            console.log('添加后 items 数量:', this.items.length);
+            console.log('新添加的 item:', newItem);
         },
 
         removeItem(index) {
@@ -547,11 +565,23 @@ function orderForm() {
         handleProductSelected(event) {
             // 处理表格产品选择器派发的事件
             const { rowIndex, product } = event;
-            if (rowIndex !== null && rowIndex !== undefined && product) {
-                this.items[rowIndex].product_id = product.id;
+            console.log('=== handleProductSelected 触发 ===');
+            console.log('rowIndex:', rowIndex, '类型:', typeof rowIndex);
+            console.log('product:', product);
+            console.log('product.id:', product.id, '类型:', typeof product.id);
+            console.log('当前 items 数组:', this.items);
+            console.log('items[' + rowIndex + '] 更新前:', this.items[rowIndex]);
+
+            if (rowIndex !== null && rowIndex !== undefined && product && product.id) {
+                // 确保 product_id 是数字类型
+                this.items[rowIndex].product_id = parseInt(product.id);
                 // 从产品数据中获取成本价（如果有）
                 this.items[rowIndex].unit_price = parseFloat(product.cost_price || 0);
+                console.log(`已更新 items[${rowIndex}]:`, this.items[rowIndex]);
+                console.log(`product_id 已设置为: ${this.items[rowIndex].product_id} (类型: ${typeof this.items[rowIndex].product_id})`);
                 this.calculateLineTotal(rowIndex);
+            } else {
+                console.error('handleProductSelected: 无效的参数', { rowIndex, product });
             }
         },
 
@@ -676,7 +706,47 @@ function orderForm() {
         },
 
         prepareSubmit(e) {
-            this.itemsJSON = JSON.stringify(this.items);
+            console.log('=== prepareSubmit 开始 ===');
+            console.log('items数组:', this.items);
+            console.log('items数量:', this.items.length);
+
+            let validItemsCount = 0;
+            this.items.forEach((item, index) => {
+                console.log(`--- 明细 ${index} ---`);
+                console.log(`  product_id=${item.product_id} (类型: ${typeof item.product_id})`);
+                console.log(`  product_id 是空字符串? "${item.product_id === ''}"`);
+                console.log(`  quantity=${item.quantity}, unit_price=${item.unit_price}`);
+                console.log(`  完整 item 对象:`, JSON.stringify(item));
+
+                // 检查是否是有效明细
+                if (item.product_id && item.product_id !== '') {
+                    validItemsCount++;
+                }
+            });
+
+            console.log(`有效明细数量: ${validItemsCount} / ${this.items.length}`);
+
+            // 序列化items数组
+            const itemsJson = JSON.stringify(this.items);
+            console.log('itemsJSON:', itemsJson);
+
+            // 手动设置隐藏输入框的值（绕过x-model的异步更新）
+            const itemsInput = document.querySelector('input[name="items_json"]');
+            if (itemsInput) {
+                itemsInput.value = itemsJson;
+                console.log('已设置 items_json 输入框值，长度:', itemsInput.value.length);
+            }
+
+            console.log('=== prepareSubmit 结束 ===');
+
+            // 如果没有有效明细，提示用户
+            if (validItemsCount === 0) {
+                alert('请至少添加一个产品明细！');
+                e.preventDefault();
+                return false;
+            }
+
+            // 表单会继续正常提交
         }
     }
 }

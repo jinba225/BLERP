@@ -26,6 +26,11 @@
             <a class="btn btn-primary" href="{% url 'purchase:inquiry_send' inquiry.pk %}">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>发送询价
             </a>
+            <a href="{% url 'purchase:inquiry_cancel_confirm' inquiry.pk %}" class="btn btn-warning">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                </svg>取消询价
+            </a>
             <form method="post" action="{% url 'purchase:inquiry_delete' inquiry.pk %}" class="inline">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary" onclick="return confirm('确认删除此询价单吗？')">

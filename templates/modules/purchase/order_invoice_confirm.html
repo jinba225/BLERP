@@ -1,0 +1,56 @@
+{% extends 'layouts/base.html' %}
+{% block title %}供应商开票确认 - {{ order.order_number }} - BetterLaser ERP{% endblock %}
+{% block breadcrumb %}
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:order_list' %}" class="text-gray-500 hover:text-gray-700">采购管理</a>
+<span class="mx-2 text-gray-400">/</span>
+<a href="{% url 'purchase:order_detail' order.pk %}" class="text-gray-500 hover:text-gray-700">{{ order.order_number }}</a>
+<span class="mx-2 text-gray-400">/</span>
+<span class="text-gray-900 font-semibold">供应商开票确认</span>
+{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">确认供应商开票</h3>
+
+            <div class="space-y-3 mb-6">
+                <div class="flex">
+                    <span class="w-32 text-gray-600">订单号：</span>
+                    <span class="font-medium">{{ order.order_number }}</span>
+                </div>
+                <div class="flex">
+                    <span class="w-32 text-gray-600">供应商：</span>
+                    <span class="font-medium">{{ order.supplier.name }}</span>
+                </div>
+                <div class="flex">
+                    <span class="w-32 text-gray-600">订单金额：</span>
+                    <span class="font-medium">¥{{ order.total_amount|floatformat:2 }}</span>
+                </div>
+                <div class="flex">
+                    <span class="w-32 text-gray-600">已收货数量：</span>
+                    <span class="font-medium">{{ total_received }}</span>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 border-l-4 border-blue-400 px-4 py-3 mb-6">
+                <p class="text-sm text-blue-700">
+                    ℹ️ 开票后将创建采购发票记录（发票类型：采购发票，状态：已收到）
+                </p>
+            </div>
+
+            <form method="post" class="flex space-x-3">
+                {% csrf_token %}
+                <a href="{% url 'purchase:order_detail' order.pk %}"
+                   class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-center">
+                    取消
+                </a>
+                <button type="submit"
+                        class="flex-1 px-4 py-2 bg-theme-600 text-white rounded-lg hover:bg-theme-700">
+                    确认开票
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -61,9 +61,33 @@ class PurchaseRequestService:
 
     @staticmethod
     @transaction.atomic
-    def convert_request_to_order(purchase_request, user, supplier_id, warehouse_id):
+    def convert_request_to_order(
+        purchase_request, user, supplier_id, warehouse_id=None, items_prices=None
+    ):
+        """
+        Convert a purchase request to a purchase order.
+
+        Args:
+            purchase_request: The purchase request to convert
+            user: The current user
+            supplier_id: The supplier ID (required)
+            warehouse_id: The warehouse ID (optional)
+            items_prices: Dictionary of item prices {item_id: price} (optional)
+
+        Returns:
+            PurchaseOrder: The created purchase order
+
+        Raises:
+            ValueError: If validation fails
+        """
+        # Validate supplier
+        if not supplier_id:
+            raise ValueError("供应商不能为空")
+
         order = PurchaseOrder.objects.create(
-            order_number=DocumentNumberGenerator.generate("PO"),
+            order_number=DocumentNumberGenerator.generate(
+                "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+            ),
             supplier_id=supplier_id,
             order_date=timezone.now().date(),
             required_date=purchase_request.required_date,
@@ -74,26 +98,45 @@ class PurchaseRequestService:
             internal_notes=(
                 f'申请部门：{purchase_request.department.name if purchase_request.department else "无"}\n'
                 f"申请人：{purchase_request.requester.get_full_name() or purchase_request.requester.username}\n"
-                f"申请理由：{purchase_request.justification}"
+                f"申请理由：{purchase_request.justification or '无'}"
             ),
             created_by=user,
             status="draft",
         )
 
+        # Copy request items to order items with prices
         for request_item in purchase_request.items.all():
+            # Determine unit price with priority:
+            # 1. Provided price from items_prices
+            # 2. Estimated price from request item
+            # 3. Product cost price
+            # 4. Default to 0
+            if items_prices and request_item.id in items_prices:
+                unit_price = items_prices[request_item.id]
+            elif request_item.estimated_price:
+                unit_price = request_item.estimated_price
+            elif request_item.product.cost_price:
+                unit_price = request_item.product.cost_price
+            else:
+                unit_price = Decimal("0")
+
             PurchaseOrderItem.objects.create(
                 purchase_order=order,
                 product=request_item.product,
                 quantity=request_item.quantity,
-                unit_price=Decimal("0"),
+                unit_price=unit_price,
+                required_date=request_item.required_date,
+                specifications=request_item.specifications,
                 notes=request_item.notes,
                 sort_order=request_item.sort_order,
                 created_by=user,
             )
 
+        # Calculate totals
         order.calculate_totals()
         order.save()
 
+        # Update request status
         purchase_request.status = "ordered"
         purchase_request.converted_order = order
         purchase_request.save()

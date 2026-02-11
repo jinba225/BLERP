@@ -19,6 +19,15 @@
                 确认收货
             </button>
             {% endif %}
+            {% if receipt.status == 'received' %}
+            <a href="{% url 'purchase:receipt_unapprove_confirm' receipt.pk %}"
+               class="btn btn-warning"
+               title="撤销收货后，将回滚库存和应付账款">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                </svg>撤销收货
+            </a>
+            {% endif %}
             <a href="{% url 'purchase:receipt_list' %}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">返回列表</a>
         </div>
     </div> <!-- 基本信息 -->

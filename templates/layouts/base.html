@@ -1881,6 +1881,11 @@
                         return this.search;
                     },
 
+                    // 计算属性：占位符文本
+                    get placeholder() {
+                        return this._placeholder;
+                    },
+
                     // 方法：选择选项
                     select(option) {
                         this.selected = option;

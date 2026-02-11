@@ -1,13 +1,16 @@
 {% extends 'layouts/base.html' %}
 {% block title %}采购申请列表 - BetterLaser ERP{% endblock %}
+
 {% block breadcrumb %}
 <span class="mx-2 text-gray-400">/</span>
 <span class="text-gray-500">采购管理</span>
 <span class="mx-2 text-gray-400">/</span>
 <span class="text-gray-900 font-semibold">采购申请</span>
 {% endblock %}
+
 {% block content %}
 <div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
+    <!-- Header -->
     <div class="flex justify-between items-center">
         <div>
             <h3 class="text-lg font-semibold text-gray-900">采购申请列表</h3>
@@ -30,34 +33,217 @@
                 新建申请
             </a>
         </div>
-    </div>
+    </div> <!-- Header -->
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">待审批</p>
+                    <p class="text-2xl font-bold text-orange-600">{{ stats.pending_count }}</p>
+                </div>
+                <div class="p-3 bg-orange-100 rounded-full">
+                    <svg class="icon text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">审批通过</p>
+                    <p class="text-2xl font-bold text-theme-600">{{ stats.approved_count }}</p>
+                </div>
+                <div class="p-3 bg-theme-100 rounded-full">
+                    <svg class="icon text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">已转订单</p>
+                    <p class="text-2xl font-bold text-green-600">{{ stats.converted_count }}</p>
+                </div>
+                <div class="p-3 bg-green-100 rounded-full">
+                    <svg class="icon text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">已拒绝</p>
+                    <p class="text-2xl font-bold text-red-600">{{ stats.rejected_count }}</p>
+                </div>
+                <div class="p-3 bg-red-100 rounded-full">
+                    <svg class="icon text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div> <!-- Statistics Cards -->
+
+    <!-- Search and Filter -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">搜索</label>
+                <input type="text" name="search" value="{{ search_query }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500" placeholder="申请单号、部门...">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">全部状态</option>
+                    {% for status_key, status_label in request_statuses %}
+                    <option value="{{ status_key }}" {% if status == status_key %}selected{% endif %}>{{ status_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">开始日期</label>
+                <input type="date" name="date_from" value="{{ date_from }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">结束日期</label>
+                <input type="date" name="date_to" value="{{ date_to }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+            </div>
+            <div class="flex items-end space-x-2 md:col-span-2 lg:col-span-4">
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>搜索
+                </button>
+                <a href="{% url 'purchase:request_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </a>
+            </div>
+        </form>
+    </div> <!-- Search and Filter -->
+
+    <!-- Table -->
     <div class="bg-white rounded-lg shadow overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">申请单号</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">申请部门</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">申请日期</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                {% for request in page_obj %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4"><a href="{% url 'purchase:request_detail' request.pk %}" class="text-theme-600">{{ request.request_number }}</a></td>
-                    <td class="px-6 py-4">{{ request.department.name }}</td>
-                    <td class="px-6 py-4">{{ request.request_date|date:"Y-m-d" }}</td>
-                    <td class="px-6 py-4">{{ request.get_status_display }}</td>
-                    <td class="px-6 py-4 text-right">
-                        <a href="{% url 'purchase:request_detail' request.pk %}" class="text-theme-600 hover:text-theme-900">查看</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="5" class="px-6 py-12 text-center text-gray-500">暂无数据</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% if page_obj %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申请单号</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申请部门</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申请人</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申请日期</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">要求交期</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for request in page_obj %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ request.request_number }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ request.department.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ request.requester.get_full_name|default:request.requester.username }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ request.request_date|date:"Y-m-d" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {% if request.required_date %}{{ request.required_date|date:"Y-m-d" }}{% else %}<span class="text-gray-400">-</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            {% if request.status == 'draft' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                草稿
+                            </span>
+                            {% elif request.status == 'pending' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                待审批
+                            </span>
+                            {% elif request.status == 'approved' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-100 text-theme-800">
+                                已审批
+                            </span>
+                            {% elif request.status == 'rejected' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                已拒绝
+                            </span>
+                            {% elif request.status == 'converted' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                已转订单
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{% url 'purchase:request_detail' request.pk %}" class="text-theme-600 hover:text-theme-900">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>查看
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-gray-400">
+                                <svg class="icon mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                <p class="text-sm">暂无申请记录</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+                显示第 {{ page_obj.start_index }} 至 {{ page_obj.end_index }} 条，共 {{ page_obj.paginator.count }} 条
+            </div>
+            <div class="flex space-x-2">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                    上一页
+                </a>
+                {% endif %}
+                <span class="px-3 py-2 text-sm text-gray-700">
+                    第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页
+                </span>
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                    下一页
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="px-6 py-12 text-center">
+            <div class="flex flex-col items-center justify-center text-gray-400">
+                <svg class="icon mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <p class="text-sm">暂无申请记录</p>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

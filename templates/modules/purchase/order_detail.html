@@ -53,6 +53,13 @@
 </svg>申请付款
             </a>
             {% endif %}
+            {% if can_delete %}
+            <a href="{% url 'purchase:order_delete' order.pk %}" class="btn btn-danger" onclick="return confirm('确定要删除草稿订单 {{ order.order_number }} 吗？\n\n删除后将无法恢复！');">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+</svg>删除
+            </a>
+            {% endif %}
         </div>
     </div>
     <div class="bg-white rounded-lg shadow p-6 space-y-4">
@@ -62,9 +69,9 @@
             <div><span class="text-gray-600">订单日期:</span> <span class="font-medium">{{ order.order_date|date:"Y-m-d" }}</span></div>
             <div><span class="text-gray-600">状态:</span> <span class="font-medium">{{ order.get_status_display }}</span></div>
             <div><span class="text-gray-600">总金额:</span> <span class="font-medium">{{ order.currency }} {{ order.total_amount|floatformat:2 }}</span></div>
-            <div><span class="text-gray-600">采购员:</span> <span class="font-medium">{{ order.buyer.get_full_name|default:order.buyer.username }}</span></div>
+            <div><span class="text-gray-600">采购员:</span> <span class="font-medium">{{ order.buyer.get_full_name|default_if_none:"" }}</span>{% if not order.buyer %}<span class="text-gray-400">(未指定)</span>{% endif %}</div>
             {% if order.approved_by %}
-            <div><span class="text-gray-600">审核人:</span> <span class="font-medium">{{ order.approved_by.get_full_name|default:order.approved_by.username }}</span></div>
+            <div><span class="text-gray-600">审核人:</span> <span class="font-medium">{{ order.approved_by.get_full_name|default_if_none:"" }}{% if not order.approved_by %}(未审核){% endif %}</span></div>
             {% endif %}
         </div>
     </div>

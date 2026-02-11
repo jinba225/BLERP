@@ -614,6 +614,64 @@ class SupplierAccountDetail(BaseModel):
         self.save()
         return True
 
+    def direct_write_off(self, amount, write_off_by=None):
+        """
+        直接核销负应付账款到原应付账款
+
+        业务规则:
+        - 负应付明细(amount < 0)直接核销到同订单的正应付明细
+        - 减少正应付明细的allocated_amount
+        - 增加负应付明细的allocated_amount(负数)
+        - 自动更新应付主单
+
+        Args:
+            amount: 核销金额(正数)
+            write_off_by: 操作人
+        """
+        from decimal import Decimal
+
+        from django.db import models as django_models
+        from django.utils import timezone
+
+        if self.amount >= 0:
+            raise ValueError("只有负应付明细才能直接核销")
+
+        # 查找同订单的正应付明细(未核销或部分核销)
+        positive_details = SupplierAccountDetail.objects.filter(
+            purchase_order=self.purchase_order,
+            detail_type="receipt",
+            amount__gt=0,
+            is_deleted=False,
+        ).exclude(
+            allocated_amount__gte=django_models.F("amount")  # 排除已全额核销的
+        )
+
+        remaining_to_write_off = -self.amount
+
+        for detail in positive_details:
+            if remaining_to_write_off <= 0:
+                break
+
+            can_allocate = detail.amount - detail.allocated_amount
+            allocate_amount = min(can_allocate, remaining_to_write_off)
+
+            detail.allocated_amount += allocate_amount
+            if detail.allocated_amount >= detail.amount:
+                detail.status = "allocated"
+            detail.save()
+
+            remaining_to_write_off -= allocate_amount
+
+        # 更新负应付明细
+        self.allocated_amount = -Decimal(str(amount))
+        self.status = "allocated"
+        self.notes += f"\n直接核销金额:{amount}元,时间:{timezone.now()}"
+        self.save()
+
+        # 归集应付主单
+        if self.parent_account:
+            self.parent_account.aggregate_from_details()
+
 
 class Payment(BaseModel):
     """
@@ -888,6 +946,8 @@ class Invoice(BaseModel):
     INVOICE_TYPES = [
         ("purchase", "采购发票"),
         ("sales", "销售发票"),
+        ("purchase_credit", "采购红字发票"),
+        ("sales_credit", "销售红字发票"),
     ]
 
     INVOICE_STATUS = [
@@ -895,6 +955,7 @@ class Invoice(BaseModel):
         ("issued", "已开具"),
         ("received", "已收到"),
         ("verified", "已认证"),
+        ("credit_note", "红字发票"),
         ("cancelled", "已作废"),
     ]
 
@@ -926,11 +987,29 @@ class Invoice(BaseModel):
     invoice_date = models.DateField("开票日期")
     tax_date = models.DateField("税务日期", null=True, blank=True)
 
-    # 金额信息
-    amount_excluding_tax = models.DecimalField("不含税金额", max_digits=12, decimal_places=2, default=0)
+    # 金额信息（红字发票时为负数）
+    amount_excluding_tax = models.DecimalField(
+        "不含税金额", max_digits=12, decimal_places=2, default=0, help_text="红字发票时为负数"
+    )
     tax_rate = models.DecimalField("税率(%)", max_digits=5, decimal_places=2, default=13)
-    tax_amount = models.DecimalField("税额", max_digits=12, decimal_places=2, default=0)
-    total_amount = models.DecimalField("价税合计", max_digits=12, decimal_places=2, default=0)
+    tax_amount = models.DecimalField(
+        "税额", max_digits=12, decimal_places=2, default=0, help_text="红字发票时为负数"
+    )
+    total_amount = models.DecimalField(
+        "价税合计", max_digits=12, decimal_places=2, default=0, help_text="红字发票时为负数"
+    )
+
+    # 红字发票相关字段
+    is_credit_note = models.BooleanField("是否红字发票", default=False, help_text="红字发票用于冲销原发票")
+    original_invoice = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="credit_notes",
+        verbose_name="原发票",
+        help_text="红字发票关联的原发票",
+    )
 
     # 关联业务单据
     reference_type = models.CharField(

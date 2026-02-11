@@ -86,7 +86,7 @@
             {% if borrow.converted_orders.exists %}
             <div class="text-right">
                 <p class="text-sm text-gray-600 mb-1">关联采购订单 ({{ borrow.converted_orders.count }}个)</p>
-                <div class="space-x-2">
+                <div class="space-x-2 mb-2">
                     {% for order in borrow.converted_orders %}
                     <a href="{% url 'purchase:order_detail' order.pk %}" class="inline-flex items-center px-3 py-1 bg-theme-50 text-theme-700 rounded-lg text-sm font-medium hover:bg-theme-100 transition-colors">
                         {{ order.order_number }}
@@ -96,6 +96,15 @@
                     </a>
                     {% endfor %}
                 </div>
+                {% if borrow.converted_order and borrow.converted_order.status in 'draft,pending' %}
+                <a href="{% url 'purchase:borrow_cancel_conversion_confirm' borrow.pk %}"
+                   class="inline-flex items-center px-3 py-1 bg-yellow-50 text-yellow-700 rounded-lg text-sm font-medium hover:bg-yellow-100 transition-colors">
+                    <svg class="icon mr-1 text-xs" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                    </svg>
+                    取消转采购
+                </a>
+                {% endif %}
             </div>
             {% endif %}
         </div>
@@ -124,7 +133,7 @@
                 </div>
                 <div>
                     <p class="text-sm text-gray-600 mb-1">经办人</p>
-                    <p class="text-sm font-medium text-gray-900">{{ borrow.buyer.get_full_name|default:borrow.buyer.username }}</p>
+                    <p class="text-sm font-medium text-gray-900">{{ borrow.buyer.get_full_name|default_if_none:"" }}{% if not borrow.buyer %}(未指定){% endif %}</p>
                 </div>
                 <div>
                     <p class="text-sm text-gray-600 mb-1">创建时间</p>

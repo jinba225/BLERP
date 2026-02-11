@@ -29,6 +29,15 @@
                 </button>
             </form>
             {% endif %}
+            {% if return.status == 'approved' %}
+            <a href="{% url 'purchase:return_unapprove_confirm' return.pk %}"
+               class="btn btn-warning"
+               title="撤销退货审核">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                </svg>撤销审核
+            </a>
+            {% endif %}
             {% if return.status == 'approved' or return.status == 'returned' or return.status == 'completed' %}
             {% with supplier_account=return.purchase_order.supplier_accounts.first %}
             {% if supplier_account %}
@@ -131,7 +140,7 @@
                 {% if return.approved_by %}
                 <div>
                     <p class="text-sm text-gray-600 mb-1">审核人</p>
-                    <p class="text-sm font-medium text-gray-900">{{ return.approved_by.get_full_name|default:return.approved_by.username }}</p>
+                    <p class="text-sm font-medium text-gray-900">{{ return.approved_by.get_full_name|default_if_none:"" }}{% if not return.approved_by %}(未审核){% endif %}</p>
                 </div>
                 {% endif %}
                 {% if return.approved_at %}
@@ -214,5 +223,50 @@
             </table>
         </div>
     </div>
+
+    <!-- Credit Note Information (红字发票信息) -->
+    {% if return.credit_note %}
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h4 class="text-base font-semibold text-gray-900">红字发票</h4>
+        </div>
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">发票号</p>
+                    <a href="{% url 'finance:invoice_detail' return.credit_note.pk %}" class="text-theme-600 hover:text-theme-700 font-medium">
+                        {{ return.credit_note.invoice_number }}
+                    </a>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">发票金额</p>
+                    <p class="text-sm font-medium text-red-600">¥{{ return.credit_note.total_amount|floatformat:2 }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">开票日期</p>
+                    <p class="text-sm font-medium text-gray-900">{{ return.credit_note.invoice_date|date:"Y-m-d" }}</p>
+                </div>
+                {% if return.credit_note.original_invoice %}
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">原发票号</p>
+                    <a href="{% url 'finance:invoice_detail' return.credit_note.original_invoice.pk %}" class="text-theme-600 hover:text-theme-700 font-medium">
+                        {{ return.credit_note.original_invoice.invoice_number }}
+                    </a>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">原发票金额</p>
+                    <p class="text-sm font-medium text-gray-900">¥{{ return.credit_note.original_invoice.total_amount|floatformat:2 }}</p>
+                </div>
+                {% endif %}
+                {% if return.credit_note.remark %}
+                <div class="md:col-span-3">
+                    <p class="text-sm text-gray-600 mb-1">备注</p>
+                    <p class="text-sm font-medium text-gray-900">{{ return.credit_note.remark }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

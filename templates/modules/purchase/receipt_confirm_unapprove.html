@@ -1,0 +1,70 @@
+{% extends 'layouts/base.html' %}
+{% block title %}撤销收货确认 - {{ receipt.receipt_number }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-8">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">确认撤销收货</h3>
+
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        撤销收货后，将回滚库存变动，冲销应付账款明细，并更新订单状态。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <div class="flex justify-between py-2 border-b">
+                <span class="text-gray-600">收货单号：</span>
+                <span class="font-medium">{{ receipt.receipt_number }}</span>
+            </div>
+            <div class="flex justify-between py-2 border-b">
+                <span class="text-gray-600">采购订单：</span>
+                <span class="font-medium">{{ receipt.purchase_order.order_number }}</span>
+            </div>
+            <div class="flex justify-between py-2 border-b">
+                <span class="text-gray-600">供应商：</span>
+                <span class="font-medium">{{ receipt.supplier.name }}</span>
+            </div>
+            <div class="flex justify-between py-2 border-b">
+                <span class="text-gray-600">收货仓库：</span>
+                <span class="font-medium">{{ receipt.warehouse.name }}</span>
+            </div>
+            <div class="flex justify-between py-2">
+                <span class="text-gray-600">当前状态：</span>
+                <span class="font-medium">{{ receipt.get_status_display }}</span>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 mb-6 rounded-lg">
+            <h4 class="font-medium text-gray-900 mb-2">收货明细</h4>
+            <div class="space-y-2">
+                {% for item in receipt.items.all %}
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">{{ item.order_item.product.name }}</span>
+                    <span class="font-medium">{{ item.received_quantity }} {{ item.order_item.product.unit }}</span>
+                </div>
+                {% empty %}
+                <div class="text-sm text-gray-500">暂无明细</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex gap-3">
+                <button type="submit" class="flex-1 btn btn-warning">确认撤销</button>
+                <a href="{% url 'purchase:receipt_detail' receipt.pk %}" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-center">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

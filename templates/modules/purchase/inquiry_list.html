@@ -58,7 +58,7 @@
                     <option value="">全部采购员</option>
                     {% for buyer in buyers %}
                     <option value="{{ buyer.id }}" {% if buyer_id|stringformat:"s" == buyer.id|stringformat:"s" %}selected{% endif %}>
-                        {{ buyer.get_full_name|default:buyer.username }}
+                        {{ buyer.get_full_name|default_if_none:"" }}{% if not buyer %}(未指定){% endif %}
                     </option>
                     {% endfor %}
                 </select>

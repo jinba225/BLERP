@@ -8,7 +8,7 @@ Example: SO20251108001
 """
 from datetime import date
 
-from django.db import models, transaction
+from django.db import transaction
 from django.utils import timezone
 
 
@@ -69,7 +69,31 @@ class DocumentNumberGenerator:
          通过 transaction_type 或 reference_type 区分具体的单据类型。
 
     兼容旧前缀（直接传入前缀字符串）：
-    - QT, SO, SD, SR, PI, PO, PR, PT, SI, ST, SA, SP, QI, SC, PC, LC, PP, WO, MR, MT, PM, PY, IV, EX, DL, RF
+    - QT,
+    SO,
+    SD,
+    SR,
+    PI,
+    PO,
+    PR,
+    PT,
+    SI,
+    ST,
+    SA,
+    SP,
+    QI,
+    SC,
+    PC,
+    LC,
+    PP,
+    WO,
+    MR,
+    MT,
+    PM,
+    PY,
+    IV,
+    EX,
+    DL, RF
     """
 
     # 前缀配置键名映射表
@@ -265,7 +289,7 @@ class DocumentNumberGenerator:
             return date_value.strftime("%y%m%d")
 
     @staticmethod
-    def generate(prefix_key, date_value=None):
+    def generate(prefix_key, date_value=None, check_deleted=True, model_class=None):
         """
         Generate a unique document number with configurable format.
 
@@ -273,6 +297,8 @@ class DocumentNumberGenerator:
             prefix_key (str): Document type key (e.g., 'sales_order', 'purchase_order')
                              or legacy prefix string (e.g., 'SO', 'PO')
             date_value (date, optional): Date for the document. Defaults to today.
+            check_deleted (bool): Whether to check for deleted documents and reuse their numbers
+            model_class (Model, optional): Model class to check for deleted documents
 
         Returns:
             str: Generated document number
@@ -297,7 +323,9 @@ class DocumentNumberGenerator:
         date_str = DocumentNumberGenerator.format_date(date_value, date_format)
 
         # Get or create document number sequence
-        sequence = DocumentNumberGenerator._get_next_sequence(prefix, date_str)
+        sequence = DocumentNumberGenerator._get_next_sequence(
+            prefix, date_str, model_class, check_deleted
+        )
 
         # Format sequence with leading zeros (configurable digits)
         sequence_str = str(sequence).zfill(sequence_digits)
@@ -308,7 +336,7 @@ class DocumentNumberGenerator:
         return document_number
 
     @staticmethod
-    def _get_next_sequence(prefix, date_str):
+    def _get_next_sequence(prefix, date_str, model_class=None, check_deleted=True):
         """
         Get the next sequence number for the given prefix and date.
 
@@ -317,6 +345,8 @@ class DocumentNumberGenerator:
         Args:
             prefix (str): Document type prefix
             date_str (str): Date string in YYYYMMDD format
+            model_class (Model, optional): Model class to check for deleted documents
+            check_deleted (bool): Whether to check for deleted documents and reuse their numbers
 
         Returns:
             int: Next sequence number
@@ -331,6 +361,55 @@ class DocumentNumberGenerator:
             ) = DocumentNumberSequence.objects.select_for_update().get_or_create(
                 prefix=prefix, date_str=date_str, defaults={"current_number": 0}
             )
+
+            # If requested, try to find deleted documents with reusable numbers
+            if check_deleted and model_class is not None:
+                # 自动检测单据号字段名
+                number_field = None
+                for field in model_class._meta.get_fields():
+                    if field.name.endswith("_number") and hasattr(field, "max_length"):
+                        number_field = field.name
+                        break
+
+                if number_field:
+                    # Get active document numbers
+                    active_numbers = set()
+                    active_docs = model_class.objects.filter(
+                        **{f"{number_field}__startswith": f"{prefix}{date_str}"}, is_deleted=False
+                    )
+
+                    for doc in active_docs:
+                        try:
+                            doc_number = getattr(doc, number_field)
+                            number_part = doc_number[len(prefix) + len(date_str) :]
+                            import re
+
+                            match = re.search(r"(\d+)$", number_part)
+                            if match:
+                                seq = int(match.group(1))
+                                active_numbers.add(seq)
+                        except (ValueError, AttributeError):
+                            pass
+
+                    # Find missing numbers (gaps in the sequence)
+                    if active_numbers:
+                        max_active = max(active_numbers)
+                        # Find all numbers from 1 to max_active that are not in active_numbers
+                        missing_numbers = sorted(set(range(1, max_active + 1)) - active_numbers)
+
+                        # Filter to only include missing numbers that are >= current sequence
+                        # This prevents reusing numbers that were already used and the sequence has moved past
+                        reusable_missing = [
+                            num for num in missing_numbers if num >= sequence_obj.current_number
+                        ]
+
+                        if reusable_missing:
+                            # Reuse the smallest missing number that hasn't been passed by the sequence
+                            reusable_number = reusable_missing[0]
+                            # Update sequence to this number (next call will increment)
+                            sequence_obj.current_number = reusable_number
+                            sequence_obj.save()
+                            return reusable_number
 
             # Increment and save
             sequence_obj.current_number += 1

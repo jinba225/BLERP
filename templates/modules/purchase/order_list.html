@@ -1,7 +1,5 @@
 {% extends 'layouts/base.html' %}
-{% block title %}采购订单列表 - BetterLerp ERP{% endblock %}
-
-
+{% block title %}采购订单列表 - BetterLaser ERP{% endblock %}
 
 {% block breadcrumb %}
 <span class="mx-2 text-gray-400">/</span>
@@ -35,23 +33,70 @@
                 新建采购订单
             </a>
         </div>
-    </div>
+    </div> <!-- Header -->
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">草稿</p>
+                    <p class="text-2xl font-bold text-gray-600">{{ stats.draft_count }}</p>
+                </div>
+                <div class="p-3 bg-gray-100 rounded-full">
+                    <svg class="icon text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">待审核/进行中</p>
+                    <p class="text-2xl font-bold text-orange-600">{{ stats.pending_count }}</p>
+                </div>
+                <div class="p-3 bg-orange-100 rounded-full">
+                    <svg class="icon text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">已审核/已确认</p>
+                    <p class="text-2xl font-bold text-theme-600">{{ stats.approved_count }}</p>
+                </div>
+                <div class="p-3 bg-theme-100 rounded-full">
+                    <svg class="icon text-theme-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">已完成</p>
+                    <p class="text-2xl font-bold text-green-600">{{ stats.completed_count }}</p>
+                </div>
+                <div class="p-3 bg-green-100 rounded-full">
+                    <svg class="icon text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div> <!-- Statistics Cards -->
 
     <!-- Search and Filter -->
     <div class="bg-white rounded-lg shadow p-6">
-        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">搜索</label>
-                <div class="relative flex items-center">
-                    <input type="text" name="search" id="searchInput" value="{{ search }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="订单号、供应商..." oninput="toggleClearButton()">
-                    <button type="button" id="clearSearch" onclick="clearSearchInput()"
-                        class="absolute right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-theme-500 hover:bg-theme-600 text-white flex items-center justify-center transition-all duration-200 hidden"
-                        style="display: none;">
-                        <svg class="icon w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+                <input type="text" name="search" value="{{ search }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500" placeholder="订单号、供应商...">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">供应商</label>
@@ -65,181 +110,193 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">订单状态</label>
                 <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                    <option value="">全部</option>
-                    <option value="draft" {% if status == 'draft' %}selected{% endif %}>草稿</option>
-                    <option value="pending" {% if status == 'pending' %}selected{% endif %}>待审核</option>
-                    <option value="approved" {% if status == 'approved' %}selected{% endif %}>已审核</option>
-                    <option value="sent" {% if status == 'sent' %}selected{% endif %}>已发送</option>
-                    <option value="confirmed" {% if status == 'confirmed' %}selected{% endif %}>已确认</option>
-                    <option value="received" {% if status == 'received' %}selected{% endif %}>已收货</option>
-                    <option value="completed" {% if status == 'completed' %}selected{% endif %}>已完成</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">付款状态</label>
-                <select name="payment_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                    <option value="">全部</option>
-                    <option value="unpaid" {% if payment_status == 'unpaid' %}selected{% endif %}>未付款</option>
-                    <option value="partial" {% if payment_status == 'partial' %}selected{% endif %}>部分付款</option>
-                    <option value="paid" {% if payment_status == 'paid' %}selected{% endif %}>已付款</option>
-                    <option value="overdue" {% if payment_status == 'overdue' %}selected{% endif %}>逾期</option>
+                    <option value="">全部状态</option>
+                    {% for status_key, status_label in order_statuses %}
+                    <option value="{{ status_key }}" {% if status == status_key %}selected{% endif %}>{{ status_label }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">开始日期</label>
-                <input type="date" name="date_from" value="{{ date_from }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                <input type="date" name="date_from" value="{{ date_from }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
             </div>
-            <div class="flex items-end">
+            <div class="flex items-end space-x-2">
                 <button class="btn btn-primary" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    搜索
+                    </svg>搜索
                 </button>
+                <a href="{% url 'purchase:order_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </a>
             </div>
         </form>
-    </div>
+    </div> <!-- Search and Filter -->
 
     <!-- Table -->
     <div class="bg-white rounded-lg shadow overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">采购单号</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">供应商</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">订单日期</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">要求交期</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">订单金额</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">订单状态</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">付款状态</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">采购员</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for order in page_obj %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ order.order_number }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.supplier.name }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.order_date }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.required_date|default:"-" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">¥{{ order.total_amount }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-semibold rounded {% if order.status == 'draft' %}bg-gray-100 text-gray-800{% elif order.status == 'approved' or order.status == 'confirmed' %}bg-theme-100 text-theme-800{% elif order.status == 'completed' %}bg-green-100 text-green-800{% elif order.status == 'cancelled' %}bg-red-100 text-red-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">{{ order.get_status_display }}</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-semibold rounded {% if order.payment_status == 'unpaid' or order.payment_status == 'overdue' %}bg-red-100 text-red-800{% elif order.payment_status == 'paid' %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">{{ order.get_payment_status_display }}</span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.buyer.username|default:"-" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{% url 'purchase:order_detail' order.pk %}" class="text-theme-600 hover:text-theme-700 mr-3">
-                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                        </a>
-                        {% if order.status == 'draft' %}
-                        <a href="{% url 'purchase:order_update' order.pk %}" class="text-green-600 hover:text-green-900">
-                            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="9" class="px-6 py-12 text-center text-gray-500">
-                        <svg class="icon mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <p>暂无采购订单数据</p>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% if page_obj %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">采购单号</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">供应商</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">订单日期</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">要求交期</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">订单金额</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">订单状态</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">付款状态</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">采购员</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for order in page_obj %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ order.order_number }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ order.supplier.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ order.order_date }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {% if order.required_date %}{{ order.required_date }}{% else %}<span class="text-gray-400">-</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">
+                            {{ order.currency }} {{ order.total_amount|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            {% if order.status == 'draft' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                草稿
+                            </span>
+                            {% elif order.status == 'pending' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                待审核
+                            </span>
+                            {% elif order.status == 'approved' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-theme-100 text-theme-800">
+                                已审核
+                            </span>
+                            {% elif order.status == 'sent' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                已发送
+                            </span>
+                            {% elif order.status == 'confirmed' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                已确认
+                            </span>
+                            {% elif order.status == 'partial_received' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                部分收货
+                            </span>
+                            {% elif order.status == 'fully_received' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                已收货
+                            </span>
+                            {% elif order.status == 'invoiced' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                已开票
+                            </span>
+                            {% elif order.status == 'completed' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                已完成
+                            </span>
+                            {% elif order.status == 'cancelled' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                已取消
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                {{ order.get_status_display }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            {% if order.payment_status == 'unpaid' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                未付款
+                            </span>
+                            {% elif order.payment_status == 'partial' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                部分付款
+                            </span>
+                            {% elif order.payment_status == 'paid' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                已付款
+                            </span>
+                            {% elif order.payment_status == 'overdue' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                逾期
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ order.buyer.get_full_name|default_if_none:"" }}{% if not order.buyer %}<span class="text-gray-400">(未指定)</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{% url 'purchase:order_detail' order.pk %}" class="text-theme-600 hover:text-theme-900">
+                                <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>查看
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-gray-400">
+                                <svg class="icon mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                                <p class="text-sm">暂无采购订单数据</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
         {% if page_obj.has_other_pages %}
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t">
-            <p class="text-sm text-gray-700">显示第 {{ page_obj.start_index }} 到 {{ page_obj.end_index }} 条，共 {{ page_obj.paginator.count }} 条</p>
+        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+                显示第 {{ page_obj.start_index }} 至 {{ page_obj.end_index }} 条，共 {{ page_obj.paginator.count }} 条
+            </div>
+            <div class="flex space-x-2">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if supplier_id %}&supplier={{ supplier_id }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                    上一页
+                </a>
+                {% endif %}
+                <span class="px-3 py-2 text-sm text-gray-700">
+                    第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页
+                </span>
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if supplier_id %}&supplier={{ supplier_id }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                    下一页
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="px-6 py-12 text-center">
+            <div class="flex flex-col items-center justify-center text-gray-400">
+                <svg class="icon mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <p class="text-sm">暂无采购订单数据</p>
+            </div>
         </div>
         {% endif %}
     </div>
 </div>
-{% endblock %}
-
-
-
-
-
-
-
-
-
-{% block extra_js %}
-<script>
-// 搜索框清除按钮功能
-function toggleClearButton() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-
-    if (searchInput && clearBtn) {
-        if (searchInput.value.trim() !== '') {
-            clearBtn.style.display = 'flex';
-            updateClearButtonPosition();
-        } else {
-            clearBtn.style.display = 'none';
-        }
-    }
-}
-
-function updateClearButtonPosition() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-
-    if (!searchInput || !clearBtn) return;
-
-    // 创建临时canvas来测量文本宽度
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const inputStyles = window.getComputedStyle(searchInput);
-    context.font = inputStyles.font;
-
-    // 计算文本宽度（考虑左右padding）
-    const textWidth = context.measureText(searchInput.value).width;
-    const paddingLeft = parseFloat(inputStyles.paddingLeft);
-    const offset = textWidth + paddingLeft + 20; // 20px为额外间距
-
-    // 设置按钮位置，确保不超出输入框右边界
-    const inputWidth = searchInput.offsetWidth;
-    const buttonWidth = 24; // 按钮宽度
-    const maxOffset = inputWidth - buttonWidth - 8; // 8px为右边距
-
-    const finalOffset = Math.min(offset, maxOffset);
-    clearBtn.style.left = finalOffset + 'px';
-    clearBtn.style.right = 'auto';
-}
-
-function clearSearchInput() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-    if (searchInput && clearBtn) {
-        searchInput.value = '';
-        clearBtn.style.display = 'none';
-        searchInput.focus();
-    }
-}
-
-// 页面加载时初始化清除按钮状态
-document.addEventListener('DOMContentLoaded', function() {
-    toggleClearButton();
-
-    // 监听窗口大小变化，重新计算按钮位置
-    window.addEventListener('resize', function() {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput && searchInput.value.trim() !== '') {
-            updateClearButtonPosition();
-        }
-    });
-});
-</script>
 {% endblock %}

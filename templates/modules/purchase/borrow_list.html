@@ -162,7 +162,7 @@
                             {% if borrow.expected_return_date %}{{ borrow.expected_return_date }}{% else %}<span class="text-gray-400">-</span>{% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ borrow.buyer.get_full_name|default:borrow.buyer.username }}
+                            {{ borrow.buyer.get_full_name|default_if_none:"" }}{% if not borrow.buyer %}(未指定){% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             {% if borrow.status == 'draft' %}

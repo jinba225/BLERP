@@ -2,6 +2,7 @@
 Purchase models for the ERP system.
 """
 from core.models import PAYMENT_METHOD_CHOICES, BaseModel
+from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -23,6 +24,7 @@ class PurchaseOrder(BaseModel):
         ("fully_received", "全部收货"),
         ("invoiced", "已开票"),
         ("paid", "已付款"),
+        ("cancelled", "已取消"),
     ]
 
     PAYMENT_STATUS = [
@@ -130,6 +132,25 @@ class PurchaseOrder(BaseModel):
     )
     approved_at = models.DateTimeField("审核时间", null=True, blank=True)
 
+    # Invoice information - 发票信息
+    invoice = models.ForeignKey(
+        "finance.Invoice",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="purchase_orders",
+        verbose_name="关联发票",
+    )
+    invoiced_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="invoiced_orders",
+        verbose_name="开票人",
+    )
+    invoiced_at = models.DateTimeField("开票时间", null=True, blank=True)
+
     class Meta:
         verbose_name = "采购订单"
         verbose_name_plural = "采购订单"
@@ -189,7 +210,9 @@ class PurchaseOrder(BaseModel):
 
             # Create receipt
             receipt = PurchaseReceipt.objects.create(
-                receipt_number=DocumentNumberGenerator.generate("receipt"),  # 使用 IN 前缀
+                receipt_number=DocumentNumberGenerator.generate(
+                    "receipt", model_class=PurchaseReceipt  # 传递模型类以支持重用已删除单据编号
+                ),  # 使用 IN 前缀
                 purchase_order=self,
                 warehouse=receipt_warehouse,
                 receipt_date=timezone.now().date(),
@@ -236,6 +259,66 @@ class PurchaseOrder(BaseModel):
                 )
 
         return receipt
+
+    def unapprove_order(self, user):
+        """
+        撤销采购订单审核
+
+        业务规则：
+        1. 只有已审核状态才能撤销
+        2. 不能有已收货的收货单
+        3. 不能已开票
+        4. 不能有应付账款余额
+        5. 自动删除待收货状态的收货单和关联的入库单
+
+        Args:
+            user: 操作用户
+
+        Raises:
+            ValueError: 不满足撤销条件时抛出异常
+        """
+        from django.db import transaction
+        from inventory.models import InboundOrder
+
+        # 验证状态
+        if self.status != "approved":
+            raise ValueError("只有已审核状态才能撤销")
+
+        # 检查下游单据 - 不能有已收货的收货单
+        if self.receipts.filter(is_deleted=False, status__in=["partial", "received"]).exists():
+            raise ValueError("存在已收货的收货单，无法撤销")
+
+        # 检查发票关联
+        if self.invoice:
+            raise ValueError("订单已开票，无法撤销")
+
+        # 检查财务关联 - 应付账款余额
+        if hasattr(self, "supplier_account"):
+            account = getattr(self, "supplier_account", None)
+            if account and account.balance != 0:
+                raise ValueError("存在应付账款余额，无法撤销")
+
+        with transaction.atomic():
+            # 删除自动生成的待收货状态的收货单
+            pending_receipts = self.receipts.filter(is_deleted=False, status="pending")
+
+            for receipt in pending_receipts:
+                # 删除关联的入库单
+                InboundOrder.objects.filter(
+                    reference_type="purchase_order", reference_id=self.id, is_deleted=False
+                ).update(is_deleted=True)
+
+                # 软删除收货单
+                receipt.is_deleted = True
+                receipt.deleted_by = user
+                receipt.deleted_at = timezone.now()
+                receipt.save()
+
+            # 恢复订单状态
+            self.status = "draft"
+            self.approved_by = None
+            self.approved_at = None
+            self.save()
 
     def calculate_totals(self):
         """
@@ -428,7 +511,12 @@ class PurchaseRequest(BaseModel):
         )
 
     def approve_and_convert_to_order(
-        self, approved_by_user, supplier_id, warehouse_id=None, auto_create_order=None
+        self,
+        approved_by_user,
+        supplier_id,
+        warehouse_id=None,
+        auto_create_order=None,
+        items_prices=None,
     ):
         """
         Approve the purchase request and automatically convert to purchase order.
@@ -438,6 +526,7 @@ class PurchaseRequest(BaseModel):
             supplier_id: Supplier ID for the purchase order
             warehouse_id: Optional warehouse ID for the purchase order
             auto_create_order: Whether to auto-create order (if None, check system config)
+            items_prices: Optional dictionary of item prices {item_id: price}
 
         Returns:
             tuple: (PurchaseOrder or None, success_message)
@@ -445,6 +534,8 @@ class PurchaseRequest(BaseModel):
         Raises:
             ValueError: If validation fails
         """
+        from decimal import Decimal
+
         from core.models import SystemConfig
 
         from common.utils import DocumentNumberGenerator
@@ -478,7 +569,9 @@ class PurchaseRequest(BaseModel):
 
         # Auto-create purchase order
         order = PurchaseOrder.objects.create(
-            order_number=DocumentNumberGenerator.generate("purchase_order"),
+            order_number=DocumentNumberGenerator.generate(
+                "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+            ),
             supplier_id=supplier_id,
             order_date=timezone.now().date(),
             required_date=self.required_date,
@@ -495,13 +588,27 @@ class PurchaseRequest(BaseModel):
             status="draft",  # 新订单为草稿状态
         )
 
-        # Copy request items to order items
+        # Copy request items to order items with prices
         for request_item in self.items.filter(is_deleted=False):
+            # Determine unit price with priority:
+            # 1. Provided price from items_prices
+            # 2. Estimated price from request item
+            # 3. Product cost price
+            # 4. Default to 0
+            if items_prices and request_item.id in items_prices:
+                unit_price = items_prices[request_item.id]
+            elif request_item.estimated_price:
+                unit_price = request_item.estimated_price
+            elif request_item.product.cost_price:
+                unit_price = request_item.product.cost_price
+            else:
+                unit_price = Decimal("0")
+
             PurchaseOrderItem.objects.create(
                 purchase_order=order,
                 product=request_item.product,
                 quantity=request_item.quantity,
-                unit_price=request_item.estimated_price or 0,
+                unit_price=unit_price,
                 notes=request_item.notes,
                 sort_order=request_item.sort_order,
                 created_by=approved_by_user,
@@ -516,6 +623,46 @@ class PurchaseRequest(BaseModel):
         self.save()
 
         return (order, f"采购申请单审核通过，已自动生成采购订单 {order.order_number}")
+
+    def unapprove_request(self, user):
+        """
+        撤销采购申请审核
+
+        业务规则：
+        1. 只有已审核状态才能撤销
+        2. 不能已转换为采购订单
+        3. 清除审核信息
+        4. 恢复到草稿状态
+
+        Args:
+            user: 操作用户
+
+        Raises:
+            ValueError: 不满足撤销条件时抛出异常
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        # 验证状态
+        if self.status != "approved":
+            raise ValueError("只有已审核状态才能撤销")
+
+        # 检查是否已转换为采购订单
+        if self.converted_order:
+            raise ValueError("采购申请单已转换为采购订单，无法撤销审核")
+
+        # 撤销审核
+        original_status = self.status
+        self.status = "draft"
+        self.approved_by = None
+        self.approved_at = None
+        self.save()
+
+        # 记录日志
+        logger.info(
+            f"采购申请单 {self.request_number} 从 {original_status} 撤销到 draft，操作人：{user.username}"
+        )
 
 
 class PurchaseRequestItem(BaseModel):
@@ -623,6 +770,53 @@ class PurchaseInquiry(BaseModel):
 
     def __str__(self):
         return f"{self.inquiry_number} - {self.inquiry_date}"
+
+    def cancel_inquiry(self, user, reason=""):
+        """
+        取消采购询价单
+
+        业务规则：
+        1. 不能已发送给供应商
+        2. 不能有已选定的报价
+        3. 不能已转换为采购订单
+        4. 标记为已取消状态
+
+        Args:
+            user: 操作用户
+            reason: 取消原因
+
+        Raises:
+            ValueError: 不满足取消条件时抛出异常
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        # 验证状态
+        if self.status == "cancelled":
+            raise ValueError("询价单已经是取消状态")
+
+        # 检查是否已发送
+        if self.status == "sent":
+            raise ValueError("询价单已发送给供应商，无法取消")
+
+        # 检查是否已选定报价
+        if self.selected_quotation:
+            raise ValueError("询价单已选定报价，无法取消")
+
+        # 检查是否已转换为采购订单
+        if self.converted_order:
+            raise ValueError("询价单已转换为采购订单，无法取消")
+
+        # 取消询价单
+        original_status = self.status
+        self.status = "cancelled"
+        if reason:
+            self.notes = (self.notes or "") + f"\n\n取消原因：{reason}"
+        self.save()
+
+        # 记录日志
+        logger.info(f"询价单 {self.inquiry_number} 从 {original_status} 取消，操作人：{user.username}")
 
 
 class PurchaseInquiryItem(BaseModel):
@@ -790,6 +984,120 @@ class PurchaseReceipt(BaseModel):
     def __str__(self):
         return f"{self.receipt_number} - {self.supplier.name}"
 
+    def unapprove_receipt(self, user):
+        """
+        撤销收货确认（回滚库存和应付账款）
+
+        业务规则：
+        1. 只有已收货状态才能撤销
+        2. 不能有关联退货单
+        3. 回滚库存变动
+        4. 冲销应付账款
+        5. 更新订单状态
+
+        Args:
+            user: 操作用户
+
+        Raises:
+            ValueError: 不满足撤销条件时抛出异常
+        """
+        from django.db import transaction
+        from finance.models import SupplierAccountDetail
+        from inventory.models import InventoryTransaction
+
+        # 验证状态
+        if self.status != "received":
+            raise ValueError("只有已收货状态才能撤销")
+
+        # 检查是否有退货单
+        if hasattr(self, "returns") and self.returns.filter(is_deleted=False).exists():
+            raise ValueError("存在关联退货单，无法撤销")
+
+        with transaction.atomic():
+            # 回滚库存
+            for item in self.items.filter(is_deleted=False):
+                product = item.order_item.product
+                warehouse = self.warehouse
+
+                # 创建负数库存事务（抵消原入库）
+                InventoryTransaction.objects.create(
+                    transaction_type="adjustment",
+                    product=product,
+                    warehouse=warehouse,
+                    quantity=-item.received_quantity,
+                    reference_number=f"REVERSE-{self.receipt_number}",
+                    reference_type="reverse_receipt",
+                    notes=f"撤销收货单 {self.receipt_number}",
+                    operator=user,
+                )
+
+            # 冲销应付账款
+            details = SupplierAccountDetail.objects.filter(
+                purchase_order=self.purchase_order, receipt=self, is_deleted=False
+            )
+
+            for detail in details:
+                # 检查是否已核销
+                if detail.allocated_amount > 0:
+                    raise ValueError(f"应付明细 {detail.detail_number} 已核销，无法撤销")
+
+                # 软删除明细
+                detail.is_deleted = True
+                detail.notes += f"\n于 {timezone.now()} 由收货单 {self.receipt_number} 撤销冲销"
+                detail.deleted_by = user
+                detail.deleted_at = timezone.now()
+                detail.save()
+
+                # 更新应付主单
+                if detail.parent_account:
+                    detail.parent_account.aggregate_from_details()
+
+            # 更新订单明细的已收货数量
+            for item in self.items.filter(is_deleted=False):
+                order_item = item.order_item
+                order_item.received_quantity -= item.received_quantity
+                order_item.save()
+
+            # 更新订单状态
+            order = self.purchase_order
+            if order.status == "invoiced":
+                # 已开票订单保持invoiced状态
+                pass
+            else:
+                # 重新计算订单状态
+                total_received = sum(
+                    item.received_quantity for item in order.items.filter(is_deleted=False)
+                )
+                all_received = all(
+                    item.received_quantity >= item.quantity
+                    for item in order.items.filter(is_deleted=False)
+                )
+
+                if total_received == 0:
+                    order.status = "approved"
+                elif all_received:
+                    order.status = "fully_received"
+                else:
+                    order.status = "partial_received"
+
+                order.save()
+
+            # 更新入库单状态
+            try:
+                InboundOrder = apps.get_model("inventory", "InboundOrder")
+                InboundOrder.objects.filter(
+                    reference_type="purchase_order",
+                    reference_id=self.purchase_order.id,
+                    is_deleted=False,
+                ).update(status="draft")
+            except LookupError:
+                pass  # 如果inventory app没有InboundOrder模型，跳过
+
+            # 恢复收货单状态
+            self.status = "pending"
+            self.received_by = None
+            self.save()
+
 
 class PurchaseReceiptItem(BaseModel):
     """
@@ -876,6 +1184,16 @@ class PurchaseReturn(BaseModel):
     )
     approved_at = models.DateTimeField("审核时间", null=True, blank=True)
 
+    # 红字发票关联
+    credit_note = models.ForeignKey(
+        "finance.Invoice",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="purchase_returns",
+        verbose_name="红字发票",
+    )
+
     class Meta:
         verbose_name = "采购退货单"
         verbose_name_plural = "采购退货单"
@@ -889,6 +1207,72 @@ class PurchaseReturn(BaseModel):
     def supplier(self):
         """通过采购订单获取供应商"""
         return self.purchase_order.supplier if self.purchase_order else None
+
+    def unapprove_return(self, user):
+        """
+        撤销退货审核
+
+        业务规则：
+        1. 只有已审核状态才能撤销
+        2. 回滚库存（减少退货时的库存增加）
+        3. 冲销应收账款（如果有）
+        4. 更新订单状态
+
+        Args:
+            user: 操作用户
+        """
+        import logging
+
+        from django.db import transaction
+        from inventory.models import InventoryTransaction
+
+        logger = logging.getLogger(__name__)
+
+        # 验证状态
+        if self.status not in ["approved", "returned", "completed"]:
+            raise ValueError("只有已审核、已退货或已完成状态才能撤销")
+
+        # 检查是否已实际退货（已发货或已完成）
+        if self.status in ["returned", "completed"]:
+            raise ValueError("退货单已发货或已完成，无法撤销审核")
+
+        with transaction.atomic():
+            # 回滚库存（如果有库存事务记录）
+            # 注意：退货出库时，库存应该是增加的（因为货物回到供应商）
+            # 这里需要创建相反的库存事务
+            for item in self.items.filter(is_deleted=False):
+                if item.quantity > 0:
+                    # 创建相反的库存事务（抵消原退货出库）
+                    # 退货时库存应该是减少，所以撤销时库存应该增加
+                    InventoryTransaction.objects.create(
+                        transaction_type="purchase_return",  # 退货类型
+                        product=item.product,
+                        warehouse=self.receipt.warehouse if self.receipt else None,
+                        quantity=item.quantity,  # 正数，表示库存增加（撤销退货）
+                        reference_number=f"REVERSE-{self.return_number}",
+                        reference_type="reverse_return",
+                        notes=f"撤销退货单 {self.return_number}",
+                        operator=user,
+                    )
+
+            # 恢复订单明细的可退货数量
+            for item in self.items.filter(is_deleted=False):
+                order_item = item.order_item
+                if hasattr(order_item, "returned_quantity"):
+                    order_item.returned_quantity -= item.quantity
+                    order_item.save()
+
+            # 更新退货单状态
+            original_status = self.status
+            self.status = "draft"
+            self.approved_by = None
+            self.approved_at = None
+            self.save()
+
+            # 记录日志
+            logger.info(
+                f"退货单 {self.return_number} 从 {original_status} 撤销到 draft，操作人：{user.username}"
+            )
 
 
 class PurchaseReturnItem(BaseModel):
@@ -1210,7 +1594,9 @@ class Borrow(BaseModel):
 
         # 创建采购订单
         order = PurchaseOrder.objects.create(
-            order_number=DocumentNumberGenerator.generate("purchase_order"),
+            order_number=DocumentNumberGenerator.generate(
+                "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+            ),
             supplier_id=supplier_id,
             buyer=self.buyer,
             order_date=timezone.now().date(),
@@ -1263,8 +1649,12 @@ class Borrow(BaseModel):
             detail_amount = convert_qty * unit_price
 
             # 创建应付明细
+            from finance.models import SupplierAccountDetail
+
             SupplierAccountDetail.objects.create(
-                detail_number=DocumentNumberGenerator.generate("account_detail"),
+                detail_number=DocumentNumberGenerator.generate(
+                    "account_detail", model_class=SupplierAccountDetail  # 传递模型类以支持编号重用
+                ),
                 detail_type="receipt",  # 转采购视为收货正应付
                 supplier_id=supplier_id,
                 purchase_order=order,

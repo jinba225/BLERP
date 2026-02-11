@@ -199,7 +199,7 @@
                         {{ order.supplier.name }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ order.buyer.username|default:"-" }}
+                        {{ order.buyer.username|default_if_none:"-" }}{% if not order.buyer %}<span class="text-gray-400">(未指定)</span>{% endif %}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         ¥{{ order.total_amount|floatformat:2 }}

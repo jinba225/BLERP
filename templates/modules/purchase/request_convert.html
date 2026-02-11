@@ -13,30 +13,187 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto space-y-6">
-    <h3 class="text-lg font-semibold">将采购申请转换为采购订单</h3>
-    <form method="post" class="bg-white rounded-lg shadow p-6 space-y-4">
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- 页面标题 -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900">将采购申请转换为采购订单</h3>
+        <p class="text-sm text-gray-500 mt-1">
+            申请单号: {{ request.request_number }} |
+            申请部门: {{ request.department.name|default:"无" }} |
+            申请人: {{ request.requester.get_full_name|default:request.requester.username }}
+        </p>
+    </div>
+
+    <form method="post" class="space-y-6">
         {% csrf_token %}
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">供应商 <span class="text-red-500">*</span></label>
-            <select name="supplier" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                {% for supplier in suppliers %}
-                <option value="{{ supplier.id }}" {% if supplier == preferred_supplier %}selected{% endif %}>{{ supplier.name }}</option>
-                {% endfor %}
-            </select>
+
+        <!-- 基本信息 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 供应商选择 -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    供应商 <span class="text-red-500">*</span>
+                </label>
+                <select name="supplier" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                    <option value="">-- 请选择供应商 --</option>
+                    {% for supplier in suppliers %}
+                    <option value="{{ supplier.id }}" {% if supplier == preferred_supplier %}selected{% endif %}>
+                        {{ supplier.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if preferred_supplier %}
+                <p class="mt-2 text-xs text-gray-500">
+                    💡 已根据申请明细自动选择推荐供应商
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- 仓库选择 -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    收货仓库
+                </label>
+                <select name="warehouse" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-500 focus:border-transparent">
+                    <option value="">-- 请选择仓库 --</option>
+                    {% for warehouse in warehouses %}
+                    <option value="{{ warehouse.id }}" {% if warehouse.is_default %}selected{% endif %}>
+                        {{ warehouse.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if request.purpose %}
+                <p class="mt-2 text-xs text-gray-500">
+                    📝 申请用途: {{ request.purpose }}
+                </p>
+                {% endif %}
+            </div>
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">收货仓库</label>
-            <select name="warehouse" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-                {% for warehouse in warehouses %}
-                <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
-                {% endfor %}
-            </select>
+
+        <!-- 订单明细 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">订单明细</h4>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">产品</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">规格</th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">数量</th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">预估单价</th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">采购单价 <span class="text-red-500">*</span></th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">行小计</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in request.items.all %}
+                        <tr class="border-t hover:bg-gray-50">
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-sm text-gray-900">{{ item.product.code }}</div>
+                                <div class="text-sm text-gray-600">{{ item.product.name }}</div>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-500">
+                                {{ item.specifications|default:"-" }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-right text-gray-900">
+                                {{ item.quantity }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-right text-gray-400">
+                                {% if item.estimated_price %}
+                                    <span class="text-gray-500">¥{{ item.estimated_price|floatformat:2 }}</span>
+                                {% else %}
+                                    <span class="text-gray-300">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="relative">
+                                    <input
+                                        type="number"
+                                        name="price_{{ item.id }}"
+                                        step="0.01"
+                                        min="0"
+                                        required
+                                        class="w-full px-3 py-2 pr-8 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 focus:ring-1 focus:ring-theme-500"
+                                        placeholder="请输入单价"
+                                        data-item-id="{{ item.id }}"
+                                        data-quantity="{{ item.quantity }}"
+                                        data-estimated-price="{% if item.estimated_price %}{{ item.estimated_price }}{% endif %}"
+                                        {% if item.estimated_price %}value="{{ item.estimated_price }}"{% endif %}
+                                    >
+                                    <span class="absolute right-3 top-2 text-gray-400 text-sm">¥</span>
+                                </div>
+                                {% if item.product.cost_price %}
+                                <p class="mt-1 text-xs text-gray-400 text-right">
+                                    参考成本价: ¥{{ item.product.cost_price|floatformat:2 }}
+                                </p>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-right font-medium text-theme-600" id="line_total_{{ item.id }}">
+                                ¥0.00
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="flex space-x-3">
-            <button type="submit" class="btn btn-primary">转换</button>
-            <a href="{% url 'purchase:request_detail' request.pk %}" class="btn btn-outline">取消</a>
+
+        <!-- 订单总额 -->
+        <div class="bg-theme-50 rounded-lg p-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <span class="text-lg font-medium text-gray-900">订单总额</span>
+                    <p class="text-sm text-gray-500 mt-1">转换后订单将保存为草稿状态，您可以继续编辑</p>
+                </div>
+                <span class="text-3xl font-bold text-theme-600" id="total_amount">¥0.00</span>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="flex justify-between items-center">
+            <a href="{% url 'purchase:request_detail' request.pk %}" class="btn btn-outline">
+                取消
+            </a>
+            <button type="submit" class="btn btn-primary px-8 py-3">
+                转换为采购订单
+            </button>
         </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const priceInputs = document.querySelectorAll('input[name^="price_"]');
+    const totalAmountEl = document.getElementById('total_amount');
+
+    function calculateTotals() {
+        let total = 0;
+
+        priceInputs.forEach(function(input) {
+            const itemId = input.dataset.itemId;
+            const quantity = parseFloat(input.dataset.quantity);
+            const price = parseFloat(input.value) || 0;
+            const lineTotal = price * quantity;
+            const lineTotalCell = document.getElementById('line_total_' + itemId);
+
+            if (lineTotalCell) {
+                lineTotalCell.textContent = '¥' + lineTotal.toFixed(2);
+            }
+
+            total += lineTotal;
+        });
+
+        totalAmountEl.textContent = '¥' + total.toFixed(2);
+    }
+
+    // 为所有价格输入框绑定事件
+    priceInputs.forEach(function(input) {
+        input.addEventListener('input', calculateTotals);
+        input.addEventListener('change', calculateTotals);
+    });
+
+    // 初始计算
+    calculateTotals();
+});
+</script>
 {% endblock %}

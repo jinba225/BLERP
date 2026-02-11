@@ -40,7 +40,7 @@
             </div>
             <div>
                 <div class="text-sm text-gray-500">经办人</div>
-                <div class="text-lg font-semibold text-gray-900">{{ borrow.buyer.get_full_name|default:borrow.buyer.username }}</div>
+                <div class="text-lg font-semibold text-gray-900">{{ borrow.buyer.get_full_name|default_if_none:"" }}{% if not borrow.buyer %}(未指定){% endif %}</div>
             </div>
              <div>
                  <div class="text-sm text-gray-500">状态</div>
