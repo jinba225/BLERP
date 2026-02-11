@@ -66,12 +66,10 @@
                         <dt class="text-sm font-medium text-gray-500">供应商等级</dt>
                         <dd class="mt-1 text-sm text-gray-900">{{ supplier.get_level_display }}</dd>
                     </div>
-                    {% if supplier.category %}
                     <div>
                         <dt class="text-sm font-medium text-gray-500">供应商分类</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.category.name }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900">{{ supplier.category.name|default:"-" }}</dd>
                     </div>
-                    {% endif %}
                     {% if supplier.address %}
                     <div class="col-span-2">
                         <dt class="text-sm font-medium text-gray-500">详细地址</dt>
