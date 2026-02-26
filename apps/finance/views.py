@@ -908,15 +908,15 @@ def supplier_account_writeoff(request, pk):
     """应付核销：将预付款或现金付款核销到应付账款"""
     # 检查是否是按供应商统一核销
     writeoff_type = request.GET.get("type", "account")
-    
+
     if writeoff_type == "supplier":
         # 按供应商统一核销
         from suppliers.models import Supplier
         supplier = get_object_or_404(Supplier, pk=pk, is_deleted=False)
         # 获取该供应商的所有未付应付账款
         accounts = SupplierAccount.objects.filter(
-            supplier=supplier, 
-            is_deleted=False, 
+            supplier=supplier,
+            is_deleted=False,
             balance__gt=0
         )
         if not accounts.exists():
@@ -3597,19 +3597,20 @@ def api_supplier_account_available_prepays(request, pk):
     用于供应商核销页面的AJAX调用
     """
     from decimal import Decimal
+
     from django.db.models import Sum
-    
+
     # 检查是否是按供应商统一核销
     writeoff_type = request.GET.get("type", "account")
-    
+
     prepays = []
     account_balance = "0"
-    
+
     if writeoff_type == "supplier":
         # 按供应商统一核销，pk是供应商的ID
         from suppliers.models import Supplier
         supplier = get_object_or_404(Supplier, pk=pk, is_deleted=False)
-        
+
         prepays = SupplierPrepayment.objects.filter(
             supplier=supplier,
             is_deleted=False,
@@ -3618,7 +3619,7 @@ def api_supplier_account_available_prepays(request, pk):
         ).order_by(
             "-paid_date"
         )  # 按付款日期倒序
-        
+
         # 计算供应商的总应付余额
         supplier_accounts = SupplierAccount.objects.filter(
             supplier=supplier, is_deleted=False
@@ -3627,7 +3628,7 @@ def api_supplier_account_available_prepays(request, pk):
     else:
         # 单个应付账款核销，pk是应付账款账户的ID
         account = get_object_or_404(SupplierAccount, pk=pk, is_deleted=False)
-        
+
         if account.supplier:
             prepays = SupplierPrepayment.objects.filter(
                 supplier=account.supplier,
@@ -3637,7 +3638,7 @@ def api_supplier_account_available_prepays(request, pk):
             ).order_by(
                 "-paid_date"
             )  # 按付款日期倒序
-        
+
         account_balance = str(account.balance)
 
     prepayments_data = []

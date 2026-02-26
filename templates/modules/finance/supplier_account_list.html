@@ -122,11 +122,11 @@
         <div class="flex justify-between items-center">
             <h4 class="text-lg font-semibold text-gray-900">显示模式</h4>
             <div class="flex space-x-2">
-                <a href="?group_by_supplier=true&search={{ search }}&supplier={{ supplier_id }}&status={{ status }}&is_overdue={{ is_overdue }}" 
+                <a href="?group_by_supplier=true&search={{ search }}&supplier={{ supplier_id }}&status={{ status }}&is_overdue={{ is_overdue }}"
                     class="px-4 py-2 border rounded-lg {% if group_by_supplier %}bg-theme-100 border-theme-500 text-theme-700{% else %}bg-white border-gray-300 text-gray-700 hover:bg-gray-50{% endif %}">
                     按供应商合并
                 </a>
-                <a href="?group_by_supplier=false&search={{ search }}&supplier={{ supplier_id }}&status={{ status }}&is_overdue={{ is_overdue }}" 
+                <a href="?group_by_supplier=false&search={{ search }}&supplier={{ supplier_id }}&status={{ status }}&is_overdue={{ is_overdue }}"
                     class="px-4 py-2 border rounded-lg {% if not group_by_supplier %}bg-theme-100 border-theme-500 text-theme-700{% else %}bg-white border-gray-300 text-gray-700 hover:bg-gray-50{% endif %}">
                     显示所有记录
                 </a>
@@ -145,7 +145,7 @@
                 {% endif %}
                 <span class="text-sm font-normal text-gray-600">(共 {{ total_count }} {% if group_by_supplier %}个供应商{% else %}条记录{% endif %})</span>
             </h4>
-        </div> 
+        </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 {% if group_by_supplier %}
@@ -183,7 +183,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
-                                <a href="?supplier={{ supplier.supplier__id }}&group_by_supplier=false&search={{ search }}&status={{ status }}&is_overdue={{ is_overdue }}" 
+                                <a href="?supplier={{ supplier.supplier__id }}&group_by_supplier=false&search={{ search }}&status={{ status }}&is_overdue={{ is_overdue }}"
                                     class="text-theme-600 hover:text-theme-700 font-medium">
                                     查看详情
                                 </a>

@@ -5,45 +5,89 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('finance', '0014_remove_supplieraccount_supplier_account_sup_status_due_idx'),
+        ("finance", "0014_remove_supplieraccount_supplier_account_sup_status_due_idx"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='invoice',
-            name='is_credit_note',
-            field=models.BooleanField(default=False, help_text='红字发票用于冲销原发票', verbose_name='是否红字发票'),
+            model_name="invoice",
+            name="is_credit_note",
+            field=models.BooleanField(
+                default=False, help_text="红字发票用于冲销原发票", verbose_name="是否红字发票"
+            ),
         ),
         migrations.AddField(
-            model_name='invoice',
-            name='original_invoice',
-            field=models.ForeignKey(blank=True, help_text='红字发票关联的原发票', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='credit_notes', to='finance.invoice', verbose_name='原发票'),
+            model_name="invoice",
+            name="original_invoice",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="红字发票关联的原发票",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="credit_notes",
+                to="finance.invoice",
+                verbose_name="原发票",
+            ),
         ),
         migrations.AlterField(
-            model_name='invoice',
-            name='amount_excluding_tax',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='红字发票时为负数', max_digits=12, verbose_name='不含税金额'),
+            model_name="invoice",
+            name="amount_excluding_tax",
+            field=models.DecimalField(
+                decimal_places=2,
+                default=0,
+                help_text="红字发票时为负数",
+                max_digits=12,
+                verbose_name="不含税金额",
+            ),
         ),
         migrations.AlterField(
-            model_name='invoice',
-            name='invoice_type',
-            field=models.CharField(choices=[('purchase', '采购发票'), ('sales', '销售发票'), ('purchase_credit', '采购红字发票'), ('sales_credit', '销售红字发票')], max_length=20, verbose_name='发票类型'),
+            model_name="invoice",
+            name="invoice_type",
+            field=models.CharField(
+                choices=[
+                    ("purchase", "采购发票"),
+                    ("sales", "销售发票"),
+                    ("purchase_credit", "采购红字发票"),
+                    ("sales_credit", "销售红字发票"),
+                ],
+                max_length=20,
+                verbose_name="发票类型",
+            ),
         ),
         migrations.AlterField(
-            model_name='invoice',
-            name='status',
-            field=models.CharField(choices=[('draft', '草稿'), ('issued', '已开具'), ('received', '已收到'), ('verified', '已认证'), ('credit_note', '红字发票'), ('cancelled', '已作废')], default='draft', max_length=20, verbose_name='状态'),
+            model_name="invoice",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("draft", "草稿"),
+                    ("issued", "已开具"),
+                    ("received", "已收到"),
+                    ("verified", "已认证"),
+                    ("credit_note", "红字发票"),
+                    ("cancelled", "已作废"),
+                ],
+                default="draft",
+                max_length=20,
+                verbose_name="状态",
+            ),
         ),
         migrations.AlterField(
-            model_name='invoice',
-            name='tax_amount',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='红字发票时为负数', max_digits=12, verbose_name='税额'),
+            model_name="invoice",
+            name="tax_amount",
+            field=models.DecimalField(
+                decimal_places=2, default=0, help_text="红字发票时为负数", max_digits=12, verbose_name="税额"
+            ),
         ),
         migrations.AlterField(
-            model_name='invoice',
-            name='total_amount',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='红字发票时为负数', max_digits=12, verbose_name='价税合计'),
+            model_name="invoice",
+            name="total_amount",
+            field=models.DecimalField(
+                decimal_places=2,
+                default=0,
+                help_text="红字发票时为负数",
+                max_digits=12,
+                verbose_name="价税合计",
+            ),
         ),
     ]

@@ -165,6 +165,3 @@ def dashboard_view(request):
         "user": request.user,
     }
     return render(request, "index.html", context)
-
-
-

@@ -98,6 +98,3 @@ def company_info(request):
             }
 
     return company_data
-
-
-

@@ -623,5 +623,3 @@ RATELIMIT_VIEW = "rest_framework.throttling.Throttled"
 
 # Rate limit configuration for different types of requests
 RATELIMIT_RATE = "1000/h"  # Default rate limit
-
-

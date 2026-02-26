@@ -335,10 +335,9 @@ def order_create(request):
         pass
 
     # 获取税率数据
-    tax_rates = TaxRate.objects.filter(is_deleted=False, is_active=True).order_by('rate')
+    tax_rates = TaxRate.objects.filter(is_deleted=False, is_active=True).order_by("rate")
     tax_rates_json = json.dumps(
-        list(tax_rates.values("id", "name", "rate", "code")),
-        cls=DjangoJSONEncoder
+        list(tax_rates.values("id", "name", "rate", "code")), cls=DjangoJSONEncoder
     )
 
     context = {
@@ -463,10 +462,9 @@ def order_update(request, pk):
     )
 
     # 获取税率数据
-    tax_rates = TaxRate.objects.filter(is_deleted=False, is_active=True).order_by('rate')
+    tax_rates = TaxRate.objects.filter(is_deleted=False, is_active=True).order_by("rate")
     tax_rates_json = json.dumps(
-        list(tax_rates.values("id", "name", "rate", "code")),
-        cls=DjangoJSONEncoder
+        list(tax_rates.values("id", "name", "rate", "code")), cls=DjangoJSONEncoder
     )
 
     context = {

@@ -6,24 +6,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0011_add_company_description_en'),
-        ('ecomm_sync', '0006_alter_platformaccount_account_type'),
-        ('finance', '0015_invoice_is_credit_note_invoice_original_invoice_and_more'),
-        ('purchase', '0013_add_borrowed_quantity'),
+        ("core", "0011_add_company_description_en"),
+        ("ecomm_sync", "0006_alter_platformaccount_account_type"),
+        ("finance", "0015_invoice_is_credit_note_invoice_original_invoice_and_more"),
+        ("purchase", "0013_add_borrowed_quantity"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='purchaseorderitem',
-            name='currency',
-            field=models.CharField(default='CNY', max_length=10, verbose_name='币种'),
+            model_name="purchaseorderitem",
+            name="currency",
+            field=models.CharField(default="CNY", max_length=10, verbose_name="币种"),
         ),
         migrations.AddField(
-            model_name='purchaseorderitem',
-            name='tax_rate',
-            field=models.DecimalField(decimal_places=2, default=13, max_digits=5, verbose_name='税率(%)'),
+            model_name="purchaseorderitem",
+            name="tax_rate",
+            field=models.DecimalField(
+                decimal_places=2, default=13, max_digits=5, verbose_name="税率(%)"
+            ),
         ),
     ]
