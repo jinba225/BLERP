@@ -227,6 +227,35 @@ locust-stats/
 .sentryclirc
 
 # ============================================
+# 开发工具和临时文件
+# ============================================
+# Trae IDE 相关文件
+.trae/
+
+# 临时 Python 脚本
+check_supplier_account.py
+list_suppliers.py
+remove_refresh_buttons.py
+reset_supplier_account.py
+simple_check.py
+unify_input_heights.py
+unify_search_card_buttons.py
+unify_search_card_heights.py
+unify_search_card_layout.py
+update_supplier_account.py
+
+# 其他临时脚本
+*.pyc
+*.pyo
+*.pyd
+
+# 测试生成的文件
+.pytest_cache/
+
+# 覆盖率报告
+htmlcov/
+
+# ============================================
 # 生产环境特定
 # ============================================
 # 取消注释以下行（如果使用）
