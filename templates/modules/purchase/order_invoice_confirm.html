@@ -41,8 +41,7 @@
 
             <form method="post" class="flex space-x-3">
                 {% csrf_token %}
-                <a href="{% url 'purchase:order_detail' order.pk %}"
-                   class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-center">
+                <a href="{% url 'purchase:order_detail' order.pk %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                     取消
                 </a>
                 <button type="submit"

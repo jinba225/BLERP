@@ -45,20 +45,13 @@
      <div class="flex justify-between items-center mb-6">
          <h4 class="text-lg font-semibold text-gray-900">Listing管理</h4>
          <div class="space-x-2">
-             <button @click="showPublishModal = true; loadPlatforms()"
-                     class="btn btn-primary btn-sm">
+             <button class="btn btn-primary h-10 px-4" type="submit">
                  <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                  </svg>
                  发布到平台
              </button>
-             <button @click="refreshListings()"
-                     class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">
-                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                 </svg>
-                 刷新
-             </button>
+
          </div>
      </div>
 
@@ -231,17 +224,7 @@
              }
          },
 
-         // 刷新Listing列表
-         async refreshListings() {
-             try {
-                 const response = await fetch(`/products/${this.productId}/listings/fragment/`);
-                 const data = await response.json();
-                 this.listings = data.listings;
-             } catch (error) {
-                 console.error('刷新Listing列表失败:', error);
-                 alert('刷新失败');
-             }
-         },
+
 
          // 发布Listing
          async publishListing() {
@@ -269,10 +252,10 @@
                  const result = await response.json();
 
                  if (result.success) {
-                     alert('发布成功！Listing创建中...');
-                     this.showPublishModal = false;
-                     this.refreshListings();
-                 } else {
+                    alert('发布成功！Listing创建中...');
+                    this.showPublishModal = false;
+                    this.loadListings();
+                } else {
                      alert('发布失败：' + result.message);
                  }
              } catch (error) {
@@ -304,10 +287,10 @@
                  if (result.success) {
                      this.syncStatus[listingId] = 'success';
                      // 2秒后清除状态
-                     setTimeout(() => {
-                         this.syncStatus[listingId] = null;
-                         this.refreshListings();
-                     }, 2000);
+                    setTimeout(() => {
+                        this.syncStatus[listingId] = null;
+                        this.loadListings();
+                    }, 2000);
                  } else {
                      this.syncStatus[listingId] = 'failed';
                      alert('同步失败：' + result.message);

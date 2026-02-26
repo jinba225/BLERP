@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
+<div class="space-y-6">
     <!-- 统计卡片 -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- 总用户数 -->
@@ -143,14 +143,13 @@
                     </label>
                 </div>
                 <div class="flex space-x-3">
-                    <a href="{% url 'users:user_list' %}"
-                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                    <a href="{% url 'users:user_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                         <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>重置
                     </a>
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn btn-primary h-10 px-4" type="submit">
                         <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -371,14 +370,12 @@
             <div class="flex items-center justify-between">
                 <div class="flex-1 flex justify-between sm:hidden">
                     {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}"
-                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                         上一页
                     </a>
                     {% endif %}
                     {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}"
-                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                         下一页
                     </a>
                     {% endif %}
@@ -398,12 +395,10 @@
                     <div>
                         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                             {% if page_obj.has_previous %}
-                            <a href="?page=1{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}"
-                                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <a href="?page=1{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                                 首页
                             </a>
-                            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}"
-                                class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                                 <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 19l-7-7 7-7" />
@@ -413,15 +408,13 @@
                                 class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
                                 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
                             </span> {% if page_obj.has_next %}
-                            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}"
-                                class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                                 <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 5l7 7-7 7" />
                                 </svg>
                             </a>
-                            <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}"
-                                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if department_id %}&department={{ department_id }}{% endif %}{% if is_active %}&is_active={{ is_active }}{% endif %}{% if is_staff %}&is_staff={{ is_staff }}{% endif %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                                 末页
                             </a>
                             {% endif %}

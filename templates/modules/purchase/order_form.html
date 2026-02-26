@@ -6,13 +6,11 @@
 <form method="post" @submit="prepareSubmit">
 {% csrf_token %}
 <input type="hidden" name="items_json" x-model="itemsJSON">
+<input type="hidden" name="shipping_cost" x-model="shippingCost">
+<input type="hidden" name="discount_amount" x-model="discountAmount">
 
-<div class="flex justify-between items-center mb-6">
+<div class="mb-6">
 <h3 class="text-lg font-semibold text-gray-900">{% if action == 'create' %}新建采购订单{% else %}编辑采购订单{% endif %}</h3>
-<div class="flex space-x-3">
-<a href="{% if action == 'update' %}{% url 'purchase:order_detail' order.pk %}{% else %}{% url 'purchase:order_list' %}{% endif %}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">取消</a>
-<button type="submit" class="px-4 py-2 bg-theme-600 text-white rounded-lg hover:bg-theme-700">保存</button>
-</div>
 </div>
 
 <!-- 基本信息 -->
@@ -102,108 +100,28 @@
 <label class="block text-sm font-medium text-gray-700 mb-2">要求交期</label>
 <input type="date" name="required_date" value="{% if order and order.required_date %}{{ order.required_date|date:'Y-m-d' }}{% endif %}" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
 </div>
-<div>
+<div class="md:col-span-1">
 <label class="block text-sm font-medium text-gray-700 mb-2">采购员</label>
 <select name="buyer" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
 <option value="">请选择</option>
+{% if buyers and buyers|length > 0 %}
 {% for buyer in buyers %}
-<option value="{{ buyer.id }}" {% if order and order.buyer and order.buyer.id == buyer.id %}selected{% elif action == 'create' and default_buyer and default_buyer.id == buyer.id %}selected{% endif %}>{{ buyer.get_full_name|default_if_none:"" }}{% if not buyer %}(未指定){% endif %}</option>
+<option value="{{ buyer.id }}" {% if order and order.buyer and order.buyer.id == buyer.id %}selected{% endif %}>{{ buyer.get_full_name|default:buyer.username }}</option>
 {% endfor %}
+{% else %}
+{% if user.is_authenticated %}
+<option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
+{% else %}
+<option value="">无可用采购员</option>
+{% endif %}
+{% endif %}
 </select>
 </div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">收货仓库</label>
-<div x-data="searchableSelect({
-    options: window.warehousesData,
-    value: '{% if order and order.warehouse %}{{ order.warehouse.id }}{% elif action == 'create' and default_warehouse %}{{ default_warehouse.id }}{% endif %}',
-    searchFields: ['name', 'code'],
-    displayField: 'name',
-    placeholder: '搜索仓库'
-})" class="relative">
-    <!-- 隐藏input用于表单提交 -->
-    <input type="hidden" name="warehouse" :value="value">
+<div class="md:col-span-2">
+<label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+<textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg">{% if order %}{{ order.notes }}{% endif %}</textarea>
+</div>
 
-    <!-- 搜索输入框 -->
-    <div class="relative">
-        <input
-            type="text"
-            x-model="search"
-            @input="isOpen = true"
-            @keydown.enter="selectFirst()"
-            @keydown.escape="close()"
-            @focus="isOpen = true"
-            @blur="setTimeout(() => close(), 150)"
-            :placeholder="placeholder"
-            class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 transition-all"
-        >
-        <!-- 下拉箭头 -->
-        <button
-            type="button"
-            @click="toggle()"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-        >
-            <svg x-show="!isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-            <svg x-show="isOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-            </svg>
-        </button>
-    </div>
-
-    <!-- 下拉选项面板 -->
-    <div
-        x-show="isOpen && filtered.length > 0"
-        x-transition:enter="transition ease-out duration-100"
-        x-transition:enter-start="opacity-0 scale-95"
-        x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-75"
-        x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-95"
-        class="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-200"
-        style="display: none;"
-    >
-        <template x-for="(option, index) in filtered" :key="option.id">
-            <div
-                @click="select(option)"
-                class="px-4 py-2 hover:bg-theme-50 cursor-pointer transition-colors"
-                :class="getHighlightClass(index)"
-                x-text="option.name"
-            >
-            </div>
-        </template>
-    </div>
-
-    <!-- 无匹配提示 -->
-    <div
-        x-show="isOpen && filtered.length === 0"
-        class="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 px-4 py-3 text-gray-500"
-        style="display: none;"
-    >
-        未找到匹配的仓库
-    </div>
-</div>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">币种</label>
-<select name="currency" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-<option value="CNY" {% if order and order.currency == 'CNY' or not order %}selected{% endif %}>CNY (人民币)</option>
-<option value="USD" {% if order and order.currency == 'USD' %}selected{% endif %}>USD (美元)</option>
-<option value="EUR" {% if order and order.currency == 'EUR' %}selected{% endif %}>EUR (欧元)</option>
-</select>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">税率 (%)</label>
-<input type="number" name="tax_rate" value="{% if order %}{{ order.tax_rate }}{% else %}13{% endif %}" step="0.01" x-model="taxRate" @input="calculateTotals" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">折扣率 (%)</label>
-<input type="number" name="discount_rate" value="{% if order %}{{ order.discount_rate }}{% else %}0{% endif %}" step="0.01" x-model="discountRate" @input="calculateTotals" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">运费</label>
-<input type="number" name="shipping_cost" value="{% if order %}{{ order.shipping_cost }}{% else %}0{% endif %}" step="0.01" x-model="shippingCost" @input="calculateTotals" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-</div>
 </div>
 </div>
 
@@ -222,9 +140,10 @@
 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase w-8">#</th>
 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">产品 *</th>
 <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">数量 *</th>
-<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">单价 *</th>
-<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">折扣率%</th>
-<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">行总计</th>
+<th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase w-24">币种</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">未税单价 *</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">税率 (%)</th>
+<th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">未税小计</th>
 <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-16">操作</th>
 </tr>
 </thead>
@@ -299,8 +218,22 @@
     </div>
 </td>
 <td class="px-3 py-2"><input type="number" x-model="item.quantity" @input="calculateLineTotal(index)" step="1" min="0" class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors" required></td>
+<td class="px-3 py-2">
+    <select x-model="item.currency" @change="calculateLineTotal(index)" class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:border-theme-500 transition-colors">
+        <option value="CNY">CNY</option>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+    </select>
+</td>
 <td class="px-3 py-2"><input type="number" x-model="item.unit_price" @input="calculateLineTotal(index)" step="0.01" min="0" class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors" required></td>
-<td class="px-3 py-2"><input type="number" x-model="item.discount_rate" @input="calculateLineTotal(index)" step="0.01" min="0" max="100" class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors"></td>
+<td class="px-3 py-2">
+    <select x-model="item.tax_rate" @change="calculateLineTotal(index)" class="w-full px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors">
+        <option value="13" selected>13%</option>
+        {% for tax_rate in tax_rates %}
+        <option value="{{ tax_rate.rate }}">{{ tax_rate.rate }}%</option>
+        {% endfor %}
+    </select>
+</td>
 <td class="px-3 py-2 text-sm text-right font-medium text-gray-900" x-text="formatMoney(item.line_total)"></td>
 <td class="px-3 py-2 text-center">
 <button type="button" @click="removeItem(index)" class="text-red-600 hover:text-red-800"><svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -322,48 +255,23 @@
 <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">金额汇总</h4>
 <div class="max-w-md ml-auto space-y-2">
 <div class="flex justify-between text-sm"><span class="text-gray-600">小计：</span><span class="font-medium" x-text="formatMoney(subtotal)"></span></div>
-<div class="flex justify-between text-sm"><span class="text-gray-600">折扣金额：</span><span class="font-medium" x-text="formatMoney(discountAmount)"></span></div>
 <div class="flex justify-between text-sm"><span class="text-gray-600">税额：</span><span class="font-medium" x-text="formatMoney(taxAmount)"></span></div>
-<div class="flex justify-between text-sm"><span class="text-gray-600">运费：</span><span class="font-medium" x-text="formatMoney(shippingCost)"></span></div>
+<div class="flex justify-between text-sm">
+    <span class="text-gray-600">运费：</span>
+    <input type="number" x-model="shippingCost" @input="calculateTotals" step="0.01" min="0" class="w-32 px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors">
+</div>
+<div class="flex justify-between text-sm">
+    <span class="text-gray-600">优惠金额：</span>
+    <input type="number" x-model="discountAmount" @input="calculateTotals" step="0.01" min="0" class="w-32 px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:border-theme-500 transition-colors">
+</div>
 <div class="flex justify-between text-lg font-bold pt-2 border-t"><span>总计：</span><span class="text-theme-600" x-text="formatMoney(totalAmount)"></span></div>
 </div>
 </div>
 
-<!-- 其他信息 -->
-<div class="bg-white rounded-lg shadow mb-6 p-6">
-<h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">其他信息</h4>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">付款方式</label>
-<select name="payment_terms" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-    <option value="">请选择</option>
-    {% for value, label in PAYMENT_METHOD_CHOICES %}
-    <option value="{{ value }}" {% if order and order.payment_terms == value %}selected{% endif %}>{{ label }}</option>
-    {% endfor %}
-</select>
-</div>
-<div class="col-span-2">
-<label class="block text-sm font-medium text-gray-700 mb-2">交货地址</label>
-<input type="text" name="delivery_address" value="{% if order %}{{ order.delivery_address }}{% endif %}" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">交货联系人</label>
-<select name="delivery_contact" x-model="selectedContactId" @change="handleContactChange" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
-    <option value="">请选择联系人</option>
-    <template x-for="contact in supplierContacts" :key="contact.id">
-        <option :value="contact.id" x-text="contact.name + (contact.phone ? ' - ' + contact.phone : '')"></option>
-    </template>
-</select>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">交货电话</label>
-<input type="text" name="delivery_phone" x-model="selectedContactPhone" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50">
-</div>
-<div class="col-span-2">
-<label class="block text-sm font-medium text-gray-700 mb-2">备注</label>
-<textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg">{% if order %}{{ order.notes }}{% endif %}</textarea>
-</div>
-</div>
+<!-- 操作按钮 -->
+<div class="flex justify-end space-x-3 mb-6">
+<a href="{% if action == 'update' %}{% url 'purchase:order_detail' order.pk %}{% else %}{% url 'purchase:order_list' %}{% endif %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">取消</a>
+<button type="submit" class="px-4 py-2 bg-theme-600 text-white rounded-lg hover:bg-theme-700">保存</button>
 </div>
 
 </form>
@@ -480,19 +388,12 @@ function orderForm() {
 
     return {
         items: [],
-        taxRate: {% if order %}{{ order.tax_rate }}{% else %}13{% endif %},
-        discountRate: {% if order %}{{ order.discount_rate }}{% else %}0{% endif %},
         shippingCost: {% if order %}{{ order.shipping_cost }}{% else %}0{% endif %},
-        subtotal: 0,
         discountAmount: 0,
+        subtotal: 0,
         taxAmount: 0,
         totalAmount: 0,
         itemsJSON: '[]',
-
-        // 联系人相关
-        supplierContacts: [],
-        selectedContactId: '',
-        selectedContactPhone: '',
 
         init() {
             console.log('=== orderForm init() 开始 ===');
@@ -507,21 +408,15 @@ function orderForm() {
                     product_id: '{{ item.product.id }}',
                     quantity: {{ item.quantity }},
                     unit_price: {{ item.unit_price }},
-                    discount_rate: {{ item.discount_rate }},
+                    tax_rate: {% if order.tax_rate %}{{ order.tax_rate }}{% else %}13{% endif %},
+                    currency: '{{ order.currency|default:"CNY" }}',
                     line_total: {{ item.line_total }}
                 }{% if not forloop.last %},{% endif %}
                 {% endfor %}
             ];
             console.log('items数组:', this.items);
 
-            // 编辑模式：如果订单有供应商，触发自动填充
-            {% if order and order.supplier %}
-            const supplierId = {{ order.supplier.id }};
-            const supplier = window.suppliersData.find(s => s.id === supplierId);
-            if (supplier) {
-                this.handleSupplierSelected(supplier);
-            }
-            {% endif %}
+
             {% else %}
             console.log('新建模式，items为空数组');
             {% endif %}
@@ -540,7 +435,8 @@ function orderForm() {
                 product_id: '',
                 quantity: 1,
                 unit_price: 0,
-                discount_rate: 0,
+                tax_rate: 13,
+                currency: 'CNY',
                 line_total: 0
             };
             this.items.push(newItem);
@@ -586,119 +482,63 @@ function orderForm() {
         },
 
         handleSupplierSelected(supplier) {
-            // 处理供应商选择后的自动填充
+            // 处理供应商选择后的采购员自动填充
             console.log('=== handleSupplierSelected 触发 ===');
             console.log('供应商数据:', supplier);
 
             if (!supplier) {
                 console.log('供应商数据为空，跳过自动填充');
-                this.supplierContacts = [];
-                this.selectedContactId = '';
-                this.selectedContactPhone = '';
                 return;
             }
 
-            // 自动填充付款方式
-            if (supplier.payment_terms) {
-                const paymentMethodInput = document.querySelector('select[name="payment_terms"]');
-                if (paymentMethodInput) {
-                    console.log('填充付款方式:', supplier.payment_terms);
-                    paymentMethodInput.value = supplier.payment_terms;
-                }
-            }
-
-            // 自动填充地址
-            if (supplier.address) {
-                const addressInput = document.querySelector('input[name="delivery_address"]');
-                if (addressInput) {
-                    console.log('填充地址:', supplier.address);
-                    addressInput.value = supplier.address;
-                }
-            }
-
-            // 加载供应商联系人列表
-            this.loadSupplierContacts(supplier.id);
-        },
-
-        loadSupplierContacts(supplierId) {
-            console.log('加载供应商联系人列表, supplierId:', supplierId);
-
-            fetch(`/purchase/api/suppliers/${supplierId}/contacts/`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log('联系人数据:', data);
-                    if (data.success && data.contacts) {
-                        this.supplierContacts = data.contacts;
-
-                        // 默认选择主联系人
-                        const primaryContact = data.contacts.find(c => c.is_primary);
-                        if (primaryContact) {
-                            this.selectedContactId = primaryContact.id;
-                            this.selectedContactPhone = primaryContact.phone;
-                            console.log('默认选择主联系人:', primaryContact.name);
-                        } else if (data.contacts.length > 0) {
-                            // 如果没有主联系人，选择第一个
-                            this.selectedContactId = data.contacts[0].id;
-                            this.selectedContactPhone = data.contacts[0].phone;
-                            console.log('默认选择第一个联系人:', data.contacts[0].name);
+            // 自动填充采购员
+            const buyerSelect = document.querySelector('select[name="buyer"]');
+            if (buyerSelect) {
+                if (supplier.buyer_id) {
+                    console.log('填充供应商设定的采购员:', supplier.buyer_id);
+                    buyerSelect.value = supplier.buyer_id;
+                } else {
+                    console.log('供应商未设定采购员，填充当前登录用户');
+                    // 查找当前登录用户的选项并选中
+                    for (let i = 0; i < buyerSelect.options.length; i++) {
+                        if (buyerSelect.options[i].value) {
+                            buyerSelect.value = buyerSelect.options[i].value;
+                            break;
                         }
-                    } else {
-                        this.supplierContacts = [];
-                        this.selectedContactId = '';
-                        this.selectedContactPhone = '';
                     }
-                })
-                .catch(error => {
-                    console.error('加载联系人失败:', error);
-                    this.supplierContacts = [];
-                    this.selectedContactId = '';
-                    this.selectedContactPhone = '';
-                });
-        },
-
-        handleContactChange() {
-            // 处理联系人选择变化
-            console.log('联系人选择变化:', this.selectedContactId);
-            const selectedContact = this.supplierContacts.find(c => c.id == this.selectedContactId);
-            if (selectedContact) {
-                this.selectedContactPhone = selectedContact.phone || '';
-                console.log('更新电话:', this.selectedContactPhone);
-            } else {
-                this.selectedContactPhone = '';
+                }
             }
         },
+
 
         calculateLineTotal(index) {
             const item = this.items[index];
             const qty = parseFloat(item.quantity) || 0;
             const price = parseFloat(item.unit_price) || 0;
-            const discountRate = parseFloat(item.discount_rate) || 0;
 
-            const discountAmount = qty * price * (discountRate / 100);
-            item.line_total = (qty * price) - discountAmount;
+            // 未税小计 = 未税单价 * 数量
+            item.line_total = qty * price;
 
             this.calculateTotals();
         },
 
         calculateTotals() {
-            const taxRate = parseFloat(this.taxRate) || 0;
+            // 计算未税小计和税额，考虑每个项目的税率
+            let exTaxSubtotal = 0;
+            let totalTaxAmount = 0;
 
-            // 计算未税小计：从含税的line_total反算未税金额
-            // 未税金额 = 含税金额 / (1 + 税率/100)
-            this.subtotal = this.items.reduce((sum, item) => {
-                const lineTotal = parseFloat(item.line_total) || 0;
-                const exTaxAmount = lineTotal / (1 + taxRate / 100);
-                return sum + exTaxAmount;
-            }, 0);
+            this.items.forEach(item => {
+                const lineTotal = parseFloat(item.line_total) || 0; // 现在line_total是未税金额
+                const taxRate = parseFloat(item.tax_rate) || 0;
+                exTaxSubtotal += lineTotal;
+                totalTaxAmount += lineTotal * (taxRate / 100);
+            });
 
-            // 税额 = 未税小计 × 税率
-            this.taxAmount = this.subtotal * (taxRate / 100);
+            this.subtotal = exTaxSubtotal;
+            this.taxAmount = totalTaxAmount;
 
-            // 折扣金额
-            this.discountAmount = this.subtotal * (parseFloat(this.discountRate) / 100);
-
-            // 总计 = 未税小计 + 税额 + 运费 - 折扣
-            this.totalAmount = this.subtotal + this.taxAmount + parseFloat(this.shippingCost) - this.discountAmount;
+            // 总计 = 未税小计 + 税额 + 运费 - 优惠
+            this.totalAmount = this.subtotal + this.taxAmount + parseFloat(this.shippingCost) - parseFloat(this.discountAmount);
         },
 
         formatMoney(value) {

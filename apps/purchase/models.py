@@ -403,6 +403,8 @@ class PurchaseOrderItem(BaseModel):
     unit_price = models.DecimalField(
         "单价", max_digits=10, decimal_places=2, validators=[MinValueValidator(0)]
     )
+    currency = models.CharField("币种", max_length=10, default="CNY")
+    tax_rate = models.DecimalField("税率(%)", max_digits=5, decimal_places=2, default=13)
     discount_rate = models.DecimalField("折扣率(%)", max_digits=5, decimal_places=2, default=0)
     discount_amount = models.DecimalField("折扣金额", max_digits=12, decimal_places=2, default=0)
     line_total = models.DecimalField("行总计", max_digits=12, decimal_places=2, default=0)

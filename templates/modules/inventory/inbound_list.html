@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
+<div class="space-y-6">
     <!-- Header -->
     <div class="flex justify-between items-center">
         <div>
@@ -19,15 +19,6 @@
             <p class="text-sm text-gray-600 mt-1">管理所有入库单据</p>
         </div>
         <div class="flex items-center space-x-3">
-            <button type="button" @click="manualRefresh"
-                :disabled="isRefreshing"
-                class="text-sm text-gray-600 hover:text-theme-600 flex items-center transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="刷新页面">
-                <svg class="w-4 h-4 mr-2" :class="{ 'animate-spin': isRefreshing }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                <span x-text="isRefreshing ? '刷新中...' : '刷新'"></span>
-            </button>
             <a class="btn btn-primary" href="{% url 'inventory:inbound_create' %}">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -39,10 +30,10 @@
         <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             <div>
                 <input type="text" name="search" value="{{ search_query }}" placeholder="搜索单号/供应商/参考单号"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                       class="w-full px-3 py-2 h-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
             </div>
             <div>
-                <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                <select name="status" class="w-full px-3 py-2 h-10 border border-gray-300 rounded-lg">
                     <option value="">所有状态</option>
                     {% for status_code, status_name in order_statuses %}
                     <option value="{{ status_code }}" {% if status == status_code %}selected{% endif %}>
@@ -52,7 +43,7 @@
                 </select>
             </div>
             <div>
-                <select name="order_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                <select name="order_type" class="w-full px-3 py-2 h-10 border border-gray-300 rounded-lg">
                     <option value="">所有类型</option>
                     {% for type_code, type_name in order_types %}
                     <option value="{{ type_code }}" {% if order_type == type_code %}selected{% endif %}>
@@ -62,7 +53,7 @@
                 </select>
             </div>
             <div>
-                <select name="warehouse" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                <select name="warehouse" class="w-full px-3 py-2 h-10 border border-gray-300 rounded-lg">
                     <option value="">所有仓库</option>
                     {% for w in warehouses %}
                     <option value="{{ w.id }}" {% if warehouse_id == w.id|stringformat:"s" %}selected{% endif %}>
@@ -73,19 +64,19 @@
             </div>
             <div>
                 <input type="date" name="date_from" value="{{ date_from }}" placeholder="开始日期"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                       class="w-full px-3 py-2 h-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
             </div>
             <div>
                 <input type="date" name="date_to" value="{{ date_to }}" placeholder="结束日期"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+                       class="w-full px-3 py-2 h-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
             </div>
             <div class="flex space-x-2">
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 </svg>搜索
                 </button>
-                <a href="{% url 'inventory:inbound_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <a href="{% url 'inventory:inbound_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                     <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
 </svg>
@@ -171,12 +162,12 @@
             <div class="flex items-center justify-between">
                 <div class="flex-1 flex justify-between sm:hidden">
                     {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <a href="?page={{ page_obj.previous_page_number }}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                         上一页
                     </a>
                     {% endif %}
                     {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <a href="?page={{ page_obj.next_page_number }}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                         下一页
                     </a>
                     {% endif %}
@@ -192,10 +183,10 @@
                     <div>
                         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                             {% if page_obj.has_previous %}
-                            <a href="?page=1" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <a href="?page=1" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                                 <svg w-5 h-5 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
                             </a>
-                            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <a href="?page={{ page_obj.previous_page_number }}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                                 <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
 </svg>
@@ -203,12 +194,12 @@
                             {% endif %} <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
                                 {{ page_obj.number }}
                             </span> {% if page_obj.has_next %}
-                            <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <a href="?page={{ page_obj.next_page_number }}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                                 <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
 </svg>
                             </a>
-                            <a href="?page={{ page_obj.paginator.num_pages }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <a href="?page={{ page_obj.paginator.num_pages }}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                                 <svg w-5 h-5 fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
                             </a>
                             {% endif %}

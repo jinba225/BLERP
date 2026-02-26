@@ -22,7 +22,7 @@
 <a href="{% if action == 'update' %}{% url 'sales:order_detail' order.pk %}{% else %}{% url 'sales:order_list' %}{% endif %}" class="btn btn-outline"><svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 </svg>取消</a>
-<button type="submit" class="btn btn-primary"><svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<button class="btn btn-primary h-10 px-4" type="submit"><svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
 </svg>保存</button>
 </div>
@@ -133,7 +133,7 @@
 <div class="bg-white rounded-lg shadow mb-6 p-6">
 <div class="flex justify-between items-center mb-4 pb-2 border-b">
 <h4 class="text-md font-semibold text-gray-900">订单明细</h4>
-<button type="button" @click="addItem" class="btn btn-primary text-sm px-3 py-1.5"><svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<button class="btn btn-primary h-10 px-4" type="submit"><svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 </svg>添加行</button>
 </div>

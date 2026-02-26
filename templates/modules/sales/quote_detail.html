@@ -32,7 +32,7 @@
             </p>
         </div>
         <div class="flex space-x-2">
-            <a href="{% url 'sales:quote_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <a href="{% url 'sales:quote_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
 </svg>返回列表
@@ -44,7 +44,7 @@
             </a>
             {% endif %} <form method="post" action="{% url 'sales:quote_duplicate' quote.pk %}" class="inline">
                 {% csrf_token %}
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.5 3H5.25A2.25 2.25 0 003 5.25v13.5A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V8.25a2.25 2.25 0 00-2.25-2.25H15.5v-3zm0 3v-3h3v3h-3zm-4.5 4.5h.01m-.01 2.01h.01m-.01 2.01h.01m-6.94-2.01h.01m.01 2.01h.01m.01 2.01h.01" />
 </svg>复制
@@ -59,7 +59,7 @@
                     </option>
                     {% endfor %}
                 </select>
-                <button class="btn btn-primary" onclick="openPrintPage()">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
 </svg>打印
@@ -70,7 +70,7 @@
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
     </svg>打印
                 </a>
-                {% endif %} <a href="{% url 'core:print_template_list' %}" target="_blank" class="px-3 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors" title="打印模板管理">
+                {% endif %} <a href="{% url 'core:print_template_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                     <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
 </svg>

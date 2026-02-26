@@ -97,9 +97,7 @@
         <div class="bg-white rounded-lg shadow p-6">
             <div class="flex justify-between items-center mb-4">
                 <h4 class="text-base font-semibold text-gray-900">调拨明细</h4>
-                <button type="button"
-                        onclick="addItem()"
-                        class="btn btn-primary">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 </svg>添加明细
@@ -182,8 +180,7 @@
                class="btn btn-outline">
                 取消
             </a>
-            <button type="submit"
-                    class="btn btn-primary">
+            <button class="btn btn-primary h-10 px-4" type="submit">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
 </svg>{% if action == 'create' %}创建{% else %}更新{% endif %}

@@ -44,10 +44,8 @@ urlpatterns = [
     path("database/clear-test-data/", db_views.clear_test_data, name="database_clear_test_data"),
     path("database/backup/", db_views.backup_database, name="database_backup"),
     path("database/restore/", db_views.restore_database, name="database_restore_database"),
-    path(
-        "database/download/<str:filename>/",
+    path("database/download/<str:filename>/",
         db_views.download_backup,
         name="database_download_backup",
     ),
-    path("page-refresh-demo/", views.page_refresh_demo_view, name="page_refresh_demo"),
 ]

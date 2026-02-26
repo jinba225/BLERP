@@ -580,25 +580,56 @@ def supplier_account_list(request):
     if is_overdue == "true":
         accounts = accounts.filter(due_date__lt=timezone.now().date(), balance__gt=0)
 
-    # Sorting - 按创建时间降序（最新创建的在最上面）
-    sort = request.GET.get("sort", "-created_at")
-    accounts = accounts.order_by(sort)
+    # 检查是否需要按供应商分组
+    group_by_supplier = request.GET.get("group_by_supplier", "true") == "true"
 
-    # Pagination
-    paginator = Paginator(accounts, 20)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+    if group_by_supplier:
+        # 按供应商分组汇总
+        from django.db.models import Count
 
-    # 预计算每个账款的退货明细数量
-    for account in page_obj:
-        account.return_detail_count = account.details.filter(detail_type="return").count()
+        supplier_summary = accounts.values('supplier__id', 'supplier__name').annotate(
+            total_invoice=Sum('invoice_amount'),
+            total_paid=Sum('paid_amount'),
+            total_balance=Sum('balance'),
+            account_count=Count('id'),
+            latest_created_at=Max('created_at')
+        ).order_by('-latest_created_at')
 
-    # Calculate totals
-    totals = accounts.aggregate(
-        total_invoice=Sum("invoice_amount"),
-        total_paid=Sum("paid_amount"),
-        total_balance=Sum("balance"),
-    )
+        # 转换为列表以便分页
+        supplier_list = list(supplier_summary)
+
+        # Pagination
+        paginator = Paginator(supplier_list, 20)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+
+        # Calculate totals
+        totals = accounts.aggregate(
+            total_invoice=Sum("invoice_amount"),
+            total_paid=Sum("paid_amount"),
+            total_balance=Sum("balance"),
+        )
+    else:
+        # 不分组，显示所有记录
+        # Sorting - 按创建时间降序（最新创建的在最上面）
+        sort = request.GET.get("sort", "-created_at")
+        accounts = accounts.order_by(sort)
+
+        # Pagination
+        paginator = Paginator(accounts, 20)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+
+        # 预计算每个账款的退货明细数量
+        for account in page_obj:
+            account.return_detail_count = account.details.filter(detail_type="return").count()
+
+        # Calculate totals
+        totals = accounts.aggregate(
+            total_invoice=Sum("invoice_amount"),
+            total_paid=Sum("paid_amount"),
+            total_balance=Sum("balance"),
+        )
 
     # 获取所有供应商用于筛选下拉框
     from suppliers.models import Supplier
@@ -615,6 +646,7 @@ def supplier_account_list(request):
         "totals": totals,
         "status_choices": SupplierAccount.ACCOUNT_STATUS,
         "suppliers": suppliers,
+        "group_by_supplier": group_by_supplier,
     }
     return render(request, "modules/finance/supplier_account_list.html", context)
 
@@ -874,7 +906,37 @@ def customer_account_writeoff(request, pk):
 @login_required
 def supplier_account_writeoff(request, pk):
     """应付核销：将预付款或现金付款核销到应付账款"""
-    account = get_object_or_404(SupplierAccount, pk=pk, is_deleted=False)
+    # 检查是否是按供应商统一核销
+    writeoff_type = request.GET.get("type", "account")
+    
+    if writeoff_type == "supplier":
+        # 按供应商统一核销
+        from suppliers.models import Supplier
+        supplier = get_object_or_404(Supplier, pk=pk, is_deleted=False)
+        # 获取该供应商的所有未付应付账款
+        accounts = SupplierAccount.objects.filter(
+            supplier=supplier, 
+            is_deleted=False, 
+            balance__gt=0
+        )
+        if not accounts.exists():
+            messages.error(request, "该供应商没有未付的应付账款")
+            return redirect("finance:supplier_account_list")
+        # 计算该供应商的总未付余额
+        total_balance = sum(account.balance for account in accounts)
+        context = {
+            "supplier": supplier,
+            "accounts": accounts,
+            "total_balance": total_balance,
+            "writeoff_type": "supplier",
+        }
+    else:
+        # 单个应付账款核销
+        account = get_object_or_404(SupplierAccount, pk=pk, is_deleted=False)
+        context = {
+            "account": account,
+            "writeoff_type": "account",
+        }
 
     if request.method == "POST":
         amount = Decimal(request.POST.get("amount", "0") or "0")
@@ -887,53 +949,100 @@ def supplier_account_writeoff(request, pk):
 
         if amount < 0:
             messages.error(request, "付款金额无效")
-            return redirect("finance:supplier_account_detail", pk=pk)
+            if writeoff_type == "supplier":
+                return redirect("finance:supplier_account_list")
+            else:
+                return redirect("finance:supplier_account_detail", pk=pk)
 
         effective_prepay_amount = Decimal("0")
         used_prepays = []  # 记录使用的预付款
 
-        # 如果勾选了"自动使用所有预付款"
-        if use_all_prepays and account.supplier:
-            all_prepays = SupplierPrepayment.objects.filter(
-                supplier=account.supplier, is_deleted=False, balance__gt=0
-            ).order_by("-paid_date")
+        if writeoff_type == "supplier":
+            # 按供应商统一核销
+            if use_all_prepays and supplier:
+                all_prepays = SupplierPrepayment.objects.filter(
+                    supplier=supplier, is_deleted=False, balance__gt=0
+                ).order_by("-paid_date")
 
-            for prepay in all_prepays:
-                max_use = account.balance - amount - effective_prepay_amount
+                for prepay in all_prepays:
+                    max_use = total_balance - amount - effective_prepay_amount
+                    if max_use < 0:
+                        max_use = Decimal("0")
+                    use_amount = min(prepay.balance, max_use)
+
+                    if use_amount > 0:
+                        prepay.balance -= use_amount
+                        prepay.save()
+                        used_prepays.append({"prepay": prepay, "amount": use_amount})
+                        effective_prepay_amount += use_amount
+
+                        # 如果已经核销完毕，停止使用更多预付款
+                        if (effective_prepay_amount + amount) >= total_balance:
+                            break
+            elif prepay_id:
+                # 原有逻辑：使用单个预付款
+                prepay = SupplierPrepayment.objects.filter(pk=prepay_id, is_deleted=False).first()
+                if not prepay:
+                    messages.error(request, "预付款不存在或已删除")
+                    return redirect("finance:supplier_account_list")
+                max_use = total_balance - amount
                 if max_use < 0:
                     max_use = Decimal("0")
-                use_amount = min(prepay.balance, max_use)
-
-                if use_amount > 0:
-                    prepay.balance -= use_amount
+                effective_prepay_amount = min(prepay.balance, max_use)
+                if effective_prepay_amount > 0:
+                    prepay.balance -= effective_prepay_amount
                     prepay.save()
-                    used_prepays.append({"prepay": prepay, "amount": use_amount})
-                    effective_prepay_amount += use_amount
+                    used_prepays.append({"prepay": prepay, "amount": effective_prepay_amount})
 
-                    # 如果已经核销完毕，停止使用更多预付款
-                    if (effective_prepay_amount + amount) >= account.balance:
-                        break
-        elif prepay_id:
-            # 原有逻辑：使用单个预付款
-            prepay = SupplierPrepayment.objects.filter(pk=prepay_id, is_deleted=False).first()
-            if not prepay:
-                messages.error(request, "预付款不存在或已删除")
+            total_offset = (effective_prepay_amount + amount).quantize(
+                Decimal("0.00"), rounding=ROUND_HALF_UP
+            )
+            if total_offset <= Decimal("0.00") or total_offset > total_balance:
+                messages.error(request, "核销总额无效")
+                return redirect("finance:supplier_account_list")
+        else:
+            # 单个应付账款核销
+            if use_all_prepays and account.supplier:
+                all_prepays = SupplierPrepayment.objects.filter(
+                    supplier=account.supplier, is_deleted=False, balance__gt=0
+                ).order_by("-paid_date")
+
+                for prepay in all_prepays:
+                    max_use = account.balance - amount - effective_prepay_amount
+                    if max_use < 0:
+                        max_use = Decimal("0")
+                    use_amount = min(prepay.balance, max_use)
+
+                    if use_amount > 0:
+                        prepay.balance -= use_amount
+                        prepay.save()
+                        used_prepays.append({"prepay": prepay, "amount": use_amount})
+                        effective_prepay_amount += use_amount
+
+                        # 如果已经核销完毕，停止使用更多预付款
+                        if (effective_prepay_amount + amount) >= account.balance:
+                            break
+            elif prepay_id:
+                # 原有逻辑：使用单个预付款
+                prepay = SupplierPrepayment.objects.filter(pk=prepay_id, is_deleted=False).first()
+                if not prepay:
+                    messages.error(request, "预付款不存在或已删除")
+                    return redirect("finance:supplier_account_detail", pk=pk)
+                max_use = account.balance - amount
+                if max_use < 0:
+                    max_use = Decimal("0")
+                effective_prepay_amount = min(prepay.balance, max_use)
+                if effective_prepay_amount > 0:
+                    prepay.balance -= effective_prepay_amount
+                    prepay.save()
+                    used_prepays.append({"prepay": prepay, "amount": effective_prepay_amount})
+
+            total_offset = (effective_prepay_amount + amount).quantize(
+                Decimal("0.00"), rounding=ROUND_HALF_UP
+            )
+            if total_offset <= Decimal("0.00") or total_offset > account.balance:
+                messages.error(request, "核销总额无效")
                 return redirect("finance:supplier_account_detail", pk=pk)
-            max_use = account.balance - amount
-            if max_use < 0:
-                max_use = Decimal("0")
-            effective_prepay_amount = min(prepay.balance, max_use)
-            if effective_prepay_amount > 0:
-                prepay.balance -= effective_prepay_amount
-                prepay.save()
-                used_prepays.append({"prepay": prepay, "amount": effective_prepay_amount})
-
-        total_offset = (effective_prepay_amount + amount).quantize(
-            Decimal("0.00"), rounding=ROUND_HALF_UP
-        )
-        if total_offset <= Decimal("0.00") or total_offset > account.balance:
-            messages.error(request, "核销总额无效")
-            return redirect("finance:supplier_account_detail", pk=pk)
 
         # ============ 第一步：在独立事务中生成唯一的付款单号 ============
         payment_numbers = []
@@ -974,7 +1083,10 @@ def supplier_account_writeoff(request, pk):
                 payment_numbers.append(generate_unique_payment_number("payment"))
             except Exception as e:
                 messages.error(request, f"生成预付款单号失败：{str(e)}")
-                return redirect("finance:supplier_account_detail", pk=pk)
+                if writeoff_type == "supplier":
+                    return redirect("finance:supplier_account_list")
+                else:
+                    return redirect("finance:supplier_account_detail", pk=pk)
 
         # 生成现金付款的单号
         if amount > 0:
@@ -982,164 +1094,321 @@ def supplier_account_writeoff(request, pk):
                 payment_numbers.append(generate_unique_payment_number("payment"))
             except Exception as e:
                 messages.error(request, f"生成付款单号失败：{str(e)}")
-                return redirect("finance:supplier_account_detail", pk=pk)
+                if writeoff_type == "supplier":
+                    return redirect("finance:supplier_account_list")
+                else:
+                    return redirect("finance:supplier_account_detail", pk=pk)
 
         # ============ 第二步：在主事务中使用已生成的单号 ============
         try:
             with transaction.atomic():
                 payment_number_index = 0
 
-                # 为每个预付款创建付款记录
-                for prepay_info in used_prepays:
-                    prepay = prepay_info["prepay"]
-                    use_amount = prepay_info["amount"]
-                    Payment.objects.create(
-                        payment_number=payment_numbers[payment_number_index],
-                        payment_type="payment",
-                        payment_method="other",
-                        status="completed",
-                        supplier=account.supplier if account.supplier else None,
-                        customer=account.customer if account.customer else None,
-                        amount=use_amount,
-                        currency=account.currency,
-                        payment_date=payment_date or timezone.now().date(),
-                        reference_type="supplier_account",
-                        reference_id=str(account.id),
-                        reference_number=account.invoice_number or "",
-                        description=f"预付款冲抵（{prepay.paid_date}）",
-                        notes=notes,
-                        processed_by=request.user,
-                        created_by=request.user,
-                    )
-                    payment_number_index += 1
+                if writeoff_type == "supplier":
+                    # 按供应商统一核销
+                    # 为每个预付款创建付款记录
+                    for prepay_info in used_prepays:
+                        prepay = prepay_info["prepay"]
+                        use_amount = prepay_info["amount"]
+                        Payment.objects.create(
+                            payment_number=payment_numbers[payment_number_index],
+                            payment_type="payment",
+                            payment_method="other",
+                            status="completed",
+                            supplier=supplier,
+                            amount=use_amount,
+                            currency="CNY",
+                            payment_date=payment_date or timezone.now().date(),
+                            reference_type="supplier",
+                            reference_id=str(supplier.id),
+                            reference_number="",
+                            description=f"预付款冲抵（{prepay.paid_date}）",
+                            notes=notes,
+                            processed_by=request.user,
+                            created_by=request.user,
+                        )
+                        payment_number_index += 1
 
-                # 创建现金付款的付款记录
-                cash_amount = amount
-                if cash_amount > 0:
-                    if not payment_method:
-                        messages.error(request, "请选择付款方式")
-                        return redirect("finance:supplier_account_detail", pk=pk)
+                    # 创建现金付款的付款记录
+                    cash_amount = amount
+                    if cash_amount > 0:
+                        if not payment_method:
+                            messages.error(request, "请选择付款方式")
+                            return redirect("finance:supplier_account_list")
 
-                    Payment.objects.create(
-                        payment_number=payment_numbers[payment_number_index],
-                        payment_type="payment",
-                        payment_method=payment_method or "bank_transfer",
-                        status="completed",
-                        supplier=account.supplier if account.supplier else None,
-                        customer=account.customer if account.customer else None,
-                        amount=cash_amount,
-                        currency=account.currency,
-                        payment_date=payment_date or timezone.now().date(),
-                        reference_type="supplier_account",
-                        reference_id=str(account.id),
-                        reference_number=account.invoice_number or "",
-                        description="应付核销",
-                        notes=notes,
-                        processed_by=request.user,
-                        created_by=request.user,
-                    )
+                        Payment.objects.create(
+                            payment_number=payment_numbers[payment_number_index],
+                            payment_type="payment",
+                            payment_method=payment_method or "bank_transfer",
+                            status="completed",
+                            supplier=supplier,
+                            amount=cash_amount,
+                            currency="CNY",
+                            payment_date=payment_date or timezone.now().date(),
+                            reference_type="supplier",
+                            reference_id=str(supplier.id),
+                            reference_number="",
+                            description="应付核销",
+                            notes=notes,
+                            processed_by=request.user,
+                            created_by=request.user,
+                        )
 
-                # 更新应付账款（处理进位误差，确保结清时置零）
-                paid = (account.paid_amount + total_offset).quantize(
-                    Decimal("0.00"), rounding=ROUND_HALF_UP
-                )
-                remaining = (account.invoice_amount - paid).quantize(
-                    Decimal("0.00"), rounding=ROUND_HALF_UP
-                )
-                if remaining <= Decimal("0.00"):
-                    account.paid_amount = account.invoice_amount.quantize(
+                    # 按应付账款余额从大到小排序，优先核销余额大的
+                    sorted_accounts = sorted(accounts, key=lambda x: x.balance, reverse=True)
+                    remaining_offset = total_offset
+
+                    # 分配核销金额到各个应付账款
+                    for account in sorted_accounts:
+                        if remaining_offset <= 0:
+                            break
+                        if account.balance <= 0:
+                            continue
+
+                        # 计算当前账户可核销的金额
+                        writeoff_amount = min(remaining_offset, account.balance)
+
+                        # 更新应付账款（处理进位误差，确保结清时置零）
+                        paid = (account.paid_amount + writeoff_amount).quantize(
+                            Decimal("0.00"), rounding=ROUND_HALF_UP
+                        )
+                        remaining = (account.invoice_amount - paid).quantize(
+                            Decimal("0.00"), rounding=ROUND_HALF_UP
+                        )
+                        if remaining <= Decimal("0.00"):
+                            account.paid_amount = account.invoice_amount.quantize(
+                                Decimal("0.00"), rounding=ROUND_HALF_UP
+                            )
+                            account.balance = Decimal("0.00")
+                        else:
+                            account.paid_amount = paid
+                            account.balance = remaining
+
+                        # 更新备注
+                        account.notes = account.notes or ""
+                        if notes:
+                            account.notes += (
+                                f"\n[{timezone.now().strftime('%Y-%m-%d')}] 统一核销 {writeoff_amount}：{notes}"
+                            )
+
+                        # 更新状态
+                        if hasattr(account, "update_status"):
+                            account.update_status()
+                        account.save()
+
+                        # 同步更新采购订单的付款状态
+                        if account.purchase_order_id:
+                            from purchase.models import PurchaseOrder
+
+                            order = PurchaseOrder.objects.filter(
+                                pk=account.purchase_order_id, is_deleted=False
+                            ).first()
+                            if order:
+                                qs = SupplierAccount.objects.filter(
+                                    purchase_order_id=order.id, is_deleted=False
+                                )
+                                agg = qs.aggregate(
+                                    total_invoice=Sum("invoice_amount"), total_paid=Sum("paid_amount")
+                                )
+                                total_invoice = agg.get("total_invoice") or Decimal("0")
+                                total_paid = agg.get("total_paid") or Decimal("0")
+
+                                if total_paid >= total_invoice and total_invoice > 0:
+                                    order.payment_status = "paid"
+                                elif total_paid > 0:
+                                    order.payment_status = "partial"
+                                else:
+                                    order.payment_status = "unpaid"
+
+                                order.save(update_fields=["payment_status"])
+
+                        remaining_offset -= writeoff_amount
+                else:
+                    # 单个应付账款核销
+                    # 为每个预付款创建付款记录
+                    for prepay_info in used_prepays:
+                        prepay = prepay_info["prepay"]
+                        use_amount = prepay_info["amount"]
+                        Payment.objects.create(
+                            payment_number=payment_numbers[payment_number_index],
+                            payment_type="payment",
+                            payment_method="other",
+                            status="completed",
+                            supplier=account.supplier if account.supplier else None,
+                            customer=account.customer if account.customer else None,
+                            amount=use_amount,
+                            currency=account.currency,
+                            payment_date=payment_date or timezone.now().date(),
+                            reference_type="supplier_account",
+                            reference_id=str(account.id),
+                            reference_number=account.invoice_number or "",
+                            description=f"预付款冲抵（{prepay.paid_date}）",
+                            notes=notes,
+                            processed_by=request.user,
+                            created_by=request.user,
+                        )
+                        payment_number_index += 1
+
+                    # 创建现金付款的付款记录
+                    cash_amount = amount
+                    if cash_amount > 0:
+                        if not payment_method:
+                            messages.error(request, "请选择付款方式")
+                            return redirect("finance:supplier_account_detail", pk=pk)
+
+                        Payment.objects.create(
+                            payment_number=payment_numbers[payment_number_index],
+                            payment_type="payment",
+                            payment_method=payment_method or "bank_transfer",
+                            status="completed",
+                            supplier=account.supplier if account.supplier else None,
+                            customer=account.customer if account.customer else None,
+                            amount=cash_amount,
+                            currency=account.currency,
+                            payment_date=payment_date or timezone.now().date(),
+                            reference_type="supplier_account",
+                            reference_id=str(account.id),
+                            reference_number=account.invoice_number or "",
+                            description="应付核销",
+                            notes=notes,
+                            processed_by=request.user,
+                            created_by=request.user,
+                        )
+
+                    # 更新应付账款（处理进位误差，确保结清时置零）
+                    paid = (account.paid_amount + total_offset).quantize(
                         Decimal("0.00"), rounding=ROUND_HALF_UP
                     )
-                    account.balance = Decimal("0.00")
-                else:
-                    account.paid_amount = paid
-                    account.balance = remaining
-
-                # 更新发票号（如果提供）
-                invoice_updated = False
-                if invoice_number and invoice_number != account.invoice_number:
-                    account.invoice_number = invoice_number
-                    invoice_updated = True
-
-                # 更新备注
-                account.notes = account.notes or ""
-                if notes:
-                    account.notes += (
-                        f"\n[{timezone.now().strftime('%Y-%m-%d')}] 核销 {amount}：{notes}"
+                    remaining = (account.invoice_amount - paid).quantize(
+                        Decimal("0.00"), rounding=ROUND_HALF_UP
                     )
-
-                # 更新状态
-                if hasattr(account, "update_status"):
-                    account.update_status()
-                account.save()
-
-                # 同步更新采购订单的付款状态
-                if account.purchase_order_id:
-                    from purchase.models import PurchaseOrder
-
-                    order = PurchaseOrder.objects.filter(
-                        pk=account.purchase_order_id, is_deleted=False
-                    ).first()
-                    if order:
-                        qs = SupplierAccount.objects.filter(
-                            purchase_order_id=order.id, is_deleted=False
+                    if remaining <= Decimal("0.00"):
+                        account.paid_amount = account.invoice_amount.quantize(
+                            Decimal("0.00"), rounding=ROUND_HALF_UP
                         )
-                        agg = qs.aggregate(
-                            total_invoice=Sum("invoice_amount"), total_paid=Sum("paid_amount")
+                        account.balance = Decimal("0.00")
+                    else:
+                        account.paid_amount = paid
+                        account.balance = remaining
+
+                    # 更新发票号（如果提供）
+                    invoice_updated = False
+                    if invoice_number and invoice_number != account.invoice_number:
+                        account.invoice_number = invoice_number
+                        invoice_updated = True
+
+                    # 更新备注
+                    account.notes = account.notes or ""
+                    if notes:
+                        account.notes += (
+                            f"\n[{timezone.now().strftime('%Y-%m-%d')}] 核销 {amount}：{notes}"
                         )
-                        total_invoice = agg.get("total_invoice") or Decimal("0")
-                        total_paid = agg.get("total_paid") or Decimal("0")
 
-                        if total_paid >= total_invoice and total_invoice > 0:
-                            order.payment_status = "paid"
-                        elif total_paid > 0:
-                            order.payment_status = "partial"
-                        else:
-                            order.payment_status = "unpaid"
+                    # 更新状态
+                    if hasattr(account, "update_status"):
+                        account.update_status()
+                    account.save()
 
-                        # 更新发票状态（如果提供了发票号）
-                        if invoice_updated and invoice_number:
-                            order.status = "invoiced"
-                            order.save(update_fields=["payment_status", "status"])
-                        else:
-                            order.save(update_fields=["payment_status"])
+                    # 同步更新采购订单的付款状态
+                    if account.purchase_order_id:
+                        from purchase.models import PurchaseOrder
+
+                        order = PurchaseOrder.objects.filter(
+                            pk=account.purchase_order_id, is_deleted=False
+                        ).first()
+                        if order:
+                            qs = SupplierAccount.objects.filter(
+                                purchase_order_id=order.id, is_deleted=False
+                            )
+                            agg = qs.aggregate(
+                                total_invoice=Sum("invoice_amount"), total_paid=Sum("paid_amount")
+                            )
+                            total_invoice = agg.get("total_invoice") or Decimal("0")
+                            total_paid = agg.get("total_paid") or Decimal("0")
+
+                            if total_paid >= total_invoice and total_invoice > 0:
+                                order.payment_status = "paid"
+                            elif total_paid > 0:
+                                order.payment_status = "partial"
+                            else:
+                                order.payment_status = "unpaid"
+
+                            # 更新发票状态（如果提供了发票号）
+                            if invoice_updated and invoice_number:
+                                order.status = "invoiced"
+                                order.save(update_fields=["payment_status", "status"])
+                            else:
+                                order.save(update_fields=["payment_status"])
 
             messages.success(request, f"应付核销完成，已付款 ¥{total_offset}")
-            return redirect("finance:supplier_account_detail", pk=pk)
+            if writeoff_type == "supplier":
+                return redirect("finance:supplier_account_list")
+            else:
+                return redirect("finance:supplier_account_detail", pk=pk)
 
         except Exception as e:
             messages.error(request, f"创建付款记录失败：{str(e)}")
-            return redirect("finance:supplier_account_detail", pk=pk)
+            if writeoff_type == "supplier":
+                return redirect("finance:supplier_account_list")
+            else:
+                return redirect("finance:supplier_account_detail", pk=pk)
 
     # GET request - 显示核销表单
     prepays = []
     supplier_summary = None
     total_prepay_balance = Decimal("0")
 
-    if account.supplier:
-        prepays = SupplierPrepayment.objects.filter(
-            supplier=account.supplier, is_deleted=False, balance__gt=0
-        ).order_by("-paid_date")
+    if writeoff_type == "supplier":
+        # 按供应商统一核销
+        if supplier:
+            prepays = SupplierPrepayment.objects.filter(
+                supplier=supplier, is_deleted=False, balance__gt=0
+            ).order_by("-paid_date")
 
-        # 计算预付款总余额
-        total_prepay_balance = prepays.aggregate(total=Sum("balance"))["total"] or Decimal("0")
+            # 计算预付款总余额
+            total_prepay_balance = prepays.aggregate(total=Sum("balance"))["total"] or Decimal("0")
 
-        # 计算供应商的总应付余额（所有未结清的账户）
-        supplier_accounts = SupplierAccount.objects.filter(
-            supplier=account.supplier, is_deleted=False
-        ).aggregate(total_balance=Sum("balance"), account_count=Count("id"))
+            # 计算供应商的总应付余额（所有未结清的账户）
+            supplier_accounts = SupplierAccount.objects.filter(
+                supplier=supplier, is_deleted=False
+            ).aggregate(total_balance=Sum("balance"), account_count=Count("id"))
 
-        supplier_summary = {
-            "total_balance": supplier_accounts["total_balance"] or Decimal("0"),
-            "account_count": supplier_accounts["account_count"] or 0,
-        }
+            supplier_summary = {
+                "total_balance": supplier_accounts["total_balance"] or Decimal("0"),
+                "account_count": supplier_accounts["account_count"] or 0,
+            }
 
-    context = {
-        "account": account,
-        "prepays": prepays,
-        "supplier_summary": supplier_summary,
-        "total_prepay_balance": total_prepay_balance,
-    }
+        context.update({
+            "prepays": prepays,
+            "supplier_summary": supplier_summary,
+            "total_prepay_balance": total_prepay_balance,
+        })
+    else:
+        # 单个应付账款核销
+        if account.supplier:
+            prepays = SupplierPrepayment.objects.filter(
+                supplier=account.supplier, is_deleted=False, balance__gt=0
+            ).order_by("-paid_date")
+
+            # 计算预付款总余额
+            total_prepay_balance = prepays.aggregate(total=Sum("balance"))["total"] or Decimal("0")
+
+            # 计算供应商的总应付余额（所有未结清的账户）
+            supplier_accounts = SupplierAccount.objects.filter(
+                supplier=account.supplier, is_deleted=False
+            ).aggregate(total_balance=Sum("balance"), account_count=Count("id"))
+
+            supplier_summary = {
+                "total_balance": supplier_accounts["total_balance"] or Decimal("0"),
+                "account_count": supplier_accounts["account_count"] or 0,
+            }
+
+        context.update({
+            "prepays": prepays,
+            "supplier_summary": supplier_summary,
+            "total_prepay_balance": total_prepay_balance,
+        })
+
     return render(request, "modules/finance/supplier_account_writeoff.html", context)
 
 
@@ -3327,18 +3596,49 @@ def api_supplier_account_available_prepays(request, pk):
     API: 获取指定供应商账户的可用预付款列表
     用于供应商核销页面的AJAX调用
     """
-    account = get_object_or_404(SupplierAccount, pk=pk, is_deleted=False)
-
+    from decimal import Decimal
+    from django.db.models import Sum
+    
+    # 检查是否是按供应商统一核销
+    writeoff_type = request.GET.get("type", "account")
+    
     prepays = []
-    if account.supplier:
+    account_balance = "0"
+    
+    if writeoff_type == "supplier":
+        # 按供应商统一核销，pk是供应商的ID
+        from suppliers.models import Supplier
+        supplier = get_object_or_404(Supplier, pk=pk, is_deleted=False)
+        
         prepays = SupplierPrepayment.objects.filter(
-            supplier=account.supplier,
+            supplier=supplier,
             is_deleted=False,
             balance__gt=0,
             status="active",  # 只获取活跃状态的预付款
         ).order_by(
             "-paid_date"
         )  # 按付款日期倒序
+        
+        # 计算供应商的总应付余额
+        supplier_accounts = SupplierAccount.objects.filter(
+            supplier=supplier, is_deleted=False
+        ).aggregate(total_balance=Sum("balance"))
+        account_balance = str(supplier_accounts["total_balance"] or Decimal("0"))
+    else:
+        # 单个应付账款核销，pk是应付账款账户的ID
+        account = get_object_or_404(SupplierAccount, pk=pk, is_deleted=False)
+        
+        if account.supplier:
+            prepays = SupplierPrepayment.objects.filter(
+                supplier=account.supplier,
+                is_deleted=False,
+                balance__gt=0,
+                status="active",  # 只获取活跃状态的预付款
+            ).order_by(
+                "-paid_date"
+            )  # 按付款日期倒序
+        
+        account_balance = str(account.balance)
 
     prepayments_data = []
     for prepay in prepays:
@@ -3355,7 +3655,7 @@ def api_supplier_account_available_prepays(request, pk):
         {
             "success": True,
             "prepayments": prepayments_data,
-            "account_balance": str(account.balance),
+            "account_balance": account_balance,
         }
     )
 

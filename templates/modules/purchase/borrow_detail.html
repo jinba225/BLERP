@@ -19,6 +19,11 @@
             <p class="text-sm text-gray-600">{{ borrow.borrow_number }}</p>
         </div>
         <div class="flex space-x-3">
+            <a href="{% url 'purchase:borrow_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg>返回
+            </a>
             {% if can_edit %}
             <a href="{% url 'purchase:borrow_update' borrow.pk %}" class="btn btn-primary">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -30,8 +35,7 @@
              {% if can_confirm_receipt %}
             <form method="post" action="{% url 'purchase:borrow_confirm_all_receipt' borrow.pk %}" class="inline">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary"
-                        onclick="return confirm('确认将所有剩余可借用数量的产品全部入库到借用仓吗？')">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-9a2 2 0 012-2h4a2 2 0 012 2v9" />
 </svg>一键全部入库
@@ -42,7 +46,7 @@
             {% if can_return %}
             <form method="post" action="{% url 'purchase:borrow_return' borrow.pk %}" class="inline">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>处理归还
                 </button>
             </form>
@@ -51,7 +55,7 @@
             {% if can_request_conversion %}
             <form method="post" action="{% url 'purchase:borrow_request_conversion' borrow.pk %}" class="inline">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>转采购订单
                 </button>
             </form>

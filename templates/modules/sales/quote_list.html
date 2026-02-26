@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="space-y-6" x-data="usePageRefresh({ interval: 30 })">
+<div class="space-y-6">
     <!-- Header with Actions -->
     <div class="flex justify-between items-center">
         <div>
@@ -17,15 +17,6 @@
             <p class="text-sm text-gray-600">共 {{ total_count }} 条记录</p>
         </div>
         <div class="flex items-center space-x-3">
-            <button type="button" @click="manualRefresh"
-                :disabled="isRefreshing"
-                class="text-sm text-gray-600 hover:text-theme-600 flex items-center transition-colors px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="刷新页面">
-                <svg class="w-4 h-4 mr-2" :class="{ 'animate-spin': isRefreshing }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                <span x-text="isRefreshing ? '刷新中...' : '刷新'"></span>
-            </button>
             <a class="btn btn-primary" href="{% url 'sales:quote_create' %}">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -37,21 +28,21 @@
 
     <!-- Search and Filter Form -->
     <div class="bg-white rounded-lg shadow p-6">
-        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">搜索</label>
                 <input
                     type="text"
                     name="search"
                     value="{{ search_form.search.value|default:'' }}"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500"
+                    class="w-full px-3 py-2 h-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 focus:border-theme-500"
                     placeholder="报价单号、客户名称..."
                 >
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">报价类型</label>
-                <select name="quote_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                <select name="quote_type" class="w-full px-3 py-2 h-10 border border-gray-300 rounded-lg">
                     <option value="">全部</option>
                     <option value="domestic" {% if request.GET.quote_type == 'domestic' %}selected{% endif %}>国内</option>
                     <option value="overseas" {% if request.GET.quote_type == 'overseas' %}selected{% endif %}>国外</option>
@@ -60,7 +51,7 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
-                <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                <select name="status" class="w-full px-3 py-2 h-10 border border-gray-300 rounded-lg">
                     <option value="">全部</option>
                     <option value="draft" {% if request.GET.status == 'draft' %}selected{% endif %}>草稿</option>
                     <option value="sent" {% if request.GET.status == 'sent' %}selected{% endif %}>已发送</option>
@@ -71,8 +62,23 @@
                 </select>
             </div>
 
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">客户</label>
+                <select name="customer" class="w-full px-3 py-2 h-10 border border-gray-300 rounded-lg">
+                    <option value="">全部客户</option>
+                    {% for customer in customers %}
+                    <option value="{{ customer.id }}" {% if request.GET.customer == customer.id|stringformat:'s' %}selected{% endif %}>{{ customer.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">日期</label>
+                <input type="date" name="date_from" value="{{ request.GET.date_from }}" class="w-full px-3 py-2 h-10 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500">
+            </div>
+
             <div class="flex items-end">
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 </svg>搜索
@@ -171,10 +177,10 @@
             <div class="flex items-center justify-between">
                 <div class="flex-1 flex justify-between sm:hidden">
                     {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">上一页</a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">上一页</a>
                     {% endif %}
                     {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">下一页</a>
+                        <a href="?page={{ page_obj.next_page_number }}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">下一页</a>
                     {% endif %}
                 </div>
                 <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
@@ -187,7 +193,7 @@
                     <div>
                         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                             {% if page_obj.has_previous %}
-                                <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <a href="?page={{ page_obj.previous_page_number }}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                                     <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                     </svg>
@@ -198,12 +204,12 @@
                                 {% if page_obj.number == num %}
                                     <span class="relative inline-flex items-center px-4 py-2 border border-theme-500 bg-theme-50 text-sm font-medium text-theme-600">{{ num }}</span>
                                 {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                    <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">{{ num }}</a>
+                                    <a href="?page={{ num }}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">{{ num }}</a>
                                 {% endif %}
                             {% endfor %}
 
                             {% if page_obj.has_next %}
-                                <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <a href="?page={{ page_obj.next_page_number }}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                                     <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
 </svg>

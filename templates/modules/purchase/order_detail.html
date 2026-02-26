@@ -8,9 +8,14 @@
 {% endblock %}
 {% block content %}
 <div class="space-y-6">
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center mb-6">
         <h3 class="text-lg font-semibold text-gray-900">采购订单 {{ order.order_number }}</h3>
         <div class="flex space-x-2">
+            <a href="{% url 'purchase:order_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
+                <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+</svg>返回
+            </a>
             {% if can_edit %}
             <a class="btn btn-primary" href="{% url 'purchase:order_update' order.pk %}">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -21,7 +26,7 @@
             {% if can_approve %}
             <form method="post" action="{% url 'purchase:order_approve' order.pk %}" class="inline" onsubmit="return checkPricesBeforeApprove(event);">
                 {% csrf_token %}
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
 </svg>审核通过
@@ -62,9 +67,10 @@
             {% endif %}
         </div>
     </div>
-    <div class="bg-white rounded-lg shadow p-6 space-y-4">
-        <h4 class="text-md font-semibold">基本信息</h4>
-        <div class="grid grid-cols-3 gap-4">
+    <!-- 基本信息 -->
+    <div class="bg-white rounded-lg shadow mb-6 p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">基本信息</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div><span class="text-gray-600">供应商:</span> <span class="font-medium">{{ order.supplier.name }}</span></div>
             <div><span class="text-gray-600">订单日期:</span> <span class="font-medium">{{ order.order_date|date:"Y-m-d" }}</span></div>
             <div><span class="text-gray-600">状态:</span> <span class="font-medium">{{ order.get_status_display }}</span></div>
@@ -76,9 +82,10 @@
         </div>
     </div>
     {% if order.sync_to_platform %}
-    <div class="bg-white rounded-lg shadow p-6 space-y-4">
-        <h4 class="text-md font-semibold">平台同步状态</h4>
-        <div class="grid grid-cols-3 gap-4">
+    <!-- 平台同步状态 -->
+    <div class="bg-white rounded-lg shadow mb-6 p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">平台同步状态</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div><span class="text-gray-600">电商平台:</span> <span class="font-medium">{{ order.platform.name|default:'-' }}</span></div>
             <div><span class="text-gray-600">平台账号:</span> <span class="font-medium">{{ order.platform_account.account_name|default:'-' }}</span></div>
             <div><span class="text-gray-600">同步状态:</span>
@@ -99,51 +106,73 @@
         </div>
     </div>
     {% endif %}
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">产品名称</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">订单数量</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">已收货数量</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">剩余数量</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">单价</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">小计</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for item_data in items_with_remaining %}
-                {% with item=item_data.item remaining=item_data.remaining_quantity %}
-                <tr>
-                    <td class="px-6 py-4 text-sm text-gray-900">{{ item.product.name }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900 text-right">{{ item.quantity }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900 text-right">
-                        {% if item.received_quantity > 0 %}
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-100 text-theme-800">
-                                {{ item.received_quantity }}
-                            </span>
-                        {% else %}
-                            <span class="text-gray-400">0</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-900 text-right">
-                        {% if remaining > 0 %}
-                            <span class="font-medium text-theme-600">{{ remaining }}</span>
-                        {% else %}
-                            <span class="text-green-600 font-medium inline-flex items-center gap-1">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-                                已完成
-                            </span>
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-900 text-right">{{ item.unit_price|floatformat:2 }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900 text-right">{{ item.line_total|floatformat:2 }}</td>
-                </tr>
-                {% endwith %}
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- 订单明细 -->
+    <div class="bg-white rounded-lg shadow mb-6 p-6">
+        <div class="flex justify-between items-center mb-4 pb-2 border-b">
+            <h4 class="text-md font-semibold text-gray-900">订单明细</h4>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase w-8">#</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">产品</th>
+                        <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">订单数量</th>
+                        <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">已收货数量</th>
+                        <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">剩余数量</th>
+                        <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">未税单价</th>
+                        <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">未税小计</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item_data in items_with_remaining %}
+                    {% with item=item_data.item remaining=item_data.remaining_quantity %}
+                    <tr class="border-t">
+                        <td class="px-3 py-2 text-sm text-gray-500">{{ forloop.counter }}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900">{{ item.product.name }}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900 text-right">{{ item.quantity }}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900 text-right">
+                            {% if item.received_quantity > 0 %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-theme-100 text-theme-800">
+                                    {{ item.received_quantity }}
+                                </span>
+                            {% else %}
+                                <span class="text-gray-400">0</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-2 text-sm text-gray-900 text-right">
+                            {% if remaining > 0 %}
+                                <span class="font-medium text-theme-600">{{ remaining }}</span>
+                            {% else %}
+                                <span class="text-green-600 font-medium inline-flex items-center gap-1">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                                    已完成
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-3 py-2 text-sm text-gray-900 text-right">{{ item.unit_price|floatformat:2 }}</td>
+                        <td class="px-3 py-2 text-sm text-right font-medium text-gray-900">{{ item.line_total|floatformat:2 }}</td>
+                    </tr>
+                    {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
+
+    <!-- 金额汇总 -->
+    <div class="bg-white rounded-lg shadow mb-6 p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4 pb-2 border-b">金额汇总</h4>
+        <div class="max-w-md ml-auto space-y-2">
+            <div class="flex justify-between text-sm"><span class="text-gray-600">小计：</span><span class="font-medium">¥{{ order.subtotal|floatformat:2 }}</span></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-600">税额：</span><span class="font-medium">¥{{ order.tax_amount|floatformat:2 }}</span></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-600">运费：</span><span class="font-medium">¥{{ order.shipping_cost|floatformat:2 }}</span></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-600">优惠金额：</span><span class="font-medium">¥0.00</span></div>
+            <div class="flex justify-between text-lg font-bold pt-2 border-t"><span>总计：</span><span class="text-theme-600">¥{{ order.total_amount|floatformat:2 }}</span></div>
+        </div>
+    </div>
+
+
 </div>
 
 <script>

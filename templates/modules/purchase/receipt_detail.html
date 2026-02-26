@@ -15,7 +15,7 @@
         <h3 class="text-lg font-semibold">收货单 {{ receipt.receipt_number }}</h3>
         <div class="flex gap-2">
             {% if receipt.status == 'pending' or receipt.status == 'partial' %}
-            <button class="btn btn-primary" type="submit" form="receiveForm">
+            <button class="btn btn-primary h-10 px-4" type="submit">
                 确认收货
             </button>
             {% endif %}

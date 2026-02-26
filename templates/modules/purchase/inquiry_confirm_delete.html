@@ -55,14 +55,14 @@
                     </div>
                 </div>
             </div> <div class="mt-6 flex justify-end space-x-3">
-                <a href="{% url 'purchase:inquiry_detail' inquiry.pk %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <a href="{% url 'purchase:inquiry_detail' inquiry.pk %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 </svg>取消
                 </a>
                 <form method="post" class="inline">
                     {% csrf_token %}
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn btn-primary h-10 px-4" type="submit">
                         <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
 </svg>确认删除

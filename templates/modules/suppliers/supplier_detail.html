@@ -28,7 +28,7 @@
             </p>
         </div>
         <div class="flex space-x-2">
-            <a href="{% url 'suppliers:supplier_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+            <a href="{% url 'suppliers:supplier_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
 </svg>返回列表
@@ -78,7 +78,7 @@
             <div class="bg-white rounded-lg shadow p-6" x-data="contactManager()">
                 <div class="flex justify-between items-center mb-4 pb-2 border-b">
                     <h4 class="text-lg font-semibold text-gray-900">联系人</h4>
-                    <button @click="showAddForm = true" class="btn btn-primary" type="button">
+                    <button class="btn btn-primary h-10 px-4" @click="showAddForm = !showAddForm">
                         <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
 </svg>添加联系人
@@ -118,7 +118,7 @@
                             <button type="button" @click="showAddForm = false" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
                                 取消
                             </button>
-                            <button class="btn btn-primary" type="submit">
+                            <button class="btn btn-primary h-10 px-4" type="submit">
                                 保存
                             </button>
                         </div>

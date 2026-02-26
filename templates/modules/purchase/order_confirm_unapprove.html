@@ -43,7 +43,7 @@
         <form method="post">
             {% csrf_token %}
             <div class="flex gap-3">
-                <button type="submit" class="flex-1 btn btn-primary">确认撤销</button>
+                <button class="btn btn-primary h-10 px-4" type="submit">确认撤销</button>
                 <a href="{% url 'purchase:order_detail' order.pk %}" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-center">取消</a>
             </div>
         </form>

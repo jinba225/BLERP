@@ -87,8 +87,7 @@
         <form method="post">
             {% csrf_token %}
             <div class="flex justify-center space-x-4">
-                <a href="{% url 'finance:supplier_prepayment_list' %}"
-                   class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                <a href="{% url 'finance:supplier_prepayment_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                     取消
                 </a>
                 <button type="submit"

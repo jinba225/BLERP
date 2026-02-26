@@ -8,7 +8,7 @@
         <form method="post">
             {% csrf_token %}
             <div class="flex gap-2">
-                <button class="btn btn-primary" type="submit">确认删除</button>
+                <button class="btn btn-primary h-10 px-4" type="submit">确认删除</button>
                 <a href="{% url 'purchase:order_detail' order.pk %}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">取消</a>
             </div>
         </form>

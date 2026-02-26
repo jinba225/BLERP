@@ -35,8 +35,7 @@
             </p>
         </div>
         <div class="flex space-x-2">
-            <a href="{% url 'purchase:request_list' %}"
-               class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <a href="{% url 'purchase:request_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
 </svg>返回
@@ -48,7 +47,7 @@
             </a>
             {% endif %} {% if can_approve %}
             <!-- 审核按钮 -->
-            <button class="btn btn-primary" type="button" onclick="openApproveModal()">
+            <button class="btn btn-primary h-10 px-4" type="submit">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
 </svg>审核通过

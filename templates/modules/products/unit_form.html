@@ -62,10 +62,10 @@
                               placeholder="单位的详细描述...">{% if unit %}{{ unit.description }}{% endif %}</textarea>
                 </div>
             </div> <div class="flex justify-end space-x-3 pt-6 border-t">
-                <a href="{% url 'products:unit_list' %}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                <a href="{% url 'products:unit_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                     取消
                 </a>
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
 </svg>保存

@@ -16,37 +16,86 @@
     <!-- Account Summary -->
     <div class="bg-white rounded-lg shadow">
         <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <h4 class="text-md font-semibold text-gray-900">账款信息</h4>
+            <h4 class="text-md font-semibold text-gray-900">{% if writeoff_type == 'supplier' %}供应商信息{% else %}账款信息{% endif %}</h4>
         </div>
         <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <p class="text-sm text-gray-600">{% if account.supplier %}供应商{% else %}客户（退款）{% endif %}</p>
-                    <p class="text-lg font-semibold text-gray-900">
-                        {% if account.supplier %}
-                        {{ account.supplier.name }}
-                        {% elif account.customer %}
-                        {{ account.customer.name }}
-                        {% else %}
-                        -
+            {% if writeoff_type == 'supplier' %}
+                <!-- 供应商统一核销 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <p class="text-sm text-gray-600">供应商</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ supplier.name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">应付余额（累计）</p>
+                        <p class="text-lg font-semibold text-red-600">¥{{ total_balance|floatformat:2|default:"0.00" }}</p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            该供应商共 {{ accounts|length }} 个应付账户
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">预付款余额</p>
+                        <p class="text-lg font-semibold text-green-600">¥{{ total_prepay_balance|floatformat:2|default:"0.00" }}</p>
+                    </div>
+                </div>
+                
+                <!-- 应付账款列表 -->
+                <div class="mt-6">
+                    <h5 class="text-sm font-medium text-gray-700 mb-2">未付应付账款</h5>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单据号</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">应付金额</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">已付金额</th>
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">未付余额</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for account in accounts %}
+                                <tr>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ account.invoice_number|default:"-" }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 text-right">¥{{ account.invoice_amount|floatformat:2 }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900 text-right">¥{{ account.paid_amount|floatformat:2 }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-red-600 text-right font-medium">¥{{ account.balance|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <!-- 单个应付账款核销 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <p class="text-sm text-gray-600">{% if account.supplier %}供应商{% else %}客户（退款）{% endif %}</p>
+                        <p class="text-lg font-semibold text-gray-900">
+                            {% if account.supplier %}
+                            {{ account.supplier.name }}
+                            {% elif account.customer %}
+                            {{ account.customer.name }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">应付余额（供应商累计）</p>
+                        <p class="text-lg font-semibold text-red-600">¥{{ supplier_summary.total_balance|floatformat:2|default:"0.00" }}</p>
+                        {% if supplier_summary and supplier_summary.account_count > 1 %}
+                        <p class="text-xs text-gray-500 mt-1">
+                            该供应商共 {{ supplier_summary.account_count }} 个应付账户，
+                            当前账户余额 ¥{{ account.balance|floatformat:2 }}
+                        </p>
                         {% endif %}
-                    </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">单据号</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ account.invoice_number|default:"-" }}</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-600">应付余额（供应商累计）</p>
-                    <p class="text-lg font-semibold text-red-600">¥{{ supplier_summary.total_balance|floatformat:2|default:"0.00" }}</p>
-                    {% if supplier_summary and supplier_summary.account_count > 1 %}
-                    <p class="text-xs text-gray-500 mt-1">
-                        该供应商共 {{ supplier_summary.account_count }} 个应付账户，
-                        当前账户余额 ¥{{ account.balance|floatformat:2 }}
-                    </p>
-                    {% endif %}
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600">单据号</p>
-                    <p class="text-lg font-semibold text-gray-900">{{ account.invoice_number|default:"-" }}</p>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </div> <!-- Write-off Form -->
     <div class="bg-white rounded-lg shadow">
@@ -59,7 +108,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">核销金额</label>
-                        <input type="number" name="amount" step="0.01" min="0" max="{{ supplier_summary.total_balance|default:account.balance }}"
+                        <input type="number" name="amount" step="0.01" min="0" max="{% if writeoff_type == 'supplier' %}{{ total_balance }}{% else %}{{ supplier_summary.total_balance|default:account.balance }}{% endif %}"
                             placeholder="0.00"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                         <p class="text-xs text-gray-500 mt-1">如选择预付款，总核销 = 预付款 + 核销金额。可填0仅使用预付款。</p>
@@ -80,7 +129,7 @@
                     </div> <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">发票号</label>
                         <input type="text" name="invoice_number"
-                            {% if account.invoice_number and account.invoice_number|slice:":3" == "INV" %}value="{{ account.invoice_number }}"{% endif %}
+                            {% if not writeoff_type == 'supplier' and account.invoice_number and account.invoice_number|slice:":3" == "INV" %}value="{{ account.invoice_number }}"{% endif %}
                             placeholder="请输入发票号（可选）"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 ">
                         <p class="text-xs text-gray-500 mt-1">填写发票号后，对应的订单状态将更新为"已开票"</p>
@@ -88,7 +137,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-sm font-medium text-gray-700">使用预付款（可选）</label>
-                            <a href="{% url 'finance:supplier_prepayment_create' %}?supplier_id={{ account.supplier_id }}&next={{ request.path }}&from_prepayment_create=1"
+                            <a href="{% if writeoff_type == 'supplier' %}{% url 'finance:supplier_prepayment_create' %}?supplier_id={{ supplier.id }}{% else %}{% url 'finance:supplier_prepayment_create' %}?supplier_id={{ account.supplier_id }}{% endif %}&next={{ request.path }}&from_prepayment_create=1"
                                class="text-sm text-theme-600 hover:text-theme-700 font-medium">
                                 + 创建预付款
                             </a>
@@ -110,11 +159,10 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-theme-500 "></textarea>
                 </div>
             </div> <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
-                <a href="{% url 'finance:supplier_account_list' %}"
-                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                <a href="{% url 'finance:supplier_account_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                     取消
                 </a>
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     确认核销
                 </button>
             </div>
@@ -122,136 +170,5 @@
     </div>
 </div>
 
-<script>
-(function() {
-    'use strict';
 
-    const select = document.getElementById('prepaymentSelect');
-
-    if (!select) {
-        return;
-    }
-
-    // 全局变量存储预付款数据
-    let allPrepayments = [];
-    let totalPrepayBalance = 0;
-
-    // 检查是否从预付款创建页面返回
-    const urlParams = new URLSearchParams(window.location.search);
-    const fromPrepaymentCreate = urlParams.get('from_prepayment_create');
-
-    // 页面加载完成后刷新预付款列表
-    document.addEventListener('DOMContentLoaded', function() {
-        if (fromPrepaymentCreate === '1') {
-            setTimeout(() => {
-                refreshPrepaymentDropdown(true);
-                const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
-                window.history.replaceState({}, document.title, cleanUrl);
-            }, 300);
-        } else {
-            refreshPrepaymentDropdown(false);
-        }
-    });
-
-    // 定期自动刷新（每30秒）
-    let autoRefreshInterval = setInterval(() => {
-        if (!document.hidden) {
-            refreshPrepaymentDropdown(false);
-        }
-    }, 30000);
-
-    // 页面卸载时清除定时器
-    window.addEventListener('beforeunload', () => {
-        clearInterval(autoRefreshInterval);
-    });
-
-    function refreshPrepaymentDropdown(showToast = false) {
-        const selectedValue = select.value;
-
-        // 显示加载状态
-        select.disabled = true;
-
-        const apiUrl = "{% url 'finance:api_supplier_account_available_prepays' account.pk %}";
-        const cacheBusterUrl = apiUrl + (apiUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
-
-        fetch(cacheBusterUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                // 清空并重新填充选项
-                select.innerHTML = '<option value="">不使用预付款</option>';
-
-                allPrepayments = data.prepayments || [];
-                totalPrepayBalance = 0;
-
-                if (allPrepayments.length > 0) {
-                    // 计算总余额
-                    allPrepayments.forEach(prepay => {
-                        const balance = parseFloat(prepay.balance);
-                        totalPrepayBalance += balance;
-                    });
-
-                    // 添加"使用所有预付款"选项
-                    const allPrepayOption = document.createElement('option');
-                    allPrepayOption.value = 'ALL_PREPAY';
-                    allPrepayOption.className = 'font-semibold text-theme-600';
-                    allPrepayOption.textContent = `预付款 - ¥${totalPrepayBalance.toFixed(2)}`;
-                    select.appendChild(allPrepayOption);
-
-                    if (showToast) {
-                        showToastMessage(`✓ 已刷新 ${allPrepayments.length} 个预付款`, 'success');
-                    }
-                } else {
-                    if (showToast) {
-                        showToastMessage('暂无可用预付款', 'info');
-                    }
-                }
-
-                // 恢复之前选中的值
-                if (selectedValue) {
-                    const optionExists = Array.from(select.options).some(opt => opt.value === selectedValue);
-                    if (optionExists) {
-                        select.value = selectedValue;
-                    }
-                }
-
-                select.disabled = false;
-            })
-            .catch(error => {
-                console.error('✗ 刷新失败:', error);
-                if (showToast) {
-                    showToastMessage('刷新失败，请稍后重试', 'error');
-                }
-                select.disabled = false;
-            });
-    }
-
-    function showToastMessage(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-full ${
-            type === 'success' ? 'bg-green-500 text-white' :
-            type === 'error' ? 'bg-red-500 text-white' :
-            'bg-blue-500 text-white'
-        }`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-
-        // 动画进入
-        requestAnimationFrame(() => {
-            toast.style.transform = 'translateX(0)';
-        });
-
-        // 3秒后移除
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(100%)';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
-})();
-</script>
 {% endblock %}

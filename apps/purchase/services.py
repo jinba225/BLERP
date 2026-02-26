@@ -196,6 +196,8 @@ class PurchaseRequestService:
                 product=request_item.product,
                 quantity=request_item.quantity,
                 unit_price=unit_price,
+                currency="CNY",
+                tax_rate=13,
                 required_date=request_item.required_date,
                 specifications=request_item.specifications,
                 notes=request_item.notes,

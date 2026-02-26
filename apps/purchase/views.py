@@ -248,6 +248,8 @@ def order_create(request):
                             "quantity": Decimal(item.get("quantity", 0)),
                             "unit_price": Decimal(item.get("unit_price", 0)),
                             "discount_rate": Decimal(item.get("discount_rate", 0)),
+                            "currency": item.get("currency", "CNY"),
+                            "tax_rate": Decimal(item.get("tax_rate", 13)),
                         }
                     )
             print(f"DEBUG: 有效明细数量: {len(items_data)}")
@@ -264,6 +266,7 @@ def order_create(request):
 
     from django.contrib.auth import get_user_model
     from django.core.serializers.json import DjangoJSONEncoder
+    from finance.models import TaxRate
     from inventory.models import Warehouse
     from products.models import Product
     from suppliers.models import Supplier
@@ -304,6 +307,7 @@ def order_create(request):
                 "payment_terms": supplier.payment_terms or "",
                 "address": supplier.address or "",
                 "primary_contact": primary_contact or {},
+                "buyer_id": supplier.buyer.id if supplier.buyer else None,
             }
         )
 
@@ -330,14 +334,23 @@ def order_create(request):
     except Warehouse.DoesNotExist:
         pass
 
+    # 获取税率数据
+    tax_rates = TaxRate.objects.filter(is_deleted=False, is_active=True).order_by('rate')
+    tax_rates_json = json.dumps(
+        list(tax_rates.values("id", "name", "rate", "code")),
+        cls=DjangoJSONEncoder
+    )
+
     context = {
         "suppliers": suppliers,
         "warehouses": warehouses,
         "buyers": buyers,
         "products": products,
+        "tax_rates": tax_rates,
         "suppliers_json": suppliers_json,
         "warehouses_json": warehouses_json,
         "products_json": products_json,
+        "tax_rates_json": tax_rates_json,
         "PAYMENT_METHOD_CHOICES": PAYMENT_METHOD_CHOICES,
         "action": "create",
         "default_buyer": default_buyer,
@@ -402,6 +415,8 @@ def order_update(request, pk):
                             "quantity": Decimal(item.get("quantity", 0)),
                             "unit_price": Decimal(item.get("unit_price", 0)),
                             "discount_rate": Decimal(item.get("discount_rate", 0)),
+                            "currency": item.get("currency", "CNY"),
+                            "tax_rate": Decimal(item.get("tax_rate", 13)),
                         }
                     )
 
@@ -417,6 +432,7 @@ def order_update(request, pk):
 
     from django.contrib.auth import get_user_model
     from django.core.serializers.json import DjangoJSONEncoder
+    from finance.models import TaxRate
     from inventory.models import Warehouse
     from products.models import Product
     from suppliers.models import Supplier
@@ -446,15 +462,24 @@ def order_update(request, pk):
         cls=DjangoJSONEncoder,
     )
 
+    # 获取税率数据
+    tax_rates = TaxRate.objects.filter(is_deleted=False, is_active=True).order_by('rate')
+    tax_rates_json = json.dumps(
+        list(tax_rates.values("id", "name", "rate", "code")),
+        cls=DjangoJSONEncoder
+    )
+
     context = {
         "order": order,
         "suppliers": suppliers,
         "warehouses": warehouses,
         "buyers": buyers,
         "products": products,
+        "tax_rates": tax_rates,
         "suppliers_json": suppliers_json,
         "warehouses_json": warehouses_json,
         "products_json": products_json,
+        "tax_rates_json": tax_rates_json,
         "PAYMENT_METHOD_CHOICES": PAYMENT_METHOD_CHOICES,
         "action": "update",
     }
@@ -1614,8 +1639,13 @@ def receipt_receive(request, pk):
             item.order_item.save()
 
             # ========== 自动生成正应付明细 ==========
-            # 计算应收金额：收货数量 × 单价
-            detail_amount = item.received_quantity * item.order_item.unit_price
+            # 计算未税金额：收货数量 × 单价
+            item_subtotal = item.received_quantity * item.order_item.unit_price
+            # 计算税额
+            item_tax_rate = item.order_item.tax_rate
+            item_tax = item_subtotal * (Decimal(str(item_tax_rate)) / Decimal("100"))
+            # 未税金额 + 税额 = 应付金额
+            detail_amount = item_subtotal + item_tax
 
             # 生成明细单号
             detail_number = DocumentNumberGenerator.generate(
@@ -1760,8 +1790,13 @@ def order_request_payment(request, pk):
         received_amount = Decimal("0")
         for item in order.items.all():
             if item.received_quantity > 0:
-                # 已收货数量 × 单价 = 应付金额
-                received_amount += item.received_quantity * item.unit_price
+                # 已收货数量 × 单价 = 未税金额
+                item_subtotal = item.received_quantity * item.unit_price
+                # 计算税额
+                item_tax_rate = item.tax_rate if hasattr(item, "tax_rate") else order.tax_rate
+                item_tax = item_subtotal * (Decimal(str(item_tax_rate)) / Decimal("100"))
+                # 未税金额 + 税额 = 应付金额
+                received_amount += item_subtotal + item_tax
 
         # 创建应付账款记录（金额为已收货部分的金额）
         account = SupplierAccount.objects.create(

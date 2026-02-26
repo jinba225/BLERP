@@ -22,7 +22,7 @@
             {% if can_approve %}
             <form method="post" action="{% url 'purchase:return_approve' return.pk %}" class="inline">
                 {% csrf_token %}
-                <button class="btn btn-primary" type="submit" onclick="return confirm('确认审核通过此退货单？')">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
 </svg>审核通过

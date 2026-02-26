@@ -7,7 +7,10 @@ import secrets
 import sys
 from pathlib import Path
 
-from celery.schedules import crontab
+try:
+    from celery.schedules import crontab
+except ImportError:
+    crontab = None
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -113,7 +116,6 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.company_info",
-                "core.context_processors.page_refresh_config",
             ],
         },
     },
@@ -622,26 +624,4 @@ RATELIMIT_VIEW = "rest_framework.throttling.Throttled"
 # Rate limit configuration for different types of requests
 RATELIMIT_RATE = "1000/h"  # Default rate limit
 
-# ============================================================================
-# 页面自动刷新配置
-# ============================================================================
-PAGE_REFRESH_CONFIG = {
-    "enabled": True,  # 全局开关
-    "default_interval": 30,  # 默认刷新间隔（秒）
-    "modes": {
-        "dashboard": 15,  # 仪表盘刷新间隔
-        "list": 30,  # 列表页刷新间隔
-        "detail": 60,  # 详情页刷新间隔
-        "form": 0,  # 表单页禁用自动刷新
-        "report": 120,  # 报表页刷新间隔
-    },
-    "smart_features": {
-        "visibility_detection": True,  # 页面可见性检测
-        "user_activity_detection": True,  # 用户活动检测
-        "preserve_scroll_position": True,  # 保留滚动位置
-    },
-}
 
-# 开发环境使用较短间隔便于测试
-if DEBUG:
-    PAGE_REFRESH_CONFIG["default_interval"] = 15

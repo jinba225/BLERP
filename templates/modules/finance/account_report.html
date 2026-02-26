@@ -15,10 +15,10 @@
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">往来账款报表</h1>
         <div class="flex space-x-2">
-            <button class="btn btn-primary" onclick="resetFilters()">
+            <button class="btn btn-primary h-10 px-4" type="submit">
                 重置筛选
             </button>
-            <button class="btn btn-primary" onclick="exportReport()">
+            <button class="btn btn-primary h-10 px-4" type="submit">
                 导出报表
             </button>
         </div>
@@ -93,10 +93,10 @@
                 </div>
             </div> <!-- 操作按钮 -->
             <div class="flex justify-end space-x-2 mt-4">
-                <button class="btn btn-primary" type="button" onclick="resetFilters()">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     清空
                 </button>
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary h-10 px-4" type="submit">
                     应用筛选
                 </button>
             </div>
@@ -232,23 +232,19 @@
         </div>
         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
             {% if page_obj.has_previous %}
-            <a href="?page=1&account_type={{ account_type }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'account_type' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <a href="?page=1&account_type={{ account_type }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'account_type' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                 首页
             </a>
-            <a href="?page={{ page_obj.previous_page_number }}&account_type={{ account_type }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'account_type' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-               class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <a href="?page={{ page_obj.previous_page_number }}&account_type={{ account_type }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'account_type' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                 上一页
             </a>
             {% endif %} <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
                 第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页
             </span> {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}&account_type={{ account_type }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'account_type' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-               class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <a href="?page={{ page_obj.next_page_number }}&account_type={{ account_type }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'account_type' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                 下一页
             </a>
-            <a href="?page={{ page_obj.paginator.num_pages }}&account_type={{ account_type }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'account_type' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <a href="?page={{ page_obj.paginator.num_pages }}&account_type={{ account_type }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'account_type' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                 末页
             </a>
             {% endif %}

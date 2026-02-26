@@ -87,13 +87,12 @@
             </div> <form method="post" class="mt-6">
                 {% csrf_token %}
                 <div class="flex justify-end space-x-3">
-                    <a href="{% url 'inventory:outbound_detail' outbound.pk %}"
-                       class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    <a href="{% url 'inventory:outbound_detail' outbound.pk %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                         <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
 </svg>返回
                     </a>
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn btn-primary h-10 px-4" type="submit">
                         <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
 </svg>确认审核

@@ -17,7 +17,7 @@
             <p class="text-sm text-gray-500 mt-1">管理系统的打印模板，自定义单据打印样式</p>
         </div>
         <div class="flex space-x-3">
-            <a href="{% url 'core:print_template_import' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+            <a href="{% url 'core:print_template_import' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                 <svg class="icon mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
 </svg>导入模板
@@ -50,9 +50,7 @@
                         </option>
                         {% endfor %}
                     </select> {% if current_category %}
-                    <a href="{% url 'core:print_template_list' %}"
-                       class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                       title="清除筛选">
+                    <a href="{% url 'core:print_template_list' %}" class="h-10 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
                         <svg class="icon mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 </svg>清除
