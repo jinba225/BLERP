@@ -46,7 +46,10 @@ class CreatePurchaseInquiryTool(BaseTool):
                         "properties": {
                             "product_id": {"type": "integer", "description": "产品ID"},
                             "quantity": {"type": "number", "description": "数量"},
-                            "target_price": {"type": "number", "description": "目标单价"},
+                            "target_price": {
+                                "type": "number",
+                                "description": "目标单价",
+                            },
                         },
                         "required": ["product_id", "quantity"],
                     },
@@ -56,8 +59,14 @@ class CreatePurchaseInquiryTool(BaseTool):
                     "description": "供应商ID列表（可选，如果不指定则后续添加）",
                     "items": {"type": "integer"},
                 },
-                "inquiry_date": {"type": "string", "description": "询价日期（YYYY-MM-DD，默认今天）"},
-                "required_date": {"type": "string", "description": "要求报价日期（YYYY-MM-DD）"},
+                "inquiry_date": {
+                    "type": "string",
+                    "description": "询价日期（YYYY-MM-DD，默认今天）",
+                },
+                "required_date": {
+                    "type": "string",
+                    "description": "要求报价日期（YYYY-MM-DD）",
+                },
                 "notes": {"type": "string", "description": "备注"},
             },
             "required": ["items"],
@@ -187,13 +196,22 @@ class AddSupplierQuotationTool(BaseTool):
                             "product_id": {"type": "integer", "description": "产品ID"},
                             "quantity": {"type": "number", "description": "数量"},
                             "unit_price": {"type": "number", "description": "单价"},
-                            "lead_time_days": {"type": "integer", "description": "交货周期（天）"},
+                            "lead_time_days": {
+                                "type": "integer",
+                                "description": "交货周期（天）",
+                            },
                         },
                         "required": ["product_id", "quantity", "unit_price"],
                     },
                 },
-                "quote_date": {"type": "string", "description": "报价日期（YYYY-MM-DD，默认今天）"},
-                "valid_until": {"type": "string", "description": "报价有效期至（YYYY-MM-DD）"},
+                "quote_date": {
+                    "type": "string",
+                    "description": "报价日期（YYYY-MM-DD，默认今天）",
+                },
+                "valid_until": {
+                    "type": "string",
+                    "description": "报价有效期至（YYYY-MM-DD）",
+                },
                 "payment_terms": {"type": "string", "description": "付款条款"},
                 "notes": {"type": "string", "description": "备注"},
             },
@@ -337,14 +355,22 @@ class CreatePurchaseReceiptTool(BaseTool):
                         "required": ["product_id", "quantity"],
                     },
                 },
-                "receipt_date": {"type": "string", "description": "收货日期（YYYY-MM-DD，默认今天）"},
+                "receipt_date": {
+                    "type": "string",
+                    "description": "收货日期（YYYY-MM-DD，默认今天）",
+                },
                 "notes": {"type": "string", "description": "备注"},
             },
             "required": ["order_id", "items"],
         }
 
     def execute(
-        self, order_id: int, items: list, receipt_date: str = None, notes: str = "", **kwargs
+        self,
+        order_id: int,
+        items: list,
+        receipt_date: str = None,
+        notes: str = "",
+        **kwargs,
     ) -> ToolResult:
         """执行创建收货单"""
         try:

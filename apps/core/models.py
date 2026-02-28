@@ -1,6 +1,7 @@
 """
 Core models for the ERP system.
 """
+
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -217,7 +218,10 @@ class AuditLog(models.Model):
     ]
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, verbose_name="用户"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name="用户",
     )
     action = models.CharField("操作类型", max_length=20, choices=ACTION_TYPES)
     model_name = models.CharField("模型名称", max_length=100, blank=True)
@@ -455,7 +459,10 @@ class Shop(BaseModel):
 
     # 基础信息
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="shops", verbose_name="所属平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="shops",
+        verbose_name="所属平台",
     )
     shop_name = models.CharField("店铺名称", max_length=200)
     shop_code = models.CharField("店铺编码", max_length=100, blank=True)

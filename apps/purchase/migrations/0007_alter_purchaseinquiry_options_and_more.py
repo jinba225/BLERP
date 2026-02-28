@@ -11,7 +11,10 @@ class Migration(migrations.Migration):
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("inventory", "0003_inboundorder_outboundorder_outboundorderitem_and_more"),
         ("departments", "0002_initial"),
-        ("suppliers", "0005_remove_supplier_contact_person_remove_supplier_email_and_more"),
+        (
+            "suppliers",
+            "0005_remove_supplier_contact_person_remove_supplier_email_and_more",
+        ),
         ("purchase", "0006_rename_fields_and_add_borrow"),
     ]
 
@@ -26,11 +29,19 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name="purchaseinquiryitem",
-            options={"ordering": ["id"], "verbose_name": "询价单明细", "verbose_name_plural": "询价单明细"},
+            options={
+                "ordering": ["id"],
+                "verbose_name": "询价单明细",
+                "verbose_name_plural": "询价单明细",
+            },
         ),
         migrations.AlterModelOptions(
             name="purchaseorderitem",
-            options={"ordering": ["id"], "verbose_name": "采购订单明细", "verbose_name_plural": "采购订单明细"},
+            options={
+                "ordering": ["id"],
+                "verbose_name": "采购订单明细",
+                "verbose_name_plural": "采购订单明细",
+            },
         ),
         migrations.AlterModelOptions(
             name="purchasereceipt",
@@ -42,11 +53,19 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name="purchasereceiptitem",
-            options={"ordering": ["id"], "verbose_name": "收货单明细", "verbose_name_plural": "收货单明细"},
+            options={
+                "ordering": ["id"],
+                "verbose_name": "收货单明细",
+                "verbose_name_plural": "收货单明细",
+            },
         ),
         migrations.AlterModelOptions(
             name="purchaserequestitem",
-            options={"ordering": ["id"], "verbose_name": "采购申请明细", "verbose_name_plural": "采购申请明细"},
+            options={
+                "ordering": ["id"],
+                "verbose_name": "采购申请明细",
+                "verbose_name_plural": "采购申请明细",
+            },
         ),
         migrations.AlterModelOptions(
             name="purchasereturn",
@@ -58,11 +77,19 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name="purchasereturnitem",
-            options={"ordering": ["id"], "verbose_name": "退货单明细", "verbose_name_plural": "退货单明细"},
+            options={
+                "ordering": ["id"],
+                "verbose_name": "退货单明细",
+                "verbose_name_plural": "退货单明细",
+            },
         ),
         migrations.AlterModelOptions(
             name="supplierquotationitem",
-            options={"ordering": ["id"], "verbose_name": "报价单明细", "verbose_name_plural": "报价单明细"},
+            options={
+                "ordering": ["id"],
+                "verbose_name": "报价单明细",
+                "verbose_name_plural": "报价单明细",
+            },
         ),
         migrations.RemoveField(
             model_name="purchaseinquiry",
@@ -268,7 +295,9 @@ class Migration(migrations.Migration):
             model_name="purchaseinquiry",
             name="suppliers",
             field=models.ManyToManyField(
-                related_name="purchase_inquiries", to="suppliers.supplier", verbose_name="询价供应商"
+                related_name="purchase_inquiries",
+                to="suppliers.supplier",
+                verbose_name="询价供应商",
             ),
         ),
         migrations.AddField(
@@ -381,7 +410,11 @@ class Migration(migrations.Migration):
             model_name="purchaseinquiryitem",
             name="target_price",
             field=models.DecimalField(
-                blank=True, decimal_places=2, max_digits=10, null=True, verbose_name="目标价格"
+                blank=True,
+                decimal_places=2,
+                max_digits=10,
+                null=True,
+                verbose_name="目标价格",
             ),
         ),
         migrations.AlterField(
@@ -558,7 +591,11 @@ class Migration(migrations.Migration):
             model_name="purchaserequestitem",
             name="estimated_price",
             field=models.DecimalField(
-                blank=True, decimal_places=2, max_digits=10, null=True, verbose_name="预估单价"
+                blank=True,
+                decimal_places=2,
+                max_digits=10,
+                null=True,
+                verbose_name="预估单价",
             ),
         ),
         migrations.AlterField(
@@ -676,7 +713,11 @@ class Migration(migrations.Migration):
             name="result",
             field=models.CharField(
                 blank=True,
-                choices=[("pass", "合格"), ("fail", "不合格"), ("conditional", "有条件通过")],
+                choices=[
+                    ("pass", "合格"),
+                    ("fail", "不合格"),
+                    ("conditional", "有条件通过"),
+                ],
                 max_length=20,
                 null=True,
                 verbose_name="检验结果",

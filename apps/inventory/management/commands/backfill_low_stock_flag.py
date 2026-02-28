@@ -2,6 +2,7 @@
 回填库存的 is_low_stock_flag 字段
 运行方式：python manage.py backfill_low_stock_flag
 """
+
 from django.core.management.base import BaseCommand
 
 from apps.inventory.models import InventoryStock

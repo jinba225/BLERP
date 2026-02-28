@@ -60,7 +60,11 @@ class BatchQueryTool(BaseTool):
                 try:
                     result = tool.run(**params)
                     results.append(
-                        {"tool_name": tool_name, "params": params, "result": result.to_dict()}
+                        {
+                            "tool_name": tool_name,
+                            "params": params,
+                            "result": result.to_dict(),
+                        }
                     )
                 except Exception as e:
                     errors.append({"query": query, "error": str(e)})
@@ -105,14 +109,26 @@ class BatchApproveTool(BaseTool):
                     "description": "实体ID列表",
                     "items": {"type": "integer"},
                 },
-                "action": {"type": "string", "description": "操作类型", "enum": ["approve", "reject"]},
-                "notes": {"type": "string", "description": "审核备注（将应用于所有对象）"},
+                "action": {
+                    "type": "string",
+                    "description": "操作类型",
+                    "enum": ["approve", "reject"],
+                },
+                "notes": {
+                    "type": "string",
+                    "description": "审核备注（将应用于所有对象）",
+                },
             },
             "required": ["entity_type", "entity_ids", "action"],
         }
 
     def execute(
-        self, entity_type: str, entity_ids: List[int], action: str, notes: str = "", **kwargs
+        self,
+        entity_type: str,
+        entity_ids: List[int],
+        action: str,
+        notes: str = "",
+        **kwargs,
     ) -> ToolResult:
         """执行批量审核"""
         try:
@@ -186,7 +202,10 @@ class BatchExportTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "query_results": {"type": "array", "description": "查询结果列表（来自批量查询工具的data.results）"},
+                "query_results": {
+                    "type": "array",
+                    "description": "查询结果列表（来自批量查询工具的data.results）",
+                },
                 "format": {
                     "type": "string",
                     "description": "导出格式",
@@ -319,7 +338,11 @@ class BatchCreateTool(BaseTool):
                 try:
                     result = tool.run(**params)
                     results.append(
-                        {"tool_name": tool_name, "params": params, "result": result.to_dict()}
+                        {
+                            "tool_name": tool_name,
+                            "params": params,
+                            "result": result.to_dict(),
+                        }
                     )
                 except Exception as e:
                     errors.append({"item": item, "error": str(e)})

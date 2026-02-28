@@ -2,6 +2,7 @@
 Inventory services for the ERP system.
 Handles business logic for Stock Adjustments, Transfers, Counts, and Inbound/Outbound Orders.
 """
+
 from decimal import Decimal
 
 from django.db import transaction
@@ -132,7 +133,9 @@ class StockTransferService:
             # Deduct from source warehouse
             try:
                 stock = InventoryStock.objects.get(
-                    product=item.product, warehouse=transfer.from_warehouse, is_deleted=False
+                    product=item.product,
+                    warehouse=transfer.from_warehouse,
+                    is_deleted=False,
                 )
 
                 if stock.quantity < shipped_qty:
@@ -223,7 +226,9 @@ class StockCountService:
         for item_data in items_data:
             # Get system quantity
             stock = InventoryStock.objects.filter(
-                product_id=item_data["product_id"], warehouse=count.warehouse, is_deleted=False
+                product_id=item_data["product_id"],
+                warehouse=count.warehouse,
+                is_deleted=False,
             ).first()
             system_quantity = stock.quantity if stock else Decimal("0")
 
@@ -254,7 +259,9 @@ class StockCountService:
             for item_data in items_data:
                 # Get system quantity
                 stock = InventoryStock.objects.filter(
-                    product_id=item_data["product_id"], warehouse=count.warehouse, is_deleted=False
+                    product_id=item_data["product_id"],
+                    warehouse=count.warehouse,
+                    is_deleted=False,
                 ).first()
                 system_quantity = stock.quantity if stock else Decimal("0")
 

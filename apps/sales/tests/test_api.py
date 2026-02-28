@@ -2,6 +2,7 @@
 Sales模块 - API测试
 测试 get_product_info, api_get_available_templates, api_set_default_template 等自定义API端点
 """
+
 import unittest
 from decimal import Decimal
 
@@ -71,7 +72,10 @@ class SalesAPITestCaseBase(TestCase):
 
         # 创建客户数据
         self.customer_category = CustomerCategory.objects.create(
-            name="重要客户", code="VIP", discount_rate=Decimal("0.95"), created_by=self.user
+            name="重要客户",
+            code="VIP",
+            discount_rate=Decimal("0.95"),
+            created_by=self.user,
         )
 
         self.customer = Customer.objects.create(
@@ -358,7 +362,8 @@ class TemplateAPITestCase(SalesAPITestCaseBase):
 
         url = reverse("sales:api_set_default_template")
         response = self.client.post(
-            url, {"template_id": inactive_template.pk, "document_type": "quote_domestic"}
+            url,
+            {"template_id": inactive_template.pk, "document_type": "quote_domestic"},
         )
 
         # API返回500（因为except Exception捕获了Http404）

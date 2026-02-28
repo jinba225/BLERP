@@ -2,12 +2,11 @@
 Celery异步任务模块
 实现采集、落地、同步的全链路异步处理
 """
-import math
+
 import uuid
 from typing import Any, Dict
 
 from celery import shared_task
-from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from products.models import Product
@@ -16,7 +15,6 @@ from .adapters import get_collect_adapter
 from .exceptions import (
     CollectException,
     ImageDownloadException,
-    ListingCreateException,
     ProductCreateException,
     SyncException,
     TranslationException,
@@ -75,10 +73,11 @@ def apply_field_map_rules(
             try:
                 if rule.map_rule:
                     # 使用 simpleeval 进行安全的表达式求值
-                    from simpleeval import SimpleEval
+                    from simpleeval import EvalError, SimpleEval
+
                     evaluator = SimpleEval(names={"value": source_value})
                     mapped_data[rule.target_field] = evaluator.eval(rule.map_rule)
-            except:
+            except (EvalError, ValueError, TypeError):
                 mapped_data[rule.target_field] = source_value
         elif rule.rule_type == "fixed":
             # 固定值
@@ -230,7 +229,7 @@ def collect_and_land_task(self, collect_task_id: int):
             collect_task.error_msg = f"任务执行失败：{str(e)[:500]}"
             collect_task.completed_at = timezone.now()
             collect_task.save()
-        except:
+        except Exception:
             pass
 
         # 重试

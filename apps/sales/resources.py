@@ -1,6 +1,7 @@
 """
 Sales 模块的导入导出资源配置
 """
+
 from customers.models import Customer
 from django.contrib.auth import get_user_model
 from import_export import fields, resources
@@ -16,15 +17,21 @@ class QuoteResource(resources.ModelResource):
     """报价单导入导出资源"""
 
     customer = fields.Field(
-        column_name="客户", attribute="customer", widget=ForeignKeyWidget(Customer, "name")
+        column_name="客户",
+        attribute="customer",
+        widget=ForeignKeyWidget(Customer, "name"),
     )
 
     quote_date = fields.Field(
-        column_name="报价日期", attribute="quote_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="报价日期",
+        attribute="quote_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     valid_until = fields.Field(
-        column_name="有效期至", attribute="valid_until", widget=DateWidget(format="%Y-%m-%d")
+        column_name="有效期至",
+        attribute="valid_until",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     total_amount = fields.Field(
@@ -57,19 +64,27 @@ class SalesOrderResource(resources.ModelResource):
     """销售订单导入导出资源"""
 
     customer = fields.Field(
-        column_name="客户", attribute="customer", widget=ForeignKeyWidget(Customer, "name")
+        column_name="客户",
+        attribute="customer",
+        widget=ForeignKeyWidget(Customer, "name"),
     )
 
     quote = fields.Field(
-        column_name="关联报价单", attribute="quote", widget=ForeignKeyWidget(Quote, "quote_number")
+        column_name="关联报价单",
+        attribute="quote",
+        widget=ForeignKeyWidget(Quote, "quote_number"),
     )
 
     order_date = fields.Field(
-        column_name="订单日期", attribute="order_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="订单日期",
+        attribute="order_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     delivery_date = fields.Field(
-        column_name="交货日期", attribute="delivery_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="交货日期",
+        attribute="delivery_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     total_amount = fields.Field(
@@ -109,15 +124,21 @@ class DeliveryResource(resources.ModelResource):
     )
 
     customer = fields.Field(
-        column_name="客户", attribute="customer", widget=ForeignKeyWidget(Customer, "name")
+        column_name="客户",
+        attribute="customer",
+        widget=ForeignKeyWidget(Customer, "name"),
     )
 
     warehouse = fields.Field(
-        column_name="发货仓库", attribute="warehouse", widget=ForeignKeyWidget(Warehouse, "name")
+        column_name="发货仓库",
+        attribute="warehouse",
+        widget=ForeignKeyWidget(Warehouse, "name"),
     )
 
     delivery_date = fields.Field(
-        column_name="发货日期", attribute="delivery_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="发货日期",
+        attribute="delivery_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     total_amount = fields.Field(
@@ -155,11 +176,15 @@ class SalesReturnResource(resources.ModelResource):
     )
 
     customer = fields.Field(
-        column_name="客户", attribute="customer", widget=ForeignKeyWidget(Customer, "name")
+        column_name="客户",
+        attribute="customer",
+        widget=ForeignKeyWidget(Customer, "name"),
     )
 
     return_date = fields.Field(
-        column_name="退货日期", attribute="return_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="退货日期",
+        attribute="return_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     total_amount = fields.Field(
@@ -191,19 +216,27 @@ class SalesLoanResource(resources.ModelResource):
     """销售借货单导入导出资源"""
 
     customer = fields.Field(
-        column_name="客户", attribute="customer", widget=ForeignKeyWidget(Customer, "name")
+        column_name="客户",
+        attribute="customer",
+        widget=ForeignKeyWidget(Customer, "name"),
     )
 
     loan_date = fields.Field(
-        column_name="借货日期", attribute="loan_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="借货日期",
+        attribute="loan_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     expected_return_date = fields.Field(
-        column_name="预计归还日期", attribute="expected_return_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="预计归还日期",
+        attribute="expected_return_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     actual_return_date = fields.Field(
-        column_name="实际归还日期", attribute="actual_return_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="实际归还日期",
+        attribute="actual_return_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     class Meta:

@@ -33,13 +33,27 @@ class QueryPurchaseInquiriesTool(BaseTool):
                 "status": {
                     "type": "string",
                     "description": "询价状态（draft/sent/quoted/selected/ordered/cancelled）",
-                    "enum": ["draft", "sent", "quoted", "selected", "ordered", "cancelled"],
+                    "enum": [
+                        "draft",
+                        "sent",
+                        "quoted",
+                        "selected",
+                        "ordered",
+                        "cancelled",
+                    ],
                 },
                 "supplier_id": {"type": "integer", "description": "供应商ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（询价单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -86,17 +100,23 @@ class QueryPurchaseInquiriesTool(BaseTool):
                     {
                         "id": inquiry.id,
                         "inquiry_number": inquiry.inquiry_number,
-                        "inquiry_date": inquiry.inquiry_date.strftime("%Y-%m-%d")
-                        if inquiry.inquiry_date
-                        else None,
-                        "required_date": inquiry.required_date.strftime("%Y-%m-%d")
-                        if inquiry.required_date
-                        else None,
+                        "inquiry_date": (
+                            inquiry.inquiry_date.strftime("%Y-%m-%d")
+                            if inquiry.inquiry_date
+                            else None
+                        ),
+                        "required_date": (
+                            inquiry.required_date.strftime("%Y-%m-%d")
+                            if inquiry.required_date
+                            else None
+                        ),
                         "status": inquiry.status,
                         "status_display": inquiry.get_status_display(),
-                        "total_amount": float(inquiry.total_amount) if inquiry.total_amount else 0,
+                        "total_amount": (
+                            float(inquiry.total_amount) if inquiry.total_amount else 0
+                        ),
                         "quotes_count": quotes_count,
-                        "items_count": inquiry.items.count() if hasattr(inquiry, "items") else 0,
+                        "items_count": (inquiry.items.count() if hasattr(inquiry, "items") else 0),
                     }
                 )
 
@@ -126,10 +146,17 @@ class QuerySupplierQuotationsTool(BaseTool):
                 },
                 "supplier_id": {"type": "integer", "description": "供应商ID"},
                 "inquiry_id": {"type": "integer", "description": "询价单ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（报价单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -179,17 +206,17 @@ class QuerySupplierQuotationsTool(BaseTool):
                         "id": quot.id,
                         "quote_number": quot.quote_number,
                         "supplier_name": quot.supplier.name if quot.supplier else "",
-                        "inquiry_number": quot.inquiry.inquiry_number if quot.inquiry else "",
-                        "quote_date": quot.quote_date.strftime("%Y-%m-%d")
-                        if quot.quote_date
-                        else None,
-                        "valid_until": quot.valid_until.strftime("%Y-%m-%d")
-                        if quot.valid_until
-                        else None,
+                        "inquiry_number": (quot.inquiry.inquiry_number if quot.inquiry else ""),
+                        "quote_date": (
+                            quot.quote_date.strftime("%Y-%m-%d") if quot.quote_date else None
+                        ),
+                        "valid_until": (
+                            quot.valid_until.strftime("%Y-%m-%d") if quot.valid_until else None
+                        ),
                         "status": quot.status,
                         "status_display": quot.get_status_display(),
-                        "total_amount": float(quot.total_amount) if quot.total_amount else 0,
-                        "items_count": quot.items.count() if hasattr(quot, "items") else 0,
+                        "total_amount": (float(quot.total_amount) if quot.total_amount else 0),
+                        "items_count": (quot.items.count() if hasattr(quot, "items") else 0),
                     }
                 )
 
@@ -215,13 +242,26 @@ class QueryPurchaseReceiptsTool(BaseTool):
                 "status": {
                     "type": "string",
                     "description": "收货状态（pending/received/inspected/rejected/cancelled）",
-                    "enum": ["pending", "received", "inspected", "rejected", "cancelled"],
+                    "enum": [
+                        "pending",
+                        "received",
+                        "inspected",
+                        "rejected",
+                        "cancelled",
+                    ],
                 },
                 "supplier_id": {"type": "integer", "description": "供应商ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（收货单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -266,18 +306,22 @@ class QueryPurchaseReceiptsTool(BaseTool):
                     {
                         "id": receipt.id,
                         "receipt_number": receipt.receipt_number,
-                        "order_number": receipt.purchase_order.order_number
-                        if receipt.purchase_order
-                        else "",
-                        "supplier_name": receipt.purchase_order.supplier.name
-                        if receipt.purchase_order and receipt.purchase_order.supplier
-                        else "",
-                        "receipt_date": receipt.receipt_date.strftime("%Y-%m-%d")
-                        if receipt.receipt_date
-                        else None,
+                        "order_number": (
+                            receipt.purchase_order.order_number if receipt.purchase_order else ""
+                        ),
+                        "supplier_name": (
+                            receipt.purchase_order.supplier.name
+                            if receipt.purchase_order and receipt.purchase_order.supplier
+                            else ""
+                        ),
+                        "receipt_date": (
+                            receipt.receipt_date.strftime("%Y-%m-%d")
+                            if receipt.receipt_date
+                            else None
+                        ),
                         "status": receipt.status,
                         "status_display": receipt.get_status_display(),
-                        "items_count": receipt.items.count() if hasattr(receipt, "items") else 0,
+                        "items_count": (receipt.items.count() if hasattr(receipt, "items") else 0),
                     }
                 )
 
@@ -303,13 +347,26 @@ class QueryPurchaseReturnsTool(BaseTool):
                 "status": {
                     "type": "string",
                     "description": "退货状态（pending/approved/rejected/completed/cancelled）",
-                    "enum": ["pending", "approved", "rejected", "completed", "cancelled"],
+                    "enum": [
+                        "pending",
+                        "approved",
+                        "rejected",
+                        "completed",
+                        "cancelled",
+                    ],
                 },
                 "supplier_id": {"type": "integer", "description": "供应商ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（退货单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -353,14 +410,14 @@ class QueryPurchaseReturnsTool(BaseTool):
                         "id": ret.id,
                         "return_number": ret.return_number,
                         "supplier_name": ret.supplier.name if ret.supplier else "",
-                        "return_date": ret.return_date.strftime("%Y-%m-%d")
-                        if ret.return_date
-                        else None,
+                        "return_date": (
+                            ret.return_date.strftime("%Y-%m-%d") if ret.return_date else None
+                        ),
                         "return_reason": ret.return_reason,
                         "return_reason_display": ret.get_return_reason_display(),
                         "status": ret.status,
                         "status_display": ret.get_status_display(),
-                        "items_count": ret.items.count() if hasattr(ret, "items") else 0,
+                        "items_count": (ret.items.count() if hasattr(ret, "items") else 0),
                     }
                 )
 
@@ -396,10 +453,17 @@ class QueryPurchaseBorrowsTool(BaseTool):
                     ],
                 },
                 "supplier_id": {"type": "integer", "description": "供应商ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（借出单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -442,16 +506,18 @@ class QueryPurchaseBorrowsTool(BaseTool):
                     {
                         "id": borrow.id,
                         "borrow_number": borrow.borrow_number,
-                        "supplier_name": borrow.supplier.name if borrow.supplier else "",
-                        "borrow_date": borrow.borrow_date.strftime("%Y-%m-%d")
-                        if borrow.borrow_date
-                        else None,
-                        "expected_return_date": borrow.expected_return_date.strftime("%Y-%m-%d")
-                        if borrow.expected_return_date
-                        else None,
+                        "supplier_name": (borrow.supplier.name if borrow.supplier else ""),
+                        "borrow_date": (
+                            borrow.borrow_date.strftime("%Y-%m-%d") if borrow.borrow_date else None
+                        ),
+                        "expected_return_date": (
+                            borrow.expected_return_date.strftime("%Y-%m-%d")
+                            if borrow.expected_return_date
+                            else None
+                        ),
                         "status": borrow.status,
                         "status_display": borrow.get_status_display(),
-                        "items_count": borrow.items.count() if hasattr(borrow, "items") else 0,
+                        "items_count": (borrow.items.count() if hasattr(borrow, "items") else 0),
                     }
                 )
 

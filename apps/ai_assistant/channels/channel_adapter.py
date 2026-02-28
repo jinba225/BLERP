@@ -193,7 +193,9 @@ class ChannelAdapter:
 
             if platform == "telegram":
                 return OutgoingMessage(
-                    content=content, message_type="text", extra={"parse_mode": "MarkdownV2"}
+                    content=content,
+                    message_type="text",
+                    extra={"parse_mode": "MarkdownV2"},
                 )
             else:
                 return OutgoingMessage(content=content, message_type="text")

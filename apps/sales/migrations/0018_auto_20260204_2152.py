@@ -15,7 +15,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="salesorder",
             index=models.Index(
-                fields=["customer", "status", "order_date"], name="sales_order_cust_status_date_idx"
+                fields=["customer", "status", "order_date"],
+                name="sales_order_cust_status_date_idx",
             ),
         ),
         # SalesOrder索引 - 优化按创建时间倒序查询

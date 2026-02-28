@@ -405,7 +405,10 @@ class NLPService:
         entities = self._extract_entities(user_input)
 
         return IntentResult(
-            intent=intent, confidence=confidence, entities=entities, original_text=user_input
+            intent=intent,
+            confidence=confidence,
+            entities=entities,
+            original_text=user_input,
         )
 
     def _extract_entities(self, user_input: str) -> Dict[str, Any]:

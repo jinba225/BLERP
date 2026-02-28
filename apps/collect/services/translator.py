@@ -2,6 +2,7 @@
 翻译服务
 支持多语言翻译
 """
+
 from typing import Dict, Optional
 
 import requests
@@ -170,7 +171,10 @@ class TranslatorFactory:
 
 
 def translate_text(
-    text: str, target_language: str, translator_type: str = "baidu", source_language: str = "auto"
+    text: str,
+    target_language: str,
+    translator_type: str = "baidu",
+    source_language: str = "auto",
 ) -> str:
     """
     翻译文本的便捷函数

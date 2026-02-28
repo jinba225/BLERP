@@ -1,4 +1,5 @@
 """基础视图类"""
+
 import json
 
 from django.contrib.auth.decorators import login_required
@@ -18,7 +19,11 @@ class JsonResponseMixin:
     """JSON响应混入类"""
 
     def json_response(
-        self, success: bool = True, data: any = None, message: str = "", error: str = None
+        self,
+        success: bool = True,
+        data: any = None,
+        message: str = "",
+        error: str = None,
     ):
         """返回JSON响应"""
         response_data = {

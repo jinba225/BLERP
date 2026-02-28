@@ -2,6 +2,7 @@
 """
 批量迁移页面到新的刷新系统
 """
+
 import os
 import re
 from pathlib import Path

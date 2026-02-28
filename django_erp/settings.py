@@ -150,7 +150,9 @@ DB_USER = config("DB_USER", default=None)
 DB_PASSWORD = config("DB_PASSWORD", default=None)
 DB_HOST = config("DB_HOST", default=None)
 DB_PORT = config(
-    "DB_PORT", default=None, cast=lambda v: int(v) if v and v.lower() != "none" else None
+    "DB_PORT",
+    default=None,
+    cast=lambda v: int(v) if v and v.lower() != "none" else None,
 )
 
 DATABASES = {
@@ -617,14 +619,14 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
 
 # 确保在生产环境中 DEBUG 为 False
-if os.environ.get('ENVIRONMENT') == 'production':
+if os.environ.get("ENVIRONMENT") == "production":
     DEBUG = False
 
     # 日志级别调整
     LOGGING["root"]["level"] = "WARNING"
     LOGGING["loggers"]["django"]["level"] = "WARNING"
     LOGGING["loggers"]["django_erp"]["level"] = "INFO"
-    
+
     # 安全审计日志
     LOGGING["loggers"]["django.security"] = {
         "handlers": ["console", "file"],
@@ -637,28 +639,28 @@ if os.environ.get('ENVIRONMENT') == 'production':
 # ============================================ # 密码验证配置 # ============================================
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {
-            'min_length': 12,
-        }
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 12,
+        },
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'apps.users.validators.SpecialCharacterValidator',
+        "NAME": "apps.users.validators.SpecialCharacterValidator",
     },
     {
-        'NAME': 'apps.users.validators.UppercaseValidator',
+        "NAME": "apps.users.validators.UppercaseValidator",
     },
     {
-        'NAME': 'apps.users.validators.LowercaseValidator',
+        "NAME": "apps.users.validators.LowercaseValidator",
     },
     {
-        'NAME': 'apps.users.validators.NumberValidator',
+        "NAME": "apps.users.validators.NumberValidator",
     },
 ]
 

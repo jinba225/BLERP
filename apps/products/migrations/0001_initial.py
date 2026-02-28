@@ -16,20 +16,50 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
-                ("name", models.CharField(max_length=100, unique=True, verbose_name="品牌名称")),
-                ("code", models.CharField(max_length=50, unique=True, verbose_name="品牌代码")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=100, unique=True, verbose_name="品牌名称"),
+                ),
+                (
+                    "code",
+                    models.CharField(max_length=50, unique=True, verbose_name="品牌代码"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="品牌描述")),
-                ("logo", models.ImageField(blank=True, upload_to="brands/", verbose_name="品牌Logo")),
+                (
+                    "logo",
+                    models.ImageField(blank=True, upload_to="brands/", verbose_name="品牌Logo"),
+                ),
                 ("website", models.URLField(blank=True, verbose_name="官方网站")),
-                ("country", models.CharField(blank=True, max_length=50, verbose_name="国家/地区")),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "country",
+                    models.CharField(blank=True, max_length=50, verbose_name="国家/地区"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
             ],
             options={
                 "verbose_name": "品牌",
@@ -43,19 +73,41 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="产品名称")),
-                ("code", models.CharField(max_length=100, unique=True, verbose_name="产品编码")),
+                (
+                    "code",
+                    models.CharField(max_length=100, unique=True, verbose_name="产品编码"),
+                ),
                 (
                     "barcode",
                     models.CharField(
-                        blank=True, max_length=100, null=True, unique=True, verbose_name="条形码"
+                        blank=True,
+                        max_length=100,
+                        null=True,
+                        unique=True,
+                        verbose_name="条形码",
                     ),
                 ),
                 (
@@ -88,8 +140,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("description", models.TextField(blank=True, verbose_name="产品描述")),
-                ("specifications", models.TextField(blank=True, verbose_name="产品规格")),
-                ("model", models.CharField(blank=True, max_length=100, verbose_name="型号")),
+                (
+                    "specifications",
+                    models.TextField(blank=True, verbose_name="产品规格"),
+                ),
+                (
+                    "model",
+                    models.CharField(blank=True, max_length=100, verbose_name="型号"),
+                ),
                 (
                     "weight",
                     models.DecimalField(
@@ -150,14 +208,26 @@ class Migration(migrations.Migration):
                         verbose_name="销售价",
                     ),
                 ),
-                ("min_stock", models.PositiveIntegerField(default=0, verbose_name="最小库存")),
-                ("max_stock", models.PositiveIntegerField(default=0, verbose_name="最大库存")),
-                ("reorder_point", models.PositiveIntegerField(default=0, verbose_name="再订货点")),
+                (
+                    "min_stock",
+                    models.PositiveIntegerField(default=0, verbose_name="最小库存"),
+                ),
+                (
+                    "max_stock",
+                    models.PositiveIntegerField(default=0, verbose_name="最大库存"),
+                ),
+                (
+                    "reorder_point",
+                    models.PositiveIntegerField(default=0, verbose_name="再订货点"),
+                ),
                 (
                     "main_image",
                     models.ImageField(blank=True, upload_to="products/", verbose_name="主图"),
                 ),
-                ("warranty_period", models.PositiveIntegerField(default=0, verbose_name="保修期(月)")),
+                (
+                    "warranty_period",
+                    models.PositiveIntegerField(default=0, verbose_name="保修期(月)"),
+                ),
                 (
                     "shelf_life",
                     models.PositiveIntegerField(blank=True, null=True, verbose_name="保质期(天)"),
@@ -176,15 +246,33 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="属性名称")),
-                ("code", models.CharField(max_length=50, unique=True, verbose_name="属性代码")),
+                (
+                    "code",
+                    models.CharField(max_length=50, unique=True, verbose_name="属性代码"),
+                ),
                 (
                     "attribute_type",
                     models.CharField(
@@ -201,10 +289,22 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("description", models.TextField(blank=True, verbose_name="属性描述")),
-                ("is_required", models.BooleanField(default=False, verbose_name="是否必填")),
-                ("is_filterable", models.BooleanField(default=False, verbose_name="是否可筛选")),
-                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="排序")),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_required",
+                    models.BooleanField(default=False, verbose_name="是否必填"),
+                ),
+                (
+                    "is_filterable",
+                    models.BooleanField(default=False, verbose_name="是否可筛选"),
+                ),
+                (
+                    "sort_order",
+                    models.PositiveIntegerField(default=0, verbose_name="排序"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
             ],
             options={
                 "verbose_name": "产品属性",
@@ -219,13 +319,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("value", models.TextField(verbose_name="属性值")),
             ],
             options={
@@ -240,22 +355,46 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="分类名称")),
-                ("code", models.CharField(max_length=50, unique=True, verbose_name="分类代码")),
+                (
+                    "code",
+                    models.CharField(max_length=50, unique=True, verbose_name="分类代码"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="分类描述")),
                 (
                     "image",
                     models.ImageField(blank=True, upload_to="categories/", verbose_name="分类图片"),
                 ),
-                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="排序")),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "sort_order",
+                    models.PositiveIntegerField(default=0, verbose_name="排序"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 ("lft", models.PositiveIntegerField(editable=False)),
                 ("rght", models.PositiveIntegerField(editable=False)),
                 ("tree_id", models.PositiveIntegerField(db_index=True, editable=False)),
@@ -273,18 +412,45 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
-                ("image", models.ImageField(upload_to="products/images/", verbose_name="图片")),
-                ("title", models.CharField(blank=True, max_length=200, verbose_name="图片标题")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "image",
+                    models.ImageField(upload_to="products/images/", verbose_name="图片"),
+                ),
+                (
+                    "title",
+                    models.CharField(blank=True, max_length=200, verbose_name="图片标题"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="图片描述")),
-                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="排序")),
-                ("is_main", models.BooleanField(default=False, verbose_name="是否主图")),
+                (
+                    "sort_order",
+                    models.PositiveIntegerField(default=0, verbose_name="排序"),
+                ),
+                (
+                    "is_main",
+                    models.BooleanField(default=False, verbose_name="是否主图"),
+                ),
             ],
             options={
                 "verbose_name": "产品图片",
@@ -299,13 +465,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "price_type",
                     models.CharField(
@@ -319,11 +500,20 @@ class Migration(migrations.Migration):
                         verbose_name="价格类型",
                     ),
                 ),
-                ("price", models.DecimalField(decimal_places=2, max_digits=12, verbose_name="价格")),
+                (
+                    "price",
+                    models.DecimalField(decimal_places=2, max_digits=12, verbose_name="价格"),
+                ),
                 ("effective_date", models.DateField(verbose_name="生效日期")),
-                ("end_date", models.DateField(blank=True, null=True, verbose_name="结束日期")),
+                (
+                    "end_date",
+                    models.DateField(blank=True, null=True, verbose_name="结束日期"),
+                ),
                 ("reason", models.TextField(blank=True, verbose_name="调价原因")),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否生效")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否生效"),
+                ),
             ],
             options={
                 "verbose_name": "产品价格历史",
@@ -338,15 +528,36 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
-                ("name", models.CharField(max_length=50, unique=True, verbose_name="单位名称")),
-                ("symbol", models.CharField(max_length=10, unique=True, verbose_name="单位符号")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=50, unique=True, verbose_name="单位名称"),
+                ),
+                (
+                    "symbol",
+                    models.CharField(max_length=10, unique=True, verbose_name="单位符号"),
+                ),
                 (
                     "unit_type",
                     models.CharField(
@@ -365,7 +576,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("description", models.TextField(blank=True, verbose_name="单位描述")),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
             ],
             options={
                 "verbose_name": "计量单位",

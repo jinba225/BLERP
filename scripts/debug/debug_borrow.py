@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """调试借用单一键全部入库功能"""
+
 import os
 
 import django

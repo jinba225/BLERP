@@ -1,6 +1,7 @@
 """
 Core viewsets for the ERP system.
 """
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, viewsets
 from rest_framework.decorators import action
@@ -22,7 +23,11 @@ class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
     filterset_fields = ["is_active"]
     search_fields = ["name", "code", "legal_representative"]
     ordering_fields = ["name", "code", "created_at"]
@@ -43,7 +48,11 @@ class SystemConfigViewSet(viewsets.ModelViewSet):
     queryset = SystemConfig.objects.all()
     serializer_class = SystemConfigSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
     filterset_fields = ["config_type", "is_active"]
     search_fields = ["key", "value", "description"]
     ordering_fields = ["key", "config_type", "created_at"]
@@ -76,7 +85,11 @@ class AttachmentViewSet(viewsets.ModelViewSet):
     queryset = Attachment.objects.all()
     serializer_class = AttachmentSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
     filterset_fields = ["file_type", "content_type"]
     search_fields = ["name", "description"]
     ordering_fields = ["name", "file_size", "created_at"]
@@ -97,7 +110,11 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = AuditLog.objects.all()
     serializer_class = AuditLogSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
     filterset_fields = ["action", "model_name", "user"]
     search_fields = ["object_repr", "model_name"]
     ordering_fields = ["timestamp", "action"]

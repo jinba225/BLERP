@@ -1,6 +1,7 @@
 """
 Customers 模块的导入导出资源配置
 """
+
 from django.contrib.auth import get_user_model
 from import_export import fields, resources
 from import_export.widgets import DateWidget
@@ -14,7 +15,9 @@ class CustomerResource(resources.ModelResource):
     """客户导入导出资源"""
 
     established_date = fields.Field(
-        column_name="成立日期", attribute="established_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="成立日期",
+        attribute="established_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     class Meta:

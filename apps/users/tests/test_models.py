@@ -1,6 +1,7 @@
 """
 Users models tests.
 """
+
 from datetime import timedelta
 from decimal import Decimal
 
@@ -47,7 +48,10 @@ class UserModelTest(TestCase):
     def test_user_unique_employee_id(self):
         """Test employee_id uniqueness."""
         User.objects.create_user(
-            username="user1", email="user1@example.com", employee_id="EMP001", password="pass123"
+            username="user1",
+            email="user1@example.com",
+            employee_id="EMP001",
+            password="pass123",
         )
 
         # Try to create another user with same employee_id
@@ -104,7 +108,10 @@ class UserModelTest(TestCase):
         )
 
         employee = User.objects.create_user(
-            username="employee", email="employee@example.com", password="pass123", manager=manager
+            username="employee",
+            email="employee@example.com",
+            password="pass123",
+            manager=manager,
         )
 
         self.assertEqual(employee.manager, manager)
@@ -153,7 +160,10 @@ class RoleModelTest(TestCase):
     def test_role_creation(self):
         """Test role creation."""
         role = Role.objects.create(
-            name="管理员", code="admin", description="系统管理员角色", created_by=self.user
+            name="管理员",
+            code="admin",
+            description="系统管理员角色",
+            created_by=self.user,
         )
 
         self.assertEqual(role.name, "管理员")

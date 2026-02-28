@@ -77,7 +77,7 @@ pip install -r requirements.txt
 if command -v npm &> /dev/null; then
     print_status "Installing Node.js dependencies..."
     npm install
-    
+
     # Build frontend assets
     print_status "Building frontend assets..."
     npm run build
@@ -130,32 +130,32 @@ EOF
 # Production-specific setup
 if [ "$ENVIRONMENT" = "production" ]; then
     print_status "Setting up production environment..."
-    
+
     # Check if Docker is available
     if command -v docker &> /dev/null; then
         print_status "Docker found, building containers..."
         docker-compose build
-        
+
         # Start services
         print_status "Starting services..."
         docker-compose up -d
-        
+
         # Wait for services to be ready
         print_status "Waiting for services to be ready..."
         sleep 30
-        
+
         # Run migrations in container
         docker-compose exec web python manage.py migrate
         docker-compose exec web python manage.py collectstatic --noinput
-        
+
     else
         print_warning "Docker not found, manual setup required"
-        
+
         # Install and configure Nginx (if not exists)
         if ! command -v nginx &> /dev/null; then
             print_warning "Nginx not found, please install manually"
         fi
-        
+
         # Install and configure systemd service
         print_status "Creating systemd service..."
         sudo tee /etc/systemd/system/better-laser-erp.service > /dev/null << EOF
@@ -176,12 +176,12 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
-        
+
         sudo systemctl daemon-reload
         sudo systemctl enable better-laser-erp
         sudo systemctl start better-laser-erp
     fi
-    
+
     # Set up SSL certificate (Let's Encrypt)
     if command -v certbot &> /dev/null; then
         print_status "Setting up SSL certificate..."
@@ -193,10 +193,10 @@ fi
 # Development-specific setup
 if [ "$ENVIRONMENT" = "development" ]; then
     print_status "Setting up development environment..."
-    
+
     # Install development dependencies
     pip install django-debug-toolbar ipython
-    
+
     # Create sample data
     print_status "Creating sample data..."
     python manage.py shell -c "

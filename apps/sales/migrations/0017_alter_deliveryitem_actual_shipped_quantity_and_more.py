@@ -13,7 +13,9 @@ class Migration(migrations.Migration):
             model_name="deliveryitem",
             name="actual_shipped_quantity",
             field=models.IntegerField(
-                default=0, help_text="实际已发货数量（支持部分发货）", verbose_name="实际发货数量"
+                default=0,
+                help_text="实际已发货数量（支持部分发货）",
+                verbose_name="实际发货数量",
             ),
         ),
         migrations.AlterField(

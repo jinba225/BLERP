@@ -140,7 +140,9 @@ class DeepSeekProvider(BaseAIProvider):
             raise Exception(f"DeepSeek API 请求失败: {str(e)}")
 
     def chat(
-        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+        self,
+        messages: List[Dict[str, str]],
+        tools: Optional[List[Dict[str, Any]]] = None,
     ) -> AIResponse:
         """同步chat方法（实现BaseAIProvider接口）
 
@@ -161,7 +163,9 @@ class DeepSeekProvider(BaseAIProvider):
         return loop.run_until_complete(self._chat_async(messages))
 
     def stream_chat(
-        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+        self,
+        messages: List[Dict[str, str]],
+        tools: Optional[List[Dict[str, Any]]] = None,
     ) -> Iterator[str]:
         """流式chat方法（实现BaseAIProvider接口）
 

@@ -47,7 +47,7 @@ if [ -n "${DB_FILE}" ]; then
         DB_PASSWORD=$(grep DB_PASSWORD /tmp/django_erp_restore/.env | cut -d '=' -f2)
         DB_HOST=$(grep DB_HOST /tmp/django_erp_restore/.env | cut -d '=' -f2)
         DB_PORT=$(grep DB_PORT /tmp/django_erp_restore/.env | cut -d '=' -f2)
-        
+
         if [ "${DB_ENGINE}" = "django.db.backends.postgresql" ]; then
             echo "[$(date +"%Y-%m-%d %H:%M:%S")] 恢复 PostgreSQL 数据库..." >> ${LOG_FILE}
             PGPASSWORD=${DB_PASSWORD} psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} ${DB_NAME} < ${DB_FILE}

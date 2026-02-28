@@ -7,6 +7,7 @@
 - 采购状态同步到平台
 - 采购单自动补货提醒
 """
+
 import logging
 
 from django.db import transaction
@@ -30,7 +31,11 @@ class PurchaseSyncService:
         pass
 
     def link_purchase_order_to_platform(
-        self, purchase_order_id: int, platform_id: int, platform_account_id: int, mappings: list
+        self,
+        purchase_order_id: int,
+        platform_id: int,
+        platform_account_id: int,
+        mappings: list,
     ) -> dict:
         """关联采购订单商品到平台商品
 
@@ -394,9 +399,11 @@ class PurchaseSyncService:
             dict: 同步数据
         """
         return {
-            "platform_product_id": order_item.platform_maps.first().platform_product_id
-            if order_item.platform_maps.exists()
-            else "",
+            "platform_product_id": (
+                order_item.platform_maps.first().platform_product_id
+                if order_item.platform_maps.exists()
+                else ""
+            ),
             "product_data": {
                 "name": order_item.product.name,
                 "sku": order_item.product.code,

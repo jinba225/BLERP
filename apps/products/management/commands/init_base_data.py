@@ -9,6 +9,7 @@ Django管理命令：初始化基础数据
 运行方式：
 python manage.py init_base_data
 """
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -53,39 +54,154 @@ class Command(BaseCommand):
 
         units_data = [
             # 基本单位
-            {"name": "个", "symbol": "个", "unit_type": "count", "description": "基本计数单位"},
-            {"name": "件", "symbol": "件", "unit_type": "count", "description": "产品件数"},
-            {"name": "台", "symbol": "台", "unit_type": "count", "description": "设备台数"},
-            {"name": "套", "symbol": "套", "unit_type": "count", "description": "成套产品"},
-            {"name": "只", "symbol": "只", "unit_type": "count", "description": "计数单位"},
-            {"name": "支", "symbol": "支", "unit_type": "count", "description": "计数单位"},
-            {"name": "张", "symbol": "张", "unit_type": "count", "description": "平面物品"},
-            {"name": "盒", "symbol": "盒", "unit_type": "count", "description": "包装单位"},
-            {"name": "箱", "symbol": "箱", "unit_type": "count", "description": "包装单位"},
+            {
+                "name": "个",
+                "symbol": "个",
+                "unit_type": "count",
+                "description": "基本计数单位",
+            },
+            {
+                "name": "件",
+                "symbol": "件",
+                "unit_type": "count",
+                "description": "产品件数",
+            },
+            {
+                "name": "台",
+                "symbol": "台",
+                "unit_type": "count",
+                "description": "设备台数",
+            },
+            {
+                "name": "套",
+                "symbol": "套",
+                "unit_type": "count",
+                "description": "成套产品",
+            },
+            {
+                "name": "只",
+                "symbol": "只",
+                "unit_type": "count",
+                "description": "计数单位",
+            },
+            {
+                "name": "支",
+                "symbol": "支",
+                "unit_type": "count",
+                "description": "计数单位",
+            },
+            {
+                "name": "张",
+                "symbol": "张",
+                "unit_type": "count",
+                "description": "平面物品",
+            },
+            {
+                "name": "盒",
+                "symbol": "盒",
+                "unit_type": "count",
+                "description": "包装单位",
+            },
+            {
+                "name": "箱",
+                "symbol": "箱",
+                "unit_type": "count",
+                "description": "包装单位",
+            },
             # 重量单位
             {"name": "吨", "symbol": "t", "unit_type": "weight", "description": "公吨"},
-            {"name": "公斤", "symbol": "kg", "unit_type": "weight", "description": "千克"},
+            {
+                "name": "公斤",
+                "symbol": "kg",
+                "unit_type": "weight",
+                "description": "千克",
+            },
             {"name": "克", "symbol": "g", "unit_type": "weight", "description": "克"},
-            {"name": "毫克", "symbol": "mg", "unit_type": "weight", "description": "毫克"},
-            {"name": "磅", "symbol": "lb", "unit_type": "weight", "description": "英制重量单位"},
+            {
+                "name": "毫克",
+                "symbol": "mg",
+                "unit_type": "weight",
+                "description": "毫克",
+            },
+            {
+                "name": "磅",
+                "symbol": "lb",
+                "unit_type": "weight",
+                "description": "英制重量单位",
+            },
             # 长度单位
             {"name": "米", "symbol": "m", "unit_type": "length", "description": "米"},
-            {"name": "厘米", "symbol": "cm", "unit_type": "length", "description": "厘米"},
-            {"name": "毫米", "symbol": "mm", "unit_type": "length", "description": "毫米"},
-            {"name": "千米", "symbol": "km", "unit_type": "length", "description": "千米"},
-            {"name": "英寸", "symbol": "in", "unit_type": "length", "description": "英制长度单位"},
-            {"name": "英尺", "symbol": "ft", "unit_type": "length", "description": "英制长度单位"},
+            {
+                "name": "厘米",
+                "symbol": "cm",
+                "unit_type": "length",
+                "description": "厘米",
+            },
+            {
+                "name": "毫米",
+                "symbol": "mm",
+                "unit_type": "length",
+                "description": "毫米",
+            },
+            {
+                "name": "千米",
+                "symbol": "km",
+                "unit_type": "length",
+                "description": "千米",
+            },
+            {
+                "name": "英寸",
+                "symbol": "in",
+                "unit_type": "length",
+                "description": "英制长度单位",
+            },
+            {
+                "name": "英尺",
+                "symbol": "ft",
+                "unit_type": "length",
+                "description": "英制长度单位",
+            },
             # 面积单位
-            {"name": "平方米", "symbol": "m²", "unit_type": "area", "description": "平方米"},
-            {"name": "平方厘米", "symbol": "cm²", "unit_type": "area", "description": "平方厘米"},
-            {"name": "平方毫米", "symbol": "mm²", "unit_type": "area", "description": "平方毫米"},
+            {
+                "name": "平方米",
+                "symbol": "m²",
+                "unit_type": "area",
+                "description": "平方米",
+            },
+            {
+                "name": "平方厘米",
+                "symbol": "cm²",
+                "unit_type": "area",
+                "description": "平方厘米",
+            },
+            {
+                "name": "平方毫米",
+                "symbol": "mm²",
+                "unit_type": "area",
+                "description": "平方毫米",
+            },
             # 体积单位
-            {"name": "立方米", "symbol": "m³", "unit_type": "volume", "description": "立方米"},
+            {
+                "name": "立方米",
+                "symbol": "m³",
+                "unit_type": "volume",
+                "description": "立方米",
+            },
             {"name": "升", "symbol": "L", "unit_type": "volume", "description": "升"},
-            {"name": "毫升", "symbol": "mL", "unit_type": "volume", "description": "毫升"},
+            {
+                "name": "毫升",
+                "symbol": "mL",
+                "unit_type": "volume",
+                "description": "毫升",
+            },
             # 时间单位
             {"name": "小时", "symbol": "h", "unit_type": "time", "description": "小时"},
-            {"name": "分钟", "symbol": "min", "unit_type": "time", "description": "分钟"},
+            {
+                "name": "分钟",
+                "symbol": "min",
+                "unit_type": "time",
+                "description": "分钟",
+            },
             {"name": "秒", "symbol": "s", "unit_type": "time", "description": "秒"},
             {"name": "天", "symbol": "天", "unit_type": "time", "description": "天"},
             {"name": "月", "symbol": "月", "unit_type": "time", "description": "月"},
@@ -175,7 +291,11 @@ class Command(BaseCommand):
         self.stdout.write("\n正在创建产品分类示例...")
 
         categories_data = [
-            {"name": "激光设备", "code": "CAT_LASER", "description": "激光切割、焊接等设备"},
+            {
+                "name": "激光设备",
+                "code": "CAT_LASER",
+                "description": "激光切割、焊接等设备",
+            },
             {"name": "原材料", "code": "CAT_RAW", "description": "生产用原材料"},
             {"name": "配件耗材", "code": "CAT_PARTS", "description": "设备配件和耗材"},
             {"name": "成品", "code": "CAT_FINISHED", "description": "最终产品"},

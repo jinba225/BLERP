@@ -99,7 +99,11 @@ class MessageHandler:
 
             # 记录出站消息
             log_channel_message(
-                logger, message.channel, message.external_user_id, content, direction="outgoing"
+                logger,
+                message.channel,
+                message.external_user_id,
+                content,
+                direction="outgoing",
             )
 
             return OutgoingMessage(content=content, message_type="text")

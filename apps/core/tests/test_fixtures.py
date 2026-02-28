@@ -42,7 +42,8 @@ class FixtureFactory:
         unit = kwargs.pop("unit", None)
         if not unit:
             unit, _ = Unit.objects.get_or_create(
-                name="件", defaults={"symbol": "件", "unit_type": "count", "is_default": True}
+                name="件",
+                defaults={"symbol": "件", "unit_type": "count", "is_default": True},
             )
 
         # 获取或创建默认分类
@@ -77,7 +78,11 @@ class FixtureFactory:
         """
         from suppliers.models import Supplier
 
-        defaults = {"address": "测试地址", "city": "测试城市", "payment_terms": "bank_transfer"}
+        defaults = {
+            "address": "测试地址",
+            "city": "测试城市",
+            "payment_terms": "bank_transfer",
+        }
         defaults.update(kwargs)
 
         return Supplier.objects.create(code=code, name=name, **defaults)

@@ -1,10 +1,12 @@
 """
 BI模块URL配置
 """
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from apps.bi.views import (
+    ApiPerformanceViewSet,
     DashboardViewSet,
     DashboardWidgetViewSet,
     DataExportViewSet,
@@ -14,7 +16,6 @@ from apps.bi.views import (
     ReportViewSet,
     SalesSummaryViewSet,
     SystemHealthViewSet,
-    ApiPerformanceViewSet,
 )
 
 router = DefaultRouter()

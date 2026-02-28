@@ -1,6 +1,7 @@
 """
 Sales forms for the ERP system.
 """
+
 from datetime import timedelta
 
 from django import forms

@@ -14,7 +14,9 @@ class Migration(migrations.Migration):
             model_name="invoice",
             name="is_credit_note",
             field=models.BooleanField(
-                default=False, help_text="红字发票用于冲销原发票", verbose_name="是否红字发票"
+                default=False,
+                help_text="红字发票用于冲销原发票",
+                verbose_name="是否红字发票",
             ),
         ),
         migrations.AddField(
@@ -76,7 +78,11 @@ class Migration(migrations.Migration):
             model_name="invoice",
             name="tax_amount",
             field=models.DecimalField(
-                decimal_places=2, default=0, help_text="红字发票时为负数", max_digits=12, verbose_name="税额"
+                decimal_places=2,
+                default=0,
+                help_text="红字发票时为负数",
+                max_digits=12,
+                verbose_name="税额",
             ),
         ),
         migrations.AlterField(

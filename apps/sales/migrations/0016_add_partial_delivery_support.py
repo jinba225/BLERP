@@ -25,7 +25,10 @@ class Migration(migrations.Migration):
             model_name="deliveryitem",
             name="quantity",
             field=models.DecimalField(
-                decimal_places=4, help_text="计划发货数量", max_digits=12, verbose_name="计划发货数量"
+                decimal_places=4,
+                help_text="计划发货数量",
+                max_digits=12,
+                verbose_name="计划发货数量",
             ),
         ),
         # 3. 修改 Delivery.status 字段，添加 'partially_shipped' 选项

@@ -1,6 +1,7 @@
 """
 Supplier views for the ERP system.
 """
+
 from core.utils.code_generator import CodeGenerator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required

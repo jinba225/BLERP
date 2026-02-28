@@ -126,7 +126,7 @@ CACHE_STRATEGIES = {
 # 基于事件的缓存失效
 class EventBasedCacheInvalidation:
     """基于事件的缓存失效"""
-    
+
     def __init__(self, cache_manager):
         self.cache_manager = cache_manager
         self.event_patterns = {
@@ -150,14 +150,14 @@ class EventBasedCacheInvalidation:
             # 分类相关事件
             'category_updated': ['category:*', 'product:*'],
         }
-    
+
     async def handle_event(self, event_type, event_data=None):
         """处理事件并触发缓存失效"""
         logger.info(f"处理缓存失效事件: {event_type}")
-        
+
         # 获取对应的缓存模式
         patterns = self.event_patterns.get(event_type, [])
-        
+
         # 处理特定事件的数据
         if event_data:
             if event_type in ['product_updated', 'product_deleted']:
@@ -170,11 +170,11 @@ class EventBasedCacheInvalidation:
                 if customer_id:
                     patterns.append(f'customer:{customer_id}:*')
                     patterns.append(f'order:*:{customer_id}:*')
-        
+
         # 执行缓存失效
         for pattern in patterns:
             await self.cache_manager.invalidate_pattern(pattern, event_type)
-        
+
         logger.info(f"事件处理完成: {event_type}, 失效模式数: {len(patterns)}")
 ```
 
@@ -186,14 +186,14 @@ class EventBasedCacheInvalidation:
 # 缓存失效优先级
 class PrioritizedCacheInvalidation:
     """优先级缓存失效"""
-    
+
     def __init__(self, cache_manager):
         self.cache_manager = cache_manager
         self.priority_queue = []
-    
+
     def add_invalidation(self, pattern, priority=0, event_type=None):
         """添加缓存失效请求
-        
+
         Args:
             pattern: 缓存键模式
             priority: 优先级，数字越大优先级越高
@@ -202,7 +202,7 @@ class PrioritizedCacheInvalidation:
         self.priority_queue.append((-priority, pattern, event_type))
         # 按优先级排序
         self.priority_queue.sort()
-    
+
     async def process_invalidations(self):
         """处理缓存失效请求"""
         while self.priority_queue:
@@ -218,30 +218,30 @@ class PrioritizedCacheInvalidation:
 # 缓存雪崩防护
 class CacheAvalancheProtection:
     """缓存雪崩防护"""
-    
+
     @staticmethod
     def get_ttl_with_jitter(base_ttl, jitter_percent=0.2):
         """获取带随机抖动的TTL
-        
+
         Args:
             base_ttl: 基础TTL
             jitter_percent: 抖动百分比
-        
+
         Returns:
             int: 带随机抖动的TTL
         """
         import random
         jitter = base_ttl * jitter_percent
         return int(base_ttl + random.uniform(-jitter, jitter))
-    
+
     @staticmethod
     def get_cache_key_with_version(key, version=None):
         """获取带版本的缓存键
-        
+
         Args:
             key: 原始缓存键
             version: 版本号
-        
+
         Returns:
             str: 带版本的缓存键
         """
@@ -262,14 +262,14 @@ class CacheAvalancheProtection:
 # 智能缓存预热
 class SmartCacheWarmer:
     """智能缓存预热"""
-    
+
     def __init__(self, cache_manager):
         self.cache_manager = cache_manager
         self.access_patterns = {}
-    
+
     def record_access(self, key, timestamp=None):
         """记录缓存访问模式
-        
+
         Args:
             key: 缓存键
             timestamp: 访问时间戳
@@ -277,19 +277,19 @@ class SmartCacheWarmer:
         if timestamp is None:
             import time
             timestamp = time.time()
-        
+
         if key not in self.access_patterns:
             self.access_patterns[key] = []
-        
+
         self.access_patterns[key].append(timestamp)
-        
+
         # 只保留最近100次访问记录
         if len(self.access_patterns[key]) > 100:
             self.access_patterns[key] = self.access_patterns[key][-100:]
-    
+
     async def warm_up_based_on_patterns(self, data_loader, top_n=10):
         """基于访问模式进行缓存预热
-        
+
         Args:
             data_loader: 数据加载函数
             top_n: 预热访问频率最高的前N个键
@@ -302,10 +302,10 @@ class SmartCacheWarmer:
             one_hour_ago = time.time() - 3600
             recent_accesses = [t for t in timestamps if t > one_hour_ago]
             access_frequencies[key] = len(recent_accesses)
-        
+
         # 按访问频率排序
         sorted_keys = sorted(access_frequencies.items(), key=lambda x: x[1], reverse=True)[:top_n]
-        
+
         # 预热高频访问的键
         for key, _ in sorted_keys:
             try:
@@ -324,28 +324,28 @@ class SmartCacheWarmer:
 # 批量缓存预热
 class BatchCacheWarmer:
     """批量缓存预热"""
-    
+
     def __init__(self, cache_manager):
         self.cache_manager = cache_manager
-    
+
     async def warm_up_batch(self, data_loaders, batch_size=10, concurrency=5):
         """批量预热缓存
-        
+
         Args:
             data_loaders: 数据加载函数列表，每个函数返回 (key, value) 元组
             batch_size: 批处理大小
             concurrency: 并发数
         """
         import asyncio
-        
+
         # 分批处理
         total_batches = (len(data_loaders) + batch_size - 1) // batch_size
-        
+
         for batch_idx in range(total_batches):
             start = batch_idx * batch_size
             end = min(start + batch_size, len(data_loaders))
             batch_loaders = data_loaders[start:end]
-            
+
             # 并发处理
             async def process_loader(loader):
                 try:
@@ -356,18 +356,18 @@ class BatchCacheWarmer:
                 except Exception as e:
                     logger.error(f"预热缓存失败: {e}")
                     return False
-            
+
             # 限制并发数
             semaphore = asyncio.Semaphore(concurrency)
-            
+
             async def process_with_semaphore(loader):
                 async with semaphore:
                     return await process_loader(loader)
-            
+
             results = await asyncio.gather(
                 *[process_with_semaphore(loader) for loader in batch_loaders]
             )
-            
+
             success_count = sum(results)
             logger.info(f"批次 {batch_idx + 1}/{total_batches} 完成: {success_count}/{len(batch_loaders)} 成功")
 ```
@@ -380,14 +380,14 @@ class BatchCacheWarmer:
 # 定时缓存预热
 class ScheduledCacheWarmer:
     """定时缓存预热"""
-    
+
     def __init__(self, cache_manager):
         self.cache_manager = cache_manager
         self.schedules = []
-    
+
     def add_schedule(self, name, cron_expression, data_loaders):
         """添加定时预热任务
-        
+
         Args:
             name: 任务名称
             cron_expression: Cron表达式
@@ -398,27 +398,27 @@ class ScheduledCacheWarmer:
             'cron': cron_expression,
             'loaders': data_loaders
         })
-    
+
     async def run_scheduled_warmups(self):
         """运行定时预热任务"""
         import croniter
         import time
-        
+
         while True:
             now = time.time()
-            
+
             for schedule in self.schedules:
                 cron = croniter.croniter(schedule['cron'], now)
                 next_run = cron.get_prev()
-                
+
                 # 检查是否到了运行时间
                 if now - next_run < 60:  # 1分钟内
                     logger.info(f"运行定时预热任务: {schedule['name']}")
-                    
+
                     # 预热缓存
                     batch_warmer = BatchCacheWarmer(self.cache_manager)
                     await batch_warmer.warm_up_batch(schedule['loaders'])
-            
+
             # 每分钟检查一次
             await asyncio.sleep(60)
 ```
@@ -433,12 +433,12 @@ class ScheduledCacheWarmer:
 # 多级缓存实现
 class MultiLevelCache:
     """多级缓存"""
-    
+
     def __init__(self):
         self.local_cache = {}  # L1: 内存缓存
         self.redis_cache = cache  # L2: Redis缓存
         self.persistent_cache = None  # L3: 持久化缓存（可选）
-        
+
     async def get(self, key, cache_type="default"):
         """多级缓存查询"""
         # L1: 内存缓存
@@ -449,7 +449,7 @@ class MultiLevelCache:
                 return value
             else:
                 del self.local_cache[key]
-        
+
         # L2: Redis缓存
         try:
             value = self.redis_cache.get(key)
@@ -461,7 +461,7 @@ class MultiLevelCache:
                 return value
         except Exception as e:
             logger.error(f"Redis缓存查询失败: {e}")
-        
+
         # L3: 持久化缓存（可选）
         if self.persistent_cache:
             try:
@@ -473,9 +473,9 @@ class MultiLevelCache:
                     return value
             except Exception as e:
                 logger.error(f"持久化缓存查询失败: {e}")
-        
+
         return None
-    
+
     async def set(self, key, value, cache_type="default"):
         """多级缓存设置"""
         # 获取缓存策略
@@ -483,10 +483,10 @@ class MultiLevelCache:
         strategy = strategy_config.get("strategy", "cache_aside")
         ttl = strategy_config.get("ttl", 300)
         enable_local_cache = strategy_config.get("enable_local_cache", True)
-        
+
         # 序列化值
         serialized_value = json.dumps(value)
-        
+
         # 根据策略写入
         if strategy == "write_through":
             # 写透：同时写所有层级
@@ -503,7 +503,7 @@ class MultiLevelCache:
         elif strategy == "cache_aside":
             # 旁路：只写Redis
             self.redis_cache.setex(key, ttl, serialized_value)
-    
+
     async def _write_back_to_redis(self, key, value, ttl):
         """异步写回Redis"""
         try:
@@ -523,28 +523,28 @@ class MultiLevelCache:
 # 缓存压缩
 class CompressedCache:
     """压缩缓存"""
-    
+
     @staticmethod
     def compress(value):
         """压缩数据
-        
+
         Args:
             value: 要压缩的数据
-        
+
         Returns:
             bytes: 压缩后的数据
         """
         import zlib
         serialized = json.dumps(value).encode('utf-8')
         return zlib.compress(serialized)
-    
+
     @staticmethod
     def decompress(compressed_value):
         """解压缩数据
-        
+
         Args:
             compressed_value: 压缩后的数据
-        
+
         Returns:
             any: 解压缩后的数据
         """
@@ -555,14 +555,14 @@ class CompressedCache:
         except Exception as e:
             logger.error(f"解压缩失败: {e}")
             return None
-    
+
     async def get(self, key, cache_type="default"):
         """获取压缩缓存"""
         compressed_value = await self.cache_manager.get(key, cache_type)
         if compressed_value:
             return self.decompress(compressed_value)
         return None
-    
+
     async def set(self, key, value, cache_type="default"):
         """设置压缩缓存"""
         compressed_value = self.compress(value)
@@ -577,7 +577,7 @@ class CompressedCache:
 # 缓存统计和监控
 class CacheMonitor:
     """缓存监控"""
-    
+
     def __init__(self, cache_manager):
         self.cache_manager = cache_manager
         self.stats = {
@@ -590,13 +590,13 @@ class CacheMonitor:
             'redis_cache_hits': 0,
             'persistent_cache_hits': 0,
         }
-    
+
     async def get(self, key, cache_type="default"):
         """获取缓存并记录统计"""
         start_time = time.time()
         value = await self.cache_manager.get(key, cache_type)
         duration = time.time() - start_time
-        
+
         if value:
             self.stats['hits'] += 1
             # 根据缓存层级记录命中
@@ -606,20 +606,20 @@ class CacheMonitor:
                 self.stats['redis_cache_hits'] += 1
         else:
             self.stats['misses'] += 1
-        
+
         # 记录访问时间
         self.cache_manager.record_access(key)
-        
+
         return value
-    
+
     async def set(self, key, value, cache_type="default"):
         """设置缓存并记录统计"""
         start_time = time.time()
         await self.cache_manager.set(key, value, cache_type)
         duration = time.time() - start_time
-        
+
         self.stats['sets'] += 1
-        
+
         # 计算压缩率
         if hasattr(self.cache_manager, 'compressed') and self.cache_manager.compressed:
             original_size = len(json.dumps(value).encode('utf-8'))
@@ -627,19 +627,19 @@ class CacheMonitor:
             if original_size > 0:
                 compression_ratio = (original_size - compressed_size) / original_size
                 self.stats['compression_ratio'] = compression_ratio
-    
+
     def get_stats(self):
         """获取缓存统计"""
         total = self.stats['hits'] + self.stats['misses']
         hit_rate = self.stats['hits'] / total if total > 0 else 0
-        
+
         return {
             **self.stats,
             'hit_rate': round(hit_rate, 4),
             'total_requests': total,
             'local_cache_size': len(self.cache_manager.local_cache) if hasattr(self.cache_manager, 'local_cache') else 0,
         }
-    
+
     def reset_stats(self):
         """重置缓存统计"""
         self.stats = {

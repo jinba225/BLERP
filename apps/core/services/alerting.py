@@ -2,6 +2,7 @@
 告警服务 - 规则引擎和通知服务
 支持钉钉、邮件通知，告警收敛，规则引擎
 """
+
 import json
 import logging
 import time

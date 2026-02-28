@@ -84,14 +84,20 @@ class ChannelAIServiceTest(TestCase):
             result = self.nlp_service.parse_user_input(test_case["input"])
 
             self.assertEqual(
-                result.intent.value, test_case["expected_intent"], f"测试用例 {i}: {test_case['input']}"
+                result.intent.value,
+                test_case["expected_intent"],
+                f"测试用例 {i}: {test_case['input']}",
             )
 
             self.assertGreater(result.confidence, 0.5, f"测试用例 {i}: 置信度应该大于 0.5")
 
             for key, value in test_case["expected_entities"].items():
                 if key in result.entities:
-                    self.assertEqual(str(result.entities[key]), value, f"测试用例 {i}: 实体 {key} 应该匹配")
+                    self.assertEqual(
+                        str(result.entities[key]),
+                        value,
+                        f"测试用例 {i}: 实体 {key} 应该匹配",
+                    )
 
     def test_conversation_flow(self):
         """测试对话流管理"""
@@ -100,7 +106,9 @@ class ChannelAIServiceTest(TestCase):
 
         # 第一轮：开始创建订单（使用明确的命令）
         reply1, completed1 = self.conversation_manager.process_message(
-            session_id=session_id, user_id=user_id, user_message="给北京科技有限公司创建一个销售订单"
+            session_id=session_id,
+            user_id=user_id,
+            user_message="给北京科技有限公司创建一个销售订单",
         )
 
         # 第一轮应该询问缺失信息
@@ -142,9 +150,17 @@ class ChannelAIServiceTest(TestCase):
         from ai_assistant.channels import ChannelAdapter
 
         test_cases = [
-            ("telegram", '<svg class="icon-success">', '<svg class="icon-success"> 成功'),
+            (
+                "telegram",
+                '<svg class="icon-success">',
+                '<svg class="icon-success"> 成功',
+            ),
             ("wechat", '<svg class="icon-success">', '<svg class="icon-success"> 成功'),
-            ("dingtalk", '<svg class="icon-success">', '<svg class="icon-success"> 成功'),
+            (
+                "dingtalk",
+                '<svg class="icon-success">',
+                '<svg class="icon-success"> 成功',
+            ),
             ("web", "成功", "成功"),
         ]
 
@@ -153,7 +169,9 @@ class ChannelAIServiceTest(TestCase):
             formatted = adapter._apply_markdown(text, platform=channel)
 
             self.assertIn(
-                expected_format, formatted, f"渠道 {channel} 的 Markdown 格式应该包含 '{expected_format}'"
+                expected_format,
+                formatted,
+                f"渠道 {channel} 的 Markdown 格式应该包含 '{expected_format}'",
             )
 
     def test_channel_ai_service(self):
@@ -206,7 +224,11 @@ class ToolExecutionTest(TestCase):
 
         # 创建计量单位
         self.unit = Unit.objects.create(
-            name="台", symbol="台", unit_type="count", is_active=True, created_by=self.user
+            name="台",
+            symbol="台",
+            unit_type="count",
+            is_active=True,
+            created_by=self.user,
         )
 
         # 创建仓库
@@ -220,7 +242,11 @@ class ToolExecutionTest(TestCase):
 
         # 创建测试客户
         self.customer = Customer.objects.create(
-            name="测试客户", code="TEST001", customer_level="B", status="active", created_by=self.user
+            name="测试客户",
+            code="TEST001",
+            customer_level="B",
+            status="active",
+            created_by=self.user,
         )
 
         # 创建测试产品

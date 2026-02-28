@@ -149,7 +149,9 @@ class Migration(migrations.Migration):
             model_name="journalentry",
             name="account",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="finance.account", verbose_name="科目"
+                on_delete=django.db.models.deletion.CASCADE,
+                to="finance.account",
+                verbose_name="科目",
             ),
         ),
         migrations.AddField(
@@ -364,7 +366,9 @@ class Migration(migrations.Migration):
             model_name="budgetline",
             name="account",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="finance.account", verbose_name="科目"
+                on_delete=django.db.models.deletion.CASCADE,
+                to="finance.account",
+                verbose_name="科目",
             ),
         ),
         migrations.AddField(

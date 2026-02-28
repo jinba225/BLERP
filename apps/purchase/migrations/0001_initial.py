@@ -15,13 +15,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "order_number",
                     models.CharField(max_length=100, unique=True, verbose_name="采购单号"),
@@ -60,9 +75,18 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("order_date", models.DateField(verbose_name="订单日期")),
-                ("required_date", models.DateField(blank=True, null=True, verbose_name="要求交期")),
-                ("promised_date", models.DateField(blank=True, null=True, verbose_name="承诺交期")),
-                ("received_date", models.DateField(blank=True, null=True, verbose_name="收货日期")),
+                (
+                    "required_date",
+                    models.DateField(blank=True, null=True, verbose_name="要求交期"),
+                ),
+                (
+                    "promised_date",
+                    models.DateField(blank=True, null=True, verbose_name="承诺交期"),
+                ),
+                (
+                    "received_date",
+                    models.DateField(blank=True, null=True, verbose_name="收货日期"),
+                ),
                 (
                     "subtotal",
                     models.DecimalField(
@@ -72,7 +96,10 @@ class Migration(migrations.Migration):
                 (
                     "tax_rate",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=5, verbose_name="税率(%)"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=5,
+                        verbose_name="税率(%)",
                     ),
                 ),
                 (
@@ -84,13 +111,19 @@ class Migration(migrations.Migration):
                 (
                     "discount_rate",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=5, verbose_name="折扣率(%)"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=5,
+                        verbose_name="折扣率(%)",
                     ),
                 ),
                 (
                     "discount_amount",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="折扣金额"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="折扣金额",
                     ),
                 ),
                 (
@@ -102,11 +135,20 @@ class Migration(migrations.Migration):
                 (
                     "total_amount",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="总金额"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="总金额",
                     ),
                 ),
-                ("currency", models.CharField(default="CNY", max_length=10, verbose_name="币种")),
-                ("delivery_address", models.TextField(blank=True, verbose_name="收货地址")),
+                (
+                    "currency",
+                    models.CharField(default="CNY", max_length=10, verbose_name="币种"),
+                ),
+                (
+                    "delivery_address",
+                    models.TextField(blank=True, verbose_name="收货地址"),
+                ),
                 (
                     "delivery_contact",
                     models.CharField(blank=True, max_length=100, verbose_name="收货联系人"),
@@ -128,8 +170,14 @@ class Migration(migrations.Migration):
                     models.CharField(blank=True, max_length=100, verbose_name="供应商订单号"),
                 ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
-                ("internal_notes", models.TextField(blank=True, verbose_name="内部备注")),
-                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="审核时间")),
+                (
+                    "internal_notes",
+                    models.TextField(blank=True, verbose_name="内部备注"),
+                ),
+                (
+                    "approved_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="审核时间"),
+                ),
             ],
             options={
                 "verbose_name": "采购订单",
@@ -144,13 +192,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "quantity",
                     models.DecimalField(decimal_places=4, max_digits=12, verbose_name="数量"),
@@ -162,30 +225,48 @@ class Migration(migrations.Migration):
                 (
                     "discount_rate",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=5, verbose_name="折扣率(%)"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=5,
+                        verbose_name="折扣率(%)",
                     ),
                 ),
                 (
                     "discount_amount",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="折扣金额"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="折扣金额",
                     ),
                 ),
                 (
                     "line_total",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="行总计"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="行总计",
                     ),
                 ),
                 (
                     "received_quantity",
                     models.DecimalField(
-                        decimal_places=4, default=0, max_digits=12, verbose_name="已收货数量"
+                        decimal_places=4,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="已收货数量",
                     ),
                 ),
-                ("required_date", models.DateField(blank=True, null=True, verbose_name="要求交期")),
+                (
+                    "required_date",
+                    models.DateField(blank=True, null=True, verbose_name="要求交期"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
-                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="排序")),
+                (
+                    "sort_order",
+                    models.PositiveIntegerField(default=0, verbose_name="排序"),
+                ),
             ],
             options={
                 "verbose_name": "采购订单明细",
@@ -200,13 +281,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "receipt_number",
                     models.CharField(max_length=100, unique=True, verbose_name="收货单号"),
@@ -227,20 +323,38 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("receipt_date", models.DateField(verbose_name="收货日期")),
-                ("inspection_date", models.DateField(blank=True, null=True, verbose_name="检验日期")),
+                (
+                    "inspection_date",
+                    models.DateField(blank=True, null=True, verbose_name="检验日期"),
+                ),
                 (
                     "delivery_note",
                     models.CharField(blank=True, max_length=100, verbose_name="送货单号"),
                 ),
-                ("carrier", models.CharField(blank=True, max_length=100, verbose_name="承运商")),
-                ("vehicle_number", models.CharField(blank=True, max_length=20, verbose_name="车牌号")),
-                ("driver_name", models.CharField(blank=True, max_length=100, verbose_name="司机姓名")),
-                ("driver_phone", models.CharField(blank=True, max_length=20, verbose_name="司机电话")),
+                (
+                    "carrier",
+                    models.CharField(blank=True, max_length=100, verbose_name="承运商"),
+                ),
+                (
+                    "vehicle_number",
+                    models.CharField(blank=True, max_length=20, verbose_name="车牌号"),
+                ),
+                (
+                    "driver_name",
+                    models.CharField(blank=True, max_length=100, verbose_name="司机姓名"),
+                ),
+                (
+                    "driver_phone",
+                    models.CharField(blank=True, max_length=20, verbose_name="司机电话"),
+                ),
                 (
                     "overall_quality",
                     models.CharField(blank=True, max_length=100, verbose_name="整体质量"),
                 ),
-                ("quality_notes", models.TextField(blank=True, verbose_name="质量备注")),
+                (
+                    "quality_notes",
+                    models.TextField(blank=True, verbose_name="质量备注"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
@@ -256,13 +370,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "received_quantity",
                     models.DecimalField(decimal_places=4, max_digits=12, verbose_name="收货数量"),
@@ -270,13 +399,19 @@ class Migration(migrations.Migration):
                 (
                     "accepted_quantity",
                     models.DecimalField(
-                        decimal_places=4, default=0, max_digits=12, verbose_name="验收数量"
+                        decimal_places=4,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="验收数量",
                     ),
                 ),
                 (
                     "rejected_quantity",
                     models.DecimalField(
-                        decimal_places=4, default=0, max_digits=12, verbose_name="拒收数量"
+                        decimal_places=4,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="拒收数量",
                     ),
                 ),
                 (
@@ -293,13 +428,26 @@ class Migration(migrations.Migration):
                         verbose_name="质量状态",
                     ),
                 ),
-                ("quality_notes", models.TextField(blank=True, verbose_name="质量备注")),
-                ("batch_number", models.CharField(blank=True, max_length=100, verbose_name="批次号")),
+                (
+                    "quality_notes",
+                    models.TextField(blank=True, verbose_name="质量备注"),
+                ),
+                (
+                    "batch_number",
+                    models.CharField(blank=True, max_length=100, verbose_name="批次号"),
+                ),
                 (
                     "serial_numbers",
-                    models.TextField(blank=True, help_text="多个序列号用换行分隔", verbose_name="序列号"),
+                    models.TextField(
+                        blank=True,
+                        help_text="多个序列号用换行分隔",
+                        verbose_name="序列号",
+                    ),
                 ),
-                ("expiry_date", models.DateField(blank=True, null=True, verbose_name="过期日期")),
+                (
+                    "expiry_date",
+                    models.DateField(blank=True, null=True, verbose_name="过期日期"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
@@ -314,13 +462,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "request_number",
                     models.CharField(max_length=100, unique=True, verbose_name="申请单号"),
@@ -345,7 +508,12 @@ class Migration(migrations.Migration):
                 (
                     "priority",
                     models.CharField(
-                        choices=[("low", "低"), ("normal", "普通"), ("high", "高"), ("urgent", "紧急")],
+                        choices=[
+                            ("low", "低"),
+                            ("normal", "普通"),
+                            ("high", "高"),
+                            ("urgent", "紧急"),
+                        ],
                         default="normal",
                         max_length=20,
                         verbose_name="优先级",
@@ -354,16 +522,31 @@ class Migration(migrations.Migration):
                 ("request_date", models.DateField(verbose_name="申请日期")),
                 ("required_date", models.DateField(verbose_name="需要日期")),
                 ("purpose", models.CharField(max_length=200, verbose_name="用途")),
-                ("justification", models.TextField(blank=True, verbose_name="申请理由")),
+                (
+                    "justification",
+                    models.TextField(blank=True, verbose_name="申请理由"),
+                ),
                 (
                     "estimated_total",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="预估总额"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="预估总额",
                     ),
                 ),
-                ("budget_code", models.CharField(blank=True, max_length=100, verbose_name="预算科目")),
-                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="审核时间")),
-                ("rejection_reason", models.TextField(blank=True, verbose_name="拒绝原因")),
+                (
+                    "budget_code",
+                    models.CharField(blank=True, max_length=100, verbose_name="预算科目"),
+                ),
+                (
+                    "approved_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="审核时间"),
+                ),
+                (
+                    "rejection_reason",
+                    models.TextField(blank=True, verbose_name="拒绝原因"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
@@ -379,13 +562,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "quantity",
                     models.DecimalField(decimal_places=4, max_digits=12, verbose_name="申请数量"),
@@ -393,18 +591,30 @@ class Migration(migrations.Migration):
                 (
                     "estimated_price",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="预估单价"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="预估单价",
                     ),
                 ),
                 (
                     "estimated_total",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="预估总价"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="预估总价",
                     ),
                 ),
-                ("specifications", models.TextField(blank=True, verbose_name="规格要求")),
+                (
+                    "specifications",
+                    models.TextField(blank=True, verbose_name="规格要求"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
-                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="排序")),
+                (
+                    "sort_order",
+                    models.PositiveIntegerField(default=0, verbose_name="排序"),
+                ),
             ],
             options={
                 "verbose_name": "采购申请明细",
@@ -419,13 +629,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "return_number",
                     models.CharField(max_length=100, unique=True, verbose_name="退货单号"),
@@ -461,14 +686,23 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("return_date", models.DateField(verbose_name="退货日期")),
-                ("shipped_date", models.DateField(blank=True, null=True, verbose_name="发货日期")),
+                (
+                    "shipped_date",
+                    models.DateField(blank=True, null=True, verbose_name="发货日期"),
+                ),
                 (
                     "refund_amount",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="退款金额"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="退款金额",
                     ),
                 ),
-                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="审核时间")),
+                (
+                    "approved_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="审核时间"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
@@ -484,13 +718,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "quantity",
                     models.DecimalField(decimal_places=4, max_digits=12, verbose_name="退货数量"),
@@ -502,11 +751,20 @@ class Migration(migrations.Migration):
                 (
                     "line_total",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="行总计"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="行总计",
                     ),
                 ),
-                ("condition", models.CharField(blank=True, max_length=100, verbose_name="货物状态")),
-                ("batch_number", models.CharField(blank=True, max_length=100, verbose_name="批次号")),
+                (
+                    "condition",
+                    models.CharField(blank=True, max_length=100, verbose_name="货物状态"),
+                ),
+                (
+                    "batch_number",
+                    models.CharField(blank=True, max_length=100, verbose_name="批次号"),
+                ),
                 ("serial_numbers", models.TextField(blank=True, verbose_name="序列号")),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],

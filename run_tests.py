@@ -63,7 +63,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Django ERP 测试运行器")
     parser.add_argument("labels", nargs="*", help="测试标签（应用名、模块名或测试类名）")
     parser.add_argument(
-        "-v", "--verbosity", type=int, default=2, choices=[0, 1, 2, 3], help="输出详细程度"
+        "-v",
+        "--verbosity",
+        type=int,
+        default=2,
+        choices=[0, 1, 2, 3],
+        help="输出详细程度",
     )
     parser.add_argument("-k", "--keepdb", action="store_true", help="保留测试数据库")
 

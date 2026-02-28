@@ -170,7 +170,10 @@ class BaseTool(ABC):
         """
         # 1. 检查权限
         if not self.check_permission():
-            return ToolResult(success=False, error=f"权限不足：需要权限 {self.require_permission or '未知'}")
+            return ToolResult(
+                success=False,
+                error=f"权限不足：需要权限 {self.require_permission or '未知'}",
+            )
 
         # 2. 验证参数
         valid, error_msg = self.validate_parameters(**kwargs)
@@ -182,7 +185,11 @@ class BaseTool(ABC):
             # TODO: 实现审核流程
             # 现在暂时允许超级用户直接执行
             if not self.user.is_superuser:
-                return ToolResult(success=False, message="此操作需要审核", data={"pending_approval": True})
+                return ToolResult(
+                    success=False,
+                    message="此操作需要审核",
+                    data={"pending_approval": True},
+                )
 
         # 4. 执行工具
         try:

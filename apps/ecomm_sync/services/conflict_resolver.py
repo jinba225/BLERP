@@ -7,6 +7,7 @@
 - 智能解决策略
 - 冲突日志记录
 """
+
 import logging
 from datetime import datetime
 from enum import Enum
@@ -215,7 +216,12 @@ class ConflictResolver:
         }
 
     def _is_conflicting(
-        self, field: str, local_value: Any, remote_value: Any, local_data: Dict, remote_data: Dict
+        self,
+        field: str,
+        local_value: Any,
+        remote_value: Any,
+        local_data: Dict,
+        remote_data: Dict,
     ) -> bool:
         """
         判断是否存在冲突

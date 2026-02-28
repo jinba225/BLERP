@@ -231,7 +231,10 @@ class WorkflowManager:
             return (
                 True,
                 f"发货单 {delivery.delivery_number} 已确认发货",
-                {"delivery_number": delivery.delivery_number, "status": delivery.status},
+                {
+                    "delivery_number": delivery.delivery_number,
+                    "status": delivery.status,
+                },
             )
         except Exception as e:
             return False, f"确认发货失败: {str(e)}", {}
@@ -290,7 +293,10 @@ class WorkflowManager:
             return (
                 True,
                 f"调拨单 {transfer.transfer_number} 已发货",
-                {"transfer_number": transfer.transfer_number, "status": transfer.status},
+                {
+                    "transfer_number": transfer.transfer_number,
+                    "status": transfer.status,
+                },
             )
         except Exception as e:
             return False, f"调拨发货失败: {str(e)}", {}
@@ -325,7 +331,10 @@ class WorkflowManager:
             return (
                 True,
                 f"调拨单 {transfer.transfer_number} 已收货",
-                {"transfer_number": transfer.transfer_number, "status": transfer.status},
+                {
+                    "transfer_number": transfer.transfer_number,
+                    "status": transfer.status,
+                },
             )
         except Exception as e:
             return False, f"调拨收货失败: {str(e)}", {}

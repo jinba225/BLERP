@@ -3,6 +3,7 @@ Shopee电商平台适配器
 
 Shopee是东南亚领先的电商平台
 """
+
 import base64
 import hashlib
 import hmac
@@ -78,7 +79,9 @@ class ShopeeAdapter(BaseAdapter):
 
         # 使用HMAC-SHA256签名
         signature = hmac.new(
-            self.partner_key.encode("utf-8"), base_string.encode("utf-8"), hashlib.sha256
+            self.partner_key.encode("utf-8"),
+            base_string.encode("utf-8"),
+            hashlib.sha256,
         ).hexdigest()
 
         return signature

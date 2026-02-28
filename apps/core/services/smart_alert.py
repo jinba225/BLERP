@@ -7,12 +7,12 @@
 - 告警风暴预防
 - 智能告警路由
 """
+
 import json
 import logging
-import math
 import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from datetime import datetime
+from typing import Dict, List, Tuple
 
 import numpy as np
 from django.core.cache import cache
@@ -110,13 +110,17 @@ class SmartAlertService:
                 processed.add(i)
 
                 # 解析告警时间
-                alert1_time = datetime.fromisoformat(alert1.get("timestamp", datetime.now().isoformat()))
+                alert1_time = datetime.fromisoformat(
+                    alert1.get("timestamp", datetime.now().isoformat())
+                )
 
                 for j, alert2 in enumerate(alerts):
                     if j in processed or i == j:
                         continue
 
-                    alert2_time = datetime.fromisoformat(alert2.get("timestamp", datetime.now().isoformat()))
+                    alert2_time = datetime.fromisoformat(
+                        alert2.get("timestamp", datetime.now().isoformat())
+                    )
                     time_diff = abs((alert2_time - alert1_time).total_seconds() / 60)
 
                     # 检查时间窗口
@@ -198,7 +202,7 @@ class SmartAlertService:
                 self.redis_client.delete(key)
                 for alert_time_str in valid_alerts:
                     self.redis_client.lpush(key, alert_time_str)
-            
+
             # 添加当前告警
             self.redis_client.lpush(key, str(current_time))
             self.redis_client.expire(key, window)
@@ -351,7 +355,7 @@ class SmartAlertService:
                 return {
                     "trend": "insufficient_data",
                     "daily_counts": daily_counts,
-                    "message": "数据不足，无法分析趋势"
+                    "message": "数据不足，无法分析趋势",
                 }
 
             # 计算斜率
@@ -372,15 +376,12 @@ class SmartAlertService:
                 "trend": trend,
                 "slope": slope,
                 "daily_counts": daily_counts,
-                "message": message
+                "message": message,
             }
 
         except Exception as e:
             logger.error(f"分析告警趋势失败: {e}")
-            return {
-                "trend": "error",
-                "message": f"分析失败: {e}"
-            }
+            return {"trend": "error", "message": f"分析失败: {e}"}
 
 
 # 全局单例

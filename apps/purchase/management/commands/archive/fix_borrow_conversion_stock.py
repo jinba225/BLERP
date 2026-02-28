@@ -7,6 +7,7 @@
 选项:
     --dry-run: 只分析不执行修复，用于查看将要修复的内容
 """
+
 from django.core.management.base import BaseCommand
 
 from apps.inventory.models import InventoryStock, InventoryTransaction, Warehouse
@@ -54,7 +55,9 @@ class Command(BaseCommand):
                 continue
 
             stats["total_borrows"] += 1
-            self.stdout.write(f"\n处理借用单: {borrow.borrow_number} -> 采购订单: {order.order_number}")
+            self.stdout.write(
+                f"\n处理借用单: {borrow.borrow_number} -> 采购订单: {order.order_number}"
+            )
 
             # 1. 检查转采购时是否正确创建了库存调拨事务
             self.stdout.write("  1. 检查转采购时的库存调拨事务...")
@@ -77,11 +80,15 @@ class Command(BaseCommand):
 
             # 检查转采购时的调拨事务
             transfer_out = InventoryTransaction.objects.filter(
-                reference_number=borrow.borrow_number, warehouse=borrow_wh, transaction_type="out"
+                reference_number=borrow.borrow_number,
+                warehouse=borrow_wh,
+                transaction_type="out",
             )
 
             transfer_in = InventoryTransaction.objects.filter(
-                reference_number=borrow.borrow_number, warehouse=main_wh, transaction_type="in"
+                reference_number=borrow.borrow_number,
+                warehouse=main_wh,
+                transaction_type="in",
             )
 
             if transfer_out.exists() and transfer_in.exists():
@@ -92,11 +99,9 @@ class Command(BaseCommand):
                 )
             else:
                 self.stdout.write(
-                    self.style.WARNING(
-                        f"    ⚠️  转采购调拨事务不完整 (出库: {
+                    self.style.WARNING(f"    ⚠️  转采购调拨事务不完整 (出库: {
                             transfer_out.count()}, 入库: {
-                            transfer_in.count()})"
-                    )
+                            transfer_in.count()})")
                 )
 
                 # 如果调拨事务不存在，需要创建
@@ -107,7 +112,9 @@ class Command(BaseCommand):
             # 2. 检查收货时是否创建了重复的库存事务
             self.stdout.write("  2. 检查收货时的重复库存事务...")
 
-            receipts = PurchaseReceipt.objects.filter(purchase_order=order, is_deleted=False)
+            receipts = PurchaseReceipt.objects.filter(
+                purchase_order=order, is_deleted=False
+            )
 
             duplicate_count = 0
             for receipt in receipts:
@@ -120,19 +127,17 @@ class Command(BaseCommand):
 
                 if receipt_transactions.exists():
                     duplicate_count += receipt_transactions.count()
-                    self.stdout.write(
-                        self.style.WARNING(
-                            f"    ⚠️  收货单 {
+                    self.stdout.write(self.style.WARNING(f"    ⚠️  收货单 {
                                 receipt.receipt_number} 创建了 {
-                                receipt_transactions.count()} 个重复事务"
-                        )
-                    )
+                                receipt_transactions.count()} 个重复事务"))
 
                     if not dry_run:
                         # 删除重复事务
                         count, _ = receipt_transactions.delete()
                         stats["duplicate_transactions"] += count
-                        self.stdout.write(self.style.SUCCESS(f"    ✅ 已删除 {count} 个重复事务"))
+                        self.stdout.write(
+                            self.style.SUCCESS(f"    ✅ 已删除 {count} 个重复事务")
+                        )
 
             if duplicate_count == 0:
                 self.stdout.write(self.style.SUCCESS("    ✅ 收货单无重复事务"))
@@ -171,7 +176,9 @@ class Command(BaseCommand):
         if dry_run:
             self.stdout.write(self.style.WARNING("\n这是干运行模式，没有实际修复数据"))
             self.stdout.write(
-                self.style.WARNING("如需实际修复，请运行: python manage.py fix_borrow_conversion_stock")
+                self.style.WARNING(
+                    "如需实际修复，请运行: python manage.py fix_borrow_conversion_stock"
+                )
             )
 
     def create_transfer_transactions(self, borrow, borrow_wh, main_wh):
@@ -205,4 +212,6 @@ class Command(BaseCommand):
                     created_by=borrow.created_by,
                 )
 
-        self.stdout.write(self.style.SUCCESS(f"    ✅ 已为借用单 {borrow.borrow_number} 创建调拨事务"))
+        self.stdout.write(
+            self.style.SUCCESS(f"    ✅ 已为借用单 {borrow.borrow_number} 创建调拨事务")
+        )

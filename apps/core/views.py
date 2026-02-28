@@ -1,6 +1,7 @@
 """
 Core views for the ERP system.
 """
+
 from datetime import timedelta
 
 from django.contrib import messages

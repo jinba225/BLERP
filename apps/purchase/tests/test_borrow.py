@@ -9,6 +9,7 @@
 5. 边界条件测试（零值、负值、精度等）
 6. 异常处理测试（无效数据、重复操作等）
 """
+
 from datetime import date
 from decimal import Decimal
 
@@ -28,10 +29,16 @@ class BorrowModelTestCase(TestCase):
     def setUp(self):
         """测试前准备"""
         self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123", is_staff=False
+            username="testuser",
+            email="test@example.com",
+            password="testpass123",
+            is_staff=False,
         )
         self.admin_user = User.objects.create_user(
-            username="admin", email="admin@example.com", password="adminpass123", is_staff=True
+            username="admin",
+            email="admin@example.com",
+            password="adminpass123",
+            is_staff=True,
         )
         self.supplier = Supplier.objects.create(
             name="测试供应商", code="SUP001", created_by=self.user, updated_by=self.user
@@ -554,7 +561,10 @@ class ConversionFlowTestCase(TestCase):
             username="testuser", email="test@example.com", password="testpass123"
         )
         self.admin_user = User.objects.create_user(
-            username="admin", email="admin@example.com", password="adminpass123", is_staff=True
+            username="admin",
+            email="admin@example.com",
+            password="adminpass123",
+            is_staff=True,
         )
         self.supplier = Supplier.objects.create(
             name="测试供应商", code="SUP001", created_by=self.user, updated_by=self.user

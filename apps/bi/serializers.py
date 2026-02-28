@@ -1,9 +1,11 @@
 """
 BI报表序列化器
 """
+
 from rest_framework import serializers
 
 from apps.bi.models import (
+    ApiPerformance,
     Dashboard,
     DashboardWidget,
     DashboardWidgetConfig,
@@ -14,7 +16,6 @@ from apps.bi.models import (
     ReportData,
     SalesSummary,
     SystemHealth,
-    ApiPerformance,
 )
 
 

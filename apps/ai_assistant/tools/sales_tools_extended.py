@@ -30,10 +30,17 @@ class QueryDeliveriesTool(BaseTool):
                     "enum": ["draft", "pending", "shipped", "delivered", "cancelled"],
                 },
                 "customer_id": {"type": "integer", "description": "客户ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（发货单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -78,19 +85,23 @@ class QueryDeliveriesTool(BaseTool):
                     {
                         "id": delivery.id,
                         "delivery_number": delivery.delivery_number,
-                        "order_number": delivery.sales_order.order_number
-                        if delivery.sales_order
-                        else "",
-                        "customer_name": delivery.sales_order.customer.name
-                        if delivery.sales_order
-                        else "",
-                        "delivery_date": delivery.delivery_date.strftime("%Y-%m-%d")
-                        if delivery.delivery_date
-                        else None,
+                        "order_number": (
+                            delivery.sales_order.order_number if delivery.sales_order else ""
+                        ),
+                        "customer_name": (
+                            delivery.sales_order.customer.name if delivery.sales_order else ""
+                        ),
+                        "delivery_date": (
+                            delivery.delivery_date.strftime("%Y-%m-%d")
+                            if delivery.delivery_date
+                            else None
+                        ),
                         "tracking_number": delivery.tracking_number or "",
                         "status": delivery.status,
                         "status_display": delivery.get_status_display(),
-                        "items_count": delivery.items.count() if hasattr(delivery, "items") else 0,
+                        "items_count": (
+                            delivery.items.count() if hasattr(delivery, "items") else 0
+                        ),
                     }
                 )
 
@@ -126,10 +137,17 @@ class QuerySalesReturnsTool(BaseTool):
                     ],
                 },
                 "customer_id": {"type": "integer", "description": "客户ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（退货单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -174,17 +192,17 @@ class QuerySalesReturnsTool(BaseTool):
                     {
                         "id": ret.id,
                         "return_number": ret.return_number,
-                        "order_number": ret.sales_order.order_number if ret.sales_order else "",
-                        "customer_name": ret.sales_order.customer.name if ret.sales_order else "",
-                        "request_date": ret.request_date.strftime("%Y-%m-%d")
-                        if ret.request_date
-                        else None,
+                        "order_number": (ret.sales_order.order_number if ret.sales_order else ""),
+                        "customer_name": (ret.sales_order.customer.name if ret.sales_order else ""),
+                        "request_date": (
+                            ret.request_date.strftime("%Y-%m-%d") if ret.request_date else None
+                        ),
                         "return_reason": ret.return_reason,
                         "return_reason_display": ret.get_return_reason_display(),
                         "status": ret.status,
                         "status_display": ret.get_status_display(),
-                        "refund_amount": float(ret.refund_amount) if ret.refund_amount else 0,
-                        "items_count": ret.items.count() if hasattr(ret, "items") else 0,
+                        "refund_amount": (float(ret.refund_amount) if ret.refund_amount else 0),
+                        "items_count": (ret.items.count() if hasattr(ret, "items") else 0),
                     }
                 )
 
@@ -220,10 +238,17 @@ class QuerySalesLoansTool(BaseTool):
                     ],
                 },
                 "customer_id": {"type": "integer", "description": "客户ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（借货单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -267,15 +292,17 @@ class QuerySalesLoansTool(BaseTool):
                         "id": loan.id,
                         "loan_number": loan.loan_number,
                         "customer_name": loan.customer.name if loan.customer else "",
-                        "loan_date": loan.loan_date.strftime("%Y-%m-%d")
-                        if loan.loan_date
-                        else None,
-                        "expected_return_date": loan.expected_return_date.strftime("%Y-%m-%d")
-                        if loan.expected_return_date
-                        else None,
+                        "loan_date": (
+                            loan.loan_date.strftime("%Y-%m-%d") if loan.loan_date else None
+                        ),
+                        "expected_return_date": (
+                            loan.expected_return_date.strftime("%Y-%m-%d")
+                            if loan.expected_return_date
+                            else None
+                        ),
                         "status": loan.status,
                         "status_display": loan.get_status_display(),
-                        "items_count": loan.items.count() if hasattr(loan, "items") else 0,
+                        "items_count": (loan.items.count() if hasattr(loan, "items") else 0),
                     }
                 )
 
@@ -318,28 +345,32 @@ class GetDeliveryDetailTool(BaseTool):
                         {
                             "product_name": item.product.name if item.product else "",
                             "product_code": item.product.code if item.product else "",
-                            "quantity": float(item.quantity) if hasattr(item, "quantity") else 0,
+                            "quantity": (float(item.quantity) if hasattr(item, "quantity") else 0),
                         }
                     )
 
             # 构建完整信息
             result = {
                 "delivery_number": delivery.delivery_number,
-                "sales_order": {
-                    "id": delivery.sales_order.id,
-                    "order_number": delivery.sales_order.order_number,
-                }
-                if delivery.sales_order
-                else None,
-                "customer": {
-                    "id": delivery.sales_order.customer.id,
-                    "name": delivery.sales_order.customer.name,
-                }
-                if delivery.sales_order and delivery.sales_order.customer
-                else None,
-                "delivery_date": delivery.delivery_date.strftime("%Y-%m-%d")
-                if delivery.delivery_date
-                else None,
+                "sales_order": (
+                    {
+                        "id": delivery.sales_order.id,
+                        "order_number": delivery.sales_order.order_number,
+                    }
+                    if delivery.sales_order
+                    else None
+                ),
+                "customer": (
+                    {
+                        "id": delivery.sales_order.customer.id,
+                        "name": delivery.sales_order.customer.name,
+                    }
+                    if delivery.sales_order and delivery.sales_order.customer
+                    else None
+                ),
+                "delivery_date": (
+                    delivery.delivery_date.strftime("%Y-%m-%d") if delivery.delivery_date else None
+                ),
                 "tracking_number": delivery.tracking_number or "",
                 "shipping_address": delivery.shipping_address or "",
                 "status": delivery.status,
@@ -349,7 +380,9 @@ class GetDeliveryDetailTool(BaseTool):
             }
 
             return ToolResult(
-                success=True, data=result, message=f"发货单 {delivery.delivery_number} 详情获取成功"
+                success=True,
+                data=result,
+                message=f"发货单 {delivery.delivery_number} 详情获取成功",
             )
 
         except Exception as e:

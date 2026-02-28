@@ -38,10 +38,17 @@ class ConsolidatePrepaymentTool(BaseTool):
                     "description": "源预付款ID列表（要合并的预付款）",
                     "items": {"type": "integer"},
                 },
-                "target_prepayment_id": {"type": "integer", "description": "目标预付款ID（合并到这笔预付款）"},
+                "target_prepayment_id": {
+                    "type": "integer",
+                    "description": "目标预付款ID（合并到这笔预付款）",
+                },
                 "notes": {"type": "string", "description": "备注"},
             },
-            "required": ["prepayment_type", "source_prepayment_ids", "target_prepayment_id"],
+            "required": [
+                "prepayment_type",
+                "source_prepayment_ids",
+                "target_prepayment_id",
+            ],
         }
 
     def execute(
@@ -63,7 +70,10 @@ class ConsolidatePrepaymentTool(BaseTool):
                         id=target_prepayment_id, is_deleted=False
                     )
                 except CustomerPrepayment.DoesNotExist:
-                    return ToolResult(success=False, error=f"目标预付款ID {target_prepayment_id} 不存在")
+                    return ToolResult(
+                        success=False,
+                        error=f"目标预付款ID {target_prepayment_id} 不存在",
+                    )
 
                 # 获取源预付款列表
                 source_prepayments = CustomerPrepayment.objects.filter(
@@ -73,7 +83,9 @@ class ConsolidatePrepaymentTool(BaseTool):
                 )
 
                 if source_prepayments.count() != len(source_prepayment_ids):
-                    return ToolResult(success=False, error="部分源预付款不存在或不属于同一客户")
+                    return ToolResult(
+                        success=False, error="部分源预付款不存在或不属于同一客户"
+                    )
 
                 # 执行合并
                 with transaction.atomic():
@@ -86,7 +98,9 @@ class ConsolidatePrepaymentTool(BaseTool):
                         source.save()
 
                     target_prepayment.amount += total_amount
-                    target_prepayment.notes = f"{target_prepayment.notes or ''}\n合并记录: {notes}"
+                    target_prepayment.notes = (
+                        f"{target_prepayment.notes or ''}\n合并记录: {notes}"
+                    )
                     target_prepayment.save()
 
             else:  # supplier
@@ -98,7 +112,10 @@ class ConsolidatePrepaymentTool(BaseTool):
                         id=target_prepayment_id, is_deleted=False
                     )
                 except SupplierPrepayment.DoesNotExist:
-                    return ToolResult(success=False, error=f"目标预付款ID {target_prepayment_id} 不存在")
+                    return ToolResult(
+                        success=False,
+                        error=f"目标预付款ID {target_prepayment_id} 不存在",
+                    )
 
                 # 获取源预付款列表
                 source_prepayments = SupplierPrepayment.objects.filter(
@@ -108,7 +125,9 @@ class ConsolidatePrepaymentTool(BaseTool):
                 )
 
                 if source_prepayments.count() != len(source_prepayment_ids):
-                    return ToolResult(success=False, error="部分源预付款不存在或不属于同一供应商")
+                    return ToolResult(
+                        success=False, error="部分源预付款不存在或不属于同一供应商"
+                    )
 
                 # 执行合并
                 with transaction.atomic():
@@ -121,7 +140,9 @@ class ConsolidatePrepaymentTool(BaseTool):
                         source.save()
 
                     target_prepayment.amount += total_amount
-                    target_prepayment.notes = f"{target_prepayment.notes or ''}\n合并记录: {notes}"
+                    target_prepayment.notes = (
+                        f"{target_prepayment.notes or ''}\n合并记录: {notes}"
+                    )
                     target_prepayment.save()
 
             return ToolResult(
@@ -163,8 +184,14 @@ class ProcessPaymentTool(BaseTool):
                     "description": "付款方式",
                     "enum": ["cash", "bank_transfer", "check", "draft", "other"],
                 },
-                "payment_date": {"type": "string", "description": "付款日期（YYYY-MM-DD，默认今天）"},
-                "reference_number": {"type": "string", "description": "银行参考号或支票号"},
+                "payment_date": {
+                    "type": "string",
+                    "description": "付款日期（YYYY-MM-DD，默认今天）",
+                },
+                "reference_number": {
+                    "type": "string",
+                    "description": "银行参考号或支票号",
+                },
                 "notes": {"type": "string", "description": "备注"},
             },
             "required": ["payment_id"],
@@ -187,7 +214,8 @@ class ProcessPaymentTool(BaseTool):
 
             if payment.payment_type != "payment":
                 return ToolResult(
-                    success=False, error=f"记录类型为 {payment.get_payment_type_display()}，不是付款记录"
+                    success=False,
+                    error=f"记录类型为 {payment.get_payment_type_display()}，不是付款记录",
                 )
 
             if payment.status == "completed":
@@ -250,13 +278,21 @@ class ApproveBudgetTool(BaseTool):
                     "enum": ["approve", "adjust", "freeze"],
                 },
                 "notes": {"type": "string", "description": "审批备注或调整说明"},
-                "new_amount": {"type": "number", "description": "新预算金额（仅在调整时需要）"},
+                "new_amount": {
+                    "type": "number",
+                    "description": "新预算金额（仅在调整时需要）",
+                },
             },
             "required": ["budget_id", "action"],
         }
 
     def execute(
-        self, budget_id: int, action: str, notes: str = "", new_amount: float = None, **kwargs
+        self,
+        budget_id: int,
+        action: str,
+        notes: str = "",
+        new_amount: float = None,
+        **kwargs,
     ) -> ToolResult:
         """执行审批预算"""
         try:
@@ -268,7 +304,8 @@ class ApproveBudgetTool(BaseTool):
                 # 批准预算
                 if budget.status != "draft":
                     return ToolResult(
-                        success=False, error=f"预算状态为 {budget.get_status_display()}，不能批准"
+                        success=False,
+                        error=f"预算状态为 {budget.get_status_display()}，不能批准",
                     )
 
                 budget.status = "approved"

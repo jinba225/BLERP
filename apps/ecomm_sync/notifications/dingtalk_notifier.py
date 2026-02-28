@@ -1,4 +1,5 @@
 """钉钉通知"""
+
 import hashlib
 import hmac
 import json

@@ -24,7 +24,10 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
                 ("password", models.CharField(max_length=128, verbose_name="password")),
@@ -73,7 +76,10 @@ class Migration(migrations.Migration):
                         default=django.utils.timezone.now, verbose_name="date joined"
                     ),
                 ),
-                ("email", models.EmailField(max_length=254, unique=True, verbose_name="邮箱")),
+                (
+                    "email",
+                    models.EmailField(max_length=254, unique=True, verbose_name="邮箱"),
+                ),
                 (
                     "phone",
                     models.CharField(
@@ -87,7 +93,10 @@ class Migration(migrations.Migration):
                         verbose_name="手机号",
                     ),
                 ),
-                ("avatar", models.ImageField(blank=True, upload_to="avatars/", verbose_name="头像")),
+                (
+                    "avatar",
+                    models.ImageField(blank=True, upload_to="avatars/", verbose_name="头像"),
+                ),
                 (
                     "gender",
                     models.CharField(
@@ -97,22 +106,44 @@ class Migration(migrations.Migration):
                         verbose_name="性别",
                     ),
                 ),
-                ("birth_date", models.DateField(blank=True, null=True, verbose_name="出生日期")),
+                (
+                    "birth_date",
+                    models.DateField(blank=True, null=True, verbose_name="出生日期"),
+                ),
                 (
                     "employee_id",
                     models.CharField(
-                        blank=True, max_length=50, null=True, unique=True, verbose_name="员工编号"
+                        blank=True,
+                        max_length=50,
+                        null=True,
+                        unique=True,
+                        verbose_name="员工编号",
                     ),
                 ),
-                ("hire_date", models.DateField(blank=True, null=True, verbose_name="入职日期")),
-                ("position", models.CharField(blank=True, max_length=100, verbose_name="职位")),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否激活")),
+                (
+                    "hire_date",
+                    models.DateField(blank=True, null=True, verbose_name="入职日期"),
+                ),
+                (
+                    "position",
+                    models.CharField(blank=True, max_length=100, verbose_name="职位"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否激活"),
+                ),
                 (
                     "last_login_ip",
                     models.GenericIPAddressField(blank=True, null=True, verbose_name="最后登录IP"),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
                 (
                     "department",
                     models.ForeignKey(
@@ -171,17 +202,41 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
-                ("name", models.CharField(max_length=100, unique=True, verbose_name="角色名称")),
-                ("code", models.CharField(max_length=50, unique=True, verbose_name="角色代码")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=100, unique=True, verbose_name="角色名称"),
+                ),
+                (
+                    "code",
+                    models.CharField(max_length=50, unique=True, verbose_name="角色代码"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="角色描述")),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -232,14 +287,32 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
-                ("id_card", models.CharField(blank=True, max_length=18, verbose_name="身份证号")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "id_card",
+                    models.CharField(blank=True, max_length=18, verbose_name="身份证号"),
+                ),
                 ("address", models.TextField(blank=True, verbose_name="地址")),
                 (
                     "emergency_contact",
@@ -252,11 +325,21 @@ class Migration(migrations.Migration):
                 (
                     "salary",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=10, null=True, verbose_name="薪资"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="薪资",
                     ),
                 ),
-                ("bank_account", models.CharField(blank=True, max_length=50, verbose_name="银行账号")),
-                ("bank_name", models.CharField(blank=True, max_length=100, verbose_name="开户银行")),
+                (
+                    "bank_account",
+                    models.CharField(blank=True, max_length=50, verbose_name="银行账号"),
+                ),
+                (
+                    "bank_name",
+                    models.CharField(blank=True, max_length=100, verbose_name="开户银行"),
+                ),
                 (
                     "language",
                     models.CharField(default="zh-hans", max_length=10, verbose_name="语言偏好"),
@@ -265,9 +348,18 @@ class Migration(migrations.Migration):
                     "timezone",
                     models.CharField(default="Asia/Shanghai", max_length=50, verbose_name="时区"),
                 ),
-                ("theme", models.CharField(default="light", max_length=20, verbose_name="主题")),
-                ("email_notifications", models.BooleanField(default=True, verbose_name="邮件通知")),
-                ("sms_notifications", models.BooleanField(default=False, verbose_name="短信通知")),
+                (
+                    "theme",
+                    models.CharField(default="light", max_length=20, verbose_name="主题"),
+                ),
+                (
+                    "email_notifications",
+                    models.BooleanField(default=True, verbose_name="邮件通知"),
+                ),
+                (
+                    "sms_notifications",
+                    models.BooleanField(default=False, verbose_name="短信通知"),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -322,15 +414,33 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="权限名称")),
-                ("code", models.CharField(max_length=100, unique=True, verbose_name="权限代码")),
+                (
+                    "code",
+                    models.CharField(max_length=100, unique=True, verbose_name="权限代码"),
+                ),
                 (
                     "permission_type",
                     models.CharField(
@@ -346,7 +456,10 @@ class Migration(migrations.Migration):
                 ),
                 ("module", models.CharField(max_length=50, verbose_name="所属模块")),
                 ("description", models.TextField(blank=True, verbose_name="权限描述")),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -393,13 +506,20 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
                 (
                     "login_type",
                     models.CharField(
-                        choices=[("web", "Web登录"), ("mobile", "移动端登录"), ("api", "API登录")],
+                        choices=[
+                            ("web", "Web登录"),
+                            ("mobile", "移动端登录"),
+                            ("api", "API登录"),
+                        ],
                         default="web",
                         max_length=20,
                         verbose_name="登录类型",
@@ -407,14 +527,26 @@ class Migration(migrations.Migration):
                 ),
                 ("ip_address", models.GenericIPAddressField(verbose_name="IP地址")),
                 ("user_agent", models.TextField(blank=True, verbose_name="用户代理")),
-                ("location", models.CharField(blank=True, max_length=200, verbose_name="登录地点")),
-                ("is_successful", models.BooleanField(default=True, verbose_name="是否成功")),
+                (
+                    "location",
+                    models.CharField(blank=True, max_length=200, verbose_name="登录地点"),
+                ),
+                (
+                    "is_successful",
+                    models.BooleanField(default=True, verbose_name="是否成功"),
+                ),
                 (
                     "failure_reason",
                     models.CharField(blank=True, max_length=200, verbose_name="失败原因"),
                 ),
-                ("login_time", models.DateTimeField(auto_now_add=True, verbose_name="登录时间")),
-                ("logout_time", models.DateTimeField(blank=True, null=True, verbose_name="登出时间")),
+                (
+                    "login_time",
+                    models.DateTimeField(auto_now_add=True, verbose_name="登录时间"),
+                ),
+                (
+                    "logout_time",
+                    models.DateTimeField(blank=True, null=True, verbose_name="登出时间"),
+                ),
                 (
                     "user",
                     models.ForeignKey(
@@ -437,14 +569,32 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(

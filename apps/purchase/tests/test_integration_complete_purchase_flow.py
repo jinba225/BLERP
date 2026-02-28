@@ -72,7 +72,11 @@ def create_test_department(approver):
 def create_test_supplier():
     """创建测试供应商"""
     return Supplier.objects.create(
-        name="测试供应商", code="SUP001", address="测试地址", city="测试城市", payment_terms="bank_transfer"
+        name="测试供应商",
+        code="SUP001",
+        address="测试地址",
+        city="测试城市",
+        payment_terms="bank_transfer",
     )
 
 
@@ -105,7 +109,11 @@ def create_test_products(unit):
 def create_test_warehouse(warehouse_admin):
     """创建测试仓库"""
     warehouse = Warehouse.objects.create(
-        name="主仓库", code="WH001", warehouse_type="main", manager=warehouse_admin, is_active=True
+        name="主仓库",
+        code="WH001",
+        warehouse_type="main",
+        manager=warehouse_admin,
+        is_active=True,
     )
     location = Location.objects.create(
         warehouse=warehouse, code="A01", name="A区01排", is_active=True

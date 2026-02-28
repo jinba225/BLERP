@@ -40,8 +40,15 @@ class QueryAccountsTool(BaseTool):
                     "description": "科目类型（asset/liability/equity/revenue/expense）",
                     "enum": ["asset", "liability", "equity", "revenue", "expense"],
                 },
-                "keyword": {"type": "string", "description": "搜索关键词（科目名称或代码）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认50）", "default": 50},
+                "keyword": {
+                    "type": "string",
+                    "description": "搜索关键词（科目名称或代码）",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认50）",
+                    "default": 50,
+                },
             },
         }
 
@@ -105,10 +112,17 @@ class QueryJournalsTool(BaseTool):
                     "description": "凭证状态（draft/posted/cancelled）",
                     "enum": ["draft", "posted", "cancelled"],
                 },
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（凭证号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -153,16 +167,20 @@ class QueryJournalsTool(BaseTool):
                         "journal_number": journal.journal_number,
                         "journal_type": journal.journal_type,
                         "journal_type_display": journal.get_journal_type_display(),
-                        "journal_date": journal.journal_date.strftime("%Y-%m-%d")
-                        if journal.journal_date
-                        else None,
-                        "total_debit": float(journal.total_debit) if journal.total_debit else 0,
-                        "total_credit": float(journal.total_credit) if journal.total_credit else 0,
+                        "journal_date": (
+                            journal.journal_date.strftime("%Y-%m-%d")
+                            if journal.journal_date
+                            else None
+                        ),
+                        "total_debit": (float(journal.total_debit) if journal.total_debit else 0),
+                        "total_credit": (
+                            float(journal.total_credit) if journal.total_credit else 0
+                        ),
                         "status": journal.status,
                         "status_display": journal.get_status_display(),
-                        "entries_count": journal.entries.count()
-                        if hasattr(journal, "entries")
-                        else 0,
+                        "entries_count": (
+                            journal.entries.count() if hasattr(journal, "entries") else 0
+                        ),
                     }
                 )
 
@@ -187,8 +205,15 @@ class QueryCustomerAccountsTool(BaseTool):
             "properties": {
                 "customer_id": {"type": "integer", "description": "客户ID"},
                 "keyword": {"type": "string", "description": "搜索关键词（客户名称）"},
-                "has_balance": {"type": "boolean", "description": "是否仅显示有余额的客户"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认50）", "default": 50},
+                "has_balance": {
+                    "type": "boolean",
+                    "description": "是否仅显示有余额的客户",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认50）",
+                    "default": 50,
+                },
             },
         }
 
@@ -224,8 +249,8 @@ class QueryCustomerAccountsTool(BaseTool):
                         "id": acc.id,
                         "customer_id": acc.customer_id,
                         "customer_name": acc.customer.name if acc.customer else "",
-                        "debit_amount": float(acc.debit_amount) if acc.debit_amount else 0,
-                        "credit_amount": float(acc.credit_amount) if acc.credit_amount else 0,
+                        "debit_amount": (float(acc.debit_amount) if acc.debit_amount else 0),
+                        "credit_amount": (float(acc.credit_amount) if acc.credit_amount else 0),
                         "balance": float(acc.balance) if acc.balance else 0,
                     }
                 )
@@ -250,9 +275,19 @@ class QuerySupplierAccountsTool(BaseTool):
             "type": "object",
             "properties": {
                 "supplier_id": {"type": "integer", "description": "供应商ID"},
-                "keyword": {"type": "string", "description": "搜索关键词（供应商名称）"},
-                "has_balance": {"type": "boolean", "description": "是否仅显示有余额的供应商"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认50）", "default": 50},
+                "keyword": {
+                    "type": "string",
+                    "description": "搜索关键词（供应商名称）",
+                },
+                "has_balance": {
+                    "type": "boolean",
+                    "description": "是否仅显示有余额的供应商",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认50）",
+                    "default": 50,
+                },
             },
         }
 
@@ -288,8 +323,8 @@ class QuerySupplierAccountsTool(BaseTool):
                         "id": acc.id,
                         "supplier_id": acc.supplier_id,
                         "supplier_name": acc.supplier.name if acc.supplier else "",
-                        "debit_amount": float(acc.debit_amount) if acc.debit_amount else 0,
-                        "credit_amount": float(acc.credit_amount) if acc.credit_amount else 0,
+                        "debit_amount": (float(acc.debit_amount) if acc.debit_amount else 0),
+                        "credit_amount": (float(acc.credit_amount) if acc.credit_amount else 0),
                         "balance": float(acc.balance) if acc.balance else 0,
                     }
                 )
@@ -323,10 +358,17 @@ class QueryPaymentsTool(BaseTool):
                     "description": "状态（draft/partial/completed/cancelled）",
                     "enum": ["draft", "partial", "completed", "cancelled"],
                 },
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（单据号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -373,11 +415,13 @@ class QueryPaymentsTool(BaseTool):
                         "payment_number": payment.payment_number,
                         "payment_type": payment.payment_type,
                         "payment_type_display": payment.get_payment_type_display(),
-                        "payment_date": payment.payment_date.strftime("%Y-%m-%d")
-                        if payment.payment_date
-                        else None,
+                        "payment_date": (
+                            payment.payment_date.strftime("%Y-%m-%d")
+                            if payment.payment_date
+                            else None
+                        ),
                         "amount": float(payment.amount) if payment.amount else 0,
-                        "paid_amount": float(payment.paid_amount) if payment.paid_amount else 0,
+                        "paid_amount": (float(payment.paid_amount) if payment.paid_amount else 0),
                         "status": payment.status,
                         "status_display": payment.get_status_display(),
                         "payment_method": payment.payment_method,
@@ -416,10 +460,17 @@ class QueryPrepaymentsTool(BaseTool):
                     "description": "状态（active/partial_used/fully_used/cancelled）",
                     "enum": ["active", "partial_used", "fully_used", "cancelled"],
                 },
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（单据号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -473,11 +524,13 @@ class QueryPrepaymentsTool(BaseTool):
                             "prepayment_number": prep.prepayment_number,
                             "prepayment_type": "customer",
                             "entity_name": prep.customer.name if prep.customer else "",
-                            "prepayment_date": prep.prepayment_date.strftime("%Y-%m-%d")
-                            if prep.prepayment_date
-                            else None,
+                            "prepayment_date": (
+                                prep.prepayment_date.strftime("%Y-%m-%d")
+                                if prep.prepayment_date
+                                else None
+                            ),
                             "amount": float(prep.amount) if prep.amount else 0,
-                            "used_amount": float(prep.used_amount) if prep.used_amount else 0,
+                            "used_amount": (float(prep.used_amount) if prep.used_amount else 0),
                             "balance": float(prep.balance) if prep.balance else 0,
                             "status": prep.status,
                             "status_display": prep.get_status_display(),
@@ -518,11 +571,13 @@ class QueryPrepaymentsTool(BaseTool):
                             "prepayment_number": prep.prepayment_number,
                             "prepayment_type": "supplier",
                             "entity_name": prep.supplier.name if prep.supplier else "",
-                            "prepayment_date": prep.prepayment_date.strftime("%Y-%m-%d")
-                            if prep.prepayment_date
-                            else None,
+                            "prepayment_date": (
+                                prep.prepayment_date.strftime("%Y-%m-%d")
+                                if prep.prepayment_date
+                                else None
+                            ),
                             "amount": float(prep.amount) if prep.amount else 0,
-                            "used_amount": float(prep.used_amount) if prep.used_amount else 0,
+                            "used_amount": (float(prep.used_amount) if prep.used_amount else 0),
                             "balance": float(prep.balance) if prep.balance else 0,
                             "status": prep.status,
                             "status_display": prep.get_status_display(),
@@ -572,13 +627,27 @@ class QueryExpensesTool(BaseTool):
                 "status": {
                     "type": "string",
                     "description": "状态（draft/submitted/approved/rejected/paid/cancelled）",
-                    "enum": ["draft", "submitted", "approved", "rejected", "paid", "cancelled"],
+                    "enum": [
+                        "draft",
+                        "submitted",
+                        "approved",
+                        "rejected",
+                        "paid",
+                        "cancelled",
+                    ],
                 },
                 "department_id": {"type": "integer", "description": "部门ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（费用单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -627,9 +696,9 @@ class QueryExpensesTool(BaseTool):
                     {
                         "id": exp.id,
                         "expense_number": exp.expense_number,
-                        "expense_date": exp.expense_date.strftime("%Y-%m-%d")
-                        if exp.expense_date
-                        else None,
+                        "expense_date": (
+                            exp.expense_date.strftime("%Y-%m-%d") if exp.expense_date else None
+                        ),
                         "category": exp.category,
                         "category_display": exp.get_category_display(),
                         "amount": float(exp.amount) if exp.amount else 0,
@@ -640,7 +709,11 @@ class QueryExpensesTool(BaseTool):
                     }
                 )
 
-            return ToolResult(success=True, data=results, message=f"找到 {len(results)} 个费用报销记录")
+            return ToolResult(
+                success=True,
+                data=results,
+                message=f"找到 {len(results)} 个费用报销记录",
+            )
 
         except Exception as e:
             return ToolResult(success=False, error=f"查询费用报销失败: {str(e)}")
@@ -662,17 +735,29 @@ class QueryInvoicesTool(BaseTool):
                 "invoice_type": {
                     "type": "string",
                     "description": "发票类型（sales_vat/sales_common/purchase_vat/purchase_common）",
-                    "enum": ["sales_vat", "sales_common", "purchase_vat", "purchase_common"],
+                    "enum": [
+                        "sales_vat",
+                        "sales_common",
+                        "purchase_vat",
+                        "purchase_common",
+                    ],
                 },
                 "status": {
                     "type": "string",
                     "description": "状态（draft/partial_paid/fully_paid/cancelled）",
                     "enum": ["draft", "partial_paid", "fully_paid", "cancelled"],
                 },
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（发票号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -717,10 +802,10 @@ class QueryInvoicesTool(BaseTool):
                         "invoice_number": inv.invoice_number,
                         "invoice_type": inv.invoice_type,
                         "invoice_type_display": inv.get_invoice_type_display(),
-                        "invoice_date": inv.invoice_date.strftime("%Y-%m-%d")
-                        if inv.invoice_date
-                        else None,
-                        "total_amount": float(inv.total_amount) if inv.total_amount else 0,
+                        "invoice_date": (
+                            inv.invoice_date.strftime("%Y-%m-%d") if inv.invoice_date else None
+                        ),
+                        "total_amount": (float(inv.total_amount) if inv.total_amount else 0),
                         "tax_amount": float(inv.tax_amount) if inv.tax_amount else 0,
                         "paid_amount": float(inv.paid_amount) if inv.paid_amount else 0,
                         "status": inv.status,

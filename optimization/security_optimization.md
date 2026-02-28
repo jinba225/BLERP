@@ -65,7 +65,7 @@ SECURITY_SCANNING = {
 # 权限管理实现
 class RBACManager:
     """基于角色的访问控制管理器"""
-    
+
     def __init__(self):
         self.roles = {
             'admin': {
@@ -82,54 +82,54 @@ class RBACManager:
             },
         }
         self.user_roles = {}
-    
+
     def assign_role(self, user_id, role_name):
         """为用户分配角色
-        
+
         Args:
             user_id: 用户ID
             role_name: 角色名称
         """
         if role_name in self.roles:
             self.user_roles[user_id] = role_name
-    
+
     def has_permission(self, user_id, permission):
         """检查用户是否具有权限
-        
+
         Args:
             user_id: 用户ID
             permission: 权限名称
-        
+
         Returns:
             bool: 是否具有权限
         """
         role_name = self.user_roles.get(user_id)
         if not role_name:
             return False
-        
+
         role = self.roles.get(role_name)
         if not role:
             return False
-        
+
         return permission in role['permissions']
-    
+
     def get_user_permissions(self, user_id):
         """获取用户的所有权限
-        
+
         Args:
             user_id: 用户ID
-        
+
         Returns:
             list: 权限列表
         """
         role_name = self.user_roles.get(user_id)
         if not role_name:
             return []
-        
+
         role = self.roles.get(role_name)
         if not role:
             return []
-        
+
         return role['permissions']
 ```
 
@@ -145,28 +145,28 @@ class RBACManager:
 # 权限验证中间件
 class PermissionMiddleware:
     """权限验证中间件"""
-    
+
     def __init__(self, get_response):
         self.get_response = get_response
-    
+
     def __call__(self, request):
         # 跳过静态文件和媒体文件
         if request.path.startswith('/static/') or request.path.startswith('/media/'):
             return self.get_response(request)
-        
+
         # 跳过登录和注册页面
         if request.path in ['/login/', '/register/']:
             return self.get_response(request)
-        
+
         # 检查用户是否登录
         if not request.user.is_authenticated:
             from django.shortcuts import redirect
             return redirect('/login/')
-        
+
         # 检查用户权限
         rbac_manager = RBACManager()
         user_id = request.user.id
-        
+
         # 检查API权限
         if request.path.startswith('/api/'):
             api_permission = self._get_api_permission(request.path, request.method)
@@ -174,22 +174,22 @@ class PermissionMiddleware:
                 from rest_framework.response import Response
                 from rest_framework import status
                 return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
-        
+
         # 检查视图权限
         view_permission = self._get_view_permission(request.path)
         if view_permission and not rbac_manager.has_permission(user_id, view_permission):
             from django.http import HttpResponseForbidden
             return HttpResponseForbidden('Permission denied')
-        
+
         return self.get_response(request)
-    
+
     def _get_api_permission(self, path, method):
         """获取API权限
-        
+
         Args:
             path: API路径
             method: HTTP方法
-        
+
         Returns:
             str: 权限名称
         """
@@ -204,13 +204,13 @@ class PermissionMiddleware:
                 return 'view_all'
         else:
             return None
-    
+
     def _get_view_permission(self, path):
         """获取视图权限
-        
+
         Args:
             path: 视图路径
-        
+
         Returns:
             str: 权限名称
         """
@@ -307,22 +307,22 @@ SECURITY_CONFIG = {
 # 安全中间件
 class SecurityMiddleware:
     """安全中间件"""
-    
+
     def __init__(self, get_response):
         self.get_response = get_response
-    
+
     def __call__(self, request):
         response = self.get_response(request)
-        
+
         # 添加安全头部
         headers = SECURITY_CONFIG['headers']
         for key, value in headers.items():
             response[key] = value
-        
+
         # 设置会话安全
         if hasattr(request, 'session'):
             request.session.set_expiry(SECURITY_CONFIG['session']['session_timeout'])
-        
+
         return response
 ```
 
@@ -340,7 +340,7 @@ class SecurityMiddleware:
 # 审计日志服务
 class AuditLogService:
     """审计日志服务"""
-    
+
     def __init__(self):
         self.log_types = {
             'login': '登录事件',
@@ -351,10 +351,10 @@ class AuditLogService:
             'permission': '权限变更',
             'security': '安全事件',
         }
-    
+
     def log_event(self, user, log_type, object_type=None, object_id=None, details=None):
         """记录审计事件
-        
+
         Args:
             user: 用户对象
             log_type: 日志类型
@@ -363,7 +363,7 @@ class AuditLogService:
             details: 详细信息
         """
         from core.models import AuditLog
-        
+
         # 创建审计日志
         audit_log = AuditLog(
             user=user,
@@ -376,13 +376,13 @@ class AuditLogService:
             user_agent=self._get_user_agent(user),
         )
         audit_log.save()
-    
+
     def _get_client_ip(self, request):
         """获取客户端IP
-        
+
         Args:
             request: 请求对象
-        
+
         Returns:
             str: 客户端IP
         """
@@ -392,46 +392,46 @@ class AuditLogService:
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip
-    
+
     def _get_user_agent(self, request):
         """获取用户代理
-        
+
         Args:
             request: 请求对象
-        
+
         Returns:
             str: 用户代理
         """
         return request.META.get('HTTP_USER_AGENT', '')
-    
+
     def get_audit_logs(self, user=None, log_type=None, start_date=None, end_date=None):
         """获取审计日志
-        
+
         Args:
             user: 用户对象
             log_type: 日志类型
             start_date: 开始日期
             end_date: 结束日期
-        
+
         Returns:
             queryset: 审计日志查询集
         """
         from core.models import AuditLog
-        
+
         queryset = AuditLog.objects.all()
-        
+
         if user:
             queryset = queryset.filter(user=user)
-        
+
         if log_type:
             queryset = queryset.filter(action=log_type)
-        
+
         if start_date:
             queryset = queryset.filter(timestamp__gte=start_date)
-        
+
         if end_date:
             queryset = queryset.filter(timestamp__lte=end_date)
-        
+
         return queryset.order_by('-timestamp')
 ```
 
@@ -447,16 +447,16 @@ class AuditLogService:
 # 审计日志分析服务
 class AuditLogAnalyzer:
     """审计日志分析服务"""
-    
+
     def __init__(self, audit_log_service):
         self.audit_log_service = audit_log_service
-    
+
     def detect_anomalies(self, time_range='7d'):
         """检测异常行为
-        
+
         Args:
             time_range: 时间范围
-        
+
         Returns:
             list: 异常行为列表
         """
@@ -469,13 +469,13 @@ class AuditLogAnalyzer:
             start_date = end_date - datetime.timedelta(days=30)
         else:
             start_date = end_date - datetime.timedelta(days=7)
-        
+
         # 获取审计日志
         logs = self.audit_log_service.get_audit_logs(start_date=start_date, end_date=end_date)
-        
+
         # 分析异常行为
         anomalies = []
-        
+
         # 检测异常登录
         login_logs = logs.filter(action='login')
         login_counts = login_logs.values('user', 'ip_address').annotate(count=models.Count('id'))
@@ -488,7 +488,7 @@ class AuditLogAnalyzer:
                     'count': login['count'],
                     'message': f'用户 {login["user"]} 在 {time_range} 内登录次数异常: {login["count"]} 次',
                 })
-        
+
         # 检测异常操作
         action_logs = logs.filter(action__in=['create', 'update', 'delete'])
         action_counts = action_logs.values('user', 'action').annotate(count=models.Count('id'))
@@ -501,15 +501,15 @@ class AuditLogAnalyzer:
                     'count': action['count'],
                     'message': f'用户 {action["user"]} 在 {time_range} 内 {action["action"]} 操作次数异常: {action["count"]} 次',
                 })
-        
+
         return anomalies
-    
+
     def generate_report(self, time_range='30d'):
         """生成审计报告
-        
+
         Args:
             time_range: 时间范围
-        
+
         Returns:
             dict: 审计报告
         """
@@ -524,10 +524,10 @@ class AuditLogAnalyzer:
             start_date = end_date - datetime.timedelta(days=90)
         else:
             start_date = end_date - datetime.timedelta(days=30)
-        
+
         # 获取审计日志
         logs = self.audit_log_service.get_audit_logs(start_date=start_date, end_date=end_date)
-        
+
         # 统计数据
         total_logs = logs.count()
         login_logs = logs.filter(action='login').count()
@@ -537,10 +537,10 @@ class AuditLogAnalyzer:
         delete_logs = logs.filter(action='delete').count()
         permission_logs = logs.filter(action='permission').count()
         security_logs = logs.filter(action='security').count()
-        
+
         # 检测异常
         anomalies = self.detect_anomalies(time_range)
-        
+
         # 生成报告
         report = {
             'time_range': time_range,
@@ -559,29 +559,29 @@ class AuditLogAnalyzer:
             'anomalies': anomalies,
             'recommendations': self._generate_recommendations(anomalies),
         }
-        
+
         return report
-    
+
     def _generate_recommendations(self, anomalies):
         """生成安全建议
-        
+
         Args:
             anomalies: 异常行为列表
-        
+
         Returns:
             list: 安全建议列表
         """
         recommendations = []
-        
+
         if anomalies:
             recommendations.append('检查异常登录和操作行为，确认是否为合法用户操作')
             recommendations.append('考虑为高风险用户启用双因素认证')
             recommendations.append('审查用户权限，确保最小权限原则')
-        
+
         recommendations.append('定期备份审计日志，确保数据安全')
         recommendations.append('更新安全配置，应对最新的安全威胁')
         recommendations.append('对员工进行安全意识培训，提高安全意识')
-        
+
         return recommendations
 ```
 

@@ -18,7 +18,7 @@ Core模块是整个ERP系统的核心基础模块，提供所有其他模块共�
 
 ### 核心模型
 - **文件**: `models.py`
-- **关键类**: 
+- **关键类**:
   - `BaseModel`: 所有业务模型的基类
   - `TimeStampedModel`: 时间戳抽象模型
   - `SoftDeleteModel`: 软删除抽象模型

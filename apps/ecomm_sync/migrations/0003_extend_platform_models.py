@@ -19,13 +19,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "account_type",
                     models.CharField(
@@ -41,23 +56,37 @@ class Migration(migrations.Migration):
                         verbose_name="账号类型",
                     ),
                 ),
-                ("account_name", models.CharField(max_length=200, verbose_name="账号名称")),
+                (
+                    "account_name",
+                    models.CharField(max_length=200, verbose_name="账号名称"),
+                ),
                 (
                     "platform_user_id",
                     models.CharField(blank=True, max_length=200, verbose_name="平台用户ID"),
                 ),
                 (
                     "auth_config",
-                    models.JSONField(default=dict, help_text="加密存储的认证信息", verbose_name="认证配置"),
+                    models.JSONField(
+                        default=dict,
+                        help_text="加密存储的认证信息",
+                        verbose_name="认证配置",
+                    ),
                 ),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 (
                     "token_expires_at",
                     models.DateTimeField(blank=True, null=True, verbose_name="Token过期时间"),
                 ),
                 (
                     "rate_limit_remaining",
-                    models.IntegerField(default=0, help_text="平台API剩余调用次数", verbose_name="剩余调用次数"),
+                    models.IntegerField(
+                        default=0,
+                        help_text="平台API剩余调用次数",
+                        verbose_name="剩余调用次数",
+                    ),
                 ),
                 (
                     "rate_limit_reset_at",
@@ -123,13 +152,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("endpoint", models.CharField(max_length=500, verbose_name="API端点")),
                 (
                     "method",
@@ -144,15 +188,27 @@ class Migration(migrations.Migration):
                         verbose_name="HTTP方法",
                     ),
                 ),
-                ("request_data", models.JSONField(blank=True, default=dict, verbose_name="请求数据")),
+                (
+                    "request_data",
+                    models.JSONField(blank=True, default=dict, verbose_name="请求数据"),
+                ),
                 (
                     "response_status",
                     models.IntegerField(blank=True, null=True, verbose_name="响应状态码"),
                 ),
-                ("response_data", models.JSONField(blank=True, default=dict, verbose_name="响应数据")),
-                ("execution_time", models.FloatField(default=0, verbose_name="执行时间(秒)")),
+                (
+                    "response_data",
+                    models.JSONField(blank=True, default=dict, verbose_name="响应数据"),
+                ),
+                (
+                    "execution_time",
+                    models.FloatField(default=0, verbose_name="执行时间(秒)"),
+                ),
                 ("success", models.BooleanField(default=True, verbose_name="是否成功")),
-                ("error_message", models.TextField(blank=True, verbose_name="错误信息")),
+                (
+                    "error_message",
+                    models.TextField(blank=True, verbose_name="错误信息"),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -220,13 +276,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "platform_order_id",
                     models.CharField(db_index=True, max_length=200, verbose_name="平台订单号"),
@@ -251,15 +322,30 @@ class Migration(migrations.Migration):
                     "order_amount",
                     models.DecimalField(decimal_places=2, max_digits=10, verbose_name="订单金额"),
                 ),
-                ("currency", models.CharField(default="CNY", max_length=10, verbose_name="货币")),
-                ("buyer_email", models.EmailField(blank=True, max_length=254, verbose_name="买家邮箱")),
-                ("buyer_name", models.CharField(blank=True, max_length=200, verbose_name="买家姓名")),
-                ("buyer_phone", models.CharField(blank=True, max_length=50, verbose_name="买家电话")),
+                (
+                    "currency",
+                    models.CharField(default="CNY", max_length=10, verbose_name="货币"),
+                ),
+                (
+                    "buyer_email",
+                    models.EmailField(blank=True, max_length=254, verbose_name="买家邮箱"),
+                ),
+                (
+                    "buyer_name",
+                    models.CharField(blank=True, max_length=200, verbose_name="买家姓名"),
+                ),
+                (
+                    "buyer_phone",
+                    models.CharField(blank=True, max_length=50, verbose_name="买家电话"),
+                ),
                 (
                     "shipping_address",
                     models.JSONField(blank=True, default=dict, verbose_name="收货地址"),
                 ),
-                ("raw_data", models.JSONField(blank=True, default=dict, verbose_name="原始数据")),
+                (
+                    "raw_data",
+                    models.JSONField(blank=True, default=dict, verbose_name="原始数据"),
+                ),
                 (
                     "sync_status",
                     models.CharField(
@@ -274,12 +360,21 @@ class Migration(migrations.Migration):
                         verbose_name="同步状态",
                     ),
                 ),
-                ("synced_to_erp", models.BooleanField(default=False, verbose_name="已同步到ERP")),
-                ("synced_to_platform", models.BooleanField(default=True, verbose_name="已同步到平台")),
+                (
+                    "synced_to_erp",
+                    models.BooleanField(default=False, verbose_name="已同步到ERP"),
+                ),
+                (
+                    "synced_to_platform",
+                    models.BooleanField(default=True, verbose_name="已同步到平台"),
+                ),
                 (
                     "erp_order_id",
                     models.CharField(
-                        blank=True, db_index=True, max_length=200, verbose_name="ERP订单ID"
+                        blank=True,
+                        db_index=True,
+                        max_length=200,
+                        verbose_name="ERP订单ID",
                     ),
                 ),
                 (
@@ -352,15 +447,36 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
-                ("sku", models.CharField(db_index=True, max_length=100, verbose_name="SKU")),
-                ("product_name", models.CharField(max_length=500, verbose_name="商品名称")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "sku",
+                    models.CharField(db_index=True, max_length=100, verbose_name="SKU"),
+                ),
+                (
+                    "product_name",
+                    models.CharField(max_length=500, verbose_name="商品名称"),
+                ),
                 ("quantity", models.IntegerField(verbose_name="数量")),
                 (
                     "unit_price",
@@ -374,7 +490,10 @@ class Migration(migrations.Migration):
                     "platform_product_id",
                     models.CharField(blank=True, max_length=200, verbose_name="平台商品ID"),
                 ),
-                ("raw_data", models.JSONField(blank=True, default=dict, verbose_name="原始数据")),
+                (
+                    "raw_data",
+                    models.JSONField(blank=True, default=dict, verbose_name="原始数据"),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -430,13 +549,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "platform_product_id",
                     models.CharField(db_index=True, max_length=200, verbose_name="平台商品ID"),
@@ -462,7 +596,10 @@ class Migration(migrations.Migration):
                         verbose_name="Listing状态",
                     ),
                 ),
-                ("price", models.DecimalField(decimal_places=2, max_digits=10, verbose_name="价格")),
+                (
+                    "price",
+                    models.DecimalField(decimal_places=2, max_digits=10, verbose_name="价格"),
+                ),
                 ("quantity", models.IntegerField(default=0, verbose_name="库存数量")),
                 (
                     "woo_product_id",
@@ -470,9 +607,18 @@ class Migration(migrations.Migration):
                         blank=True, null=True, verbose_name="WooCommerce产品ID"
                     ),
                 ),
-                ("sync_enabled", models.BooleanField(default=True, verbose_name="启用同步")),
-                ("auto_update_price", models.BooleanField(default=False, verbose_name="自动更新价格")),
-                ("auto_update_stock", models.BooleanField(default=True, verbose_name="自动更新库存")),
+                (
+                    "sync_enabled",
+                    models.BooleanField(default=True, verbose_name="启用同步"),
+                ),
+                (
+                    "auto_update_price",
+                    models.BooleanField(default=False, verbose_name="自动更新价格"),
+                ),
+                (
+                    "auto_update_stock",
+                    models.BooleanField(default=True, verbose_name="自动更新库存"),
+                ),
                 (
                     "last_synced_at",
                     models.DateTimeField(blank=True, null=True, verbose_name="最后同步时间"),
@@ -551,13 +697,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "sync_type",
                     models.CharField(
@@ -581,10 +742,22 @@ class Migration(migrations.Migration):
                         verbose_name="状态",
                     ),
                 ),
-                ("error_message", models.TextField(blank=True, verbose_name="错误信息")),
-                ("retry_count", models.IntegerField(default=0, verbose_name="重试次数")),
-                ("max_retries", models.IntegerField(default=3, verbose_name="最大重试次数")),
-                ("processed_at", models.DateTimeField(blank=True, null=True, verbose_name="处理时间")),
+                (
+                    "error_message",
+                    models.TextField(blank=True, verbose_name="错误信息"),
+                ),
+                (
+                    "retry_count",
+                    models.IntegerField(default=0, verbose_name="重试次数"),
+                ),
+                (
+                    "max_retries",
+                    models.IntegerField(default=3, verbose_name="最大重试次数"),
+                ),
+                (
+                    "processed_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="处理时间"),
+                ),
                 (
                     "account",
                     models.ForeignKey(
@@ -656,7 +829,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="platformaccount",
             index=models.Index(
-                fields=["account_type", "is_active"], name="ecomm_platf_account_8b0961_idx"
+                fields=["account_type", "is_active"],
+                name="ecomm_platf_account_8b0961_idx",
             ),
         ),
         migrations.AddIndex(
@@ -672,7 +846,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="apicalllog",
             index=models.Index(
-                fields=["platform", "account", "-created_at"], name="ecomm_api_c_platfor_ee2fd1_idx"
+                fields=["platform", "account", "-created_at"],
+                name="ecomm_api_c_platfor_ee2fd1_idx",
             ),
         ),
         migrations.AddIndex(
@@ -684,7 +859,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="apicalllog",
             index=models.Index(
-                fields=["response_status", "-created_at"], name="ecomm_api_c_respons_8b24a5_idx"
+                fields=["response_status", "-created_at"],
+                name="ecomm_api_c_respons_8b24a5_idx",
             ),
         ),
         migrations.AddIndex(
@@ -694,13 +870,15 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="platformorder",
             index=models.Index(
-                fields=["platform", "order_status"], name="ecomm_platf_platfor_aa11c3_idx"
+                fields=["platform", "order_status"],
+                name="ecomm_platf_platfor_aa11c3_idx",
             ),
         ),
         migrations.AddIndex(
             model_name="platformorder",
             index=models.Index(
-                fields=["platform", "sync_status"], name="ecomm_platf_platfor_7e5089_idx"
+                fields=["platform", "sync_status"],
+                name="ecomm_platf_platfor_7e5089_idx",
             ),
         ),
         migrations.AddIndex(

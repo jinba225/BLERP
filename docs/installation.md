@@ -164,21 +164,21 @@ sudo nano /etc/nginx/sites-available/better-laser-erp
 server {
     listen 80;
     server_name your-domain.com;
-    
+
     client_max_body_size 50M;
-    
+
     location /static/ {
         alias /path/to/django_erp/staticfiles/;
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
-    
+
     location /media/ {
         alias /path/to/django_erp/media/;
         expires 1y;
         add_header Cache-Control "public";
     }
-    
+
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host $host;
@@ -297,10 +297,10 @@ docker-compose exec web python manage.py collectstatic --noinput
    ```bash
    # 迁移所有数据
    python manage.py migrate_legacy_data
-   
+
    # 只迁移特定模块
    python manage.py migrate_legacy_data --module customers
-   
+
    # 干运行（测试）
    python manage.py migrate_legacy_data --dry-run
    ```

@@ -58,7 +58,9 @@ class EbayAdapter(BaseAdapter):
             self.session.headers["X-EBAY-API-CALL-NAME"] = "GeteBayOfficialTime"
 
             response = self.session.post(
-                self.api_url, data=xml_data.encode("utf-8"), headers={"Content-Type": "text/xml"}
+                self.api_url,
+                data=xml_data.encode("utf-8"),
+                headers={"Content-Type": "text/xml"},
             )
 
             response.raise_for_status()
@@ -87,7 +89,10 @@ class EbayAdapter(BaseAdapter):
         self.session.headers["X-EBAY-API-CALL-NAME"] = "GetOrders"
 
         response = self._make_request(
-            "POST", self.api_url, data={"xml": xml_data}, headers={"Content-Type": "text/xml"}
+            "POST",
+            self.api_url,
+            data={"xml": xml_data},
+            headers={"Content-Type": "text/xml"},
         )
 
         return self._parse_orders(response)
@@ -99,7 +104,10 @@ class EbayAdapter(BaseAdapter):
         self.session.headers["X-EBAY-API-CALL-NAME"] = "GetOrderTransactions"
 
         response = self._make_request(
-            "POST", self.api_url, data={"xml": xml_data}, headers={"Content-Type": "text/xml"}
+            "POST",
+            self.api_url,
+            data={"xml": xml_data},
+            headers={"Content-Type": "text/xml"},
         )
 
         orders = self._parse_orders(response)
@@ -122,7 +130,10 @@ class EbayAdapter(BaseAdapter):
         self.session.headers["X-EBAY-API-CALL-NAME"] = "GetItem"
 
         response = self._make_request(
-            "POST", self.api_url, data={"xml": xml_data}, headers={"Content-Type": "text/xml"}
+            "POST",
+            self.api_url,
+            data={"xml": xml_data},
+            headers={"Content-Type": "text/xml"},
         )
 
         return self._parse_product(response)
@@ -142,7 +153,10 @@ class EbayAdapter(BaseAdapter):
         self.session.headers["X-EBAY-API-CALL-NAME"] = "AddItem"
 
         response = self._make_request(
-            "POST", self.api_url, data={"xml": xml_data}, headers={"Content-Type": "text/xml"}
+            "POST",
+            self.api_url,
+            data={"xml": xml_data},
+            headers={"Content-Type": "text/xml"},
         )
 
         return {"product_id": response.get("ItemID"), "success": True}
@@ -159,7 +173,10 @@ class EbayAdapter(BaseAdapter):
         self.session.headers["X-EBAY-API-CALL-NAME"] = "EndItem"
 
         response = self._make_request(
-            "POST", self.api_url, data={"xml": xml_data}, headers={"Content-Type": "text/xml"}
+            "POST",
+            self.api_url,
+            data={"xml": xml_data},
+            headers={"Content-Type": "text/xml"},
         )
 
         return response.get("Ack") == "Success"
@@ -180,7 +197,10 @@ class EbayAdapter(BaseAdapter):
         self.session.headers["X-EBAY-API-CALL-NAME"] = "ReviseInventoryStatus"
 
         response = self._make_request(
-            "POST", self.api_url, data={"xml": xml_data}, headers={"Content-Type": "text/xml"}
+            "POST",
+            self.api_url,
+            data={"xml": xml_data},
+            headers={"Content-Type": "text/xml"},
         )
 
         return response.get("Ack") == "Success"

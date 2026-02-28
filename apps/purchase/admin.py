@@ -55,8 +55,21 @@ class PurchaseOrderAdmin(ImportExportModelAdmin):
         "approved_at",
     )
     fieldsets = (
-        ("基本信息", {"fields": ("order_number", "supplier", "status", "payment_status")}),
-        ("日期信息", {"fields": ("order_date", "required_date", "promised_date", "received_date")}),
+        (
+            "基本信息",
+            {"fields": ("order_number", "supplier", "status", "payment_status")},
+        ),
+        (
+            "日期信息",
+            {
+                "fields": (
+                    "order_date",
+                    "required_date",
+                    "promised_date",
+                    "received_date",
+                )
+            },
+        ),
         ("人员信息", {"fields": ("buyer", "approved_by", "approved_at")}),
         (
             "金额信息",
@@ -75,10 +88,30 @@ class PurchaseOrderAdmin(ImportExportModelAdmin):
         ),
         (
             "收货信息",
-            {"fields": ("warehouse", "delivery_address", "delivery_contact", "delivery_phone")},
+            {
+                "fields": (
+                    "warehouse",
+                    "delivery_address",
+                    "delivery_contact",
+                    "delivery_phone",
+                )
+            },
         ),
-        ("其他信息", {"fields": ("payment_terms", "reference_number", "notes", "internal_notes")}),
-        ("系统信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "其他信息",
+            {
+                "fields": (
+                    "payment_terms",
+                    "reference_number",
+                    "notes",
+                    "internal_notes",
+                )
+            },
+        ),
+        (
+            "系统信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
     inlines = [PurchaseOrderItemInline]
     date_hierarchy = "order_date"
@@ -93,18 +126,30 @@ class PurchaseRequestItemInline(admin.TabularInline):
 
 @admin.register(PurchaseRequest)
 class PurchaseRequestAdmin(admin.ModelAdmin):
-    list_display = ("request_number", "department", "requester", "request_date", "status")
+    list_display = (
+        "request_number",
+        "department",
+        "requester",
+        "request_date",
+        "status",
+    )
     list_filter = ("status", "request_date", "department")
     search_fields = ("request_number", "department__name", "purpose")
     readonly_fields = ("request_number", "approved_at", "created_at", "updated_at")
     fieldsets = (
-        ("基本信息", {"fields": ("request_number", "department", "requester", "status")}),
+        (
+            "基本信息",
+            {"fields": ("request_number", "department", "requester", "status")},
+        ),
         ("日期信息", {"fields": ("request_date", "required_date")}),
         ("申请信息", {"fields": ("purpose",)}),
         ("审核信息", {"fields": ("approved_by", "approved_at")}),
         ("转换信息", {"fields": ("converted_order",)}),
         ("其他信息", {"fields": ("notes",)}),
-        ("系统信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
     inlines = [PurchaseRequestItemInline]
     date_hierarchy = "request_date"
@@ -131,11 +176,17 @@ class PurchaseReceiptAdmin(ImportExportModelAdmin):
     search_fields = ("receipt_number", "purchase_order__order_number")
     readonly_fields = ("receipt_number", "created_at", "updated_at")
     fieldsets = (
-        ("基本信息", {"fields": ("receipt_number", "purchase_order", "status", "warehouse")}),
+        (
+            "基本信息",
+            {"fields": ("receipt_number", "purchase_order", "status", "warehouse")},
+        ),
         ("日期信息", {"fields": ("receipt_date",)}),
         ("人员信息", {"fields": ("received_by",)}),
         ("其他信息", {"fields": ("notes",)}),
-        ("系统信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
     inlines = [PurchaseReceiptItemInline]
     date_hierarchy = "receipt_date"
@@ -161,14 +212,34 @@ class PurchaseReturnAdmin(ImportExportModelAdmin):
     )
     list_filter = ("status", "reason", "return_date")
     search_fields = ("return_number", "purchase_order__order_number")
-    readonly_fields = ("return_number", "refund_amount", "approved_at", "created_at", "updated_at")
+    readonly_fields = (
+        "return_number",
+        "refund_amount",
+        "approved_at",
+        "created_at",
+        "updated_at",
+    )
     fieldsets = (
-        ("基本信息", {"fields": ("return_number", "purchase_order", "receipt", "status", "reason")}),
+        (
+            "基本信息",
+            {
+                "fields": (
+                    "return_number",
+                    "purchase_order",
+                    "receipt",
+                    "status",
+                    "reason",
+                )
+            },
+        ),
         ("日期信息", {"fields": ("return_date", "shipped_date")}),
         ("金额信息", {"fields": ("refund_amount",)}),
         ("审核信息", {"fields": ("approved_by", "approved_at")}),
         ("其他信息", {"fields": ("notes",)}),
-        ("系统信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
     inlines = [PurchaseReturnItemInline]
     date_hierarchy = "return_date"
@@ -177,7 +248,13 @@ class PurchaseReturnAdmin(ImportExportModelAdmin):
 # Register inquiry and quotation models
 @admin.register(PurchaseInquiry)
 class PurchaseInquiryAdmin(admin.ModelAdmin):
-    list_display = ("inquiry_number", "inquiry_date", "required_date", "status", "buyer")
+    list_display = (
+        "inquiry_number",
+        "inquiry_date",
+        "required_date",
+        "status",
+        "buyer",
+    )
     list_filter = ("status", "inquiry_date", "buyer")
     search_fields = ("inquiry_number",)
 
@@ -233,7 +310,10 @@ class BorrowAdmin(admin.ModelAdmin):
         ("日期信息", {"fields": ("borrow_date", "expected_return_date")}),
         ("转采购信息", {"fields": ("converted_order",)}),
         ("其他信息", {"fields": ("purpose", "notes")}),
-        ("系统信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
     inlines = [BorrowItemInline]
     date_hierarchy = "borrow_date"

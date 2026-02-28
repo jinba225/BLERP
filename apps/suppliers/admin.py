@@ -1,6 +1,7 @@
 """
 Supplier admin configuration.
 """
+
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
@@ -36,7 +37,15 @@ class SupplierContactInline(admin.TabularInline):
 
     model = SupplierContact
     extra = 1
-    fields = ["name", "position", "contact_type", "phone", "mobile", "email", "is_primary"]
+    fields = [
+        "name",
+        "position",
+        "contact_type",
+        "phone",
+        "mobile",
+        "email",
+        "is_primary",
+    ]
 
 
 class SupplierProductInline(admin.TabularInline):
@@ -44,7 +53,14 @@ class SupplierProductInline(admin.TabularInline):
 
     model = SupplierProduct
     extra = 0
-    fields = ["product", "price", "currency", "min_order_qty", "lead_time", "is_preferred"]
+    fields = [
+        "product",
+        "price",
+        "currency",
+        "min_order_qty",
+        "lead_time",
+        "is_preferred",
+    ]
     readonly_fields = []
 
 
@@ -53,7 +69,15 @@ class SupplierAdmin(ImportExportModelAdmin):
     """供应商管理 - 含导入导出功能"""
 
     resource_class = SupplierResource
-    list_display = ["code", "name", "level", "buyer", "is_approved", "is_active", "created_at"]
+    list_display = [
+        "code",
+        "name",
+        "level",
+        "buyer",
+        "is_approved",
+        "is_active",
+        "created_at",
+    ]
     list_filter = ["level", "is_active", "is_approved", "category", "created_at"]
     search_fields = ["name", "code"]
     readonly_fields = [
@@ -193,11 +217,20 @@ class SupplierEvaluationAdmin(admin.ModelAdmin):
     ]
     list_filter = ["evaluation_period", "year", "is_approved", "created_at"]
     search_fields = ["supplier__name", "strengths", "weaknesses"]
-    readonly_fields = ["created_at", "updated_at", "created_by", "updated_by", "overall_score"]
+    readonly_fields = [
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+        "overall_score",
+    ]
     list_per_page = 50
 
     fieldsets = (
-        ("基本信息", {"fields": ("supplier", "evaluation_period", "year", "quarter", "month")}),
+        (
+            "基本信息",
+            {"fields": ("supplier", "evaluation_period", "year", "quarter", "month")},
+        ),
         (
             "评分",
             {

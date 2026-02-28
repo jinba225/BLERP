@@ -1,6 +1,7 @@
 """
 Inventory app URLs.
 """
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -29,8 +30,16 @@ urlpatterns = [
     path("adjustments/create/", views.adjustment_create, name="adjustment_create"),
     path("adjustments/<int:pk>/", views.adjustment_detail, name="adjustment_detail"),
     path("adjustments/<int:pk>/edit/", views.adjustment_update, name="adjustment_update"),
-    path("adjustments/<int:pk>/delete/", views.adjustment_delete, name="adjustment_delete"),
-    path("adjustments/<int:pk>/approve/", views.adjustment_approve, name="adjustment_approve"),
+    path(
+        "adjustments/<int:pk>/delete/",
+        views.adjustment_delete,
+        name="adjustment_delete",
+    ),
+    path(
+        "adjustments/<int:pk>/approve/",
+        views.adjustment_approve,
+        name="adjustment_approve",
+    ),
     path("transfers/", views.transfer_list, name="transfer_list"),
     path("transfers/create/", views.transfer_create, name="transfer_create"),
     path("transfers/<int:pk>/", views.transfer_detail, name="transfer_detail"),
@@ -63,10 +72,18 @@ urlpatterns = [
     path("outbounds/<int:pk>/edit/", views.outbound_update, name="outbound_update"),
     path("outbounds/<int:pk>/delete/", views.outbound_delete, name="outbound_delete"),
     path("outbounds/<int:pk>/approve/", views.outbound_approve, name="outbound_approve"),
-    path("outbounds/<int:pk>/complete/", views.outbound_complete, name="outbound_complete"),
+    path(
+        "outbounds/<int:pk>/complete/",
+        views.outbound_complete,
+        name="outbound_complete",
+    ),
     path("outbounds/<int:pk>/cancel/", views.outbound_cancel, name="outbound_cancel"),
     path("reports/orders/", views.inventory_order_report, name="inventory_order_report"),
-    path("reports/stock-summary/", views.stock_summary_report, name="report_stock_summary"),
+    path(
+        "reports/stock-summary/",
+        views.stock_summary_report,
+        name="report_stock_summary",
+    ),
     path(
         "reports/stock-transaction/",
         views.stock_transaction_report,

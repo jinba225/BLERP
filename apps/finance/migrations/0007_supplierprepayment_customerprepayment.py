@@ -20,13 +20,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "amount",
                     models.DecimalField(decimal_places=2, max_digits=12, verbose_name="预付金额"),
@@ -35,7 +50,10 @@ class Migration(migrations.Migration):
                     "balance",
                     models.DecimalField(decimal_places=2, max_digits=12, verbose_name="剩余余额"),
                 ),
-                ("currency", models.CharField(default="CNY", max_length=10, verbose_name="币种")),
+                (
+                    "currency",
+                    models.CharField(default="CNY", max_length=10, verbose_name="币种"),
+                ),
                 ("paid_date", models.DateField(verbose_name="付款日期")),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
                 (
@@ -93,13 +111,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "amount",
                     models.DecimalField(decimal_places=2, max_digits=12, verbose_name="预收金额"),
@@ -108,7 +141,10 @@ class Migration(migrations.Migration):
                     "balance",
                     models.DecimalField(decimal_places=2, max_digits=12, verbose_name="剩余余额"),
                 ),
-                ("currency", models.CharField(default="CNY", max_length=10, verbose_name="币种")),
+                (
+                    "currency",
+                    models.CharField(default="CNY", max_length=10, verbose_name="币种"),
+                ),
                 ("received_date", models.DateField(verbose_name="收到日期")),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
                 (

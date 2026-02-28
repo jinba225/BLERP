@@ -2,6 +2,7 @@
 Customers模块 - API测试
 测试 api_get_customer_contacts 等自定义API端点
 """
+
 import json
 import unittest
 import uuid
@@ -53,7 +54,11 @@ class CustomersAPITestCase(TestCase):
         )
 
         self.customer2 = Customer.objects.create(
-            name="测试客户2", code="C002", customer_level="B", status="active", created_by=self.user
+            name="测试客户2",
+            code="C002",
+            customer_level="B",
+            status="active",
+            created_by=self.user,
         )
 
         # 创建客户联系人
@@ -199,12 +204,14 @@ class CustomerContactsAPITestCase(CustomersAPITestCase):
 
         with connection.cursor() as cursor:
             cursor.execute(
-                "SELECT is_deleted FROM customers_customer WHERE id = %s", [test_customer.pk]
+                "SELECT is_deleted FROM customers_customer WHERE id = %s",
+                [test_customer.pk],
             )
             result = cursor.fetchone()
             is_deleted_in_db = result[0] if result else None
         self.assertTrue(
-            is_deleted_in_db, f"Customer should be deleted in DB, is_deleted={is_deleted_in_db}"
+            is_deleted_in_db,
+            f"Customer should be deleted in DB, is_deleted={is_deleted_in_db}",
         )
 
         url = reverse("customers:api_customer_contacts", args=[test_customer.pk])
@@ -292,7 +299,9 @@ class CustomerContactsAPITestCase(CustomersAPITestCase):
 
         # 应该只返回1个联系人（联系人B）
         self.assertEqual(
-            len(contacts), 1, f"Expected 1 contact from API, got {len(contacts)}: {contacts}"
+            len(contacts),
+            1,
+            f"Expected 1 contact from API, got {len(contacts)}: {contacts}",
         )
         self.assertEqual(contacts[0]["name"], "联系人B")
 

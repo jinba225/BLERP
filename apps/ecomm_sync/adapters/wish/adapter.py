@@ -3,6 +3,7 @@ Wish电商平台适配器
 
 Wish是全球知名的移动电商平台
 """
+
 import hashlib
 import hmac
 import json
@@ -163,10 +164,14 @@ class WishAdapter(BaseAdapter):
             "description": product_data.get("description"),
             "price": product_data.get("price"),
             "inventory": product_data.get("stock", 100),
-            "main_image": product_data.get("images", [""])[0] if product_data.get("images") else "",
-            "extra_images": ",".join(product_data.get("images", [])[1:7])
-            if len(product_data.get("images", [])) > 1
-            else "",
+            "main_image": (
+                product_data.get("images", [""])[0] if product_data.get("images") else ""
+            ),
+            "extra_images": (
+                ",".join(product_data.get("images", [])[1:7])
+                if len(product_data.get("images", [])) > 1
+                else ""
+            ),
             "shipping": product_data.get("shipping", ""),
         }
 
@@ -213,7 +218,10 @@ class WishAdapter(BaseAdapter):
 
     def delete_product(self, product_id: str) -> bool:
         """删除商品"""
-        params = {"id": product_id, "reason": self.auth_config.get("delete_reason", "Other")}
+        params = {
+            "id": product_id,
+            "reason": self.auth_config.get("delete_reason", "Other"),
+        }
 
         path = "/product/disable"
         signature = self._generate_signature(params)

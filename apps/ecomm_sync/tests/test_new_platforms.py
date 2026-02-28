@@ -1,6 +1,7 @@
 """
 测试Jumia和Cdiscount平台适配器
 """
+
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest

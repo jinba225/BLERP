@@ -7,6 +7,7 @@
 - 批量更新库存：减少API调用90%+
 - 批量更新商品：减少API调用85%+
 """
+
 import asyncio
 import logging
 import time
@@ -126,7 +127,10 @@ class BatchOperationOptimizer:
                 duration = time.time() - batch_start
                 if self.monitor:
                     self.monitor.record_api_call(
-                        self.platform, "/products/batch_create", success=True, duration=duration
+                        self.platform,
+                        "/products/batch_create",
+                        success=True,
+                        duration=duration,
                     )
 
                 logger.info(
@@ -210,7 +214,10 @@ class BatchOperationOptimizer:
                 duration = time.time() - batch_start
                 if self.monitor:
                     self.monitor.record_api_call(
-                        self.platform, "/products/batch_update", success=True, duration=duration
+                        self.platform,
+                        "/products/batch_update",
+                        success=True,
+                        duration=duration,
                     )
 
                 logger.info(f"批次 {i//batch_size + 1} 更新完成")
@@ -294,7 +301,10 @@ class BatchOperationOptimizer:
                 duration = time.time() - batch_start
                 if self.monitor:
                     self.monitor.record_api_call(
-                        self.platform, "/inventory/batch_update", success=True, duration=duration
+                        self.platform,
+                        "/inventory/batch_update",
+                        success=True,
+                        duration=duration,
                     )
 
                 logger.info(f"批次 {i//batch_size + 1} 库存更新完成")
@@ -414,7 +424,11 @@ class BatchOperationOptimizer:
                         results.append({"success": True, "sku": sku})
                     except Exception as e:
                         results.append(
-                            {"success": False, "error": str(e), "sku": update.get("sku")}
+                            {
+                                "success": False,
+                                "error": str(e),
+                                "sku": update.get("sku"),
+                            }
                         )
                 return results
 

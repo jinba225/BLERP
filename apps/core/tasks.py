@@ -1,6 +1,7 @@
 """
 Core tasks for the ERP system.
 """
+
 import logging
 import shlex
 import subprocess
@@ -11,6 +12,7 @@ from pathlib import Path
 
 from celery import shared_task
 from django.conf import settings
+from django.core.cache import cache
 from django.utils import timezone
 
 logger = logging.getLogger(__name__)
@@ -21,13 +23,14 @@ def task_monitor(func):
     任务执行监控装饰器
     记录任务的执行时间、状态等信息
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         task_name = func.__name__
         start_time = time.time()
         status = "success"
         error_message = ""
-        
+
         try:
             result = func(*args, **kwargs)
             return result
@@ -38,27 +41,28 @@ def task_monitor(func):
         finally:
             end_time = time.time()
             execution_time = end_time - start_time
-            
+
             # 记录任务执行信息
             logger.info(
                 f"Task {task_name} completed with status {status} in {execution_time:.2f}s"
                 f"{f', error: {error_message}' if error_message else ''}"
             )
-            
+
             # 保存任务执行记录到数据库（如果需要）
             try:
                 from apps.bi.models import TaskPerformance
+
                 TaskPerformance.objects.create(
                     task_name=task_name,
                     execution_time=execution_time * 1000,  # 转换为毫秒
                     status=status,
                     error_message=error_message[:500] if error_message else "",
                     args=str(args)[:255],
-                    kwargs=str(kwargs)[:255]
+                    kwargs=str(kwargs)[:255],
                 )
             except Exception as e:
                 logger.error(f"Failed to save task performance: {e}")
-    
+
     return wrapper
 
 
@@ -103,7 +107,10 @@ def backup_database():
             logger.info(f"SQLite backup: {dst}")
             return f"SQLite backup: {dst}"
         result = subprocess.run(
-            ["bash", "scripts/backup.sh"], cwd=settings.BASE_DIR, capture_output=True, text=True
+            ["bash", "scripts/backup.sh"],
+            cwd=settings.BASE_DIR,
+            capture_output=True,
+            text=True,
         )
         if result.returncode != 0:
             raise RuntimeError(result.stderr or result.stdout)
@@ -264,7 +271,7 @@ def collect_system_health():
         # 获取API性能统计（最近5分钟）
         five_minutes_ago = timezone.now() - timezone.timedelta(minutes=5)
         api_performance = ApiPerformance.objects.filter(request_time__gte=five_minutes_ago)
-        avg_response_time = api_performance.aggregate(avg=models.Avg('response_time'))['avg'] or 0
+        avg_response_time = api_performance.aggregate(avg=models.Avg("response_time"))["avg"] or 0
         error_count = api_performance.filter(status_code__gte=400).count()
         warning_count = api_performance.filter(response_time__gt=1000).count()  # 响应时间超过1秒的警告
 
@@ -299,10 +306,12 @@ def collect_system_health():
             cpu_usage=cpu_usage,
             status=status,
             error_count=error_count,
-            warning_count=warning_count
+            warning_count=warning_count,
         )
 
-        logger.info(f"System health collected: status={status}, cpu={cpu_usage}%, memory={memory_usage}%, active_users={active_users}")
+        logger.info(
+            f"System health collected: status={status}, cpu={cpu_usage}%, memory={memory_usage}%, active_users={active_users}"
+        )
         return f"System health collected: status={status}"
 
     except ImportError:
@@ -321,7 +330,7 @@ def collect_system_health():
         # 获取API性能统计
         five_minutes_ago = timezone.now() - timezone.timedelta(minutes=5)
         api_performance = ApiPerformance.objects.filter(request_time__gte=five_minutes_ago)
-        avg_response_time = api_performance.aggregate(avg=models.Avg('response_time'))['avg'] or 0
+        avg_response_time = api_performance.aggregate(avg=models.Avg("response_time"))["avg"] or 0
         error_count = api_performance.filter(status_code__gte=400).count()
         warning_count = api_performance.filter(response_time__gt=1000).count()
 
@@ -338,10 +347,12 @@ def collect_system_health():
             cpu_usage=0,
             status="normal" if error_count < 10 else "warning",
             error_count=error_count,
-            warning_count=warning_count
+            warning_count=warning_count,
         )
 
-        logger.info(f"System health collected (basic): active_users={active_users}, error_count={error_count}")
+        logger.info(
+            f"System health collected (basic): active_users={active_users}, error_count={error_count}"
+        )
         return f"System health collected (basic)"
     except Exception as e:
         logger.error(f"Failed to collect system health: {str(e)}")

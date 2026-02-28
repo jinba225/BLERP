@@ -89,7 +89,11 @@ class ConversationFlowManager:
 
         # 记录对话历史
         context.conversation_history.append(
-            {"role": "user", "content": user_message, "timestamp": datetime.now().isoformat()}
+            {
+                "role": "user",
+                "content": user_message,
+                "timestamp": datetime.now().isoformat(),
+            }
         )
 
         # 根据状态处理消息
@@ -207,7 +211,10 @@ class ConversationFlowManager:
         # 继续收集信息
         reply = self.nlp_service.clarify_missing_info(
             IntentResult(
-                intent=context.intent, confidence=0.85, entities={}, original_text=user_message
+                intent=context.intent,
+                confidence=0.85,
+                entities={},
+                original_text=user_message,
             ),
             missing_fields,
         )
@@ -309,7 +316,11 @@ class ConversationFlowManager:
 
             # 记录 AI 回复
             context.conversation_history.append(
-                {"role": "assistant", "content": result, "timestamp": datetime.now().isoformat()}
+                {
+                    "role": "assistant",
+                    "content": result,
+                    "timestamp": datetime.now().isoformat(),
+                }
             )
 
             return result, True

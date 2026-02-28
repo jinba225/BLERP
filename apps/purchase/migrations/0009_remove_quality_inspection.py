@@ -101,7 +101,11 @@ class Migration(migrations.Migration):
             model_name="purchasereceipt",
             name="status",
             field=models.CharField(
-                choices=[("pending", "待收货"), ("partial", "部分收货"), ("received", "已收货")],
+                choices=[
+                    ("pending", "待收货"),
+                    ("partial", "部分收货"),
+                    ("received", "已收货"),
+                ],
                 default="pending",
                 max_length=20,
                 verbose_name="状态",

@@ -2,6 +2,7 @@
 """
 一次性修复所有模板文件的问题
 """
+
 import os
 import re
 from pathlib import Path
@@ -25,12 +26,24 @@ def extract_blocks(content):
         if match:
             block_name = match.group(1)
             blocks.append(
-                {"name": block_name, "line": i, "type": "start", "full_line": line.strip()}
+                {
+                    "name": block_name,
+                    "line": i,
+                    "type": "start",
+                    "full_line": line.strip(),
+                }
             )
 
         # 匹配 {% endblock %}
         if re.search(r"{%\s*endblock\s*(?:\w+)?\s*%}", line):
-            blocks.append({"name": "endblock", "line": i, "type": "end", "full_line": line.strip()})
+            blocks.append(
+                {
+                    "name": "endblock",
+                    "line": i,
+                    "type": "end",
+                    "full_line": line.strip(),
+                }
+            )
 
     return blocks
 
@@ -174,7 +187,11 @@ def analyze_file(filepath):
         filepath_str = str(filepath)
         if not any(x in filepath_str for x in ["partials", "emails", "standalone"]):
             issues.append(
-                {"type": ISSUE_MISSING_EXTENDS, "severity": "critical", "detail": "缺少 extends 语句"}
+                {
+                    "type": ISSUE_MISSING_EXTENDS,
+                    "severity": "critical",
+                    "detail": "缺少 extends 语句",
+                }
             )
 
     # 检查重复的脚本函数

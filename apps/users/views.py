@@ -1,6 +1,7 @@
 """
 Users management views for the ERP system.
 """
+
 import logging
 
 from django.contrib import messages
@@ -160,7 +161,10 @@ def user_create(request):
             user.password = make_password(password)
             user.save()
 
-            messages.success(request, f"用户 {user.username} 创建成功！请前往角色管理为用户分配角色。")
+            messages.success(
+                request,
+                f"用户 {user.username} 创建成功！请前往角色管理为用户分配角色。",
+            )
             return redirect("users:user_detail", pk=user.pk)
         except Exception as e:
             messages.error(request, f"创建失败：{str(e)}")

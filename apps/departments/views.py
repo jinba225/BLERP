@@ -1,6 +1,7 @@
 """
 Department views for the ERP system.
 """
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -58,7 +59,8 @@ def department_detail(request, pk):
     Display department details with employees, positions, and sub-departments.
     """
     department = get_object_or_404(
-        Department.objects.filter(is_deleted=False).select_related("parent", "manager"), pk=pk
+        Department.objects.filter(is_deleted=False).select_related("parent", "manager"),
+        pk=pk,
     )
 
     # Get all employees in this department

@@ -171,7 +171,11 @@ def test_scraper_task(self, platform_id: int):
 
 @shared_task(bind=True, ignore_result=False)
 def link_purchase_order_to_platform_task(
-    self, purchase_order_id: int, platform_id: int, platform_account_id: int, mappings: list
+    self,
+    purchase_order_id: int,
+    platform_id: int,
+    platform_account_id: int,
+    mappings: list,
 ):
     """
     Celery任务：关联采购订单商品到平台商品

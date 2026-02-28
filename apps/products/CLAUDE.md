@@ -7,7 +7,7 @@
 Products模块负责产品信息管理，是ERP系统的基础数据模块之一。主要职责包括：
 
 - **产品信息管理**: 产品基础信息、规格参数、图片等维护
-- **分类体系管理**: 层级化的产品分类和目录管理 
+- **分类体系管理**: 层级化的产品分类和目录管理
 - **品牌管理**: 产品品牌信息和品牌关联
 - **定价体系**: 产品价格管理和价格策略
 - **库存基础**: 为库存管理提供产品基础数据
@@ -111,7 +111,7 @@ class Brand(BaseModel):
 - 供应商品牌授权
 
 ### Unit (计量单位)
-```python  
+```python
 class Unit(BaseModel):
     name = CharField('单位名称', max_length=50, unique=True)    # 单位名称
     symbol = CharField('单位符号', max_length=20, unique=True)  # 单位符号
@@ -132,39 +132,39 @@ class Product(BaseModel):
     name = CharField('产品名称', max_length=200)                # 产品名称
     code = CharField('产品编码', max_length=100, unique=True)   # 产品编码
     barcode = CharField('条形码', max_length=100, unique=True)  # 条形码
-    
+
     # 分类关联
     category = ForeignKey(ProductCategory, on_delete=SET_NULL)  # 产品分类
     brand = ForeignKey(Brand, on_delete=SET_NULL)              # 品牌
-    
+
     # 规格信息
     model = CharField('型号', max_length=100, blank=True)       # 产品型号
     specifications = TextField('规格参数', blank=True)          # 规格参数
     description = TextField('产品描述', blank=True)             # 产品描述
-    
+
     # 计量单位
     unit = ForeignKey(Unit, on_delete=PROTECT)                 # 基本单位
-    
+
     # 定价信息
     standard_cost = DecimalField('标准成本', max_digits=10, decimal_places=2, default=0)
     list_price = DecimalField('标准售价', max_digits=10, decimal_places=2, default=0)
     min_price = DecimalField('最低售价', max_digits=10, decimal_places=2, default=0)
-    
+
     # 库存参数
     min_stock_level = PositiveIntegerField('最低库存', default=0)    # 安全库存
     max_stock_level = PositiveIntegerField('最高库存', default=0)    # 最大库存
     reorder_point = PositiveIntegerField('再订货点', default=0)      # 再订货点
-    
+
     # 产品特性
     is_serialized = BooleanField('是否序列号管理', default=False)    # 序列号管理
     is_active = BooleanField('是否启用', default=True)              # 产品状态
     is_purchased = BooleanField('可采购', default=True)             # 采购标记
     is_sold = BooleanField('可销售', default=True)                  # 销售标记
     is_manufactured = BooleanField('可生产', default=False)         # 生产标记
-    
+
     # 图片和附件
     image = ImageField('产品图片', upload_to='products/', blank=True) # 主图
-    
+
     # 其他信息
     weight = DecimalField('重量(kg)', max_digits=8, decimal_places=3, null=True, blank=True)
     dimensions = CharField('尺寸', max_length=100, blank=True)       # 长宽高
@@ -214,7 +214,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 ### 分类管理
 ```python
-@admin.register(ProductCategory) 
+@admin.register(ProductCategory)
 class ProductCategoryAdmin(MPTTModelAdmin):
     list_display = ['name', 'code', 'parent', 'is_active']
     search_fields = ['name', 'code']

@@ -24,7 +24,10 @@ class PurchaseRequestService:
                 continue
 
             item = PurchaseRequestItem.objects.create(
-                purchase_request=purchase_request, created_by=user, sort_order=idx, **item_data
+                purchase_request=purchase_request,
+                created_by=user,
+                sort_order=idx,
+                **item_data,
             )
             total += item.estimated_total
 
@@ -50,7 +53,10 @@ class PurchaseRequestService:
                     continue
 
                 item = PurchaseRequestItem.objects.create(
-                    purchase_request=purchase_request, created_by=user, sort_order=idx, **item_data
+                    purchase_request=purchase_request,
+                    created_by=user,
+                    sort_order=idx,
+                    **item_data,
                 )
                 total += item.estimated_total
 
@@ -86,7 +92,8 @@ class PurchaseRequestService:
 
         order = PurchaseOrder.objects.create(
             order_number=DocumentNumberGenerator.generate(
-                "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+                "purchase_order",
+                model_class=PurchaseOrder,  # 传递模型类以支持重用已删除订单编号
             ),
             supplier_id=supplier_id,
             order_date=timezone.now().date(),

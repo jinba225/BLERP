@@ -8,6 +8,7 @@
     python fix_purchase_order_received_quantity.py              # 修复所有订单
     python fix_purchase_order_received_quantity.py --order PO250201001  # 修复指定订单
 """
+
 import os
 import sys
 
@@ -58,7 +59,9 @@ def fix_order_received_quantities(order_number=None):
             # 计算该订单明细的实际已收货数量
             # 从所有已收货状态的收货单明细中汇总
             actual_received = PurchaseReceiptItem.objects.filter(
-                order_item=item, is_deleted=False, receipt__status="received"  # 只计算已确认收货的
+                order_item=item,
+                is_deleted=False,
+                receipt__status="received",  # 只计算已确认收货的
             ).aggregate(total=Sum("received_quantity"))["total"] or Decimal("0")
 
             old_quantity = item.received_quantity

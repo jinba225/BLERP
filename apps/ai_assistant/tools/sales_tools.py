@@ -27,8 +27,15 @@ class SearchCustomerTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "keyword": {"type": "string", "description": "搜索关键词（客户名称、编号或联系人）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认10）", "default": 10},
+                "keyword": {
+                    "type": "string",
+                    "description": "搜索关键词（客户名称、编号或联系人）",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认10）",
+                    "default": 10,
+                },
             },
             "required": ["keyword"],
         }
@@ -38,7 +45,8 @@ class SearchCustomerTool(BaseTool):
         try:
             # 构建搜索查询
             customers = Customer.objects.filter(
-                Q(name__icontains=keyword) | Q(code__icontains=keyword), is_deleted=False
+                Q(name__icontains=keyword) | Q(code__icontains=keyword),
+                is_deleted=False,
             )[:limit]
 
             # 格式化结果
@@ -90,14 +98,23 @@ class CreateSalesQuoteTool(BaseTool):
                         "required": ["product_id", "quantity", "unit_price"],
                     },
                 },
-                "valid_days": {"type": "integer", "description": "报价有效天数（默认30天）", "default": 30},
+                "valid_days": {
+                    "type": "integer",
+                    "description": "报价有效天数（默认30天）",
+                    "default": 30,
+                },
                 "notes": {"type": "string", "description": "备注说明"},
             },
             "required": ["customer_id", "items"],
         }
 
     def execute(
-        self, customer_id: int, items: list, valid_days: int = 30, notes: str = "", **kwargs
+        self,
+        customer_id: int,
+        items: list,
+        valid_days: int = 30,
+        notes: str = "",
+        **kwargs,
     ) -> ToolResult:
         """执行创建报价单"""
         try:
@@ -213,10 +230,17 @@ class QuerySalesOrdersTool(BaseTool):
                     ],
                 },
                 "customer_id": {"type": "integer", "description": "客户ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（订单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -320,9 +344,11 @@ class GetOrderDetailTool(BaseTool):
                 deliveries.append(
                     {
                         "delivery_number": delivery.delivery_number,
-                        "delivery_date": delivery.delivery_date.strftime("%Y-%m-%d")
-                        if delivery.delivery_date
-                        else None,
+                        "delivery_date": (
+                            delivery.delivery_date.strftime("%Y-%m-%d")
+                            if delivery.delivery_date
+                            else None
+                        ),
                         "status": delivery.status,
                         "status_display": delivery.get_status_display(),
                     }
@@ -338,9 +364,9 @@ class GetOrderDetailTool(BaseTool):
                     "phone": order.customer.phone or "",
                 },
                 "order_date": order.order_date.strftime("%Y-%m-%d"),
-                "delivery_date": order.delivery_date.strftime("%Y-%m-%d")
-                if order.delivery_date
-                else None,
+                "delivery_date": (
+                    order.delivery_date.strftime("%Y-%m-%d") if order.delivery_date else None
+                ),
                 "total_amount": float(order.total_amount),
                 "status": order.status,
                 "status_display": order.get_status_display(),
@@ -351,7 +377,11 @@ class GetOrderDetailTool(BaseTool):
                 "created_by": order.created_by.username if order.created_by else "",
             }
 
-            return ToolResult(success=True, data=result, message=f"订单 {order.order_number} 详情获取成功")
+            return ToolResult(
+                success=True,
+                data=result,
+                message=f"订单 {order.order_number} 详情获取成功",
+            )
 
         except Exception as e:
             return ToolResult(success=False, error=f"获取订单详情失败: {str(e)}")
@@ -390,7 +420,8 @@ class ApproveSalesOrderTool(BaseTool):
             # 检查订单状态
             if order.status != "pending":
                 return ToolResult(
-                    success=False, error=f"订单状态为 {order.get_status_display()}，不是待审核状态"
+                    success=False,
+                    error=f"订单状态为 {order.get_status_display()}，不是待审核状态",
                 )
 
             # 执行审核
@@ -439,14 +470,22 @@ class CreateSalesOrderTool(BaseTool):
                         "required": ["product_id", "quantity", "unit_price"],
                     },
                 },
-                "delivery_address": {"type": "string", "description": "交付地址（可选）"},
+                "delivery_address": {
+                    "type": "string",
+                    "description": "交付地址（可选）",
+                },
                 "notes": {"type": "string", "description": "订单备注（可选）"},
             },
             "required": ["customer_id", "items"],
         }
 
     def execute(
-        self, customer_id: int, items: list, delivery_address: str = "", notes: str = "", **kwargs
+        self,
+        customer_id: int,
+        items: list,
+        delivery_address: str = "",
+        notes: str = "",
+        **kwargs,
     ) -> ToolResult:
         """执行创建订单"""
         try:

@@ -11,7 +11,10 @@ class Migration(migrations.Migration):
             "ai_assistant",
             "0006_rename_ai_conversa_user_id_d9cb9e_idx_ai_conversa_user_id_948536_idx_and_more",
         ),
-        ("customers", "0005_remove_customer_contact_person_remove_customer_email_and_more"),
+        (
+            "customers",
+            "0005_remove_customer_contact_person_remove_customer_email_and_more",
+        ),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -51,17 +54,34 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "system_prompt",
                     models.TextField(
-                        blank=True, help_text="自定义系统提示词，留空则使用默认提示词", verbose_name="系统提示词"
+                        blank=True,
+                        help_text="自定义系统提示词，留空则使用默认提示词",
+                        verbose_name="系统提示词",
                     ),
                 ),
                 (
@@ -98,24 +118,34 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "max_conversation_turns",
-                    models.IntegerField(default=50, help_text="单次会话的最大对话轮数", verbose_name="最大对话轮数"),
+                    models.IntegerField(
+                        default=50,
+                        help_text="单次会话的最大对话轮数",
+                        verbose_name="最大对话轮数",
+                    ),
                 ),
                 (
                     "max_conversation_duration",
                     models.IntegerField(
-                        default=60, help_text="单次会话的最长持续时间", verbose_name="最大会话时长(分钟)"
+                        default=60,
+                        help_text="单次会话的最长持续时间",
+                        verbose_name="最大会话时长(分钟)",
                     ),
                 ),
                 (
                     "enable_tool_calling",
                     models.BooleanField(
-                        default=True, help_text="是否允许 AI 助手调用工具", verbose_name="启用工具调用"
+                        default=True,
+                        help_text="是否允许 AI 助手调用工具",
+                        verbose_name="启用工具调用",
                     ),
                 ),
                 (
                     "enable_data_query",
                     models.BooleanField(
-                        default=True, help_text="是否允许查询客户数据", verbose_name="启用数据查询"
+                        default=True,
+                        help_text="是否允许查询客户数据",
+                        verbose_name="启用数据查询",
                     ),
                 ),
                 (
@@ -126,9 +156,18 @@ class Migration(migrations.Migration):
                         verbose_name="启用数据修改",
                     ),
                 ),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
-                ("total_conversations", models.IntegerField(default=0, verbose_name="总会话数")),
-                ("total_messages", models.IntegerField(default=0, verbose_name="总消息数")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
+                (
+                    "total_conversations",
+                    models.IntegerField(default=0, verbose_name="总会话数"),
+                ),
+                (
+                    "total_messages",
+                    models.IntegerField(default=0, verbose_name="总消息数"),
+                ),
                 (
                     "last_used_at",
                     models.DateTimeField(blank=True, null=True, verbose_name="最后使用时间"),
@@ -197,7 +236,8 @@ class Migration(migrations.Migration):
                     models.Index(fields=["customer"], name="customer_ai_custome_668246_idx"),
                     models.Index(fields=["is_active"], name="customer_ai_is_acti_f47e19_idx"),
                     models.Index(
-                        fields=["permission_level"], name="customer_ai_permiss_872b24_idx"
+                        fields=["permission_level"],
+                        name="customer_ai_permiss_872b24_idx",
                     ),
                 ],
             },

@@ -11,7 +11,6 @@ Microsoft Azure OpenAI Provider
 官方文档：https://learn.microsoft.com/zh-cn/azure/ai-services/openai/
 """
 
-
 import requests
 
 from .base import AIResponse, BaseAIProvider

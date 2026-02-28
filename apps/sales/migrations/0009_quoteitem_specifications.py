@@ -13,7 +13,10 @@ class Migration(migrations.Migration):
             model_name="quoteitem",
             name="specifications",
             field=models.CharField(
-                blank=True, help_text="产品规格型号", max_length=500, verbose_name="产品规格"
+                blank=True,
+                help_text="产品规格型号",
+                max_length=500,
+                verbose_name="产品规格",
             ),
         ),
     ]

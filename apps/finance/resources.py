@@ -1,6 +1,7 @@
 """
 Finance 模块的导入导出资源配置
 """
+
 from customers.models import Customer
 from departments.models import Department
 from django.contrib.auth import get_user_model
@@ -18,28 +19,40 @@ class ExpenseResource(resources.ModelResource):
 
     # 使用外键Widget来处理关联字段
     applicant = fields.Field(
-        column_name="申请人", attribute="applicant", widget=ForeignKeyWidget(User, "username")
+        column_name="申请人",
+        attribute="applicant",
+        widget=ForeignKeyWidget(User, "username"),
     )
 
     department = fields.Field(
-        column_name="申请部门", attribute="department", widget=ForeignKeyWidget(Department, "name")
+        column_name="申请部门",
+        attribute="department",
+        widget=ForeignKeyWidget(Department, "name"),
     )
 
     approved_by = fields.Field(
-        column_name="审批人", attribute="approved_by", widget=ForeignKeyWidget(User, "username")
+        column_name="审批人",
+        attribute="approved_by",
+        widget=ForeignKeyWidget(User, "username"),
     )
 
     paid_by = fields.Field(
-        column_name="支付人", attribute="paid_by", widget=ForeignKeyWidget(User, "username")
+        column_name="支付人",
+        attribute="paid_by",
+        widget=ForeignKeyWidget(User, "username"),
     )
 
     payment_account = fields.Field(
-        column_name="支付科目", attribute="payment_account", widget=ForeignKeyWidget(Account, "code")
+        column_name="支付科目",
+        attribute="payment_account",
+        widget=ForeignKeyWidget(Account, "code"),
     )
 
     # 日期字段
     expense_date = fields.Field(
-        column_name="费用日期", attribute="expense_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="费用日期",
+        attribute="expense_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     # 金额字段
@@ -86,15 +99,21 @@ class InvoiceResource(resources.ModelResource):
     """发票导入导出资源"""
 
     customer = fields.Field(
-        column_name="客户", attribute="customer", widget=ForeignKeyWidget(Customer, "name")
+        column_name="客户",
+        attribute="customer",
+        widget=ForeignKeyWidget(Customer, "name"),
     )
 
     supplier = fields.Field(
-        column_name="供应商", attribute="supplier", widget=ForeignKeyWidget(Supplier, "name")
+        column_name="供应商",
+        attribute="supplier",
+        widget=ForeignKeyWidget(Supplier, "name"),
     )
 
     invoice_date = fields.Field(
-        column_name="开票日期", attribute="invoice_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="开票日期",
+        attribute="invoice_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     total_amount = fields.Field(
@@ -133,15 +152,21 @@ class PaymentResource(resources.ModelResource):
     """收付款记录导入导出资源"""
 
     customer = fields.Field(
-        column_name="客户", attribute="customer", widget=ForeignKeyWidget(Customer, "name")
+        column_name="客户",
+        attribute="customer",
+        widget=ForeignKeyWidget(Customer, "name"),
     )
 
     supplier = fields.Field(
-        column_name="供应商", attribute="supplier", widget=ForeignKeyWidget(Supplier, "name")
+        column_name="供应商",
+        attribute="supplier",
+        widget=ForeignKeyWidget(Supplier, "name"),
     )
 
     payment_date = fields.Field(
-        column_name="付款日期", attribute="payment_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="付款日期",
+        attribute="payment_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     amount = fields.Field(column_name="金额", attribute="amount", widget=DecimalWidget())
@@ -176,7 +201,9 @@ class AccountResource(resources.ModelResource):
     """会计科目导入导出资源"""
 
     parent = fields.Field(
-        column_name="上级科目", attribute="parent", widget=ForeignKeyWidget(Account, "code")
+        column_name="上级科目",
+        attribute="parent",
+        widget=ForeignKeyWidget(Account, "code"),
     )
 
     class Meta:
@@ -202,7 +229,9 @@ class JournalResource(resources.ModelResource):
     """会计凭证导入导出资源"""
 
     journal_date = fields.Field(
-        column_name="凭证日期", attribute="journal_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="凭证日期",
+        attribute="journal_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     total_debit = fields.Field(column_name="借方合计", attribute="total_debit", widget=DecimalWidget())
@@ -235,11 +264,15 @@ class JournalEntryResource(resources.ModelResource):
     """会计分录导入导出资源"""
 
     journal = fields.Field(
-        column_name="关联凭证", attribute="journal", widget=ForeignKeyWidget(Journal, "journal_number")
+        column_name="关联凭证",
+        attribute="journal",
+        widget=ForeignKeyWidget(Journal, "journal_number"),
     )
 
     account = fields.Field(
-        column_name="会计科目", attribute="account", widget=ForeignKeyWidget(Account, "code")
+        column_name="会计科目",
+        attribute="account",
+        widget=ForeignKeyWidget(Account, "code"),
     )
 
     debit_amount = fields.Field(

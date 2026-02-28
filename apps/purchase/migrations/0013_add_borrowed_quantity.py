@@ -14,7 +14,9 @@ class Migration(migrations.Migration):
             model_name="borrowitem",
             name="borrowed_quantity",
             field=models.IntegerField(
-                default=0, help_text="借用入库确认时累计的已借用数量（用于归还和转采购限制）", verbose_name="累计已借用数量"
+                default=0,
+                help_text="借用入库确认时累计的已借用数量（用于归还和转采购限制）",
+                verbose_name="累计已借用数量",
             ),
         ),
         migrations.AlterField(
@@ -41,7 +43,8 @@ class Migration(migrations.Migration):
             model_name="borrowitem",
             name="quantity",
             field=models.IntegerField(
-                validators=[django.core.validators.MinValueValidator(0)], verbose_name="借用数量"
+                validators=[django.core.validators.MinValueValidator(0)],
+                verbose_name="借用数量",
             ),
         ),
         migrations.AlterField(
@@ -53,14 +56,16 @@ class Migration(migrations.Migration):
             model_name="purchaseinquiryitem",
             name="quantity",
             field=models.IntegerField(
-                validators=[django.core.validators.MinValueValidator(0)], verbose_name="询价数量"
+                validators=[django.core.validators.MinValueValidator(0)],
+                verbose_name="询价数量",
             ),
         ),
         migrations.AlterField(
             model_name="purchaseorderitem",
             name="quantity",
             field=models.IntegerField(
-                validators=[django.core.validators.MinValueValidator(0)], verbose_name="数量"
+                validators=[django.core.validators.MinValueValidator(0)],
+                verbose_name="数量",
             ),
         ),
         migrations.AlterField(
@@ -77,21 +82,24 @@ class Migration(migrations.Migration):
             model_name="purchaserequestitem",
             name="quantity",
             field=models.IntegerField(
-                validators=[django.core.validators.MinValueValidator(0)], verbose_name="申请数量"
+                validators=[django.core.validators.MinValueValidator(0)],
+                verbose_name="申请数量",
             ),
         ),
         migrations.AlterField(
             model_name="purchasereturnitem",
             name="quantity",
             field=models.IntegerField(
-                validators=[django.core.validators.MinValueValidator(0)], verbose_name="退货数量"
+                validators=[django.core.validators.MinValueValidator(0)],
+                verbose_name="退货数量",
             ),
         ),
         migrations.AlterField(
             model_name="supplierquotationitem",
             name="quantity",
             field=models.IntegerField(
-                validators=[django.core.validators.MinValueValidator(0)], verbose_name="报价数量"
+                validators=[django.core.validators.MinValueValidator(0)],
+                verbose_name="报价数量",
             ),
         ),
     ]

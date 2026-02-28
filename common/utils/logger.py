@@ -46,7 +46,8 @@ class AIAssistantLogger:
 
         # 创建格式化器
         formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
         console_handler.setFormatter(formatter)
 
@@ -60,7 +61,11 @@ class AIAssistantLogger:
 
 
 def log_channel_message(
-    logger: logging.Logger, channel: str, user_id: str, message: str, direction: str = "incoming"
+    logger: logging.Logger,
+    channel: str,
+    user_id: str,
+    message: str,
+    direction: str = "incoming",
 ):
     """
     记录渠道消息
@@ -135,7 +140,10 @@ def log_ai_request(
 
 
 def log_ai_response(
-    logger: logging.Logger, tokens_used: int, response_time: float, has_tool_calls: bool = False
+    logger: logging.Logger,
+    tokens_used: int,
+    response_time: float,
+    has_tool_calls: bool = False,
 ):
     """
     记录AI响应

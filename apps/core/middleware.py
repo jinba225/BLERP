@@ -1,6 +1,7 @@
 """
 Core middleware for the ERP system.
 """
+
 import logging
 import traceback
 

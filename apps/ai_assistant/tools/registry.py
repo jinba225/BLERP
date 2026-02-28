@@ -4,139 +4,127 @@
 管理所有ERP工具的注册和发现
 """
 
-from typing import Dict, List, Type, Optional
+from typing import Dict, List, Optional, Type
+
 from django.contrib.auth import get_user_model
+
+# ========== 高级操作工具 ==========
+from .advanced_tools import ApproveBudgetTool, ConsolidatePrepaymentTool, ProcessPaymentTool
+
+# ========== 审核和状态变更工具 ==========
+from .approval_tools import (
+    ApproveDeliveryTool,
+    ApproveExpenseTool,
+    ApproveJournalTool,
+    ApprovePurchaseReceiptTool,
+    ApproveSalesReturnTool,
+    ConfirmReceiptTool,
+    ConfirmShipmentTool,
+    ReceiveTransferTool,
+    ShipTransferTool,
+)
 from .base_tool import BaseTool
 
-# ========== 基础销售工具 ==========
-from .sales_tools import (
-    SearchCustomerTool,
-    CreateSalesQuoteTool,
-    CreateSalesOrderTool,
-    QuerySalesOrdersTool,
-    GetOrderDetailTool,
-    ApproveSalesOrderTool,
-)
+# ========== 批量操作工具 ==========
+from .batch_tools import BatchApproveTool, BatchCreateTool, BatchExportTool, BatchQueryTool
 
-# ========== 销售扩展工具 ==========
-from .sales_tools_extended import (
-    QueryDeliveriesTool,
-    QuerySalesReturnsTool,
-    QuerySalesLoansTool,
-    GetDeliveryDetailTool,
-)
-
-# ========== 销售创建工具 ==========
-from .sales_creation_tools import (
-    CreateDeliveryTool,
-    CreateSalesReturnTool,
-    CreateSalesLoanTool,
-    ConvertQuoteToOrderTool,
-)
-
-# ========== 基础采购工具 ==========
-from .purchase_tools import (
-    SearchSupplierTool,
-    CreatePurchaseRequestTool,
-    QueryPurchaseOrdersTool,
-    ApprovePurchaseOrderTool,
-)
-
-# ========== 采购扩展工具 ==========
-from .purchase_tools_extended import (
-    QueryPurchaseInquiriesTool,
-    QuerySupplierQuotationsTool,
-    QueryPurchaseReceiptsTool,
-    QueryPurchaseReturnsTool,
-    QueryPurchaseBorrowsTool,
-)
-
-# ========== 采购创建工具 ==========
-from .purchase_creation_tools import (
-    CreatePurchaseInquiryTool,
-    AddSupplierQuotationTool,
-    CreatePurchaseReceiptTool,
-)
-
-# ========== 基础库存工具 ==========
-from .inventory_tools import (
-    CheckInventoryTool,
-    SearchProductTool,
-    GetLowStockAlertTool,
-)
-
-# ========== 库存扩展工具 ==========
-from .inventory_tools_extended import (
-    QueryWarehousesTool,
-    QueryStockTransfersTool,
-    QueryStockCountsTool,
-    QueryInboundOrdersTool,
-    QueryOutboundOrdersTool,
-    QueryStockAdjustmentsTool,
-)
-
-# ========== 库存创建工具 ==========
-from .inventory_creation_tools import (
-    CreateWarehouseTool,
-    CreateStockTransferTool,
-    CreateStockCountTool,
-    CreateInboundOrderTool,
-    CreateStockAdjustmentTool,
+# ========== 财务创建工具 ==========
+from .finance_creation_tools import (
+    CreateExpenseTool,
+    CreateJournalTool,
+    CreatePaymentTool,
+    CreatePrepaymentTool,
 )
 
 # ========== 财务工具 ==========
 from .finance_tools import (
     QueryAccountsTool,
-    QueryJournalsTool,
     QueryCustomerAccountsTool,
-    QuerySupplierAccountsTool,
-    QueryPaymentsTool,
-    QueryPrepaymentsTool,
     QueryExpensesTool,
     QueryInvoicesTool,
+    QueryJournalsTool,
+    QueryPaymentsTool,
+    QueryPrepaymentsTool,
+    QuerySupplierAccountsTool,
 )
 
-# ========== 财务创建工具 ==========
-from .finance_creation_tools import (
-    CreateJournalTool,
-    CreatePaymentTool,
-    CreatePrepaymentTool,
-    CreateExpenseTool,
+# ========== 库存创建工具 ==========
+from .inventory_creation_tools import (
+    CreateInboundOrderTool,
+    CreateStockAdjustmentTool,
+    CreateStockCountTool,
+    CreateStockTransferTool,
+    CreateWarehouseTool,
 )
 
-# ========== 审核和状态变更工具 ==========
-from .approval_tools import (
-    ApproveDeliveryTool,
-    ApproveSalesReturnTool,
-    ConfirmShipmentTool,
-    ApprovePurchaseReceiptTool,
-    ConfirmReceiptTool,
-    ApproveExpenseTool,
-    ApproveJournalTool,
-    ShipTransferTool,
-    ReceiveTransferTool,
+# ========== 基础库存工具 ==========
+from .inventory_tools import CheckInventoryTool, GetLowStockAlertTool, SearchProductTool
+
+# ========== 库存扩展工具 ==========
+from .inventory_tools_extended import (
+    QueryInboundOrdersTool,
+    QueryOutboundOrdersTool,
+    QueryStockAdjustmentsTool,
+    QueryStockCountsTool,
+    QueryStockTransfersTool,
+    QueryWarehousesTool,
 )
 
-# ========== 高级操作工具 ==========
-from .advanced_tools import (
-    ConsolidatePrepaymentTool,
-    ProcessPaymentTool,
-    ApproveBudgetTool,
+# ========== 采购创建工具 ==========
+from .purchase_creation_tools import (
+    AddSupplierQuotationTool,
+    CreatePurchaseInquiryTool,
+    CreatePurchaseReceiptTool,
+)
+
+# ========== 基础采购工具 ==========
+from .purchase_tools import (
+    ApprovePurchaseOrderTool,
+    CreatePurchaseRequestTool,
+    QueryPurchaseOrdersTool,
+    SearchSupplierTool,
+)
+
+# ========== 采购扩展工具 ==========
+from .purchase_tools_extended import (
+    QueryPurchaseBorrowsTool,
+    QueryPurchaseInquiriesTool,
+    QueryPurchaseReceiptsTool,
+    QueryPurchaseReturnsTool,
+    QuerySupplierQuotationsTool,
 )
 
 # ========== 报表工具 ==========
 from .report_tools import (
-    GenerateSalesReportTool,
-    GeneratePurchaseReportTool,
     GenerateInventoryReportTool,
+    GeneratePurchaseReportTool,
+    GenerateSalesReportTool,
 )
 
-# ========== 批量操作工具 ==========
-from .batch_tools import (
-    BatchQueryTool,
-    BatchApproveTool,
-    BatchExportTool,
-    BatchCreateTool,
+# ========== 销售创建工具 ==========
+from .sales_creation_tools import (
+    ConvertQuoteToOrderTool,
+    CreateDeliveryTool,
+    CreateSalesLoanTool,
+    CreateSalesReturnTool,
+)
+
+# ========== 基础销售工具 ==========
+from .sales_tools import (
+    ApproveSalesOrderTool,
+    CreateSalesOrderTool,
+    CreateSalesQuoteTool,
+    GetOrderDetailTool,
+    QuerySalesOrdersTool,
+    SearchCustomerTool,
+)
+
+# ========== 销售扩展工具 ==========
+from .sales_tools_extended import (
+    GetDeliveryDetailTool,
+    QueryDeliveriesTool,
+    QuerySalesLoansTool,
+    QuerySalesReturnsTool,
 )
 
 User = get_user_model()

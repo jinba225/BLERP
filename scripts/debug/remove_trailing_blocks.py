@@ -2,6 +2,7 @@
 """
 删除extra_js块之后的所有内容
 """
+
 from pathlib import Path
 
 

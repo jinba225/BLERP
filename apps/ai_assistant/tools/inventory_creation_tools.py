@@ -44,7 +44,11 @@ class CreateWarehouseTool(BaseTool):
                 "code": {"type": "string", "description": "仓库代码"},
                 "address": {"type": "string", "description": "仓库地址"},
                 "manager_id": {"type": "integer", "description": "仓库管理员用户ID"},
-                "is_active": {"type": "boolean", "description": "是否启用", "default": True},
+                "is_active": {
+                    "type": "boolean",
+                    "description": "是否启用",
+                    "default": True,
+                },
             },
             "required": ["name", "code"],
         }
@@ -131,7 +135,10 @@ class CreateStockTransferTool(BaseTool):
                         "required": ["product_id", "quantity"],
                     },
                 },
-                "transfer_date": {"type": "string", "description": "调拨日期（YYYY-MM-DD，默认今天）"},
+                "transfer_date": {
+                    "type": "string",
+                    "description": "调拨日期（YYYY-MM-DD，默认今天）",
+                },
                 "notes": {"type": "string", "description": "备注"},
             },
             "required": ["source_warehouse_id", "target_warehouse_id", "items"],
@@ -248,7 +255,10 @@ class CreateStockCountTool(BaseTool):
             "type": "object",
             "properties": {
                 "warehouse_id": {"type": "integer", "description": "仓库ID"},
-                "count_date": {"type": "string", "description": "盘点日期（YYYY-MM-DD，默认今天）"},
+                "count_date": {
+                    "type": "string",
+                    "description": "盘点日期（YYYY-MM-DD，默认今天）",
+                },
                 "notes": {"type": "string", "description": "备注"},
             },
             "required": ["warehouse_id"],
@@ -326,7 +336,10 @@ class CreateInboundOrderTool(BaseTool):
                         "required": ["product_id", "quantity"],
                     },
                 },
-                "inbound_date": {"type": "string", "description": "入库日期（YYYY-MM-DD，默认今天）"},
+                "inbound_date": {
+                    "type": "string",
+                    "description": "入库日期（YYYY-MM-DD，默认今天）",
+                },
                 "reference_number": {"type": "string", "description": "参考单号"},
                 "notes": {"type": "string", "description": "备注"},
             },
@@ -438,12 +451,18 @@ class CreateStockAdjustmentTool(BaseTool):
                         "type": "object",
                         "properties": {
                             "product_id": {"type": "integer", "description": "产品ID"},
-                            "quantity": {"type": "number", "description": "调整数量（正数为增加，负数为减少）"},
+                            "quantity": {
+                                "type": "number",
+                                "description": "调整数量（正数为增加，负数为减少）",
+                            },
                         },
                         "required": ["product_id", "quantity"],
                     },
                 },
-                "adjustment_date": {"type": "string", "description": "调整日期（YYYY-MM-DD，默认今天）"},
+                "adjustment_date": {
+                    "type": "string",
+                    "description": "调整日期（YYYY-MM-DD，默认今天）",
+                },
                 "adjustment_reason": {
                     "type": "string",
                     "description": "调整原因（damage/loss/gain/other）",
@@ -492,7 +511,10 @@ class CreateStockAdjustmentTool(BaseTool):
                     quantity = float(item["quantity"])
 
                     if quantity == 0:
-                        return ToolResult(success=False, error=f"产品 {product.name} 的调整数量不能为0")
+                        return ToolResult(
+                            success=False,
+                            error=f"产品 {product.name} 的调整数量不能为0",
+                        )
 
                     # 获取当前库存
                     stock = InventoryStock.objects.filter(

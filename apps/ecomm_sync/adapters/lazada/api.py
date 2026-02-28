@@ -3,6 +3,8 @@ import logging
 import time
 from typing import Dict, List
 
+from ecomm_sync.models import PlatformAccount
+
 from ..base import BaseAdapter
 
 logger = logging.getLogger(__name__)

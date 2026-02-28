@@ -1,6 +1,7 @@
 """
 Products 模块的导入导出资源配置
 """
+
 from import_export import fields, resources
 from import_export.widgets import DecimalWidget, ForeignKeyWidget
 
@@ -12,7 +13,15 @@ class ProductCategoryResource(resources.ModelResource):
 
     class Meta:
         model = ProductCategory
-        fields = ("id", "name", "code", "description", "is_active", "created_at", "updated_at")
+        fields = (
+            "id",
+            "name",
+            "code",
+            "description",
+            "is_active",
+            "created_at",
+            "updated_at",
+        )
         export_order = fields
         import_id_fields = ["code"]
         skip_unchanged = True
@@ -23,7 +32,9 @@ class ProductResource(resources.ModelResource):
     """产品导入导出资源"""
 
     category = fields.Field(
-        column_name="产品分类", attribute="category", widget=ForeignKeyWidget(ProductCategory, "code")
+        column_name="产品分类",
+        attribute="category",
+        widget=ForeignKeyWidget(ProductCategory, "code"),
     )
 
     standard_price = fields.Field(

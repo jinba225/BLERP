@@ -1,4 +1,5 @@
 """仪表盘视图"""
+
 import logging
 
 from django.utils import timezone
@@ -25,7 +26,7 @@ class DashboardView:
 
         sync_summary = {
             "last_sync": SyncLog.objects.order_by("-created_at").first(),
-            "sync_status": "正常运行" if SyncLog.objects.filter(status="running").exists() else "空闲",
+            "sync_status": ("正常运行" if SyncLog.objects.filter(status="running").exists() else "空闲"),
         }
 
         # 获取同步日志（最近7天）

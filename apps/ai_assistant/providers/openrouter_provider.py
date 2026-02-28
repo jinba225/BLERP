@@ -12,7 +12,6 @@ OpenRouter Provider - 多模型路由平台
 官方文档：https://openrouter.com/docs
 """
 
-
 import openai
 
 from .base import AIResponse, BaseAIProvider

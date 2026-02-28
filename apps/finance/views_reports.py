@@ -1,6 +1,7 @@
 """
 Financial Report Views for the ERP system.
 """
+
 import logging
 from datetime import date
 
@@ -21,7 +22,9 @@ def financial_report_list(request):
     """
     列出所有已生成的财务报表。
     """
-    reports = FinancialReport.objects.filter(is_deleted=False).select_related("generated_by")
+    reports = FinancialReport.objects.filter(is_deleted=False).select_related(
+        "generated_by"
+    )
 
     # Search
     search = request.GET.get("search", "")
@@ -68,7 +71,8 @@ def financial_report_detail(request, pk):
     显示财务报表详情。
     """
     report = get_object_or_404(
-        FinancialReport.objects.filter(is_deleted=False).select_related("generated_by"), pk=pk
+        FinancialReport.objects.filter(is_deleted=False).select_related("generated_by"),
+        pk=pk,
     )
 
     # 根据报表类型选择不同的模板
@@ -176,7 +180,9 @@ def generate_income_statement(request):
                 f"from {start_date} to {end_date}"
             )
 
-            report = generate_is(start_date=start_date, end_date=end_date, user=request.user)
+            report = generate_is(
+                start_date=start_date, end_date=end_date, user=request.user
+            )
 
             logger.info(
                 f"Income statement generated successfully: report_id={report.id}, "
@@ -184,7 +190,9 @@ def generate_income_statement(request):
             )
 
             messages.success(
-                request, f"利润表生成成功！期间：{start_date} 至 {end_date}，" f"净利润：¥{report.net_profit:,.2f}"
+                request,
+                f"利润表生成成功！期间：{start_date} 至 {end_date}，"
+                f"净利润：¥{report.net_profit:,.2f}",
             )
             return redirect("finance:report_detail", pk=report.pk)
 
@@ -237,7 +245,9 @@ def generate_cash_flow(request):
                 f"from {start_date} to {end_date}"
             )
 
-            report = generate_cf(start_date=start_date, end_date=end_date, user=request.user)
+            report = generate_cf(
+                start_date=start_date, end_date=end_date, user=request.user
+            )
 
             net_cash_flow = report.report_data.get("net_cash_flow", 0)
 
@@ -247,7 +257,9 @@ def generate_cash_flow(request):
             )
 
             messages.success(
-                request, f"现金流量表生成成功！期间：{start_date} 至 {end_date}，" f"现金净增加额：¥{net_cash_flow:,.2f}"
+                request,
+                f"现金流量表生成成功！期间：{start_date} 至 {end_date}，"
+                f"现金净增加额：¥{net_cash_flow:,.2f}",
             )
             return redirect("finance:report_detail", pk=report.pk)
 
@@ -300,7 +312,9 @@ def generate_trial_balance(request):
                 f"from {start_date} to {end_date}"
             )
 
-            report = generate_tb(start_date=start_date, end_date=end_date, user=request.user)
+            report = generate_tb(
+                start_date=start_date, end_date=end_date, user=request.user
+            )
 
             totals = report.report_data.get("totals", {})
 

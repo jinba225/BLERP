@@ -24,7 +24,11 @@ class Migration(migrations.Migration):
             model_name="quote",
             name="tax_amount",
             field=models.DecimalField(
-                decimal_places=2, default=0, help_text="从含税价格反推得出", max_digits=12, verbose_name="税额"
+                decimal_places=2,
+                default=0,
+                help_text="从含税价格反推得出",
+                max_digits=12,
+                verbose_name="税额",
             ),
         ),
         migrations.AlterField(
@@ -42,21 +46,32 @@ class Migration(migrations.Migration):
             model_name="quoteitem",
             name="line_total",
             field=models.DecimalField(
-                decimal_places=2, default=0, help_text="含税金额", max_digits=12, verbose_name="含税小计"
+                decimal_places=2,
+                default=0,
+                help_text="含税金额",
+                max_digits=12,
+                verbose_name="含税小计",
             ),
         ),
         migrations.AlterField(
             model_name="quoteitem",
             name="unit_price",
             field=models.DecimalField(
-                decimal_places=2, help_text="含税单价", max_digits=12, verbose_name="含税单价"
+                decimal_places=2,
+                help_text="含税单价",
+                max_digits=12,
+                verbose_name="含税单价",
             ),
         ),
         migrations.AlterField(
             model_name="salesorder",
             name="shipping_cost",
             field=models.DecimalField(
-                decimal_places=2, default=0, help_text="含税运费", max_digits=12, verbose_name="运费"
+                decimal_places=2,
+                default=0,
+                help_text="含税运费",
+                max_digits=12,
+                verbose_name="运费",
             ),
         ),
         migrations.AlterField(
@@ -74,7 +89,11 @@ class Migration(migrations.Migration):
             model_name="salesorder",
             name="tax_amount",
             field=models.DecimalField(
-                decimal_places=2, default=0, help_text="从含税价格反推得出", max_digits=12, verbose_name="税额"
+                decimal_places=2,
+                default=0,
+                help_text="从含税价格反推得出",
+                max_digits=12,
+                verbose_name="税额",
             ),
         ),
         migrations.AlterField(
@@ -92,14 +111,21 @@ class Migration(migrations.Migration):
             model_name="salesorderitem",
             name="line_total",
             field=models.DecimalField(
-                decimal_places=2, default=0, help_text="含税金额", max_digits=12, verbose_name="含税小计"
+                decimal_places=2,
+                default=0,
+                help_text="含税金额",
+                max_digits=12,
+                verbose_name="含税小计",
             ),
         ),
         migrations.AlterField(
             model_name="salesorderitem",
             name="unit_price",
             field=models.DecimalField(
-                decimal_places=2, help_text="含税单价", max_digits=12, verbose_name="含税单价"
+                decimal_places=2,
+                help_text="含税单价",
+                max_digits=12,
+                verbose_name="含税单价",
             ),
         ),
     ]

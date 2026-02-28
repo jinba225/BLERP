@@ -72,7 +72,7 @@ from django.core.validators import RegexValidator         # 正则验证器
 ```python
 # 电话号码验证
 phone_validator = RegexValidator(
-    regex=r'^\+?1?\d{9,15}$', 
+    regex=r'^\+?1?\d{9,15}$',
     message='请输入有效的电话号码'
 )
 ```
@@ -83,13 +83,13 @@ phone_validator = RegexValidator(
 ```python
 class CustomerCategory(BaseModel):
     name = CharField('分类名称', max_length=100, unique=True)        # 分类名称
-    code = CharField('分类代码', max_length=50, unique=True)         # 分类代码  
+    code = CharField('分类代码', max_length=50, unique=True)         # 分类代码
     description = TextField('分类描述', blank=True)                 # 描述
     discount_rate = DecimalField('默认折扣率', max_digits=5, decimal_places=2) # 折扣率
     is_active = BooleanField('是否启用', default=True)              # 状态
 ```
 
-**用途**: 
+**用途**:
 - 客户分类管理（如：重要客户、普通客户、潜在客户）
 - 差异化折扣政策
 - 客户分析和报表
@@ -101,43 +101,43 @@ class Customer(BaseModel):
     name = CharField('客户名称', max_length=200)                    # 客户名称
     code = CharField('客户编码', max_length=100, unique=True)       # 客户编码
     customer_type = CharField('客户类型', max_length=20, choices=CUSTOMER_TYPES)
-    customer_level = CharField('客户等级', max_length=1, choices=CUSTOMER_LEVELS)  
+    customer_level = CharField('客户等级', max_length=1, choices=CUSTOMER_LEVELS)
     status = CharField('状态', max_length=20, choices=STATUS_CHOICES)
-    
+
     # 分类关系
     category = ForeignKey(CustomerCategory, on_delete=SET_NULL, null=True)
-    
+
     # 联系信息
     contact_person = CharField('联系人', max_length=100, blank=True)
     phone = CharField('电话', max_length=20, blank=True, validators=[phone_validator])
     email = EmailField('邮箱', blank=True)
     website = URLField('网站', blank=True)
-    
+
     # 地址信息
     address = TextField('地址', blank=True)
     city = CharField('城市', max_length=100, blank=True)
-    province = CharField('省份', max_length=100, blank=True) 
+    province = CharField('省份', max_length=100, blank=True)
     postal_code = CharField('邮政编码', max_length=20, blank=True)
     country = CharField('国家', max_length=100, default='中国')
-    
-    # 企业信息  
+
+    # 企业信息
     legal_representative = CharField('法定代表人', max_length=100, blank=True)
     registration_number = CharField('工商注册号', max_length=100, blank=True)
     tax_number = CharField('税务登记号', max_length=100, blank=True)
-    
+
     # 业务信息
     industry = CharField('所属行业', max_length=100, blank=True)
     credit_limit = DecimalField('信用额度', max_digits=12, decimal_places=2, default=0)
     payment_terms = CharField('付款条件', max_length=50, choices=PAYMENT_METHOD_CHOICES, blank=True)
     currency = CharField('币种', max_length=10, default='CNY')
-    
+
     # 销售支持
     sales_rep = ForeignKey(User, on_delete=SET_NULL, null=True, verbose_name='销售代表')
 ```
 
 **客户类型**:
 - individual: 个人客户
-- enterprise: 企业客户  
+- enterprise: 企业客户
 - government: 政府客户
 - dealer: 经销商
 - agent: 代理商
@@ -150,7 +150,7 @@ class Customer(BaseModel):
 
 **客户状态**:
 - active: 正常
-- inactive: 停用  
+- inactive: 停用
 - potential: 潜在客户
 - blacklist: 黑名单
 
@@ -218,7 +218,7 @@ class CustomerAdmin(admin.ModelAdmin):
 ```
 templates/customers/
 ├── customer_list.html           # 客户列表页面
-├── customer_form.html           # 客户编辑表单  
+├── customer_form.html           # 客户编辑表单
 ├── customer_detail.html         # 客户详情页面
 ├── customer_confirm_delete.html # 删除确认页面
 ├── contact_list.html            # 联系人列表
@@ -332,7 +332,7 @@ A: 系统支持多货币和国家设置，可以在客户信息中指定对应�
 - 客户付款条件和折扣设置
 - 销售代表关联关系
 
-### 产品模块 (Products)  
+### 产品模块 (Products)
 - 客户专用价格设置（未来功能）
 - 客户产品偏好分析
 

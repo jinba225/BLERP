@@ -93,7 +93,12 @@ class WooCommerceBatchSync:
         Returns:
             批量同步结果
         """
-        results = {"total": len(ecomm_products), "succeeded": 0, "failed": 0, "errors": []}
+        results = {
+            "total": len(ecomm_products),
+            "succeeded": 0,
+            "failed": 0,
+            "errors": [],
+        }
 
         for ecomm_product in ecomm_products:
             result = self.sync_single_product(ecomm_product, update_type)
@@ -121,7 +126,11 @@ class WooCommerceBatchSync:
 
             logger.info(f"批量更新完成: {len(updates)} 个产品")
 
-            return {"success": True, "updated": len(result.get("update", [])), "data": result}
+            return {
+                "success": True,
+                "updated": len(result.get("update", [])),
+                "data": result,
+            }
 
         except Exception as e:
             logger.error(f"批量同步失败: {e}")

@@ -1,6 +1,7 @@
 """
 Sales business logic tests.
 """
+
 from datetime import timedelta
 from decimal import Decimal
 
@@ -186,7 +187,9 @@ class OrderApprovalTest(TestCase):
         """Test order approval with automatic delivery creation."""
         # Approve order with delivery creation
         delivery, customer_account = self.order.approve_order(
-            approved_by_user=self.approver, warehouse=self.warehouse, auto_create_delivery=True
+            approved_by_user=self.approver,
+            warehouse=self.warehouse,
+            auto_create_delivery=True,
         )
 
         # Verify order status updated
@@ -334,7 +337,9 @@ class OrderUnapprovalTest(TestCase):
 
         # Approve with delivery
         self.delivery, self.customer_account = self.order.approve_order(
-            approved_by_user=self.approver, warehouse=self.warehouse, auto_create_delivery=True
+            approved_by_user=self.approver,
+            warehouse=self.warehouse,
+            auto_create_delivery=True,
         )
 
     def test_unapprove_order(self):
@@ -416,7 +421,10 @@ class DeliveryProcessTest(TestCase):
 
         # Create inventory stock
         InventoryStock.objects.create(
-            warehouse=self.warehouse, product=self.product, quantity=100, created_by=self.user
+            warehouse=self.warehouse,
+            product=self.product,
+            quantity=100,
+            created_by=self.user,
         )
 
         # Create order
@@ -614,7 +622,9 @@ class IntegrationTest(TestCase):
 
         # 3. Approve order
         delivery, customer_account = order.approve_order(
-            approved_by_user=self.user, warehouse=self.warehouse, auto_create_delivery=True
+            approved_by_user=self.user,
+            warehouse=self.warehouse,
+            auto_create_delivery=True,
         )
 
         # Verify complete flow

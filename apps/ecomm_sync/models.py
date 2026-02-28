@@ -15,7 +15,10 @@ class EcommProduct(BaseModel):
     ]
 
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="ecomm_products", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="ecomm_products",
+        verbose_name="平台",
     )
     external_id = models.CharField("平台商品ID", max_length=200, db_index=True)
     external_url = models.URLField("商品链接", max_length=1000)
@@ -65,7 +68,10 @@ class SyncStrategy(BaseModel):
     name = models.CharField("策略名称", max_length=100)
     strategy_type = models.CharField("策略类型", max_length=20, choices=STRATEGY_TYPES)
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="strategies", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="strategies",
+        verbose_name="平台",
     )
 
     update_fields = models.JSONField(
@@ -156,7 +162,10 @@ class ProductChangeLog(BaseModel):
     ]
 
     ecomm_product = models.ForeignKey(
-        EcommProduct, on_delete=models.CASCADE, related_name="change_logs", verbose_name="电商商品"
+        EcommProduct,
+        on_delete=models.CASCADE,
+        related_name="change_logs",
+        verbose_name="电商商品",
     )
     change_type = models.CharField("变更类型", max_length=20, choices=CHANGE_TYPES)
     old_value = models.JSONField("原值", null=True, blank=True)
@@ -295,7 +304,10 @@ class PlatformOrderItem(BaseModel):
     """平台订单商品"""
 
     order = models.ForeignKey(
-        PlatformOrder, on_delete=models.CASCADE, related_name="items", verbose_name="订单"
+        PlatformOrder,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="订单",
     )
     sku = models.CharField("SKU", max_length=100, db_index=True)
     product_name = models.CharField("商品名称", max_length=500)
@@ -335,7 +347,10 @@ class ProductListing(BaseModel):
         Platform, on_delete=models.CASCADE, related_name="listings", verbose_name="平台"
     )
     account = models.ForeignKey(
-        PlatformAccount, on_delete=models.CASCADE, related_name="listings", verbose_name="账号"
+        PlatformAccount,
+        on_delete=models.CASCADE,
+        related_name="listings",
+        verbose_name="账号",
     )
 
     platform_product_id = models.CharField("平台商品ID", max_length=200, db_index=True)
@@ -386,10 +401,16 @@ class StockSyncQueue(BaseModel):
     ]
 
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="stock_sync_queues", verbose_name="商品"
+        Product,
+        on_delete=models.CASCADE,
+        related_name="stock_sync_queues",
+        verbose_name="商品",
     )
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="stock_sync_queues", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="stock_sync_queues",
+        verbose_name="平台",
     )
     account = models.ForeignKey(
         PlatformAccount,
@@ -434,14 +455,23 @@ class APICallLog(BaseModel):
         verbose_name="账号",
     )
     platform = models.ForeignKey(
-        Platform, on_delete=models.SET_NULL, null=True, related_name="api_logs", verbose_name="平台"
+        Platform,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="api_logs",
+        verbose_name="平台",
     )
 
     endpoint = models.CharField("API端点", max_length=500)
     method = models.CharField(
         "HTTP方法",
         max_length=10,
-        choices=[("GET", "GET"), ("POST", "POST"), ("PUT", "PUT"), ("DELETE", "DELETE")],
+        choices=[
+            ("GET", "GET"),
+            ("POST", "POST"),
+            ("PUT", "PUT"),
+            ("DELETE", "DELETE"),
+        ],
     )
 
     request_data = models.JSONField("请求数据", default=dict, blank=True)

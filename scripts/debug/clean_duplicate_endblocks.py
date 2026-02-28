@@ -2,6 +2,7 @@
 """
 清理重复的{% endblock %}标签和多余的空行
 """
+
 from pathlib import Path
 
 

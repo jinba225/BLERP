@@ -1,6 +1,7 @@
 """
 高级分析数据模型
 """
+
 from bi.models import Dashboard
 from core.models import BaseModel, Platform, Shop
 from django.db import models
@@ -24,7 +25,10 @@ class TrendPrediction(BaseModel):
     ]
 
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="trend_predictions", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="trend_predictions",
+        verbose_name="平台",
     )
     platform_account = models.ForeignKey(
         "ecomm_sync.PlatformAccount",
@@ -90,7 +94,10 @@ class UserBehaviorAnalysis(BaseModel):
     ]
 
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="user_behavior_analyses", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="user_behavior_analyses",
+        verbose_name="平台",
     )
     platform_account = models.ForeignKey(
         "ecomm_sync.PlatformAccount",
@@ -153,7 +160,10 @@ class CustomerSegmentation(BaseModel):
     ]
 
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="customer_segmentations", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="customer_segmentations",
+        verbose_name="平台",
     )
     segment_name = models.CharField("分群名称", max_length=200)
     segment_type = models.CharField("分群类型", max_length=20, choices=SEGMENT_TYPES)
@@ -201,7 +211,10 @@ class RealtimeData(BaseModel):
 
     data_type = models.CharField("数据类型", max_length=20, choices=DATA_TYPES, db_index=True)
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="realtime_data", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="realtime_data",
+        verbose_name="平台",
     )
     shop = models.ForeignKey(
         Shop,
@@ -259,7 +272,10 @@ class RealtimeWidgetConfig(BaseModel):
     ]
 
     dashboard = models.ForeignKey(
-        Dashboard, on_delete=models.CASCADE, related_name="widget_configs", verbose_name="仪表盘"
+        Dashboard,
+        on_delete=models.CASCADE,
+        related_name="widget_configs",
+        verbose_name="仪表盘",
     )
     name = models.CharField("组件名称", max_length=200)
     widget_type = models.CharField("组件类型", max_length=20, choices=WIDGET_TYPES)
@@ -268,7 +284,9 @@ class RealtimeWidgetConfig(BaseModel):
 
     # 数据配置
     data_source = models.CharField(
-        "数据源", max_length=200, help_text="数据源：如bi.services.realtimedata.RealtimeDataService"
+        "数据源",
+        max_length=200,
+        help_text="数据源：如bi.services.realtimedata.RealtimeDataService",
     )
     data_params = models.JSONField("数据参数", default=dict, blank=True)
     data_refresh_interval = models.PositiveIntegerField(
@@ -296,7 +314,10 @@ class CustomerLTV(BaseModel):
     """客户生命周期价值（CLTV）模型"""
 
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="cltv_data", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="cltv_data",
+        verbose_name="平台",
     )
     customer_email = models.EmailField("客户邮箱", db_index=True)
 
@@ -358,10 +379,16 @@ class AIAssistant(BaseModel):
     ]
 
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="ai_assistants", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="ai_assistants",
+        verbose_name="平台",
     )
     user = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name="ai_analyses", verbose_name="用户"
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="ai_analyses",
+        verbose_name="用户",
     )
 
     analysis_type = models.CharField("分析类型", max_length=50, choices=ANALYSIS_TYPES)
@@ -447,7 +474,10 @@ class ReportTemplate(BaseModel):
     is_popular = models.BooleanField("是否热门", default=False)
 
     created_by = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name="created_templates", verbose_name="创建人"
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="created_templates",
+        verbose_name="创建人",
     )
 
     class Meta:
@@ -497,7 +527,10 @@ class CustomReport(BaseModel):
     # 访问控制
     is_public = models.BooleanField("是否公开", default=False)
     allowed_users = models.ManyToManyField(
-        "users.User", blank=True, related_name="accessible_reports", verbose_name="允许访问的用户"
+        "users.User",
+        blank=True,
+        related_name="accessible_reports",
+        verbose_name="允许访问的用户",
     )
 
     created_by = models.ForeignKey(
@@ -525,7 +558,10 @@ class CustomReportData(BaseModel):
     """自定义报表数据"""
 
     report = models.ForeignKey(
-        CustomReport, on_delete=models.CASCADE, related_name="data_records", verbose_name="报表"
+        CustomReport,
+        on_delete=models.CASCADE,
+        related_name="data_records",
+        verbose_name="报表",
     )
 
     # 报表数据

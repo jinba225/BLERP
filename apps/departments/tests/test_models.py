@@ -1,6 +1,7 @@
 """
 Departments models tests.
 """
+
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -81,11 +82,17 @@ class DepartmentModelTest(TestCase):
 
         # Create employees in this department
         User.objects.create_user(
-            username="emp1", email="emp1@example.com", password="pass123", department=dept
+            username="emp1",
+            email="emp1@example.com",
+            password="pass123",
+            department=dept,
         )
 
         User.objects.create_user(
-            username="emp2", email="emp2@example.com", password="pass123", department=dept
+            username="emp2",
+            email="emp2@example.com",
+            password="pass123",
+            department=dept,
         )
 
         self.assertEqual(dept.get_employee_count(), 2)
@@ -100,16 +107,25 @@ class DepartmentModelTest(TestCase):
 
         # Employee in parent department
         User.objects.create_user(
-            username="emp1", email="emp1@example.com", password="pass123", department=parent
+            username="emp1",
+            email="emp1@example.com",
+            password="pass123",
+            department=parent,
         )
 
         # Employees in child department
         User.objects.create_user(
-            username="emp2", email="emp2@example.com", password="pass123", department=child
+            username="emp2",
+            email="emp2@example.com",
+            password="pass123",
+            department=child,
         )
 
         User.objects.create_user(
-            username="emp3", email="emp3@example.com", password="pass123", department=child
+            username="emp3",
+            email="emp3@example.com",
+            password="pass123",
+            department=child,
         )
 
         # Parent should count all 3 employees
@@ -122,11 +138,17 @@ class DepartmentModelTest(TestCase):
         dept = Department.objects.create(name="技术部", code="TECH", created_by=self.user)
 
         emp1 = User.objects.create_user(
-            username="emp1", email="emp1@example.com", password="pass123", department=dept
+            username="emp1",
+            email="emp1@example.com",
+            password="pass123",
+            department=dept,
         )
 
         emp2 = User.objects.create_user(
-            username="emp2", email="emp2@example.com", password="pass123", department=dept
+            username="emp2",
+            email="emp2@example.com",
+            password="pass123",
+            department=dept,
         )
 
         employees = dept.get_all_employees()
@@ -176,13 +198,19 @@ class PositionModelTest(TestCase):
     def test_position_unique_code(self):
         """Test position code uniqueness."""
         Position.objects.create(
-            name="高级工程师", code="SR-ENG", department=self.department, created_by=self.user
+            name="高级工程师",
+            code="SR-ENG",
+            department=self.department,
+            created_by=self.user,
         )
 
         # Try to create another position with same code
         with self.assertRaises(Exception):
             Position.objects.create(
-                name="资深工程师", code="SR-ENG", department=self.department, created_by=self.user
+                name="资深工程师",
+                code="SR-ENG",
+                department=self.department,
+                created_by=self.user,
             )
 
     def test_position_levels(self):
@@ -211,7 +239,10 @@ class PositionModelTest(TestCase):
     def test_position_str_representation(self):
         """Test position string representation."""
         position = Position.objects.create(
-            name="高级工程师", code="SR-ENG", department=self.department, created_by=self.user
+            name="高级工程师",
+            code="SR-ENG",
+            department=self.department,
+            created_by=self.user,
         )
 
         expected = "技术部 - 高级工程师"

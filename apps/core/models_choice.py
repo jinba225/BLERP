@@ -2,6 +2,7 @@
 Dynamic choice options management.
 统一的动态选项管理模型，替代硬编码的choices。
 """
+
 from core.models import BaseModel
 from django.core.cache import cache
 from django.db import models
@@ -51,7 +52,12 @@ class ChoiceOption(BaseModel):
         help_text="选项所属的分类，如客户等级、付款方式等",
     )
 
-    code = models.CharField("选项代码", max_length=50, db_index=True, help_text="选项的唯一标识代码，用于程序内部引用")
+    code = models.CharField(
+        "选项代码",
+        max_length=50,
+        db_index=True,
+        help_text="选项的唯一标识代码，用于程序内部引用",
+    )
 
     label = models.CharField("显示名称", max_length=100, help_text="显示给用户看的名称")
 
@@ -61,13 +67,20 @@ class ChoiceOption(BaseModel):
 
     is_active = models.BooleanField("是否启用", default=True, help_text="禁用后该选项不会在下拉列表中显示")
 
-    is_system = models.BooleanField("是否系统内置", default=False, help_text="系统内置选项不允许删除，但可以修改显示名称")
+    is_system = models.BooleanField(
+        "是否系统内置",
+        default=False,
+        help_text="系统内置选项不允许删除，但可以修改显示名称",
+    )
 
     # 额外的元数据字段（可选）
     color = models.CharField("颜色标识", max_length=20, blank=True, help_text="用于前端显示的颜色，如#FF0000")
 
     icon = models.CharField(
-        "图标类名", max_length=50, blank=True, help_text="Font Awesome图标类名，如fa-star"
+        "图标类名",
+        max_length=50,
+        blank=True,
+        help_text="Font Awesome图标类名，如fa-star",
     )
 
     class Meta:

@@ -94,10 +94,18 @@ def verify_services():
             "ConversationFlowManager",
         ),
         ("明细收集器", "apps.ai_assistant.services.item_collector", "ItemCollector"),
-        ("工作流管理", "apps.ai_assistant.services.workflow_manager", "WorkflowManager"),
+        (
+            "工作流管理",
+            "apps.ai_assistant.services.workflow_manager",
+            "WorkflowManager",
+        ),
         ("审批服务", "apps.ai_assistant.services.approval_service", "ApprovalService"),
         ("缓存服务", "apps.ai_assistant.services.cache_service", "CacheService"),
-        ("智能助手", "apps.ai_assistant.services.intelligent_assistant", "IntelligentAssistant"),
+        (
+            "智能助手",
+            "apps.ai_assistant.services.intelligent_assistant",
+            "IntelligentAssistant",
+        ),
         ("NLG生成器", "apps.ai_assistant.services.nlg_service", "NLGGenerator"),
         ("工具监控", "apps.ai_assistant.services.tool_monitor", "ToolMonitor"),
     ]
@@ -223,7 +231,11 @@ def verify_intents():
             "QUERY_INVOICE",
         ],
         "批量": ["BATCH_QUERY", "BATCH_APPROVE", "BATCH_EXPORT", "BATCH_CREATE"],
-        "报表": ["GENERATE_SALES_REPORT", "GENERATE_PURCHASE_REPORT", "GENERATE_INVENTORY_REPORT"],
+        "报表": [
+            "GENERATE_SALES_REPORT",
+            "GENERATE_PURCHASE_REPORT",
+            "GENERATE_INVENTORY_REPORT",
+        ],
     }
 
     for group, intent_names in intent_groups.items():
@@ -296,7 +308,10 @@ def verify_intelligent_assistant():
     assistant = IntelligentAssistant(user)
 
     # 测试上下文建议
-    context = {"recent_intents": ["query_customer"], "recent_entities": {"customer_name": "ABC公司"}}
+    context = {
+        "recent_intents": ["query_customer"],
+        "recent_entities": {"customer_name": "ABC公司"},
+    }
 
     suggestions = assistant.get_suggestions(context)
     if suggestions:

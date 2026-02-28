@@ -15,21 +15,51 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="部门名称")),
-                ("code", models.CharField(max_length=50, unique=True, verbose_name="部门代码")),
+                (
+                    "code",
+                    models.CharField(max_length=50, unique=True, verbose_name="部门代码"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="部门描述")),
-                ("phone", models.CharField(blank=True, max_length=20, verbose_name="联系电话")),
-                ("email", models.EmailField(blank=True, max_length=254, verbose_name="邮箱")),
+                (
+                    "phone",
+                    models.CharField(blank=True, max_length=20, verbose_name="联系电话"),
+                ),
+                (
+                    "email",
+                    models.EmailField(blank=True, max_length=254, verbose_name="邮箱"),
+                ),
                 ("address", models.TextField(blank=True, verbose_name="办公地址")),
-                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="排序")),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "sort_order",
+                    models.PositiveIntegerField(default=0, verbose_name="排序"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 ("lft", models.PositiveIntegerField(editable=False)),
                 ("rght", models.PositiveIntegerField(editable=False)),
                 ("tree_id", models.PositiveIntegerField(db_index=True, editable=False)),
@@ -47,13 +77,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "budget_type",
                     models.CharField(
@@ -68,59 +113,95 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("year", models.PositiveIntegerField(verbose_name="年份")),
-                ("quarter", models.PositiveIntegerField(blank=True, null=True, verbose_name="季度")),
-                ("month", models.PositiveIntegerField(blank=True, null=True, verbose_name="月份")),
+                (
+                    "quarter",
+                    models.PositiveIntegerField(blank=True, null=True, verbose_name="季度"),
+                ),
+                (
+                    "month",
+                    models.PositiveIntegerField(blank=True, null=True, verbose_name="月份"),
+                ),
                 (
                     "personnel_budget",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="人员预算"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="人员预算",
                     ),
                 ),
                 (
                     "operational_budget",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="运营预算"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="运营预算",
                     ),
                 ),
                 (
                     "equipment_budget",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="设备预算"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="设备预算",
                     ),
                 ),
                 (
                     "other_budget",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="其他预算"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="其他预算",
                     ),
                 ),
                 (
                     "personnel_actual",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="人员实际"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="人员实际",
                     ),
                 ),
                 (
                     "operational_actual",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="运营实际"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="运营实际",
                     ),
                 ),
                 (
                     "equipment_actual",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="设备实际"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="设备实际",
                     ),
                 ),
                 (
                     "other_actual",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="其他实际"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="其他实际",
                     ),
                 ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
-                ("is_approved", models.BooleanField(default=False, verbose_name="是否批准")),
-                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="批准时间")),
+                (
+                    "is_approved",
+                    models.BooleanField(default=False, verbose_name="是否批准"),
+                ),
+                (
+                    "approved_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="批准时间"),
+                ),
             ],
             options={
                 "verbose_name": "部门预算",
@@ -134,15 +215,33 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="职位名称")),
-                ("code", models.CharField(max_length=50, unique=True, verbose_name="职位代码")),
+                (
+                    "code",
+                    models.CharField(max_length=50, unique=True, verbose_name="职位代码"),
+                ),
                 (
                     "level",
                     models.CharField(
@@ -163,20 +262,34 @@ class Migration(migrations.Migration):
                 ),
                 ("description", models.TextField(blank=True, verbose_name="职位描述")),
                 ("requirements", models.TextField(blank=True, verbose_name="任职要求")),
-                ("responsibilities", models.TextField(blank=True, verbose_name="工作职责")),
+                (
+                    "responsibilities",
+                    models.TextField(blank=True, verbose_name="工作职责"),
+                ),
                 (
                     "min_salary",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=10, null=True, verbose_name="最低薪资"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="最低薪资",
                     ),
                 ),
                 (
                     "max_salary",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=10, null=True, verbose_name="最高薪资"
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=10,
+                        null=True,
+                        verbose_name="最高薪资",
                     ),
                 ),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
             ],
             options={
                 "verbose_name": "职位",

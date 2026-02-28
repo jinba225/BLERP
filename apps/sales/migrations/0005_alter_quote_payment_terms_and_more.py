@@ -13,14 +13,20 @@ class Migration(migrations.Migration):
             model_name="quote",
             name="payment_terms",
             field=models.CharField(
-                blank=True, help_text="从客户信息自动带出", max_length=50, verbose_name="付款方式"
+                blank=True,
+                help_text="从客户信息自动带出",
+                max_length=50,
+                verbose_name="付款方式",
             ),
         ),
         migrations.AlterField(
             model_name="salesorder",
             name="payment_terms",
             field=models.CharField(
-                blank=True, help_text="从客户信息自动带出", max_length=50, verbose_name="付款方式"
+                blank=True,
+                help_text="从客户信息自动带出",
+                max_length=50,
+                verbose_name="付款方式",
             ),
         ),
     ]

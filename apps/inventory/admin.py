@@ -1,6 +1,7 @@
 """
 Inventory admin configuration.
 """
+
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
@@ -100,12 +101,28 @@ class InventoryStockAdmin(admin.ModelAdmin):
     ]
     list_filter = ["warehouse", "created_at", "last_in_date", "last_out_date"]
     search_fields = ["product__name", "product__code", "warehouse__name"]
-    readonly_fields = ["created_at", "updated_at", "created_by", "updated_by", "available_quantity"]
+    readonly_fields = [
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+        "available_quantity",
+    ]
     list_per_page = 50
 
     fieldsets = (
         ("基本信息", {"fields": ("product", "warehouse", "location")}),
-        ("库存数量", {"fields": ("quantity", "reserved_quantity", "available_quantity", "cost_price")}),
+        (
+            "库存数量",
+            {
+                "fields": (
+                    "quantity",
+                    "reserved_quantity",
+                    "available_quantity",
+                    "cost_price",
+                )
+            },
+        ),
         ("日期信息", {"fields": ("last_in_date", "last_out_date")}),
         (
             "系统信息",
@@ -154,23 +171,40 @@ class InventoryTransactionAdmin(ImportExportModelAdmin):
         "transaction_date",
         "created_at",
     ]
-    search_fields = ["product__name", "reference_number", "batch_number", "serial_number"]
+    search_fields = [
+        "product__name",
+        "reference_number",
+        "batch_number",
+        "serial_number",
+    ]
     readonly_fields = ["transaction_date", "total_cost", "created_at", "updated_at"]
     list_per_page = 50
     date_hierarchy = "transaction_date"
 
     fieldsets = (
-        ("基本信息", {"fields": ("transaction_type", "product", "warehouse", "location")}),
+        (
+            "基本信息",
+            {"fields": ("transaction_type", "product", "warehouse", "location")},
+        ),
         ("数量与成本", {"fields": ("quantity", "unit_cost", "total_cost")}),
-        ("关联单据", {"fields": ("reference_type", "reference_id", "reference_number")}),
+        (
+            "关联单据",
+            {"fields": ("reference_type", "reference_id", "reference_number")},
+        ),
         (
             "批次与序列号",
-            {"fields": ("batch_number", "serial_number", "expiry_date"), "classes": ("collapse",)},
+            {
+                "fields": ("batch_number", "serial_number", "expiry_date"),
+                "classes": ("collapse",),
+            },
         ),
         ("其他信息", {"fields": ("operator", "notes")}),
         (
             "系统信息",
-            {"fields": ("transaction_date", "created_at", "updated_at"), "classes": ("collapse",)},
+            {
+                "fields": ("transaction_date", "created_at", "updated_at"),
+                "classes": ("collapse",),
+            },
         ),
     )
 
@@ -193,9 +227,21 @@ class StockAdjustmentAdmin(ImportExportModelAdmin):
         "approved_by",
         "created_at",
     ]
-    list_filter = ["adjustment_type", "reason", "is_approved", "warehouse", "created_at"]
+    list_filter = [
+        "adjustment_type",
+        "reason",
+        "is_approved",
+        "warehouse",
+        "created_at",
+    ]
     search_fields = ["adjustment_number", "product__name", "notes"]
-    readonly_fields = ["difference", "created_at", "updated_at", "created_by", "updated_by"]
+    readonly_fields = [
+        "difference",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+    ]
     list_per_page = 50
 
     fieldsets = (
@@ -212,7 +258,10 @@ class StockAdjustmentAdmin(ImportExportModelAdmin):
                 )
             },
         ),
-        ("数量调整", {"fields": ("original_quantity", "adjusted_quantity", "difference")}),
+        (
+            "数量调整",
+            {"fields": ("original_quantity", "adjusted_quantity", "difference")},
+        ),
         ("审核信息", {"fields": ("is_approved", "approved_by", "approved_at")}),
         ("其他信息", {"fields": ("notes",)}),
         (
@@ -230,7 +279,13 @@ class StockTransferItemInline(admin.TabularInline):
 
     model = StockTransferItem
     extra = 1
-    fields = ["product", "requested_quantity", "shipped_quantity", "received_quantity", "unit_cost"]
+    fields = [
+        "product",
+        "requested_quantity",
+        "shipped_quantity",
+        "received_quantity",
+        "unit_cost",
+    ]
 
 
 @admin.register(StockTransfer)
@@ -248,7 +303,13 @@ class StockTransferAdmin(admin.ModelAdmin):
         "approved_by",
         "created_at",
     ]
-    list_filter = ["status", "from_warehouse", "to_warehouse", "transfer_date", "created_at"]
+    list_filter = [
+        "status",
+        "from_warehouse",
+        "to_warehouse",
+        "transfer_date",
+        "created_at",
+    ]
     search_fields = ["transfer_number", "notes"]
     readonly_fields = ["created_at", "updated_at", "created_by", "updated_by"]
     list_per_page = 50
@@ -256,8 +317,20 @@ class StockTransferAdmin(admin.ModelAdmin):
     date_hierarchy = "transfer_date"
 
     fieldsets = (
-        ("基本信息", {"fields": ("transfer_number", "from_warehouse", "to_warehouse", "status")}),
-        ("日期信息", {"fields": ("transfer_date", "expected_arrival_date", "actual_arrival_date")}),
+        (
+            "基本信息",
+            {"fields": ("transfer_number", "from_warehouse", "to_warehouse", "status")},
+        ),
+        (
+            "日期信息",
+            {
+                "fields": (
+                    "transfer_date",
+                    "expected_arrival_date",
+                    "actual_arrival_date",
+                )
+            },
+        ),
         ("审核信息", {"fields": ("approved_by", "approved_at")}),
         ("其他信息", {"fields": ("notes",)}),
         (
@@ -293,7 +366,13 @@ class StockCountItemInline(admin.TabularInline):
 
     model = StockCountItem
     extra = 0
-    fields = ["product", "location", "system_quantity", "counted_quantity", "difference"]
+    fields = [
+        "product",
+        "location",
+        "system_quantity",
+        "counted_quantity",
+        "difference",
+    ]
     readonly_fields = ["difference"]
 
 

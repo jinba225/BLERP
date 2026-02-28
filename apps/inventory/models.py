@@ -1,6 +1,7 @@
 """
 Inventory models for the ERP system.
 """
+
 from core.models import BaseModel
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -97,7 +98,10 @@ class Location(BaseModel):
     """
 
     warehouse = models.ForeignKey(
-        Warehouse, on_delete=models.CASCADE, related_name="locations", verbose_name="仓库"
+        Warehouse,
+        on_delete=models.CASCADE,
+        related_name="locations",
+        verbose_name="仓库",
     )
     code = models.CharField("库位编码", max_length=50)
     name = models.CharField("库位名称", max_length=100)
@@ -124,7 +128,10 @@ class InventoryStock(BaseModel):
     """
 
     product = models.ForeignKey(
-        "products.Product", on_delete=models.CASCADE, related_name="stocks", verbose_name="产品"
+        "products.Product",
+        on_delete=models.CASCADE,
+        related_name="stocks",
+        verbose_name="产品",
     )
     warehouse = models.ForeignKey(
         Warehouse, on_delete=models.CASCADE, related_name="stocks", verbose_name="仓库"
@@ -136,7 +143,10 @@ class InventoryStock(BaseModel):
     reserved_quantity = models.IntegerField("预留数量", default=0)
     cost_price = models.DecimalField("成本价", max_digits=12, decimal_places=2, default=0)
     is_low_stock_flag = models.BooleanField(
-        "是否低库存", db_index=True, default=False, help_text="冗余字段，用于优化查询性能"
+        "是否低库存",
+        db_index=True,
+        default=False,
+        help_text="冗余字段，用于优化查询性能",
     )
     last_in_date = models.DateTimeField("最后入库时间", null=True, blank=True)
     last_out_date = models.DateTimeField("最后出库时间", null=True, blank=True)
@@ -194,7 +204,10 @@ class InventoryTransaction(BaseModel):
 
     transaction_type = models.CharField("交易类型", max_length=20, choices=TRANSACTION_TYPES)
     product = models.ForeignKey(
-        "products.Product", on_delete=models.CASCADE, related_name="transactions", verbose_name="产品"
+        "products.Product",
+        on_delete=models.CASCADE,
+        related_name="transactions",
+        verbose_name="产品",
     )
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, verbose_name="仓库")
     location = models.ForeignKey(
@@ -347,10 +360,16 @@ class StockTransfer(BaseModel):
 
     transfer_number = models.CharField("调拨单号", max_length=100, unique=True)
     from_warehouse = models.ForeignKey(
-        Warehouse, on_delete=models.CASCADE, related_name="transfers_out", verbose_name="源仓库"
+        Warehouse,
+        on_delete=models.CASCADE,
+        related_name="transfers_out",
+        verbose_name="源仓库",
     )
     to_warehouse = models.ForeignKey(
-        Warehouse, on_delete=models.CASCADE, related_name="transfers_in", verbose_name="目标仓库"
+        Warehouse,
+        on_delete=models.CASCADE,
+        related_name="transfers_in",
+        verbose_name="目标仓库",
     )
     status = models.CharField("状态", max_length=20, choices=TRANSFER_STATUS, default="draft")
     transfer_date = models.DateField("调拨日期")
@@ -372,7 +391,9 @@ class StockTransfer(BaseModel):
 
     # 系统自动生成标识
     is_auto_generated = models.BooleanField(
-        "系统自动生成", default=False, help_text="标识该调拨单是否由系统自动生成（如借用转采购）。系统生成的调拨单不允许编辑和反审核。"
+        "系统自动生成",
+        default=False,
+        help_text="标识该调拨单是否由系统自动生成（如借用转采购）。系统生成的调拨单不允许编辑和反审核。",
     )
 
     class Meta:
@@ -390,7 +411,10 @@ class StockTransferItem(BaseModel):
     """
 
     transfer = models.ForeignKey(
-        StockTransfer, on_delete=models.CASCADE, related_name="items", verbose_name="调拨单"
+        StockTransfer,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="调拨单",
     )
     product = models.ForeignKey("products.Product", on_delete=models.CASCADE, verbose_name="产品")
     requested_quantity = models.IntegerField("申请数量")
@@ -469,7 +493,10 @@ class StockCountItem(BaseModel):
     """
 
     count = models.ForeignKey(
-        StockCount, on_delete=models.CASCADE, related_name="items", verbose_name="盘点单"
+        StockCount,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="盘点单",
     )
     product = models.ForeignKey("products.Product", on_delete=models.CASCADE, verbose_name="产品")
     location = models.ForeignKey(
@@ -533,7 +560,11 @@ class InboundOrder(BaseModel):
 
     # Optional supplier reference
     supplier = models.ForeignKey(
-        "suppliers.Supplier", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="供应商"
+        "suppliers.Supplier",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="供应商",
     )
 
     # Reference information
@@ -582,7 +613,10 @@ class InboundOrderItem(BaseModel):
     """
 
     inbound_order = models.ForeignKey(
-        InboundOrder, on_delete=models.CASCADE, related_name="items", verbose_name="入库单"
+        InboundOrder,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="入库单",
     )
     product = models.ForeignKey("products.Product", on_delete=models.CASCADE, verbose_name="产品")
     location = models.ForeignKey(
@@ -631,7 +665,11 @@ class OutboundOrder(BaseModel):
 
     # Optional customer reference
     customer = models.ForeignKey(
-        "customers.Customer", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="客户"
+        "customers.Customer",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="客户",
     )
 
     # Reference information
@@ -680,7 +718,10 @@ class OutboundOrderItem(BaseModel):
     """
 
     outbound_order = models.ForeignKey(
-        OutboundOrder, on_delete=models.CASCADE, related_name="items", verbose_name="出库单"
+        OutboundOrder,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="出库单",
     )
     product = models.ForeignKey("products.Product", on_delete=models.CASCADE, verbose_name="产品")
     location = models.ForeignKey(

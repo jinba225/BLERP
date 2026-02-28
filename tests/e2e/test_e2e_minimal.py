@@ -145,7 +145,10 @@ class TestMinimalE2E:
 
         # 创建订单明细
         SalesOrderItem.objects.create(
-            order=order, product=product, quantity=Decimal("10"), unit_price=Decimal("150.00")
+            order=order,
+            product=product,
+            quantity=Decimal("10"),
+            unit_price=Decimal("150.00"),
         )
 
         order.calculate_totals()

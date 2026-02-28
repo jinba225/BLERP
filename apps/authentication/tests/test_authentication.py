@@ -1,6 +1,7 @@
 """
 Authentication tests.
 """
+
 from datetime import datetime, timedelta
 
 import jwt
@@ -167,7 +168,10 @@ class JWTAuthenticationTest(TestCase):
         """Test authentication with inactive user."""
         # Create inactive user
         inactive_user = User.objects.create_user(
-            username="inactive", email="inactive@example.com", password="pass123", is_active=False
+            username="inactive",
+            email="inactive@example.com",
+            password="pass123",
+            is_active=False,
         )
 
         token = generate_jwt_token(inactive_user)

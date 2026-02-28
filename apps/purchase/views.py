@@ -1,6 +1,7 @@
 """
 Purchase views for the ERP system.
 """
+
 import logging
 
 from core.models import PAYMENT_METHOD_CHOICES
@@ -318,7 +319,13 @@ def order_create(request):
     products_json = json.dumps(
         list(
             products.values(
-                "id", "name", "code", "specifications", "unit__name", "cost_price", "selling_price"
+                "id",
+                "name",
+                "code",
+                "specifications",
+                "unit__name",
+                "cost_price",
+                "selling_price",
             )
         ),
         cls=DjangoJSONEncoder,
@@ -455,7 +462,13 @@ def order_update(request, pk):
     products_json = json.dumps(
         list(
             products.values(
-                "id", "name", "code", "specifications", "unit__name", "cost_price", "selling_price"
+                "id",
+                "name",
+                "code",
+                "specifications",
+                "unit__name",
+                "cost_price",
+                "selling_price",
             )
         ),
         cls=DjangoJSONEncoder,
@@ -675,7 +688,10 @@ def request_create(request):
                 request.user, request_data, items_data
             )
 
-            messages.success(request, f"采购申请单 {purchase_request.request_number} 创建成功！等待采购部门审核")
+            messages.success(
+                request,
+                f"采购申请单 {purchase_request.request_number} 创建成功！等待采购部门审核",
+            )
             return redirect("purchase:request_detail", pk=purchase_request.pk)
 
         except Exception as e:
@@ -865,11 +881,16 @@ def request_convert_to_order(request, pk):
 
             # Convert using service with prices
             order = PurchaseRequestService.convert_request_to_order(
-                purchase_request, request.user, supplier_id, warehouse_id, items_prices=items_prices
+                purchase_request,
+                request.user,
+                supplier_id,
+                warehouse_id,
+                items_prices=items_prices,
             )
 
             messages.success(
-                request, f"采购申请单 {purchase_request.request_number} 已成功转换为采购订单 {order.order_number}"
+                request,
+                f"采购申请单 {purchase_request.request_number} 已成功转换为采购订单 {order.order_number}",
             )
             return redirect("purchase:order_update", pk=order.pk)
         except ValueError as e:
@@ -1105,7 +1126,8 @@ def order_approve(request, pk):
 
         if receipt:
             messages.success(
-                request, f"采购订单 {order.order_number} 审核通过，已自动生成收货单 {receipt.receipt_number}"
+                request,
+                f"采购订单 {order.order_number} 审核通过，已自动生成收货单 {receipt.receipt_number}",
             )
         else:
             messages.success(request, f"采购订单 {order.order_number} 审核通过")
@@ -1226,9 +1248,11 @@ def order_invoice(request, pk):
                     invoice=invoice,
                     product=order_item.product,
                     description=order_item.product.name,  # InvoiceItem.description是必填字段
-                    specification=order_item.product.specifications
-                    if hasattr(order_item.product, "specifications")
-                    else "",
+                    specification=(
+                        order_item.product.specifications
+                        if hasattr(order_item.product, "specifications")
+                        else ""
+                    ),
                     unit=unit_name,
                     quantity=order_item.quantity,
                     unit_price=order_item.unit_price,
@@ -1246,7 +1270,10 @@ def order_invoice(request, pk):
             order.invoiced_at = timezone.now()
             order.save()
 
-            messages.success(request, f"采购订单 {order.order_number} 已开票，发票号：{invoice.invoice_number}")
+            messages.success(
+                request,
+                f"采购订单 {order.order_number} 已开票，发票号：{invoice.invoice_number}",
+            )
             return redirect("purchase:order_detail", pk=pk)
 
         except Exception as e:
@@ -1368,13 +1395,17 @@ def receipt_create(request, order_pk):
     ).first()
 
     if pending_receipt:
-        messages.info(request, f"该订单已存在待收货单 {pending_receipt.receipt_number}，已自动跳转")
+        messages.info(
+            request,
+            f"该订单已存在待收货单 {pending_receipt.receipt_number}，已自动跳转",
+        )
         return redirect("purchase:receipt_detail", pk=pending_receipt.pk)
 
     if request.method == "POST":
         receipt_data = {
             "receipt_number": DocumentNumberGenerator.generate(
-                "receipt", model_class=PurchaseReceipt  # 传递模型类以支持重用已删除单据编号
+                "receipt",
+                model_class=PurchaseReceipt,  # 传递模型类以支持重用已删除单据编号
             ),  # 使用 IN 前缀
             "purchase_order": order,
             "receipt_date": request.POST.get("receipt_date"),
@@ -1647,7 +1678,8 @@ def receipt_receive(request, pk):
 
             # 生成明细单号
             detail_number = DocumentNumberGenerator.generate(
-                "account_detail", model_class=SupplierAccountDetail  # 传递模型类以支持编号重用
+                "account_detail",
+                model_class=SupplierAccountDetail,  # 传递模型类以支持编号重用
             )
 
             # 创建正应付明细
@@ -1681,7 +1713,8 @@ def receipt_receive(request, pk):
         order.save()
 
         messages.success(
-            request, f"收货单 {receipt.receipt_number} 确认收货成功，共收货 {total_received} 件，库存已更新，应付明细已生成"
+            request,
+            f"收货单 {receipt.receipt_number} 确认收货成功，共收货 {total_received} 件，库存已更新，应付明细已生成",
         )
         return redirect("purchase:receipt_detail", pk=pk)
     except Exception as e:
@@ -1765,7 +1798,10 @@ def order_request_payment(request, pk):
     ).first()
 
     if existing_account:
-        messages.info(request, f"该订单已存在应付账款记录（编号：{existing_account.invoice_number}）")
+        messages.info(
+            request,
+            f"该订单已存在应付账款记录（编号：{existing_account.invoice_number}）",
+        )
         return redirect("finance:supplier_account_detail", pk=existing_account.pk)
 
     try:
@@ -1816,7 +1852,8 @@ def order_request_payment(request, pk):
         order.save()
 
         messages.success(
-            request, f"已成功申请付款，生成应付账款记录（编号：{account_number}），应付金额：¥{received_amount:.2f}"
+            request,
+            f"已成功申请付款，生成应付账款记录（编号：{account_number}），应付金额：¥{received_amount:.2f}",
         )
         return redirect("finance:supplier_account_detail", pk=account.pk)
 
@@ -1932,7 +1969,8 @@ def return_create(request, order_pk):
 
         return_data = {
             "return_number": DocumentNumberGenerator.generate(
-                "purchase_return", model_class=PurchaseReturn  # 传递模型类以支持重用已删除单据编号
+                "purchase_return",
+                model_class=PurchaseReturn,  # 传递模型类以支持重用已删除单据编号
             ),
             "purchase_order": order,
             "return_date": request.POST.get("return_date"),
@@ -1971,7 +2009,11 @@ def return_create(request, order_pk):
                             order_item=order_item,
                             purchase_return__purchase_order=order,
                             purchase_return__is_deleted=False,
-                            purchase_return__status__in=["approved", "returned", "completed"],
+                            purchase_return__status__in=[
+                                "approved",
+                                "returned",
+                                "completed",
+                            ],
                         ).aggregate(total=Sum("quantity"))["total"]
                         or 0
                     )
@@ -2209,7 +2251,8 @@ def return_approve(request, pk):
 
                     # 生成明细单号
                     detail_number = DocumentNumberGenerator.generate(
-                        "account_detail", model_class=SupplierAccountDetail  # 传递模型类以支持编号重用
+                        "account_detail",
+                        model_class=SupplierAccountDetail,  # 传递模型类以支持编号重用
                     )
 
                     # 创建负应付明细
@@ -2327,7 +2370,10 @@ def return_approve(request, pk):
 
             messages.success(request, "".join(msg_parts))
         else:
-            messages.success(request, f"退货单 {return_order.return_number} 审核通过！" "已扣减订单数量(未收货部分退货)")
+            messages.success(
+                request,
+                f"退货单 {return_order.return_number} 审核通过！" "已扣减订单数量(未收货部分退货)",
+            )
 
         return redirect("purchase:return_detail", pk=pk)
 
@@ -3143,7 +3189,8 @@ def inquiry_create_order(request, pk):
         # Create purchase order
         order = PurchaseOrder.objects.create(
             order_number=DocumentNumberGenerator.generate(
-                "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+                "purchase_order",
+                model_class=PurchaseOrder,  # 传递模型类以支持重用已删除订单编号
             ),
             supplier=supplier,
             status="draft",
@@ -3213,9 +3260,11 @@ def inquiry_create_order(request, pk):
     context = {
         "inquiry": inquiry,
         "quotation": quotation,
-        "items": quotation.items.filter(is_deleted=False).select_related("product")
-        if quotation
-        else inquiry.items.filter(is_deleted=False).select_related("product"),
+        "items": (
+            quotation.items.filter(is_deleted=False).select_related("product")
+            if quotation
+            else inquiry.items.filter(is_deleted=False).select_related("product")
+        ),
         "has_quotation": bool(quotation),
     }
 
@@ -3791,7 +3840,10 @@ def borrow_confirm_all_receipt(request, pk):
         # 调用模型的入库确认方法（传入None表示全部入库，模型会自动处理）
         borrow.confirm_borrow_receipt(request.user, None)
         print("[DEBUG] 入库操作完成")
-        messages.success(request, f"借用单 {borrow.borrow_number} 已全部入库成功！共入库 {total_borrowable} 件产品")
+        messages.success(
+            request,
+            f"借用单 {borrow.borrow_number} 已全部入库成功！共入库 {total_borrowable} 件产品",
+        )
         logger.info(f"借用单 {borrow.borrow_number} 全部入库成功，入库数量: {total_borrowable}，将重定向到借用单详情页")
         print(f"[DEBUG] 准备重定向到: purchase:borrow_detail, pk={pk}")
         return redirect("purchase:borrow_detail", pk=pk)
@@ -3838,7 +3890,8 @@ def borrow_return(request, pk):
             # 验证归还数量
             if return_qty > item.remaining_quantity:
                 messages.error(
-                    request, f"产品 {item.product.name} 的归还数量不能超过剩余数量 {item.remaining_quantity}"
+                    request,
+                    f"产品 {item.product.name} 的归还数量不能超过剩余数量 {item.remaining_quantity}",
                 )
                 return redirect("purchase:borrow_return", pk=pk)
 
@@ -3911,7 +3964,8 @@ def borrow_request_conversion(request, pk):
             # 验证转换数量
             if convert_qty > item.remaining_quantity:
                 messages.error(
-                    request, f"产品 {item.product.name} 的转采购数量不能超过剩余数量 {item.remaining_quantity}"
+                    request,
+                    f"产品 {item.product.name} 的转采购数量不能超过剩余数量 {item.remaining_quantity}",
                 )
                 return redirect("purchase:borrow_request_conversion", pk=pk)
 
@@ -3936,7 +3990,8 @@ def borrow_request_conversion(request, pk):
             # 直接创建采购订单
             order = PurchaseOrder.objects.create(
                 order_number=DocumentNumberGenerator.generate(
-                    "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+                    "purchase_order",
+                    model_class=PurchaseOrder,  # 传递模型类以支持重用已删除订单编号
                 ),
                 supplier=borrow.supplier,
                 buyer=borrow.buyer,

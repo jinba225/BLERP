@@ -7,15 +7,14 @@ Celery任务优化服务
 - 任务队列优先级管理
 - 任务执行统计
 """
+
 import logging
 import time
 from functools import wraps
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
 
 from celery import current_app
 from celery.result import AsyncResult
-from django.conf import settings
-from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -78,9 +77,10 @@ class TaskOptimizer:
                     task = current_app.current_task
                     if task and task.request.retries < max_retries:
                         # 计算重试延迟
-                        delay = retry_backoff ** task.request.retries
+                        delay = retry_backoff**task.request.retries
                         if retry_jitter:
                             import random
+
                             delay = delay * (0.8 + 0.4 * random.random())
 
                         logger.warning(
@@ -97,7 +97,7 @@ class TaskOptimizer:
                 **options,
                 max_retries=max_retries,
                 retry_backoff=retry_backoff,
-                retry_jitter=retry_jitter
+                retry_jitter=retry_jitter,
             )(wrapper)
 
             return wrapper
@@ -122,10 +122,7 @@ class TaskOptimizer:
                 return func(*args, **kwargs)
 
             # 应用Celery任务装饰器
-            wrapper = self.app.task(
-                **options,
-                priority=priority
-            )(wrapper)
+            wrapper = self.app.task(**options, priority=priority)(wrapper)
 
             return wrapper
 
@@ -147,7 +144,7 @@ class TaskOptimizer:
                 task_name=task_name,
                 status="success",  # 使用success作为默认状态
                 args=str(args)[:255],
-                kwargs=str(kwargs)[:255]
+                kwargs=str(kwargs)[:255],
             )
         except Exception as e:
             logger.error(f"记录任务开始失败: {e}")
@@ -170,7 +167,7 @@ class TaskOptimizer:
                 execution_time=execution_time * 1000,  # 转换为毫秒
                 status="success",
                 args="",
-                kwargs=""
+                kwargs="",
             )
 
             # 更新任务统计
@@ -197,7 +194,7 @@ class TaskOptimizer:
                 status="failed",
                 error_message=error_message[:500],
                 args="",
-                kwargs=""
+                kwargs="",
             )
 
             # 更新任务统计
@@ -220,7 +217,7 @@ class TaskOptimizer:
                 "success": 0,
                 "failed": 0,
                 "total_time": 0,
-                "avg_time": 0
+                "avg_time": 0,
             }
 
         stats = self.task_stats[task_name]
@@ -265,14 +262,11 @@ class TaskOptimizer:
                 "result": result.result if result.ready() else None,
                 "traceback": result.traceback if result.failed() else None,
                 "started_at": result.started_at,
-                "completed_at": result.completed_at
+                "completed_at": result.completed_at,
             }
         except Exception as e:
             logger.error(f"获取任务状态失败: {e}")
-            return {
-                "task_id": task_id,
-                "error": str(e)
-            }
+            return {"task_id": task_id, "error": str(e)}
 
     def cancel_task(self, task_id: str) -> bool:
         """
@@ -309,7 +303,7 @@ class TaskOptimizer:
                 "stats": stats,
                 "active": active,
                 "reserved": reserved,
-                "scheduled": scheduled
+                "scheduled": scheduled,
             }
         except Exception as e:
             logger.error(f"获取队列统计失败: {e}")

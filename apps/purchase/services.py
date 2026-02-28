@@ -2,6 +2,7 @@
 Purchase services for the ERP system.
 Handles business logic for Purchase Orders and Requests.
 """
+
 from decimal import Decimal
 
 from django.db import transaction
@@ -21,7 +22,8 @@ class PurchaseOrderService:
         """
         if "order_number" not in order_data:
             order_data["order_number"] = DocumentNumberGenerator.generate(
-                "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+                "purchase_order",
+                model_class=PurchaseOrder,  # 传递模型类以支持重用已删除订单编号
             )
 
         order = PurchaseOrder(**order_data)
@@ -89,7 +91,10 @@ class PurchaseRequestService:
                 continue
 
             item = PurchaseRequestItem.objects.create(
-                purchase_request=purchase_request, created_by=user, sort_order=idx, **item_data
+                purchase_request=purchase_request,
+                created_by=user,
+                sort_order=idx,
+                **item_data,
             )
             total += item.estimated_total
 
@@ -118,7 +123,10 @@ class PurchaseRequestService:
                     continue
 
                 item = PurchaseRequestItem.objects.create(
-                    purchase_request=purchase_request, created_by=user, sort_order=idx, **item_data
+                    purchase_request=purchase_request,
+                    created_by=user,
+                    sort_order=idx,
+                    **item_data,
                 )
                 total += item.estimated_total
 
@@ -157,7 +165,8 @@ class PurchaseRequestService:
         # Create purchase order
         order = PurchaseOrder.objects.create(
             order_number=DocumentNumberGenerator.generate(
-                "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+                "purchase_order",
+                model_class=PurchaseOrder,  # 传递模型类以支持重用已删除订单编号
             ),
             supplier_id=supplier_id,
             order_date=timezone.now().date(),

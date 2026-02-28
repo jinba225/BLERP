@@ -18,13 +18,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "category",
                     models.CharField(
@@ -58,7 +73,10 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=100, verbose_name="分组名称")),
                 ("code", models.CharField(max_length=50, verbose_name="分组代码")),
                 ("sort_order", models.IntegerField(default=0, verbose_name="排序")),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -107,13 +125,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "category",
                     models.CharField(
@@ -156,7 +189,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "label",
-                    models.CharField(help_text="显示给用户看的名称", max_length=100, verbose_name="显示名称"),
+                    models.CharField(
+                        help_text="显示给用户看的名称",
+                        max_length=100,
+                        verbose_name="显示名称",
+                    ),
                 ),
                 (
                     "description",
@@ -164,18 +201,26 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "sort_order",
-                    models.IntegerField(default=0, help_text="排序号，数字越小越靠前", verbose_name="排序"),
+                    models.IntegerField(
+                        default=0,
+                        help_text="排序号，数字越小越靠前",
+                        verbose_name="排序",
+                    ),
                 ),
                 (
                     "is_active",
                     models.BooleanField(
-                        default=True, help_text="禁用后该选项不会在下拉列表中显示", verbose_name="是否启用"
+                        default=True,
+                        help_text="禁用后该选项不会在下拉列表中显示",
+                        verbose_name="是否启用",
                     ),
                 ),
                 (
                     "is_system",
                     models.BooleanField(
-                        default=False, help_text="系统内置选项不允许删除，但可以修改显示名称", verbose_name="是否系统内置"
+                        default=False,
+                        help_text="系统内置选项不允许删除，但可以修改显示名称",
+                        verbose_name="是否系统内置",
                     ),
                 ),
                 (
@@ -237,10 +282,12 @@ class Migration(migrations.Migration):
                 "ordering": ["category", "sort_order", "code"],
                 "indexes": [
                     models.Index(
-                        fields=["category", "is_active"], name="core_choice_categor_8ae141_idx"
+                        fields=["category", "is_active"],
+                        name="core_choice_categor_8ae141_idx",
                     ),
                     models.Index(
-                        fields=["category", "sort_order"], name="core_choice_categor_6c89fe_idx"
+                        fields=["category", "sort_order"],
+                        name="core_choice_categor_6c89fe_idx",
                     ),
                 ],
                 "unique_together": {("category", "code")},

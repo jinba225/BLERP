@@ -1,6 +1,7 @@
 """
 Finance admin configuration.
 """
+
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
@@ -161,8 +162,21 @@ class InvoiceAdmin(ImportExportModelAdmin):
             },
         ),
         ("关联方", {"fields": ("customer", "supplier")}),
-        ("金额信息", {"fields": ("tax_rate", "amount_excluding_tax", "tax_amount", "total_amount")}),
-        ("关联业务单据", {"fields": ("reference_type", "reference_id", "reference_number")}),
+        (
+            "金额信息",
+            {
+                "fields": (
+                    "tax_rate",
+                    "amount_excluding_tax",
+                    "tax_amount",
+                    "total_amount",
+                )
+            },
+        ),
+        (
+            "关联业务单据",
+            {"fields": ("reference_type", "reference_id", "reference_number")},
+        ),
         ("附件", {"fields": ("attachment",)}),
         ("备注", {"fields": ("remark",)}),
         (
@@ -273,14 +287,36 @@ class ExpenseAdmin(ImportExportModelAdmin):
     )
 
     fieldsets = (
-        ("基本信息", {"fields": ("expense_number", "expense_date", "applicant", "department")}),
-        ("费用信息", {"fields": ("category", "amount", "payment_method", "description")}),
-        ("关联信息", {"fields": ("project", "reference_number", "payment_account", "journal")}),
+        (
+            "基本信息",
+            {"fields": ("expense_number", "expense_date", "applicant", "department")},
+        ),
+        (
+            "费用信息",
+            {"fields": ("category", "amount", "payment_method", "description")},
+        ),
+        (
+            "关联信息",
+            {"fields": ("project", "reference_number", "payment_account", "journal")},
+        ),
         ("状态信息", {"fields": ("status",)}),
-        ("审批信息", {"fields": ("submitted_at", "approved_by", "approved_at", "rejection_reason")}),
+        (
+            "审批信息",
+            {
+                "fields": (
+                    "submitted_at",
+                    "approved_by",
+                    "approved_at",
+                    "rejection_reason",
+                )
+            },
+        ),
         ("支付信息", {"fields": ("paid_by", "paid_at")}),
         ("备注", {"fields": ("notes",)}),
-        ("系统信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
 
     def save_model(self, request, obj, form, change):
@@ -359,5 +395,10 @@ class JournalEntryAdmin(ImportExportModelAdmin):
         "description",
     )
     list_filter = ("journal__journal_date",)
-    search_fields = ("journal__journal_number", "account__code", "account__name", "description")
+    search_fields = (
+        "journal__journal_number",
+        "account__code",
+        "account__name",
+        "description",
+    )
     readonly_fields = ("created_at", "updated_at")

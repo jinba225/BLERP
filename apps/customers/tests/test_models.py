@@ -1,6 +1,7 @@
 """
 Customers models tests.
 """
+
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -83,7 +84,10 @@ class CustomerModelTest(TestCase):
         )
 
         self.category = CustomerCategory.objects.create(
-            name="VIP客户", code="VIP001", discount_rate=Decimal("10.00"), created_by=self.user
+            name="VIP客户",
+            code="VIP001",
+            discount_rate=Decimal("10.00"),
+            created_by=self.user,
         )
 
     def test_customer_creation(self):
@@ -136,7 +140,10 @@ class CustomerModelTest(TestCase):
 
         for status in statuses:
             customer = Customer.objects.create(
-                name=f"测试客户-{status}", code=f"CUST{status}", status=status, created_by=self.user
+                name=f"测试客户-{status}",
+                code=f"CUST{status}",
+                status=status,
+                created_by=self.user,
             )
             self.assertEqual(customer.status, status)
 
@@ -333,7 +340,10 @@ class CustomerCreditHistoryModelTest(TestCase):
         )
 
         self.customer = Customer.objects.create(
-            name="测试公司", code="CUST001", credit_limit=Decimal("50000.00"), created_by=self.user
+            name="测试公司",
+            code="CUST001",
+            credit_limit=Decimal("50000.00"),
+            created_by=self.user,
         )
 
     def test_credit_history_creation(self):

@@ -1,6 +1,7 @@
 """
 BI模块Admin配置
 """
+
 from django.contrib import admin
 
 from .models import (
@@ -39,14 +40,26 @@ class ReportDataAdmin(admin.ModelAdmin):
 
 @admin.register(SalesSummary)
 class SalesSummaryAdmin(admin.ModelAdmin):
-    list_display = ["report_date", "platform", "total_orders", "total_amount", "conversion_rate"]
+    list_display = [
+        "report_date",
+        "platform",
+        "total_orders",
+        "total_amount",
+        "conversion_rate",
+    ]
     list_filter = ["platform", "report_period", "report_date"]
     date_hierarchy = "report_date"
 
 
 @admin.register(ProductSales)
 class ProductSalesAdmin(admin.ModelAdmin):
-    list_display = ["product", "platform", "report_date", "sold_quantity", "sales_amount"]
+    list_display = [
+        "product",
+        "platform",
+        "report_date",
+        "sold_quantity",
+        "sales_amount",
+    ]
     list_filter = ["platform", "report_date", "report_period"]
     search_fields = ["product__name", "product__code"]
 
@@ -60,7 +73,13 @@ class InventoryAnalysisAdmin(admin.ModelAdmin):
 
 @admin.register(PlatformComparison)
 class PlatformComparisonAdmin(admin.ModelAdmin):
-    list_display = ["report_date", "platform", "order_count", "sales_amount", "sales_rank"]
+    list_display = [
+        "report_date",
+        "platform",
+        "order_count",
+        "sales_amount",
+        "sales_rank",
+    ]
     list_filter = ["platform", "report_period", "report_date"]
     date_hierarchy = "report_date"
 

@@ -4,6 +4,7 @@
 使用方法:
     python manage.py recalculate_stock_from_transactions
 """
+
 from django.core.management.base import BaseCommand
 from inventory.models import InventoryStock, InventoryTransaction, Warehouse
 from products.models import Product

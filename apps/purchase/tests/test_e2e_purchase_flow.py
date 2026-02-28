@@ -78,8 +78,16 @@ class TestPurchaseFlowE2E:
             user=admin,
             supplier=test_supplier,
             items_data=[
-                {"product": product1, "quantity": Decimal("100"), "unit_price": Decimal("100.00")},
-                {"product": product2, "quantity": Decimal("50"), "unit_price": Decimal("150.00")},
+                {
+                    "product": product1,
+                    "quantity": Decimal("100"),
+                    "unit_price": Decimal("100.00"),
+                },
+                {
+                    "product": product2,
+                    "quantity": Decimal("50"),
+                    "unit_price": Decimal("150.00"),
+                },
             ],
         )
 
@@ -332,7 +340,11 @@ class TestPurchaseFlowE2E:
             user=admin,
             supplier=test_supplier,
             items_data=[
-                {"product": product1, "quantity": Decimal("100"), "unit_price": Decimal("100.00")}
+                {
+                    "product": product1,
+                    "quantity": Decimal("100"),
+                    "unit_price": Decimal("100.00"),
+                }
             ],
         )
 
@@ -559,7 +571,11 @@ class TestPurchaseFlowE2E:
             user=admin,
             supplier=test_supplier,
             items_data=[
-                {"product": product1, "quantity": Decimal("100"), "unit_price": Decimal("100.00")}
+                {
+                    "product": product1,
+                    "quantity": Decimal("100"),
+                    "unit_price": Decimal("100.00"),
+                }
             ],
         )
 
@@ -794,7 +810,11 @@ class TestPurchaseFlowE2E:
             user=admin,
             supplier=test_supplier,
             items_data=[
-                {"product": product1, "quantity": Decimal("100"), "unit_price": Decimal("100.00")}
+                {
+                    "product": product1,
+                    "quantity": Decimal("100"),
+                    "unit_price": Decimal("100.00"),
+                }
             ],
         )
 
@@ -829,7 +849,11 @@ class TestPurchaseFlowE2E:
             user=admin,
             supplier=test_supplier,
             items_data=[
-                {"product": product1, "quantity": Decimal("100"), "unit_price": Decimal("100.00")}
+                {
+                    "product": product1,
+                    "quantity": Decimal("100"),
+                    "unit_price": Decimal("100.00"),
+                }
             ],
             order_number="PO-EDGE-001",  # 使用自定义订单号避免重复
         )

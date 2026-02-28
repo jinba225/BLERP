@@ -4,6 +4,7 @@ Django管理命令：修复采购订单号连续性问题
 使用方法：
     python manage.py fix_purchase_order_numbers
 """
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
@@ -105,7 +106,9 @@ class Command(BaseCommand):
                         sequence,
                         created,
                     ) = DocumentNumberSequence.objects.select_for_update().get_or_create(
-                        prefix="PO", date_str=date_str, defaults={"current_number": new_sequence}
+                        prefix="PO",
+                        date_str=date_str,
+                        defaults={"current_number": new_sequence},
                     )
                     if not created:
                         sequence.current_number = new_sequence
@@ -146,7 +149,9 @@ class Command(BaseCommand):
                     sequence,
                     created,
                 ) = DocumentNumberSequence.objects.select_for_update().get_or_create(
-                    prefix="PO", date_str=date_str, defaults={"current_number": new_sequence}
+                    prefix="PO",
+                    date_str=date_str,
+                    defaults={"current_number": new_sequence},
                 )
                 if not created:
                     sequence.current_number = new_sequence
@@ -206,7 +211,9 @@ class Command(BaseCommand):
                             sequence,
                             created,
                         ) = DocumentNumberSequence.objects.select_for_update().get_or_create(
-                            prefix="PO", date_str=date_str, defaults={"current_number": 0}
+                            prefix="PO",
+                            date_str=date_str,
+                            defaults={"current_number": 0},
                         )
                         if not created:
                             sequence.current_number = 0

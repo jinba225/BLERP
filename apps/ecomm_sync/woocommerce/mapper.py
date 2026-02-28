@@ -78,9 +78,11 @@ class WooCommerceMapper:
         if product.category:
             categories.append(
                 {
-                    "id": product.category.woo_category_id
-                    if hasattr(product.category, "woo_category_id")
-                    else None
+                    "id": (
+                        product.category.woo_category_id
+                        if hasattr(product.category, "woo_category_id")
+                        else None
+                    )
                 }
             )
 

@@ -93,7 +93,9 @@ class SimplifiedConversationFlowTest(TestCase):
             result = self.nlp_service.parse_user_input(test_case["input"])
 
             self.assertEqual(
-                result.intent, test_case["expected_intent"], f"测试用例 {i}: {test_case['input']}"
+                result.intent,
+                test_case["expected_intent"],
+                f"测试用例 {i}: {test_case['input']}",
             )
 
             # 验证实体
@@ -119,7 +121,11 @@ class SimplifiedConversationFlowTest(TestCase):
             self.assertEqual(len(entities), len(expected_entities), f"输入: {msg}")
             for key, expected_value in expected_entities.items():
                 self.assertIn(key, entities, f"应该包含 {key}")
-                self.assertEqual(entities[key], expected_value, f"实体 {key} 应该为 '{expected_value}'")
+                self.assertEqual(
+                    entities[key],
+                    expected_value,
+                    f"实体 {key} 应该为 '{expected_value}'",
+                )
 
     def test_multi_turn_conversation(self):
         """测试多轮对话（5 轮）"""

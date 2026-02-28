@@ -7,6 +7,7 @@
 - 费用审批（通过/拒绝）
 - 费用支付
 """
+
 import logging
 from datetime import date
 
@@ -105,9 +106,9 @@ def expense_create(request):
                 expense_number=expense_number,
                 expense_date=request.POST.get("expense_date"),
                 applicant=request.user,
-                department_id=request.POST.get("department")
-                if request.POST.get("department")
-                else None,
+                department_id=(
+                    request.POST.get("department") if request.POST.get("department") else None
+                ),
                 category=request.POST.get("category"),
                 amount=request.POST.get("amount"),
                 payment_method=request.POST.get("payment_method"),
@@ -140,7 +141,12 @@ def expense_detail(request, pk):
     """费用详情"""
     expense = get_object_or_404(
         Expense.objects.filter(is_deleted=False).select_related(
-            "applicant", "department", "approved_by", "paid_by", "payment_account", "journal"
+            "applicant",
+            "department",
+            "approved_by",
+            "paid_by",
+            "payment_account",
+            "journal",
         ),
         pk=pk,
     )

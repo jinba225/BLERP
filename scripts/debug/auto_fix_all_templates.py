@@ -8,6 +8,7 @@
 4. extra_js块位置错误 (不在文件末尾)
 5. JavaScript代码重复 (函数定义重复)
 """
+
 import os
 import re
 from pathlib import Path

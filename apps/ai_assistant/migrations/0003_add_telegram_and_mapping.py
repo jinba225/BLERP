@@ -19,13 +19,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "bot_token",
                     models.CharField(
@@ -37,7 +52,10 @@ class Migration(migrations.Migration):
                 (
                     "bot_username",
                     models.CharField(
-                        blank=True, help_text="机器人的@username", max_length=100, verbose_name="Bot用户名"
+                        blank=True,
+                        help_text="机器人的@username",
+                        max_length=100,
+                        verbose_name="Bot用户名",
                     ),
                 ),
                 (
@@ -51,15 +69,25 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "allow_groups",
-                    models.BooleanField(default=False, help_text="是否允许在群组中使用", verbose_name="允许群组"),
+                    models.BooleanField(
+                        default=False,
+                        help_text="是否允许在群组中使用",
+                        verbose_name="允许群组",
+                    ),
                 ),
                 (
                     "command_prefix",
                     models.CharField(
-                        default="/", help_text="命令前缀，默认为/", max_length=10, verbose_name="命令前缀"
+                        default="/",
+                        help_text="命令前缀，默认为/",
+                        max_length=10,
+                        verbose_name="命令前缀",
                     ),
                 ),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -85,17 +113,36 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "channel",
                     models.CharField(
-                        choices=[("wechat", "微信"), ("dingtalk", "钉钉"), ("telegram", "Telegram")],
+                        choices=[
+                            ("wechat", "微信"),
+                            ("dingtalk", "钉钉"),
+                            ("telegram", "Telegram"),
+                        ],
                         max_length=20,
                         verbose_name="渠道",
                     ),
@@ -111,14 +158,23 @@ class Migration(migrations.Migration):
                 (
                     "external_username",
                     models.CharField(
-                        blank=True, help_text="外部平台的用户名或昵称", max_length=200, verbose_name="外部用户名"
+                        blank=True,
+                        help_text="外部平台的用户名或昵称",
+                        max_length=200,
+                        verbose_name="外部用户名",
                     ),
                 ),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 (
                     "metadata",
                     models.JSONField(
-                        blank=True, default=dict, help_text="存储额外的用户信息", verbose_name="元数据"
+                        blank=True,
+                        default=dict,
+                        help_text="存储额外的用户信息",
+                        verbose_name="元数据",
                     ),
                 ),
                 (
@@ -158,7 +214,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="channelusermapping",
             index=models.Index(
-                fields=["channel", "external_user_id"], name="channel_use_channel_1a2b3c_idx"
+                fields=["channel", "external_user_id"],
+                name="channel_use_channel_1a2b3c_idx",
             ),
         ),
         migrations.AddIndex(

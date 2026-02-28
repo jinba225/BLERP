@@ -1,6 +1,7 @@
 """
 Finance models for the ERP system.
 """
+
 from decimal import Decimal
 
 from core.models import BaseModel
@@ -178,10 +179,18 @@ class JournalEntry(BaseModel):
 
     # Auxiliary accounting
     customer = models.ForeignKey(
-        "customers.Customer", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="客户"
+        "customers.Customer",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="客户",
     )
     supplier = models.ForeignKey(
-        "suppliers.Supplier", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="供应商"
+        "suppliers.Supplier",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="供应商",
     )
     department = models.ForeignKey(
         "departments.Department",
@@ -210,10 +219,17 @@ class CustomerAccount(BaseModel):
     """
 
     customer = models.ForeignKey(
-        "customers.Customer", on_delete=models.CASCADE, related_name="accounts", verbose_name="客户"
+        "customers.Customer",
+        on_delete=models.CASCADE,
+        related_name="accounts",
+        verbose_name="客户",
     )
     sales_order = models.ForeignKey(
-        "sales.SalesOrder", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="销售订单"
+        "sales.SalesOrder",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="销售订单",
     )
     invoice_number = models.CharField("发票号", max_length=100, blank=True)
     invoice_date = models.DateField("发票日期", null=True, blank=True)
@@ -319,13 +335,25 @@ class SupplierAccount(BaseModel):
 
     # Amounts（自动归集字段）
     invoice_amount = models.DecimalField(
-        "实际应付金额", max_digits=12, decimal_places=2, default=0, help_text="累计正应付+累计负应付"
+        "实际应付金额",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="累计正应付+累计负应付",
     )
     paid_amount = models.DecimalField(
-        "已核销金额", max_digits=12, decimal_places=2, default=0, help_text="累计已核销金额"
+        "已核销金额",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="累计已核销金额",
     )
     balance = models.DecimalField(
-        "未付余额", max_digits=12, decimal_places=2, default=0, help_text="实际应付-已核销"
+        "未付余额",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="实际应付-已核销",
     )
 
     currency = models.CharField("币种", max_length=10, default="CNY")
@@ -453,7 +481,9 @@ class SupplierAccount(BaseModel):
         """
         # 尝试获取已存在的主单
         account = cls.objects.filter(
-            purchase_order=purchase_order, supplier=purchase_order.supplier, is_deleted=False
+            purchase_order=purchase_order,
+            supplier=purchase_order.supplier,
+            is_deleted=False,
         ).first()
 
         if not account:
@@ -705,10 +735,18 @@ class Payment(BaseModel):
 
     # Parties
     customer = models.ForeignKey(
-        "customers.Customer", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="客户"
+        "customers.Customer",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="客户",
     )
     supplier = models.ForeignKey(
-        "suppliers.Supplier", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="供应商"
+        "suppliers.Supplier",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="供应商",
     )
 
     # Financial information
@@ -868,7 +906,11 @@ class Budget(BaseModel):
         "departments.Department", on_delete=models.CASCADE, verbose_name="责任部门"
     )
     manager = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="预算负责人"
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="预算负责人",
     )
 
     # Approval
@@ -989,14 +1031,22 @@ class Invoice(BaseModel):
 
     # 金额信息（红字发票时为负数）
     amount_excluding_tax = models.DecimalField(
-        "不含税金额", max_digits=12, decimal_places=2, default=0, help_text="红字发票时为负数"
+        "不含税金额",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="红字发票时为负数",
     )
     tax_rate = models.DecimalField("税率(%)", max_digits=5, decimal_places=2, default=13)
     tax_amount = models.DecimalField(
         "税额", max_digits=12, decimal_places=2, default=0, help_text="红字发票时为负数"
     )
     total_amount = models.DecimalField(
-        "价税合计", max_digits=12, decimal_places=2, default=0, help_text="红字发票时为负数"
+        "价税合计",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="红字发票时为负数",
     )
 
     # 红字发票相关字段
@@ -1057,7 +1107,11 @@ class InvoiceItem(BaseModel):
         Invoice, on_delete=models.CASCADE, related_name="items", verbose_name="发票"
     )
     product = models.ForeignKey(
-        "products.Product", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="产品"
+        "products.Product",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="产品",
     )
 
     # 产品描述
@@ -1268,7 +1322,11 @@ class Expense(BaseModel):
 
     # 申请人信息
     applicant = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name="expenses", verbose_name="申请人"
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="expenses",
+        verbose_name="申请人",
     )
     department = models.ForeignKey(
         "departments.Department",

@@ -3,6 +3,7 @@
 
 测试物流模型、适配器、服务等核心功能
 """
+
 from datetime import timedelta
 from decimal import Decimal
 
@@ -229,7 +230,10 @@ class LogisticsAdapterFactoryTest(TestCase):
             code="SF",
             tier="tier_1",
             is_active=True,
-            api_config={"client_id": "test_client_id", "client_secret": "test_client_secret"},
+            api_config={
+                "client_id": "test_client_id",
+                "client_secret": "test_client_secret",
+            },
         )
 
     def test_get_adapter(self):
@@ -267,7 +271,10 @@ class LogisticsSyncServiceTest(TestCase):
             code="SF",
             tier="tier_1",
             is_active=True,
-            api_config={"client_id": "test_client_id", "client_secret": "test_client_secret"},
+            api_config={
+                "client_id": "test_client_id",
+                "client_secret": "test_client_secret",
+            },
         )
 
     def test_logistics_sync_service_initialization(self):

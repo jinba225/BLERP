@@ -1,6 +1,7 @@
 """
 Purchase models for the ERP system.
 """
+
 from core.models import PAYMENT_METHOD_CHOICES, BaseModel
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -80,7 +81,11 @@ class PurchaseOrder(BaseModel):
     delivery_contact = models.CharField("收货联系人", max_length=100, blank=True)
     delivery_phone = models.CharField("收货电话", max_length=20, blank=True)
     warehouse = models.ForeignKey(
-        "inventory.Warehouse", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="收货仓库"
+        "inventory.Warehouse",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="收货仓库",
     )
 
     # Payment information
@@ -114,7 +119,12 @@ class PurchaseOrder(BaseModel):
     platform_sync_status = models.CharField(
         "平台同步状态",
         max_length=20,
-        choices=[("pending", "待同步"), ("synced", "已同步"), ("syncing", "同步中"), ("failed", "同步失败")],
+        choices=[
+            ("pending", "待同步"),
+            ("synced", "已同步"),
+            ("syncing", "同步中"),
+            ("failed", "同步失败"),
+        ],
         default="pending",
         help_text="商品同步到电商平台的状态",
     )
@@ -211,7 +221,8 @@ class PurchaseOrder(BaseModel):
             # Create receipt
             receipt = PurchaseReceipt.objects.create(
                 receipt_number=DocumentNumberGenerator.generate(
-                    "receipt", model_class=PurchaseReceipt  # 传递模型类以支持重用已删除单据编号
+                    "receipt",
+                    model_class=PurchaseReceipt,  # 传递模型类以支持重用已删除单据编号
                 ),  # 使用 IN 前缀
                 purchase_order=self,
                 warehouse=receipt_warehouse,
@@ -305,7 +316,9 @@ class PurchaseOrder(BaseModel):
             for receipt in pending_receipts:
                 # 删除关联的入库单
                 InboundOrder.objects.filter(
-                    reference_type="purchase_order", reference_id=self.id, is_deleted=False
+                    reference_type="purchase_order",
+                    reference_id=self.id,
+                    is_deleted=False,
                 ).update(is_deleted=True)
 
                 # 软删除收货单
@@ -371,7 +384,9 @@ class PurchaseOrder(BaseModel):
             # 计算该订单明细的实际已收货数量
             # 从所有已收货状态的收货单明细中汇总
             actual_received = PurchaseReceiptItem.objects.filter(
-                order_item=item, is_deleted=False, receipt__status="received"  # 只计算已确认收货的
+                order_item=item,
+                is_deleted=False,
+                receipt__status="received",  # 只计算已确认收货的
             ).aggregate(total=Sum("received_quantity"))["total"] or Decimal("0")
 
             # 如果数量不一致，更新
@@ -394,7 +409,10 @@ class PurchaseOrderItem(BaseModel):
     """
 
     purchase_order = models.ForeignKey(
-        PurchaseOrder, on_delete=models.CASCADE, related_name="items", verbose_name="采购订单"
+        PurchaseOrder,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="采购订单",
     )
     product = models.ForeignKey("products.Product", on_delete=models.CASCADE, verbose_name="产品")
 
@@ -572,7 +590,8 @@ class PurchaseRequest(BaseModel):
         # Auto-create purchase order
         order = PurchaseOrder.objects.create(
             order_number=DocumentNumberGenerator.generate(
-                "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+                "purchase_order",
+                model_class=PurchaseOrder,  # 传递模型类以支持重用已删除订单编号
             ),
             supplier_id=supplier_id,
             order_date=timezone.now().date(),
@@ -673,7 +692,10 @@ class PurchaseRequestItem(BaseModel):
     """
 
     purchase_request = models.ForeignKey(
-        PurchaseRequest, on_delete=models.CASCADE, related_name="items", verbose_name="采购申请"
+        PurchaseRequest,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="采购申请",
     )
     product = models.ForeignKey("products.Product", on_delete=models.CASCADE, verbose_name="产品")
 
@@ -684,7 +706,11 @@ class PurchaseRequestItem(BaseModel):
     estimated_total = models.DecimalField("预估总价", max_digits=12, decimal_places=2, default=0)
 
     preferred_supplier = models.ForeignKey(
-        "suppliers.Supplier", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="首选供应商"
+        "suppliers.Supplier",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="首选供应商",
     )
 
     specifications = models.TextField("规格要求", blank=True)
@@ -739,7 +765,9 @@ class PurchaseInquiry(BaseModel):
 
     # Link to suppliers
     suppliers = models.ManyToManyField(
-        "suppliers.Supplier", related_name="purchase_inquiries", verbose_name="询价供应商"
+        "suppliers.Supplier",
+        related_name="purchase_inquiries",
+        verbose_name="询价供应商",
     )
 
     # Selected quotation
@@ -827,7 +855,10 @@ class PurchaseInquiryItem(BaseModel):
     """
 
     inquiry = models.ForeignKey(
-        PurchaseInquiry, on_delete=models.CASCADE, related_name="items", verbose_name="询价单"
+        PurchaseInquiry,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="询价单",
     )
     product = models.ForeignKey("products.Product", on_delete=models.CASCADE, verbose_name="产品")
 
@@ -863,7 +894,10 @@ class SupplierQuotation(BaseModel):
 
     quotation_number = models.CharField("报价单号", max_length=100, unique=True)
     inquiry = models.ForeignKey(
-        PurchaseInquiry, on_delete=models.CASCADE, related_name="quotations", verbose_name="询价单"
+        PurchaseInquiry,
+        on_delete=models.CASCADE,
+        related_name="quotations",
+        verbose_name="询价单",
     )
     supplier = models.ForeignKey(
         "suppliers.Supplier",
@@ -903,7 +937,10 @@ class SupplierQuotationItem(BaseModel):
     """
 
     quotation = models.ForeignKey(
-        SupplierQuotation, on_delete=models.CASCADE, related_name="items", verbose_name="报价单"
+        SupplierQuotation,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="报价单",
     )
     inquiry_item = models.ForeignKey(
         PurchaseInquiryItem, on_delete=models.CASCADE, verbose_name="询价明细"
@@ -945,10 +982,16 @@ class PurchaseReceipt(BaseModel):
 
     receipt_number = models.CharField("收货单号", max_length=100, unique=True)
     purchase_order = models.ForeignKey(
-        PurchaseOrder, on_delete=models.CASCADE, related_name="receipts", verbose_name="采购订单"
+        PurchaseOrder,
+        on_delete=models.CASCADE,
+        related_name="receipts",
+        verbose_name="采购订单",
     )
     warehouse = models.ForeignKey(
-        "inventory.Warehouse", on_delete=models.SET_NULL, null=True, verbose_name="收货仓库"
+        "inventory.Warehouse",
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name="收货仓库",
     )
 
     receipt_date = models.DateField("收货日期")
@@ -1107,7 +1150,10 @@ class PurchaseReceiptItem(BaseModel):
     """
 
     receipt = models.ForeignKey(
-        PurchaseReceipt, on_delete=models.CASCADE, related_name="items", verbose_name="收货单"
+        PurchaseReceipt,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="收货单",
     )
     order_item = models.ForeignKey(PurchaseOrderItem, on_delete=models.CASCADE, verbose_name="订单明细")
 
@@ -1118,7 +1164,11 @@ class PurchaseReceiptItem(BaseModel):
     expiry_date = models.DateField("过期日期", null=True, blank=True)
     notes = models.TextField("备注", blank=True)
     location = models.ForeignKey(
-        "inventory.Location", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="存放位置"
+        "inventory.Location",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="存放位置",
     )
 
     class Meta:
@@ -1155,7 +1205,10 @@ class PurchaseReturn(BaseModel):
 
     return_number = models.CharField("退货单号", max_length=100, unique=True)
     purchase_order = models.ForeignKey(
-        PurchaseOrder, on_delete=models.CASCADE, related_name="returns", verbose_name="采购订单"
+        PurchaseOrder,
+        on_delete=models.CASCADE,
+        related_name="returns",
+        verbose_name="采购订单",
     )
     receipt = models.ForeignKey(
         PurchaseReceipt,
@@ -1283,7 +1336,10 @@ class PurchaseReturnItem(BaseModel):
     """
 
     purchase_return = models.ForeignKey(
-        PurchaseReturn, on_delete=models.CASCADE, related_name="items", verbose_name="退货单"
+        PurchaseReturn,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="退货单",
     )
     order_item = models.ForeignKey(PurchaseOrderItem, on_delete=models.CASCADE, verbose_name="订单明细")
 
@@ -1332,7 +1388,10 @@ class Borrow(BaseModel):
     # 基本信息
     borrow_number = models.CharField("借用单号", max_length=100, unique=True)
     supplier = models.ForeignKey(
-        "suppliers.Supplier", on_delete=models.CASCADE, related_name="borrows", verbose_name="供应商"
+        "suppliers.Supplier",
+        on_delete=models.CASCADE,
+        related_name="borrows",
+        verbose_name="供应商",
     )
     buyer = models.ForeignKey(
         User,
@@ -1597,7 +1656,8 @@ class Borrow(BaseModel):
         # 创建采购订单
         order = PurchaseOrder.objects.create(
             order_number=DocumentNumberGenerator.generate(
-                "purchase_order", model_class=PurchaseOrder  # 传递模型类以支持重用已删除订单编号
+                "purchase_order",
+                model_class=PurchaseOrder,  # 传递模型类以支持重用已删除订单编号
             ),
             supplier_id=supplier_id,
             buyer=self.buyer,
@@ -1655,7 +1715,8 @@ class Borrow(BaseModel):
 
             SupplierAccountDetail.objects.create(
                 detail_number=DocumentNumberGenerator.generate(
-                    "account_detail", model_class=SupplierAccountDetail  # 传递模型类以支持编号重用
+                    "account_detail",
+                    model_class=SupplierAccountDetail,  # 传递模型类以支持编号重用
                 ),
                 detail_type="receipt",  # 转采购视为收货正应付
                 supplier_id=supplier_id,
@@ -1692,7 +1753,9 @@ class BorrowItem(BaseModel):
     # 数量管理
     quantity = models.IntegerField("借用数量", validators=[MinValueValidator(0)])
     borrowed_quantity = models.IntegerField(
-        "累计已借用数量", default=0, help_text="借用入库确认时累计的已借用数量（用于归还和转采购限制）"
+        "累计已借用数量",
+        default=0,
+        help_text="借用入库确认时累计的已借用数量（用于归还和转采购限制）",
     )
     returned_quantity = models.IntegerField("已归还数量", default=0)
 
@@ -1702,7 +1765,12 @@ class BorrowItem(BaseModel):
 
     # 转采购时的定价（手动输入）
     conversion_unit_price = models.DecimalField(
-        "转采购单价", max_digits=10, decimal_places=2, null=True, blank=True, help_text="转采购时手动输入的含税单价"
+        "转采购单价",
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="转采购时手动输入的含税单价",
     )
     conversion_quantity = models.IntegerField("转采购数量", default=0, help_text="已转采购的数量")
 
@@ -1727,7 +1795,10 @@ class BorrowItem(BaseModel):
     @property
     def remaining_quantity(self):
         """剩余未归还数量（可转采购）= 累计已借用 - 已归还 - 已转采购"""
-        return max(0, self.borrowed_quantity - self.returned_quantity - self.conversion_quantity)
+        return max(
+            0,
+            self.borrowed_quantity - self.returned_quantity - self.conversion_quantity,
+        )
 
     @property
     def can_convert(self):
@@ -1795,7 +1866,12 @@ class PurchaseOrderItemPlatformMap(BaseModel):
         verbose_name_plural = "采购订单商品平台映射"
         db_table = "purchase_order_item_platform_map"
         unique_together = [
-            ["purchase_order_item", "platform", "platform_account", "platform_product_id"]
+            [
+                "purchase_order_item",
+                "platform",
+                "platform_account",
+                "platform_product_id",
+            ]
         ]
         indexes = [
             models.Index(fields=["platform", "sync_status"]),
@@ -1853,7 +1929,10 @@ class PurchaseSyncQueue(BaseModel):
         verbose_name="平台账号",
     )
     sync_type = models.CharField(
-        "同步类型", max_length=20, choices=SYNC_TYPES, help_text="add=新增商品, update=更新商品信息, delete=删除商品"
+        "同步类型",
+        max_length=20,
+        choices=SYNC_TYPES,
+        help_text="add=新增商品, update=更新商品信息, delete=删除商品",
     )
     sync_data = models.JSONField("同步数据", default=dict, blank=True, help_text="要同步的商品数据（JSON格式）")
     status = models.CharField("状态", max_length=20, choices=STATUS_CHOICES, default="pending")

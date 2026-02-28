@@ -46,7 +46,10 @@ class CreateJournalTool(BaseTool):
                     "description": "凭证类型",
                     "enum": ["receipt", "payment", "transfer", "adjustment"],
                 },
-                "journal_date": {"type": "string", "description": "凭证日期（YYYY-MM-DD，默认今天）"},
+                "journal_date": {
+                    "type": "string",
+                    "description": "凭证日期（YYYY-MM-DD，默认今天）",
+                },
                 "entries": {
                     "type": "array",
                     "description": "分录列表",
@@ -54,8 +57,14 @@ class CreateJournalTool(BaseTool):
                         "type": "object",
                         "properties": {
                             "account_id": {"type": "integer", "description": "科目ID"},
-                            "debit_amount": {"type": "number", "description": "借方金额"},
-                            "credit_amount": {"type": "number", "description": "贷方金额"},
+                            "debit_amount": {
+                                "type": "number",
+                                "description": "借方金额",
+                            },
+                            "credit_amount": {
+                                "type": "number",
+                                "description": "贷方金额",
+                            },
                             "description": {"type": "string", "description": "摘要"},
                         },
                         "required": ["account_id", "description"],
@@ -67,7 +76,12 @@ class CreateJournalTool(BaseTool):
         }
 
     def execute(
-        self, journal_type: str, entries: list, journal_date: str = None, notes: str = "", **kwargs
+        self,
+        journal_type: str,
+        entries: list,
+        journal_date: str = None,
+        notes: str = "",
+        **kwargs,
     ) -> ToolResult:
         """执行创建凭证"""
         try:
@@ -79,19 +93,29 @@ class CreateJournalTool(BaseTool):
             validated_entries = []
             for entry in entries:
                 try:
-                    account = Account.objects.get(id=entry["account_id"], is_deleted=False)
+                    account = Account.objects.get(
+                        id=entry["account_id"], is_deleted=False
+                    )
                 except Account.DoesNotExist:
-                    return ToolResult(success=False, error=f"科目ID {entry['account_id']} 不存在")
+                    return ToolResult(
+                        success=False, error=f"科目ID {entry['account_id']} 不存在"
+                    )
 
                 debit_amount = float(entry.get("debit_amount", 0))
                 credit_amount = float(entry.get("credit_amount", 0))
 
                 # 每个分录借方或贷方必须有且仅有一个有值
                 if debit_amount > 0 and credit_amount > 0:
-                    return ToolResult(success=False, error=f"科目 {account.name} 的借方和贷方不能同时有值")
+                    return ToolResult(
+                        success=False,
+                        error=f"科目 {account.name} 的借方和贷方不能同时有值",
+                    )
 
                 if debit_amount == 0 and credit_amount == 0:
-                    return ToolResult(success=False, error=f"科目 {account.name} 的借方或贷方必须有一个有值")
+                    return ToolResult(
+                        success=False,
+                        error=f"科目 {account.name} 的借方或贷方必须有一个有值",
+                    )
 
                 total_debit += debit_amount
                 total_credit += credit_amount
@@ -108,7 +132,8 @@ class CreateJournalTool(BaseTool):
             # 验证借贷平衡
             if abs(total_debit - total_credit) > 0.01:
                 return ToolResult(
-                    success=False, error=f"借贷不平衡：借方合计 {total_debit}，贷方合计 {total_credit}"
+                    success=False,
+                    error=f"借贷不平衡：借方合计 {total_debit}，贷方合计 {total_credit}",
                 )
 
             # 创建凭证
@@ -180,10 +205,19 @@ class CreatePaymentTool(BaseTool):
                     "description": "收付款类型",
                     "enum": ["receipt", "payment"],
                 },
-                "customer_id": {"type": "integer", "description": "客户ID（收款时必填）"},
-                "supplier_id": {"type": "integer", "description": "供应商ID（付款时必填）"},
+                "customer_id": {
+                    "type": "integer",
+                    "description": "客户ID（收款时必填）",
+                },
+                "supplier_id": {
+                    "type": "integer",
+                    "description": "供应商ID（付款时必填）",
+                },
                 "amount": {"type": "number", "description": "金额"},
-                "payment_date": {"type": "string", "description": "收付款日期（YYYY-MM-DD，默认今天）"},
+                "payment_date": {
+                    "type": "string",
+                    "description": "收付款日期（YYYY-MM-DD，默认今天）",
+                },
                 "payment_method": {
                     "type": "string",
                     "description": "付款方式",
@@ -224,7 +258,9 @@ class CreatePaymentTool(BaseTool):
                 try:
                     customer = Customer.objects.get(id=customer_id, is_deleted=False)
                 except Customer.DoesNotExist:
-                    return ToolResult(success=False, error=f"客户ID {customer_id} 不存在")
+                    return ToolResult(
+                        success=False, error=f"客户ID {customer_id} 不存在"
+                    )
 
             elif payment_type == "payment":
                 if not supplier_id:
@@ -232,7 +268,9 @@ class CreatePaymentTool(BaseTool):
                 try:
                     supplier = Supplier.objects.get(id=supplier_id, is_deleted=False)
                 except Supplier.DoesNotExist:
-                    return ToolResult(success=False, error=f"供应商ID {supplier_id} 不存在")
+                    return ToolResult(
+                        success=False, error=f"供应商ID {supplier_id} 不存在"
+                    )
 
             # 创建收付款记录
             with transaction.atomic():
@@ -302,7 +340,10 @@ class CreatePrepaymentTool(BaseTool):
                 "customer_id": {"type": "integer", "description": "客户ID"},
                 "supplier_id": {"type": "integer", "description": "供应商ID"},
                 "amount": {"type": "number", "description": "预付金额"},
-                "prepayment_date": {"type": "string", "description": "预付日期（YYYY-MM-DD，默认今天）"},
+                "prepayment_date": {
+                    "type": "string",
+                    "description": "预付日期（YYYY-MM-DD，默认今天）",
+                },
                 "payment_method": {
                     "type": "string",
                     "description": "付款方式",
@@ -344,10 +385,14 @@ class CreatePrepaymentTool(BaseTool):
                 try:
                     customer = Customer.objects.get(id=customer_id, is_deleted=False)
                 except Customer.DoesNotExist:
-                    return ToolResult(success=False, error=f"客户ID {customer_id} 不存在")
+                    return ToolResult(
+                        success=False, error=f"客户ID {customer_id} 不存在"
+                    )
 
                 with transaction.atomic():
-                    prepayment_number = DocumentNumberGenerator.generate("customer_prepayment")
+                    prepayment_number = DocumentNumberGenerator.generate(
+                        "customer_prepayment"
+                    )
                     prepayment = CustomerPrepayment.objects.create(
                         prepayment_number=prepayment_number,
                         customer=customer,
@@ -363,14 +408,20 @@ class CreatePrepaymentTool(BaseTool):
 
             else:  # supplier
                 if not supplier_id:
-                    return ToolResult(success=False, error="供应商预付款必须指定供应商ID")
+                    return ToolResult(
+                        success=False, error="供应商预付款必须指定供应商ID"
+                    )
                 try:
                     supplier = Supplier.objects.get(id=supplier_id, is_deleted=False)
                 except Supplier.DoesNotExist:
-                    return ToolResult(success=False, error=f"供应商ID {supplier_id} 不存在")
+                    return ToolResult(
+                        success=False, error=f"供应商ID {supplier_id} 不存在"
+                    )
 
                 with transaction.atomic():
-                    prepayment_number = DocumentNumberGenerator.generate("supplier_prepayment")
+                    prepayment_number = DocumentNumberGenerator.generate(
+                        "supplier_prepayment"
+                    )
                     prepayment = SupplierPrepayment.objects.create(
                         prepayment_number=prepayment_number,
                         supplier=supplier,
@@ -433,7 +484,10 @@ class CreateExpenseTool(BaseTool):
                     ],
                 },
                 "amount": {"type": "number", "description": "费用金额"},
-                "expense_date": {"type": "string", "description": "费用日期（YYYY-MM-DD，默认今天）"},
+                "expense_date": {
+                    "type": "string",
+                    "description": "费用日期（YYYY-MM-DD，默认今天）",
+                },
                 "department_id": {"type": "integer", "description": "部门ID（可选）"},
                 "description": {"type": "string", "description": "费用说明"},
                 "notes": {"type": "string", "description": "备注"},
@@ -464,9 +518,13 @@ class CreateExpenseTool(BaseTool):
             department = None
             if department_id:
                 try:
-                    department = Department.objects.get(id=department_id, is_deleted=False)
+                    department = Department.objects.get(
+                        id=department_id, is_deleted=False
+                    )
                 except Department.DoesNotExist:
-                    return ToolResult(success=False, error=f"部门ID {department_id} 不存在")
+                    return ToolResult(
+                        success=False, error=f"部门ID {department_id} 不存在"
+                    )
 
             # 创建费用报销
             with transaction.atomic():

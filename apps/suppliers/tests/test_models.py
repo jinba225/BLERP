@@ -1,6 +1,7 @@
 """
 Suppliers models tests.
 """
+
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -31,7 +32,10 @@ class SupplierCategoryModelTest(TestCase):
     def test_category_creation(self):
         """Test supplier category creation."""
         category = SupplierCategory.objects.create(
-            name="原材料供应商", code="RAW001", description="原材料供应商分类", created_by=self.user
+            name="原材料供应商",
+            code="RAW001",
+            description="原材料供应商分类",
+            created_by=self.user,
         )
 
         self.assertEqual(category.name, "原材料供应商")
@@ -119,7 +123,10 @@ class SupplierModelTest(TestCase):
 
         for level in levels:
             supplier = Supplier.objects.create(
-                name=f"测试供应商-{level}级", code=f"SUP{level}", level=level, created_by=self.user
+                name=f"测试供应商-{level}级",
+                code=f"SUP{level}",
+                level=level,
+                created_by=self.user,
             )
             self.assertEqual(supplier.level, level)
 
@@ -325,7 +332,10 @@ class SupplierProductModelTest(TestCase):
         )
 
         sp2 = SupplierProduct.objects.create(
-            supplier=supplier2, product=self.product, price=Decimal("95.00"), created_by=self.user
+            supplier=supplier2,
+            product=self.product,
+            price=Decimal("95.00"),
+            created_by=self.user,
         )
 
         self.assertEqual(sp1.product, sp2.product)

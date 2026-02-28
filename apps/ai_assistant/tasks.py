@@ -47,9 +47,11 @@ def process_message_async(self, message_data: dict, user_id: int):
             channel=message_data.get("channel", ""),
             external_user_id=message_data.get("external_user_id", ""),
             content=message_data.get("content", ""),
-            timestamp=datetime.fromisoformat(message_data.get("timestamp"))
-            if message_data.get("timestamp")
-            else timezone.now(),
+            timestamp=(
+                datetime.fromisoformat(message_data.get("timestamp"))
+                if message_data.get("timestamp")
+                else timezone.now()
+            ),
             message_type=message_data.get("message_type", "text"),
             conversation_id=message_data.get("conversation_id"),
             raw_data=message_data.get("raw_data", {}),

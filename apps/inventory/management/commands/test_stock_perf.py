@@ -1,6 +1,7 @@
 """
 测试库存查询性能的管理命令
 """
+
 import time
 
 from django.conf import settings

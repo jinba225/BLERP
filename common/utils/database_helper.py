@@ -2,6 +2,7 @@
 数据库管理工具类
 提供数据库备份、还原、测试数据管理等功能
 """
+
 import os
 import shutil
 import subprocess
@@ -153,7 +154,10 @@ class DatabaseHelper:
                 # 复制备份文件
                 shutil.copy2(backup_path, db_name)
 
-                return True, f"数据库还原成功（当前数据库已备份到: {Path(current_backup).name}）"
+                return (
+                    True,
+                    f"数据库还原成功（当前数据库已备份到: {Path(current_backup).name}）",
+                )
 
             elif DatabaseHelper.is_mysql():
                 # MySQL还原：使用mysql命令
@@ -178,7 +182,10 @@ class DatabaseHelper:
                     result = subprocess.run(cmd, stdin=f, stderr=subprocess.PIPE, text=True)
 
                 if result.returncode == 0:
-                    return True, f"数据库还原成功（当前数据库已备份到: {Path(current_backup).name}）"
+                    return (
+                        True,
+                        f"数据库还原成功（当前数据库已备份到: {Path(current_backup).name}）",
+                    )
                 else:
                     return False, f"MySQL还原失败: {result.stderr}"
 
@@ -313,14 +320,30 @@ class DatabaseHelper:
 
             # ========== 1. 创建计量单位 ==========
             units_data = [
-                {"name": "激光台", "symbol": "UNIT", "unit_type": "count", "description": "测试计量单位-台"},
-                {"name": "激光套", "symbol": "SET", "unit_type": "count", "description": "测试计量单位-套"},
-                {"name": "激光件", "symbol": "PC", "unit_type": "count", "description": "测试计量单位-件"},
+                {
+                    "name": "激光台",
+                    "symbol": "UNIT",
+                    "unit_type": "count",
+                    "description": "测试计量单位-台",
+                },
+                {
+                    "name": "激光套",
+                    "symbol": "SET",
+                    "unit_type": "count",
+                    "description": "测试计量单位-套",
+                },
+                {
+                    "name": "激光件",
+                    "symbol": "PC",
+                    "unit_type": "count",
+                    "description": "测试计量单位-件",
+                },
             ]
 
             for unit_data in units_data:
                 existing = Unit.objects.filter(
-                    Q(name=unit_data["name"]) | Q(symbol=unit_data["symbol"]), is_deleted=False
+                    Q(name=unit_data["name"]) | Q(symbol=unit_data["symbol"]),
+                    is_deleted=False,
                 ).first()
 
                 if not existing:
@@ -353,7 +376,8 @@ class DatabaseHelper:
 
             for brand_data in brands_data:
                 existing = Brand.objects.filter(
-                    Q(name=brand_data["name"]) | Q(code=brand_data["code"]), is_deleted=False
+                    Q(name=brand_data["name"]) | Q(code=brand_data["code"]),
+                    is_deleted=False,
                 ).first()
 
                 if not existing:
@@ -363,9 +387,21 @@ class DatabaseHelper:
             # ========== 3. 创建产品分类（层级结构）==========
             categories_data = [
                 {"name": "测试激光设备", "code": "TEST_LASER", "parent": None},
-                {"name": "测试激光切割机", "code": "TEST_LASER_CUT", "parent": "TEST_LASER"},
-                {"name": "测试激光焊接机", "code": "TEST_LASER_WELD", "parent": "TEST_LASER"},
-                {"name": "测试激光打标机", "code": "TEST_LASER_MARK", "parent": "TEST_LASER"},
+                {
+                    "name": "测试激光切割机",
+                    "code": "TEST_LASER_CUT",
+                    "parent": "TEST_LASER",
+                },
+                {
+                    "name": "测试激光焊接机",
+                    "code": "TEST_LASER_WELD",
+                    "parent": "TEST_LASER",
+                },
+                {
+                    "name": "测试激光打标机",
+                    "code": "TEST_LASER_MARK",
+                    "parent": "TEST_LASER",
+                },
             ]
 
             created_categories = {}
@@ -1190,7 +1226,11 @@ class DatabaseHelper:
             import traceback
 
             error_detail = traceback.format_exc()
-            return False, f"❌ 添加测试数据失败: {str(e)}\n\n详细信息:\n{error_detail}", stats
+            return (
+                False,
+                f"❌ 添加测试数据失败: {str(e)}\n\n详细信息:\n{error_detail}",
+                stats,
+            )
 
     @staticmethod
     def reset_auto_increment():

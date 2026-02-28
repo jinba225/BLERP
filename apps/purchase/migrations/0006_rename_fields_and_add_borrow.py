@@ -48,13 +48,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "borrow_number",
                     models.CharField(max_length=100, unique=True, verbose_name="借用单号"),
@@ -85,7 +100,10 @@ class Migration(migrations.Migration):
                     "conversion_approved_at",
                     models.DateTimeField(blank=True, null=True, verbose_name="转采购审核时间"),
                 ),
-                ("conversion_notes", models.TextField(blank=True, verbose_name="转采购备注")),
+                (
+                    "conversion_notes",
+                    models.TextField(blank=True, verbose_name="转采购备注"),
+                ),
                 ("purpose", models.TextField(blank=True, verbose_name="借用目的")),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
                 (
@@ -177,13 +195,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "quantity",
                     models.DecimalField(
@@ -196,13 +229,23 @@ class Migration(migrations.Migration):
                 (
                     "returned_quantity",
                     models.DecimalField(
-                        decimal_places=4, default=0, max_digits=12, verbose_name="已归还数量"
+                        decimal_places=4,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="已归还数量",
                     ),
                 ),
-                ("batch_number", models.CharField(blank=True, max_length=100, verbose_name="批次号")),
+                (
+                    "batch_number",
+                    models.CharField(blank=True, max_length=100, verbose_name="批次号"),
+                ),
                 (
                     "serial_numbers",
-                    models.TextField(blank=True, help_text="多个序列号用换行分隔", verbose_name="序列号"),
+                    models.TextField(
+                        blank=True,
+                        help_text="多个序列号用换行分隔",
+                        verbose_name="序列号",
+                    ),
                 ),
                 (
                     "conversion_unit_price",
@@ -225,7 +268,10 @@ class Migration(migrations.Migration):
                         verbose_name="转采购数量",
                     ),
                 ),
-                ("specifications", models.TextField(blank=True, verbose_name="规格要求")),
+                (
+                    "specifications",
+                    models.TextField(blank=True, verbose_name="规格要求"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
                 (
                     "borrow",

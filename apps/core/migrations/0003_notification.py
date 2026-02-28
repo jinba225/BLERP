@@ -18,7 +18,10 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
                 ("title", models.CharField(max_length=200, verbose_name="标题")),
@@ -57,14 +60,26 @@ class Migration(migrations.Migration):
                     "reference_type",
                     models.CharField(blank=True, max_length=50, verbose_name="关联类型"),
                 ),
-                ("reference_id", models.CharField(blank=True, max_length=100, verbose_name="关联ID")),
+                (
+                    "reference_id",
+                    models.CharField(blank=True, max_length=100, verbose_name="关联ID"),
+                ),
                 (
                     "reference_url",
                     models.CharField(blank=True, max_length=500, verbose_name="关联链接"),
                 ),
-                ("is_read", models.BooleanField(default=False, verbose_name="是否已读")),
-                ("read_at", models.DateTimeField(blank=True, null=True, verbose_name="阅读时间")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                (
+                    "is_read",
+                    models.BooleanField(default=False, verbose_name="是否已读"),
+                ),
+                (
+                    "read_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="阅读时间"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
                 (
                     "recipient",
                     models.ForeignKey(

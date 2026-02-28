@@ -1,6 +1,7 @@
 """
 Custom template filters for the ERP system.
 """
+
 from decimal import Decimal
 
 from django import template

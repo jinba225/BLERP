@@ -1,14 +1,13 @@
-import asyncio
 import logging
 import time
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import requests
-
+from core.services.monitor import get_monitor
 from core.services.rate_limiter import get_rate_limiter
 from core.services.retry_manager import get_retry_manager
-from core.services.monitor import get_monitor
+from ecomm_sync.models import PlatformAccount
 
 logger = logging.getLogger(__name__)
 
@@ -230,10 +229,7 @@ class BaseAdapter(ABC):
             if self.monitor:
                 duration = time.time() - start_time
                 self.monitor.record_api_call(
-                    self.platform,
-                    endpoint,
-                    success=True,
-                    duration=duration
+                    self.platform, endpoint, success=True, duration=duration
                 )
 
             return result
@@ -246,7 +242,7 @@ class BaseAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code="timeout"
+                    error_code="timeout",
                 )
             raise Exception(f"请求超时: {url}")
 
@@ -261,7 +257,7 @@ class BaseAdapter(ABC):
                         endpoint,
                         success=False,
                         duration=duration,
-                        error_code="rate_limit"
+                        error_code="rate_limit",
                     )
                 raise Exception(f"API限流: {url}")
 
@@ -279,7 +275,7 @@ class BaseAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code=str(status_code)
+                    error_code=str(status_code),
                 )
 
             raise Exception(f"HTTP错误 {status_code}: {url}")
@@ -292,7 +288,7 @@ class BaseAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code="connection_error"
+                    error_code="connection_error",
                 )
             raise Exception(f"请求失败: {str(e)}")
 
@@ -342,10 +338,7 @@ class BaseAdapter(ABC):
             if self.monitor:
                 duration = time.time() - start_time
                 self.monitor.record_api_call(
-                    self.platform,
-                    endpoint,
-                    success=True,
-                    duration=duration
+                    self.platform, endpoint, success=True, duration=duration
                 )
 
             return result
@@ -358,7 +351,7 @@ class BaseAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code="timeout"
+                    error_code="timeout",
                 )
             raise Exception(f"请求超时: {url}")
 
@@ -373,7 +366,7 @@ class BaseAdapter(ABC):
                         endpoint,
                         success=False,
                         duration=duration,
-                        error_code="rate_limit"
+                        error_code="rate_limit",
                     )
                 raise Exception(f"API限流: {url}")
 
@@ -391,7 +384,7 @@ class BaseAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code=str(status_code)
+                    error_code=str(status_code),
                 )
 
             raise Exception(f"HTTP错误 {status_code}: {url}")
@@ -404,7 +397,7 @@ class BaseAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code="connection_error"
+                    error_code="connection_error",
                 )
             raise Exception(f"请求失败: {str(e)}")
 
@@ -469,7 +462,14 @@ class BaseAdapter(ABC):
 
         status_map = {
             "onsale": ["在售", "销售中", "有货", "active", "published"],
-            "offshelf": ["下架", "已下架", "offshelf", "inactive", "discontinued", "draft"],
+            "offshelf": [
+                "下架",
+                "已下架",
+                "offshelf",
+                "inactive",
+                "discontinued",
+                "draft",
+            ],
         }
 
         for erp_status, keywords in status_map.items():

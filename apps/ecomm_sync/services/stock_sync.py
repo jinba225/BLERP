@@ -138,7 +138,9 @@ class StockSyncService:
                         continue
 
                     listings = ProductListing.objects.filter(
-                        product=queue.product, platform=queue.platform, sync_enabled=True
+                        product=queue.product,
+                        platform=queue.platform,
+                        sync_enabled=True,
                     )
 
                     for listing in listings:

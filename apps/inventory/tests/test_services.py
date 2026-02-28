@@ -2,6 +2,7 @@
 Inventory模块 - 服务层测试
 测试StockAdjustmentService, StockTransferService, StockCountService, InboundOrderService业务逻辑
 """
+
 from datetime import date
 from decimal import Decimal
 

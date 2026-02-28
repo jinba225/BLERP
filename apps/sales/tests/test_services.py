@@ -2,6 +2,7 @@
 Sales模块 - 服务层测试
 测试QuoteService, OrderService和订单审核业务逻辑
 """
+
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -360,7 +361,11 @@ class OrderServiceTestCase(SalesServiceTestCaseBase):
                 "quantity": Decimal("2"),
                 "unit_price": Decimal("100000.00"),
             },
-            {"product": self.product2, "quantity": Decimal("5"), "unit_price": Decimal("10000.00")},
+            {
+                "product": self.product2,
+                "quantity": Decimal("5"),
+                "unit_price": Decimal("10000.00"),
+            },
         ]
 
         order = OrderService.create_order(self.user, order_data, items_data)
@@ -402,7 +407,11 @@ class OrderServiceTestCase(SalesServiceTestCaseBase):
             },
             {},  # 空明细（没有product）
             {"product_id": None},  # 空product_id
-            {"product": self.product2, "quantity": Decimal("2"), "unit_price": Decimal("10000.00")},
+            {
+                "product": self.product2,
+                "quantity": Decimal("2"),
+                "unit_price": Decimal("10000.00"),
+            },
         ]
 
         order = OrderService.create_order(self.user, order_data, items_data)
@@ -413,9 +422,17 @@ class OrderServiceTestCase(SalesServiceTestCaseBase):
     def test_update_order_basic(self):
         """测试更新销售订单"""
         # 创建订单
-        order_data = {"customer": self.customer, "order_date": date.today(), "status": "draft"}
+        order_data = {
+            "customer": self.customer,
+            "order_date": date.today(),
+            "status": "draft",
+        }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("100000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("100000.00"),
+            }
         ]
         order = OrderService.create_order(self.user, order_data, items_data)
         original_number = order.order_number
@@ -423,8 +440,16 @@ class OrderServiceTestCase(SalesServiceTestCaseBase):
         # 更新订单
         update_data = {"status": "confirmed", "notes": "客户确认订单"}
         new_items_data = [
-            {"product": self.product1, "quantity": Decimal("2"), "unit_price": Decimal("95000.00")},
-            {"product": self.product2, "quantity": Decimal("3"), "unit_price": Decimal("10000.00")},
+            {
+                "product": self.product1,
+                "quantity": Decimal("2"),
+                "unit_price": Decimal("95000.00"),
+            },
+            {
+                "product": self.product2,
+                "quantity": Decimal("3"),
+                "unit_price": Decimal("10000.00"),
+            },
         ]
 
         updated_order = OrderService.update_order(order, self.user, update_data, new_items_data)
@@ -527,7 +552,11 @@ class SalesOrderApprovalTestCase(SalesServiceTestCaseBase):
     def test_approve_order_basic(self):
         """测试基础订单审核流程"""
         # 创建订单
-        order_data = {"customer": self.customer, "order_date": date.today(), "status": "draft"}
+        order_data = {
+            "customer": self.customer,
+            "order_date": date.today(),
+            "status": "draft",
+        }
         items_data = [
             {
                 "product": self.product1,
@@ -571,9 +600,17 @@ class SalesOrderApprovalTestCase(SalesServiceTestCaseBase):
     def test_approve_order_already_approved(self):
         """测试重复审核订单"""
         # 创建并审核订单
-        order_data = {"customer": self.customer, "order_date": date.today(), "status": "draft"}
+        order_data = {
+            "customer": self.customer,
+            "order_date": date.today(),
+            "status": "draft",
+        }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("100000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("100000.00"),
+            }
         ]
         order = OrderService.create_order(self.user, order_data, items_data)
         order.calculate_totals()
@@ -605,9 +642,17 @@ class SalesOrderApprovalTestCase(SalesServiceTestCaseBase):
         Warehouse.objects.all().delete()
 
         # 创建订单
-        order_data = {"customer": self.customer, "order_date": date.today(), "status": "draft"}
+        order_data = {
+            "customer": self.customer,
+            "order_date": date.today(),
+            "status": "draft",
+        }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("100000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("100000.00"),
+            }
         ]
         order = OrderService.create_order(self.user, order_data, items_data)
         order.calculate_totals()
@@ -625,9 +670,17 @@ class SalesOrderApprovalTestCase(SalesServiceTestCaseBase):
         config.save()
 
         # 创建订单
-        order_data = {"customer": self.customer, "order_date": date.today(), "status": "draft"}
+        order_data = {
+            "customer": self.customer,
+            "order_date": date.today(),
+            "status": "draft",
+        }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("100000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("100000.00"),
+            }
         ]
         order = OrderService.create_order(self.user, order_data, items_data)
         order.calculate_totals()
@@ -657,7 +710,11 @@ class SalesOrderApprovalTestCase(SalesServiceTestCaseBase):
             "payment_terms": "net_30",
         }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("100000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("100000.00"),
+            }
         ]
         order = OrderService.create_order(self.user, order_data, items_data)
         order.calculate_totals()
@@ -680,7 +737,11 @@ class SalesOrderApprovalTestCase(SalesServiceTestCaseBase):
             "payment_terms": "net_60",
         }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("100000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("100000.00"),
+            }
         ]
         order = OrderService.create_order(self.user, order_data, items_data)
         order.calculate_totals()
@@ -696,9 +757,17 @@ class SalesOrderApprovalTestCase(SalesServiceTestCaseBase):
     def test_approve_order_with_customer_contact_info(self):
         """测试审核订单时使用客户联系人信息"""
         # 创建订单（不指定收货人）
-        order_data = {"customer": self.customer, "order_date": date.today(), "status": "draft"}
+        order_data = {
+            "customer": self.customer,
+            "order_date": date.today(),
+            "status": "draft",
+        }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("100000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("100000.00"),
+            }
         ]
         order = OrderService.create_order(self.user, order_data, items_data)
         order.calculate_totals()
@@ -718,9 +787,17 @@ class SalesOrderUnapprovalTestCase(SalesServiceTestCaseBase):
     def test_unapprove_order_basic(self):
         """测试基础撤销审核流程"""
         # 创建并审核订单
-        order_data = {"customer": self.customer, "order_date": date.today(), "status": "draft"}
+        order_data = {
+            "customer": self.customer,
+            "order_date": date.today(),
+            "status": "draft",
+        }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("100000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("100000.00"),
+            }
         ]
         order = OrderService.create_order(self.user, order_data, items_data)
         order.calculate_totals()
@@ -749,9 +826,17 @@ class SalesOrderUnapprovalTestCase(SalesServiceTestCaseBase):
     def test_unapprove_order_with_shipped_delivery(self):
         """测试撤销审核时发货单已发货（应该失败）"""
         # 创建并审核订单
-        order_data = {"customer": self.customer, "order_date": date.today(), "status": "draft"}
+        order_data = {
+            "customer": self.customer,
+            "order_date": date.today(),
+            "status": "draft",
+        }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("100000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("100000.00"),
+            }
         ]
         order = OrderService.create_order(self.user, order_data, items_data)
         order.calculate_totals()
@@ -770,9 +855,17 @@ class SalesOrderUnapprovalTestCase(SalesServiceTestCaseBase):
     def test_unapprove_order_with_paid_account(self):
         """测试撤销审核时应收账款已收款（应该失败）"""
         # 创建并审核订单
-        order_data = {"customer": self.customer, "order_date": date.today(), "status": "draft"}
+        order_data = {
+            "customer": self.customer,
+            "order_date": date.today(),
+            "status": "draft",
+        }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("100000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("100000.00"),
+            }
         ]
         order = OrderService.create_order(self.user, order_data, items_data)
         order.calculate_totals()

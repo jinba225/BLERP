@@ -1,6 +1,7 @@
 """
 Sales models for the ERP system.
 """
+
 from datetime import timedelta
 from decimal import Decimal
 
@@ -77,11 +78,19 @@ class SalesOrder(BaseModel):
 
     # Financial information
     subtotal = models.DecimalField(
-        "含税小计", max_digits=12, decimal_places=2, default=0, help_text="所有明细的含税金额之和"
+        "含税小计",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="所有明细的含税金额之和",
     )
     tax_rate = models.DecimalField("税率(%)", max_digits=5, decimal_places=2, default=13)
     tax_amount = models.DecimalField(
-        "税额", max_digits=12, decimal_places=2, default=0, help_text="从含税价格反推得出"
+        "税额",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="从含税价格反推得出",
     )
     discount_rate = models.DecimalField("折扣率(%)", max_digits=5, decimal_places=2, default=0)
     discount_amount = models.DecimalField("折扣金额", max_digits=12, decimal_places=2, default=0)
@@ -89,7 +98,11 @@ class SalesOrder(BaseModel):
         "运费", max_digits=12, decimal_places=2, default=0, help_text="含税运费"
     )
     total_amount = models.DecimalField(
-        "含税总金额", max_digits=12, decimal_places=2, default=0, help_text="客户实际支付金额（含税）"
+        "含税总金额",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="客户实际支付金额（含税）",
     )
     currency = models.CharField("币种", max_length=10, default="CNY")
 
@@ -369,7 +382,10 @@ class SalesOrderItem(BaseModel):
     """
 
     order = models.ForeignKey(
-        SalesOrder, on_delete=models.CASCADE, related_name="items", verbose_name="销售订单"
+        SalesOrder,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="销售订单",
     )
     product = models.ForeignKey("products.Product", on_delete=models.CASCADE, verbose_name="产品")
     quantity = models.IntegerField("数量")
@@ -442,7 +458,10 @@ class Quote(BaseModel):
     quote_number = models.CharField("报价单号", max_length=100, unique=True)
     quote_type = models.CharField("报价类型", max_length=20, choices=QUOTE_TYPES, default="domestic")
     customer = models.ForeignKey(
-        "customers.Customer", on_delete=models.CASCADE, related_name="quotes", verbose_name="客户"
+        "customers.Customer",
+        on_delete=models.CASCADE,
+        related_name="quotes",
+        verbose_name="客户",
     )
     contact_person = models.ForeignKey(
         "customers.CustomerContact",
@@ -471,19 +490,35 @@ class Quote(BaseModel):
     currency = models.CharField("币种", max_length=10, default="CNY")
     exchange_rate = models.DecimalField("汇率", max_digits=10, decimal_places=4, default=1.0000)
     subtotal = models.DecimalField(
-        "含税小计", max_digits=12, decimal_places=2, default=0, help_text="所有明细的含税金额之和"
+        "含税小计",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="所有明细的含税金额之和",
     )
     tax_rate = models.DecimalField("税率(%)", max_digits=5, decimal_places=2, default=13)
     tax_amount = models.DecimalField(
-        "税额", max_digits=12, decimal_places=2, default=0, help_text="从含税价格反推得出"
+        "税额",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="从含税价格反推得出",
     )
     discount_rate = models.DecimalField("折扣率(%)", max_digits=5, decimal_places=2, default=0)
     discount_amount = models.DecimalField("折扣金额", max_digits=12, decimal_places=2, default=0)
     total_amount = models.DecimalField(
-        "含税总金额", max_digits=12, decimal_places=2, default=0, help_text="客户实际支付金额（含税）"
+        "含税总金额",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="客户实际支付金额（含税）",
     )
     total_amount_cny = models.DecimalField(
-        "总金额(CNY)", max_digits=12, decimal_places=2, default=0, help_text="自动转换为人民币"
+        "总金额(CNY)",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        help_text="自动转换为人民币",
     )
 
     # Terms and conditions
@@ -497,7 +532,11 @@ class Quote(BaseModel):
 
     # Conversion information
     converted_order = models.ForeignKey(
-        SalesOrder, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="转换的订单"
+        SalesOrder,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="转换的订单",
     )
 
     class Meta:
@@ -653,7 +692,11 @@ class QuoteItem(BaseModel):
     discount_rate = models.DecimalField("折扣率(%)", max_digits=5, decimal_places=2, default=0)
     discount_amount = models.DecimalField("折扣金额", max_digits=12, decimal_places=2, default=0)
     tax_rate = models.DecimalField(
-        "税率(%)", max_digits=5, decimal_places=2, default=13, help_text="增值税税率，默认13%"
+        "税率(%)",
+        max_digits=5,
+        decimal_places=2,
+        default=13,
+        help_text="增值税税率，默认13%",
     )
     line_total = models.DecimalField(
         "含税小计", max_digits=12, decimal_places=2, default=0, help_text="含税金额"
@@ -712,7 +755,10 @@ class Delivery(BaseModel):
     # Delivery information
     delivery_number = models.CharField("发货单号", max_length=100, unique=True)
     sales_order = models.ForeignKey(
-        SalesOrder, on_delete=models.CASCADE, related_name="deliveries", verbose_name="销售订单"
+        SalesOrder,
+        on_delete=models.CASCADE,
+        related_name="deliveries",
+        verbose_name="销售订单",
     )
     status = models.CharField("状态", max_length=20, choices=DELIVERY_STATUS, default="preparing")
 
@@ -870,10 +916,17 @@ class SalesReturn(BaseModel):
     # Return information
     return_number = models.CharField("退货单号", max_length=100, unique=True)
     sales_order = models.ForeignKey(
-        SalesOrder, on_delete=models.CASCADE, related_name="returns", verbose_name="原销售订单"
+        SalesOrder,
+        on_delete=models.CASCADE,
+        related_name="returns",
+        verbose_name="原销售订单",
     )
     delivery = models.ForeignKey(
-        Delivery, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="原发货单"
+        Delivery,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="原发货单",
     )
     status = models.CharField("状态", max_length=20, choices=RETURN_STATUS, default="pending")
     reason = models.CharField("退货原因", max_length=20, choices=RETURN_REASONS)
@@ -920,7 +973,10 @@ class SalesReturnItem(BaseModel):
     """
 
     return_order = models.ForeignKey(
-        SalesReturn, on_delete=models.CASCADE, related_name="items", verbose_name="退货单"
+        SalesReturn,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="退货单",
     )
     order_item = models.ForeignKey(SalesOrderItem, on_delete=models.CASCADE, verbose_name="原订单明细")
     quantity = models.DecimalField("退货数量", max_digits=12, decimal_places=4)
@@ -959,7 +1015,8 @@ class SalesReturnItem(BaseModel):
                 # 计算除当前项外的其他退货项数量
                 existing_return_quantity = (
                     SalesReturnItem.objects.filter(
-                        order_item=self.order_item, return_order__sales_order=self.order_item.order
+                        order_item=self.order_item,
+                        return_order__sales_order=self.order_item.order,
                     )
                     .exclude(pk=self.pk)
                     .aggregate(total=models.Sum("quantity"))["total"]
@@ -969,7 +1026,8 @@ class SalesReturnItem(BaseModel):
                 # 计算所有现有退货项数量
                 existing_return_quantity = (
                     SalesReturnItem.objects.filter(
-                        order_item=self.order_item, return_order__sales_order=self.order_item.order
+                        order_item=self.order_item,
+                        return_order__sales_order=self.order_item.order,
                     ).aggregate(total=models.Sum("quantity"))["total"]
                     or 0
                 )
@@ -1117,10 +1175,19 @@ class SalesLoanItem(BaseModel):
 
     # 转销售时的定价（手动输入）
     conversion_unit_price = models.DecimalField(
-        "转销售单价", max_digits=10, decimal_places=2, null=True, blank=True, help_text="转销售时手动输入的含税单价"
+        "转销售单价",
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="转销售时手动输入的含税单价",
     )
     conversion_quantity = models.DecimalField(
-        "转销售数量", max_digits=12, decimal_places=4, default=0, help_text="已转销售的数量"
+        "转销售数量",
+        max_digits=12,
+        decimal_places=4,
+        default=0,
+        help_text="已转销售的数量",
     )
 
     # 附加信息

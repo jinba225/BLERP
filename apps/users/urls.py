@@ -1,6 +1,7 @@
 """
 Users app URLs.
 """
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -39,9 +40,15 @@ urlpatterns = [
     path("roles/<int:pk>/edit/", views.role_update, name="role_update"),
     path("roles/<int:pk>/delete/", views.role_delete, name="role_delete"),
     path("roles/<int:pk>/permissions/", views.role_permissions, name="role_permissions"),
-    path("roles/<int:pk>/assign-users/", views.role_assign_users, name="role_assign_users"),
     path(
-        "roles/<int:pk>/remove-user/<int:user_id>/", views.role_remove_user, name="role_remove_user"
+        "roles/<int:pk>/assign-users/",
+        views.role_assign_users,
+        name="role_assign_users",
+    ),
+    path(
+        "roles/<int:pk>/remove-user/<int:user_id>/",
+        views.role_remove_user,
+        name="role_remove_user",
     ),
     # Frontend views - Login Logs
     path("login-logs/", views.login_log_list, name="login_log_list"),

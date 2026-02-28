@@ -3,6 +3,7 @@ TikTok Shop电商平台适配器
 
 TikTok Shop是TikTok旗下的电商平台
 """
+
 import base64
 import hashlib
 import hmac
@@ -120,7 +121,11 @@ class TikTokAdapter(BaseAdapter):
 
     def get_order(self, order_id: str) -> Dict:
         """获取单个订单"""
-        params = {"app_key": self.app_key, "shop_id": self.shop_id, "order_id": order_id}
+        params = {
+            "app_key": self.app_key,
+            "shop_id": self.shop_id,
+            "order_id": order_id,
+        }
 
         path = "/api/v1/orders/query"
         signature = self._generate_signature(path, params)
@@ -181,7 +186,11 @@ class TikTokAdapter(BaseAdapter):
 
     def get_product(self, product_id: str) -> Dict:
         """获取单个商品"""
-        params = {"app_key": self.app_key, "shop_id": self.shop_id, "product_id": product_id}
+        params = {
+            "app_key": self.app_key,
+            "shop_id": self.shop_id,
+            "product_id": product_id,
+        }
 
         path = "/api/v1/products/query"
         signature = self._generate_signature(path, params)

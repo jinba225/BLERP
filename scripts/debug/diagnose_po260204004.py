@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """诊断订单 PO260204004 的应付账款生成情况"""
+
 import os
 
 import django

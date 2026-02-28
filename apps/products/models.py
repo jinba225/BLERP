@@ -1,6 +1,7 @@
 """
 Product models for the ERP system.
 """
+
 from core.models import BaseModel
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
@@ -181,10 +182,18 @@ class Product(BaseModel):
 
     # Pricing
     cost_price = models.DecimalField(
-        "成本价", max_digits=12, decimal_places=2, default=0, validators=[MinValueValidator(0)]
+        "成本价",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)],
     )
     selling_price = models.DecimalField(
-        "销售价", max_digits=12, decimal_places=2, default=0, validators=[MinValueValidator(0)]
+        "销售价",
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)],
     )
 
     # Inventory settings
@@ -288,10 +297,16 @@ class ProductAttributeValue(BaseModel):
     """
 
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="attribute_values", verbose_name="产品"
+        Product,
+        on_delete=models.CASCADE,
+        related_name="attribute_values",
+        verbose_name="产品",
     )
     attribute = models.ForeignKey(
-        ProductAttribute, on_delete=models.CASCADE, related_name="values", verbose_name="属性"
+        ProductAttribute,
+        on_delete=models.CASCADE,
+        related_name="values",
+        verbose_name="属性",
     )
     value = models.TextField("属性值")
 
@@ -318,7 +333,10 @@ class ProductPrice(BaseModel):
     ]
 
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="price_history", verbose_name="产品"
+        Product,
+        on_delete=models.CASCADE,
+        related_name="price_history",
+        verbose_name="产品",
     )
     price_type = models.CharField("价格类型", max_length=20, choices=PRICE_TYPES)
     price = models.DecimalField("价格", max_digits=12, decimal_places=2)

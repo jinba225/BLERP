@@ -407,7 +407,10 @@ def main():
 
     parser = argparse.ArgumentParser(description="Django ERP AI Assistant CLI")
     parser.add_argument(
-        "--mode", choices=["cli", "test"], default="cli", help="运行模式: cli=交互式命令行, test=批量测试"
+        "--mode",
+        choices=["cli", "test"],
+        default="cli",
+        help="运行模式: cli=交互式命令行, test=批量测试",
     )
     parser.add_argument("--user", default="test_user", help="测试用户名")
 

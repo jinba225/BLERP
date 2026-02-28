@@ -1,6 +1,7 @@
 """
 BI报表数据模型
 """
+
 from core.models import BaseModel, Platform, Shop
 from django.db import models
 from ecomm_sync.models import PlatformAccount
@@ -76,7 +77,10 @@ class ReportData(BaseModel):
     """报表数据缓存"""
 
     report = models.ForeignKey(
-        Report, on_delete=models.CASCADE, related_name="data_records", verbose_name="报表"
+        Report,
+        on_delete=models.CASCADE,
+        related_name="data_records",
+        verbose_name="报表",
     )
     data = models.JSONField("报表数据", default=dict)
     row_count = models.PositiveIntegerField("数据行数", default=0)
@@ -103,7 +107,10 @@ class SalesSummary(BaseModel):
     """销售汇总数据"""
 
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="sales_summaries", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="sales_summaries",
+        verbose_name="平台",
     )
     platform_account = models.ForeignKey(
         PlatformAccount,
@@ -117,7 +124,10 @@ class SalesSummary(BaseModel):
     # 时间维度
     report_date = models.DateField("报表日期", db_index=True)
     report_period = models.CharField(
-        "报表周期", max_length=20, default="daily", help_text="daily=日, weekly=周, monthly=月"
+        "报表周期",
+        max_length=20,
+        default="daily",
+        help_text="daily=日, weekly=周, monthly=月",
     )
 
     # 销售指标
@@ -159,10 +169,16 @@ class ProductSales(BaseModel):
     """商品销售数据"""
 
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="sales_data", verbose_name="商品"
+        Product,
+        on_delete=models.CASCADE,
+        related_name="sales_data",
+        verbose_name="商品",
     )
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="product_sales", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="product_sales",
+        verbose_name="平台",
     )
 
     # 时间维度
@@ -198,10 +214,16 @@ class InventoryAnalysis(BaseModel):
     """库存分析数据"""
 
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="inventory_analysis", verbose_name="商品"
+        Product,
+        on_delete=models.CASCADE,
+        related_name="inventory_analysis",
+        verbose_name="商品",
     )
     shop = models.ForeignKey(
-        Shop, on_delete=models.CASCADE, related_name="inventory_analysis", verbose_name="仓库"
+        Shop,
+        on_delete=models.CASCADE,
+        related_name="inventory_analysis",
+        verbose_name="仓库",
     )
     platform = models.ForeignKey(
         Platform,
@@ -227,7 +249,12 @@ class InventoryAnalysis(BaseModel):
         "库存状态",
         max_length=20,
         default="normal",
-        choices=[("normal", "正常"), ("low", "低库存"), ("out", "缺货"), ("overstock", "积压")],
+        choices=[
+            ("normal", "正常"),
+            ("low", "低库存"),
+            ("out", "缺货"),
+            ("overstock", "积压"),
+        ],
     )
     days_of_stock = models.IntegerField("可销天数", default=0, help_text="当前库存可销售天数")
 
@@ -257,7 +284,10 @@ class PlatformComparison(BaseModel):
     report_period = models.CharField("报表周期", max_length=20, default="daily")
 
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="comparison_data", verbose_name="平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="comparison_data",
+        verbose_name="平台",
     )
     platform_account = models.ForeignKey(
         PlatformAccount,
@@ -343,7 +373,10 @@ class Dashboard(BaseModel):
     name = models.CharField("仪表盘名称", max_length=200)
     description = models.TextField("描述", blank=True)
     created_by = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name="dashboards", verbose_name="创建人"
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="dashboards",
+        verbose_name="创建人",
     )
 
     # 布局配置
@@ -358,7 +391,10 @@ class Dashboard(BaseModel):
     # 访问控制
     is_public = models.BooleanField("是否公开", default=False, help_text="公开仪表盘对所有用户可见")
     allowed_users = models.ManyToManyField(
-        "users.User", blank=True, related_name="accessible_dashboards", verbose_name="允许访问的用户"
+        "users.User",
+        blank=True,
+        related_name="accessible_dashboards",
+        verbose_name="允许访问的用户",
     )
 
     class Meta:
@@ -375,7 +411,10 @@ class DashboardWidgetConfig(BaseModel):
     """仪表盘组件配置"""
 
     dashboard = models.ForeignKey(
-        Dashboard, on_delete=models.CASCADE, related_name="widget_configs", verbose_name="仪表盘"
+        Dashboard,
+        on_delete=models.CASCADE,
+        related_name="widget_configs",
+        verbose_name="仪表盘",
     )
     widget = models.ForeignKey(
         DashboardWidget,
@@ -403,12 +442,16 @@ class SystemHealth(BaseModel):
     """系统健康状态"""
 
     # 系统指标
-    api_response_time = models.DecimalField("API响应时间(ms)", max_digits=10, decimal_places=2, default=0)
+    api_response_time = models.DecimalField(
+        "API响应时间(ms)", max_digits=10, decimal_places=2, default=0
+    )
     db_query_count = models.PositiveIntegerField("数据库查询次数", default=0)
     db_query_time = models.DecimalField("数据库查询时间(ms)", max_digits=10, decimal_places=2, default=0)
     cache_hit_rate = models.DecimalField("缓存命中率(%)", max_digits=5, decimal_places=2, default=0)
     celery_task_count = models.PositiveIntegerField("Celery任务数", default=0)
-    celery_task_success_rate = models.DecimalField("Celery任务成功率(%)", max_digits=5, decimal_places=2, default=0)
+    celery_task_success_rate = models.DecimalField(
+        "Celery任务成功率(%)", max_digits=5, decimal_places=2, default=0
+    )
     active_users = models.PositiveIntegerField("活跃用户数", default=0)
     memory_usage = models.DecimalField("内存使用率(%)", max_digits=5, decimal_places=2, default=0)
     cpu_usage = models.DecimalField("CPU使用率(%)", max_digits=5, decimal_places=2, default=0)
@@ -479,7 +522,7 @@ class TaskPerformance(BaseModel):
         max_length=20,
         default="success",
         choices=[("success", "成功"), ("failed", "失败")],
-        db_index=True
+        db_index=True,
     )
     error_message = models.TextField("错误信息", blank=True)
     args = models.CharField("任务参数", max_length=255, blank=True)

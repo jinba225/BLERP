@@ -80,8 +80,16 @@ class TestSalesFlowE2E:
             user=admin,
             customer=test_customer,
             items_data=[
-                {"product": product1, "quantity": Decimal("100"), "unit_price": Decimal("150.00")},
-                {"product": product2, "quantity": Decimal("50"), "unit_price": Decimal("200.00")},
+                {
+                    "product": product1,
+                    "quantity": Decimal("100"),
+                    "unit_price": Decimal("150.00"),
+                },
+                {
+                    "product": product2,
+                    "quantity": Decimal("50"),
+                    "unit_price": Decimal("200.00"),
+                },
             ],
         )
 
@@ -94,8 +102,14 @@ class TestSalesFlowE2E:
 
         # 3. 创建发货单（一次性发货）
         delivery_items = [
-            {"order_item": order.items.get(product=product1), "quantity": Decimal("100")},
-            {"order_item": order.items.get(product=product2), "quantity": Decimal("50")},
+            {
+                "order_item": order.items.get(product=product1),
+                "quantity": Decimal("100"),
+            },
+            {
+                "order_item": order.items.get(product=product2),
+                "quantity": Decimal("50"),
+            },
         ]
 
         delivery = FixtureFactory.create_sales_delivery(
@@ -245,7 +259,11 @@ class TestSalesFlowE2E:
             user=admin,
             customer=test_customer,
             items_data=[
-                {"product": product1, "quantity": Decimal("100"), "unit_price": Decimal("150.00")}
+                {
+                    "product": product1,
+                    "quantity": Decimal("100"),
+                    "unit_price": Decimal("150.00"),
+                }
             ],
         )
 
@@ -405,7 +423,11 @@ class TestSalesFlowE2E:
             user=admin,
             customer=test_customer,
             items_data=[
-                {"product": product1, "quantity": Decimal("100"), "unit_price": Decimal("150.00")}
+                {
+                    "product": product1,
+                    "quantity": Decimal("100"),
+                    "unit_price": Decimal("150.00"),
+                }
             ],
         )
 
@@ -590,7 +612,11 @@ class TestSalesFlowE2E:
             user=admin,
             customer=test_customer,
             items_data=[
-                {"product": product1, "quantity": Decimal("100"), "unit_price": Decimal("150.00")}
+                {
+                    "product": product1,
+                    "quantity": Decimal("100"),
+                    "unit_price": Decimal("150.00"),
+                }
             ],
         )
 

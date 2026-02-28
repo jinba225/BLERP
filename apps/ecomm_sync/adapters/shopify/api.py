@@ -80,7 +80,9 @@ class ShopifyAdapter(BaseAdapter):
                 }
 
                 response = self._make_request(
-                    "POST", f"/orders/{order_id}/fulfillments.json", data=fulfillment_data
+                    "POST",
+                    f"/orders/{order_id}/fulfillments.json",
+                    data=fulfillment_data,
                 )
 
                 return "fulfillment" in response

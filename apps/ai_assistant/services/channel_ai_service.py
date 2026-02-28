@@ -182,7 +182,9 @@ class ChannelAIService:
 
         try:
             reply, completed = self.conversation_manager.process_message(
-                session_id=session_id, user_id=self.user.id, user_message=message.content
+                session_id=session_id,
+                user_id=self.user.id,
+                user_message=message.content,
             )
 
             # 3. 更新用户 AI 配置统计

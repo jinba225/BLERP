@@ -17,9 +17,9 @@ Sales模块是ERP系统的核心业务模块，负责完整的销售流程管理
 
 ### 模型文件
 - **主文件**: `models.py`
-- **核心模型**: 
+- **核心模型**:
   - `Quote` - 报价单
-  - `SalesOrder` - 销售订单  
+  - `SalesOrder` - 销售订单
   - `Delivery` - 发货单
   - `SalesReturn` - 退货单
 
@@ -225,7 +225,7 @@ apps/sales/tests/  # 测试目录 (需要创建)
 templates/sales/
 ├── quote_list.html          # 报价单列表
 ├── quote_form.html          # 报价单编辑
-├── quote_detail.html        # 报价单详情  
+├── quote_detail.html        # 报价单详情
 ├── quote_print.html         # 报价单打印
 ├── order_list.html          # 订单列表
 ├── order_form.html          # 订单编辑

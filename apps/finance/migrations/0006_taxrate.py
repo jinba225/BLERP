@@ -21,13 +21,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "name",
                     models.CharField(
@@ -40,7 +55,10 @@ class Migration(migrations.Migration):
                 (
                     "code",
                     models.CharField(
-                        help_text="例如：VAT_13、VAT_9", max_length=50, unique=True, verbose_name="税率代码"
+                        help_text="例如：VAT_13、VAT_9",
+                        max_length=50,
+                        unique=True,
+                        verbose_name="税率代码",
                     ),
                 ),
                 (
@@ -72,24 +90,39 @@ class Migration(migrations.Migration):
                 (
                     "is_default",
                     models.BooleanField(
-                        default=False, help_text="每种税种只能有一个默认税率", verbose_name="是否默认税率"
+                        default=False,
+                        help_text="每种税种只能有一个默认税率",
+                        verbose_name="是否默认税率",
                     ),
                 ),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 (
                     "description",
-                    models.TextField(blank=True, help_text="说明该税率的适用范围和条件", verbose_name="适用说明"),
+                    models.TextField(
+                        blank=True,
+                        help_text="说明该税率的适用范围和条件",
+                        verbose_name="适用说明",
+                    ),
                 ),
                 (
                     "effective_date",
                     models.DateField(
-                        blank=True, help_text="税率开始生效的日期", null=True, verbose_name="生效日期"
+                        blank=True,
+                        help_text="税率开始生效的日期",
+                        null=True,
+                        verbose_name="生效日期",
                     ),
                 ),
                 (
                     "expiry_date",
                     models.DateField(
-                        blank=True, help_text="税率失效的日期（如果有）", null=True, verbose_name="失效日期"
+                        blank=True,
+                        help_text="税率失效的日期（如果有）",
+                        null=True,
+                        verbose_name="失效日期",
                     ),
                 ),
                 (
@@ -137,7 +170,8 @@ class Migration(migrations.Migration):
                 "ordering": ["tax_type", "sort_order", "-rate"],
                 "indexes": [
                     models.Index(
-                        fields=["tax_type", "is_active"], name="finance_tax_tax_typ_97b1da_idx"
+                        fields=["tax_type", "is_active"],
+                        name="finance_tax_tax_typ_97b1da_idx",
                     ),
                     models.Index(fields=["is_default"], name="finance_tax_is_defa_73fe96_idx"),
                 ],

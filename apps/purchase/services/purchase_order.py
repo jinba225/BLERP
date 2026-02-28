@@ -10,7 +10,8 @@ class PurchaseOrderService:
     def create_order(user, order_data, items_data):
         if "order_number" not in order_data:
             order_data["order_number"] = DocumentNumberGenerator.generate(
-                "purchase_order", model_class=PurchaseOrder  # 使用完整的键名  # 传递模型类以支持重用已删除订单编号
+                "purchase_order",
+                model_class=PurchaseOrder,  # 使用完整的键名  # 传递模型类以支持重用已删除订单编号
             )
 
         order = PurchaseOrder(**order_data)

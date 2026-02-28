@@ -131,7 +131,10 @@ class SyncManager:
         self.woo_syncer = WooCommerceBatchSync()
 
     async def sync_platform_products(
-        self, platform: EcommPlatform, strategy_type: str = "incremental", limit: int = 100
+        self,
+        platform: EcommPlatform,
+        strategy_type: str = "incremental",
+        limit: int = 100,
     ) -> dict:
         """
         同步平台产品
@@ -166,7 +169,12 @@ class SyncManager:
                     platform=platform, product__isnull=False
                 )[:limit]
 
-            results = {"total": ecomm_products.count(), "succeeded": 0, "failed": 0, "errors": []}
+            results = {
+                "total": ecomm_products.count(),
+                "succeeded": 0,
+                "failed": 0,
+                "errors": [],
+            }
 
             for ecomm_product in ecomm_products:
                 try:

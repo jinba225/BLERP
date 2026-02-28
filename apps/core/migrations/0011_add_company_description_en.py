@@ -13,7 +13,9 @@ class Migration(migrations.Migration):
             model_name="company",
             name="description_en",
             field=models.TextField(
-                blank=True, help_text="英文公司描述", verbose_name="Company Description (English)"
+                blank=True,
+                help_text="英文公司描述",
+                verbose_name="Company Description (English)",
             ),
         ),
     ]

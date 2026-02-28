@@ -6,72 +6,288 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('bi', '0001_initial'),
+        ("bi", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ApiPerformance',
+            name="ApiPerformance",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('endpoint', models.CharField(db_index=True, max_length=255, verbose_name='API端点')),
-                ('method', models.CharField(db_index=True, max_length=10, verbose_name='HTTP方法')),
-                ('response_time', models.DecimalField(decimal_places=2, default=0, max_digits=10, verbose_name='响应时间(ms)')),
-                ('status_code', models.PositiveIntegerField(db_index=True, verbose_name='状态码')),
-                ('error_message', models.TextField(blank=True, verbose_name='错误信息')),
-                ('request_size', models.PositiveIntegerField(default=0, verbose_name='请求大小(bytes)')),
-                ('response_size', models.PositiveIntegerField(default=0, verbose_name='响应大小(bytes)')),
-                ('request_time', models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='请求时间')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "endpoint",
+                    models.CharField(db_index=True, max_length=255, verbose_name="API端点"),
+                ),
+                (
+                    "method",
+                    models.CharField(db_index=True, max_length=10, verbose_name="HTTP方法"),
+                ),
+                (
+                    "response_time",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=10,
+                        verbose_name="响应时间(ms)",
+                    ),
+                ),
+                (
+                    "status_code",
+                    models.PositiveIntegerField(db_index=True, verbose_name="状态码"),
+                ),
+                (
+                    "error_message",
+                    models.TextField(blank=True, verbose_name="错误信息"),
+                ),
+                (
+                    "request_size",
+                    models.PositiveIntegerField(default=0, verbose_name="请求大小(bytes)"),
+                ),
+                (
+                    "response_size",
+                    models.PositiveIntegerField(default=0, verbose_name="响应大小(bytes)"),
+                ),
+                (
+                    "request_time",
+                    models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="请求时间"),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'API性能监控',
-                'verbose_name_plural': 'API性能监控',
-                'db_table': 'bi_api_performance',
-                'ordering': ['-request_time'],
-                'indexes': [models.Index(fields=['endpoint', 'method'], name='bi_api_perf_endpoin_0fd405_idx'), models.Index(fields=['-request_time'], name='bi_api_perf_request_6620ad_idx'), models.Index(fields=['status_code'], name='bi_api_perf_status__cf9705_idx')],
+                "verbose_name": "API性能监控",
+                "verbose_name_plural": "API性能监控",
+                "db_table": "bi_api_performance",
+                "ordering": ["-request_time"],
+                "indexes": [
+                    models.Index(
+                        fields=["endpoint", "method"],
+                        name="bi_api_perf_endpoin_0fd405_idx",
+                    ),
+                    models.Index(fields=["-request_time"], name="bi_api_perf_request_6620ad_idx"),
+                    models.Index(fields=["status_code"], name="bi_api_perf_status__cf9705_idx"),
+                ],
             },
         ),
         migrations.CreateModel(
-            name='SystemHealth',
+            name="SystemHealth",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='是否删除')),
-                ('deleted_at', models.DateTimeField(blank=True, null=True, verbose_name='删除时间')),
-                ('api_response_time', models.DecimalField(decimal_places=2, default=0, max_digits=10, verbose_name='API响应时间(ms)')),
-                ('db_query_count', models.PositiveIntegerField(default=0, verbose_name='数据库查询次数')),
-                ('db_query_time', models.DecimalField(decimal_places=2, default=0, max_digits=10, verbose_name='数据库查询时间(ms)')),
-                ('cache_hit_rate', models.DecimalField(decimal_places=2, default=0, max_digits=5, verbose_name='缓存命中率(%)')),
-                ('celery_task_count', models.PositiveIntegerField(default=0, verbose_name='Celery任务数')),
-                ('celery_task_success_rate', models.DecimalField(decimal_places=2, default=0, max_digits=5, verbose_name='Celery任务成功率(%)')),
-                ('active_users', models.PositiveIntegerField(default=0, verbose_name='活跃用户数')),
-                ('memory_usage', models.DecimalField(decimal_places=2, default=0, max_digits=5, verbose_name='内存使用率(%)')),
-                ('cpu_usage', models.DecimalField(decimal_places=2, default=0, max_digits=5, verbose_name='CPU使用率(%)')),
-                ('status', models.CharField(choices=[('normal', '正常'), ('warning', '警告'), ('critical', '严重')], default='normal', max_length=20, verbose_name='系统状态')),
-                ('error_count', models.PositiveIntegerField(default=0, verbose_name='错误数')),
-                ('warning_count', models.PositiveIntegerField(default=0, verbose_name='警告数')),
-                ('record_time', models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='记录时间')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_created', to=settings.AUTH_USER_MODEL, verbose_name='创建人')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_deleted', to=settings.AUTH_USER_MODEL, verbose_name='删除人')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='%(class)s_updated', to=settings.AUTH_USER_MODEL, verbose_name='更新人')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "api_response_time",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=10,
+                        verbose_name="API响应时间(ms)",
+                    ),
+                ),
+                (
+                    "db_query_count",
+                    models.PositiveIntegerField(default=0, verbose_name="数据库查询次数"),
+                ),
+                (
+                    "db_query_time",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=10,
+                        verbose_name="数据库查询时间(ms)",
+                    ),
+                ),
+                (
+                    "cache_hit_rate",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=5,
+                        verbose_name="缓存命中率(%)",
+                    ),
+                ),
+                (
+                    "celery_task_count",
+                    models.PositiveIntegerField(default=0, verbose_name="Celery任务数"),
+                ),
+                (
+                    "celery_task_success_rate",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=5,
+                        verbose_name="Celery任务成功率(%)",
+                    ),
+                ),
+                (
+                    "active_users",
+                    models.PositiveIntegerField(default=0, verbose_name="活跃用户数"),
+                ),
+                (
+                    "memory_usage",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=5,
+                        verbose_name="内存使用率(%)",
+                    ),
+                ),
+                (
+                    "cpu_usage",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=5,
+                        verbose_name="CPU使用率(%)",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("normal", "正常"),
+                            ("warning", "警告"),
+                            ("critical", "严重"),
+                        ],
+                        default="normal",
+                        max_length=20,
+                        verbose_name="系统状态",
+                    ),
+                ),
+                (
+                    "error_count",
+                    models.PositiveIntegerField(default=0, verbose_name="错误数"),
+                ),
+                (
+                    "warning_count",
+                    models.PositiveIntegerField(default=0, verbose_name="警告数"),
+                ),
+                (
+                    "record_time",
+                    models.DateTimeField(auto_now_add=True, db_index=True, verbose_name="记录时间"),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_created",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_deleted",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="删除人",
+                    ),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="%(class)s_updated",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="更新人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '系统健康状态',
-                'verbose_name_plural': '系统健康状态',
-                'db_table': 'bi_system_health',
-                'ordering': ['-record_time'],
-                'indexes': [models.Index(fields=['-record_time'], name='bi_system_h_record__3c35ad_idx'), models.Index(fields=['status'], name='bi_system_h_status_9ae61d_idx')],
+                "verbose_name": "系统健康状态",
+                "verbose_name_plural": "系统健康状态",
+                "db_table": "bi_system_health",
+                "ordering": ["-record_time"],
+                "indexes": [
+                    models.Index(fields=["-record_time"], name="bi_system_h_record__3c35ad_idx"),
+                    models.Index(fields=["status"], name="bi_system_h_status_9ae61d_idx"),
+                ],
             },
         ),
     ]

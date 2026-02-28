@@ -1,6 +1,7 @@
 """
 Admin后台配置
 """
+
 from django.contrib import admin
 
 from .models import CollectItem, CollectTask, FieldMapRule, Platform, PricingRule, Shop
@@ -12,13 +13,40 @@ from .models import CollectItem, CollectTask, FieldMapRule, Platform, PricingRul
 class PlatformAdmin(admin.ModelAdmin):
     """平台配置管理"""
 
-    list_display = ["platform_name", "platform_code", "platform_type", "is_active", "created_at"]
+    list_display = [
+        "platform_name",
+        "platform_code",
+        "platform_type",
+        "is_active",
+        "created_at",
+    ]
     list_filter = ["platform_type", "is_active", "platform_code"]
     search_fields = ["platform_name", "platform_code"]
     readonly_fields = ["created_at", "updated_at", "created_by", "updated_by"]
     fieldsets = (
-        ("基础信息", {"fields": ("platform_name", "platform_code", "platform_type", "description")}),
-        ("API配置", {"fields": ("api_key", "api_secret", "api_url", "api_version", "auth_type")}),
+        (
+            "基础信息",
+            {
+                "fields": (
+                    "platform_name",
+                    "platform_code",
+                    "platform_type",
+                    "description",
+                )
+            },
+        ),
+        (
+            "API配置",
+            {
+                "fields": (
+                    "api_key",
+                    "api_secret",
+                    "api_url",
+                    "api_version",
+                    "auth_type",
+                )
+            },
+        ),
         (
             "OAuth配置",
             {
@@ -105,12 +133,21 @@ class CollectTaskAdmin(admin.ModelAdmin):
         ("采集配置", {"fields": ("collect_urls",)}),
         (
             "跨境同步配置",
-            {"fields": ("sync_cross", "cross_platform", "cross_shop"), "classes": ("collapse",)},
+            {
+                "fields": ("sync_cross", "cross_platform", "cross_shop"),
+                "classes": ("collapse",),
+            },
         ),
         (
             "统计信息",
             {
-                "fields": ("collect_num", "success_num", "fail_num", "success_rate", "duration"),
+                "fields": (
+                    "collect_num",
+                    "success_num",
+                    "fail_num",
+                    "success_rate",
+                    "duration",
+                ),
                 "classes": ("collapse",),
             },
         ),
@@ -123,7 +160,10 @@ class CollectTaskAdmin(admin.ModelAdmin):
         ),
         (
             "任务追踪",
-            {"fields": ("celery_task_id", "started_at", "completed_at"), "classes": ("collapse",)},
+            {
+                "fields": ("celery_task_id", "started_at", "completed_at"),
+                "classes": ("collapse",),
+            },
         ),
         (
             "审计信息",
@@ -159,9 +199,24 @@ class CollectItemAdmin(admin.ModelAdmin):
     ]
     fieldsets = (
         ("基础信息", {"fields": ("collect_task", "product", "collect_url")}),
-        ("采集信息", {"fields": ("item_name", "item_sku", "collect_status", "collected_at")}),
-        ("落地信息", {"fields": ("land_status", "land_error", "landed_at"), "classes": ("collapse",)}),
-        ("数据", {"fields": ("collect_data", "main_image", "images"), "classes": ("collapse",)}),
+        (
+            "采集信息",
+            {"fields": ("item_name", "item_sku", "collect_status", "collected_at")},
+        ),
+        (
+            "落地信息",
+            {
+                "fields": ("land_status", "land_error", "landed_at"),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "数据",
+            {
+                "fields": ("collect_data", "main_image", "images"),
+                "classes": ("collapse",),
+            },
+        ),
         (
             "审计信息",
             {
@@ -189,7 +244,17 @@ class FieldMapRuleAdmin(admin.ModelAdmin):
     search_fields = ["source_field", "target_field"]
     list_editable = ["sort_order", "is_active"]
     fieldsets = (
-        ("映射配置", {"fields": ("collect_platform", "target_type", "source_field", "target_field")}),
+        (
+            "映射配置",
+            {
+                "fields": (
+                    "collect_platform",
+                    "target_type",
+                    "source_field",
+                    "target_field",
+                )
+            },
+        ),
         ("映射规则", {"fields": ("rule_type", "map_rule", "sort_order")}),
         ("状态", {"fields": ("is_active", "description")}),
         (

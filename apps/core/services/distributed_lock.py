@@ -2,6 +2,7 @@
 分布式锁 - 基于Redis实现
 支持锁续期、死锁检测、超时自动释放
 """
+
 import asyncio
 import logging
 import time
@@ -119,7 +120,10 @@ class DistributedLock:
             try:
                 # 使用SET NX EX原子操作获取锁
                 acquired = self.redis_client.set(
-                    self.lock_key, self._lock_value, nx=True, ex=self.ttl  # 仅当键不存在时设置  # 过期时间（秒）
+                    self.lock_key,
+                    self._lock_value,
+                    nx=True,
+                    ex=self.ttl,  # 仅当键不存在时设置  # 过期时间（秒）
                 )
 
                 if acquired:

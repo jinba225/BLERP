@@ -1,6 +1,7 @@
 """
 Suppliers 模块的导入导出资源配置
 """
+
 from import_export import resources
 
 from .models import Supplier, SupplierContact

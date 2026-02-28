@@ -3,6 +3,7 @@
 
 定义物流适配器的统一接口
 """
+
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 

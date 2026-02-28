@@ -1,6 +1,7 @@
 """
 Inventory views for the ERP system.
 """
+
 from decimal import Decimal
 
 from django.contrib import messages
@@ -61,13 +62,13 @@ def stock_list(request):
     stock_status = request.GET.get("stock_status", "")
     if stock_status == "low":
         # Low stock: quantity <= min_stock
-        stocks = stocks.filter(quantity__lte=F('min_stock'))
+        stocks = stocks.filter(quantity__lte=F("min_stock"))
     elif stock_status == "out":
         # Out of stock: quantity = 0
         stocks = stocks.filter(quantity=0)
     elif stock_status == "normal":
         # Normal stock: quantity > min_stock
-        stocks = stocks.filter(quantity__gt=F('min_stock'))
+        stocks = stocks.filter(quantity__gt=F("min_stock"))
 
     # Calculate total stock value
     total_value = sum(stock.quantity * stock.cost_price for stock in stocks)
@@ -230,12 +231,25 @@ def warehouse_detail(request, pk):
     stocks = (
         InventoryStock.objects.filter(warehouse=warehouse, is_deleted=False)
         .select_related("product", "product__unit")
-        .only("id", "product__id", "product__code", "product__name", "product__unit__name", "quantity", "cost_price", "min_stock")
+        .only(
+            "id",
+            "product__id",
+            "product__code",
+            "product__name",
+            "product__unit__name",
+            "quantity",
+            "cost_price",
+            "min_stock",
+        )
         .order_by("product__code")
     )
 
     # Get locations for this warehouse
-    locations = Location.objects.filter(warehouse=warehouse, is_deleted=False).only("id", "code", "name", "is_active").order_by("code")
+    locations = (
+        Location.objects.filter(warehouse=warehouse, is_deleted=False)
+        .only("id", "code", "name", "is_active")
+        .order_by("code")
+    )
 
     # Calculate statistics
     total_items = stocks.count()
@@ -353,9 +367,11 @@ def location_create(request, warehouse_pk):
                 shelf=request.POST.get("shelf", ""),
                 level=request.POST.get("level", ""),
                 position=request.POST.get("position", ""),
-                capacity=Decimal(request.POST.get("capacity") or "0")
-                if request.POST.get("capacity")
-                else None,
+                capacity=(
+                    Decimal(request.POST.get("capacity") or "0")
+                    if request.POST.get("capacity")
+                    else None
+                ),
                 is_active=request.POST.get("is_active") == "on",
                 created_by=request.user,
             )
@@ -457,7 +473,12 @@ def adjustment_detail(request, pk):
     """Display stock adjustment details."""
     adjustment = get_object_or_404(
         StockAdjustment.objects.filter(is_deleted=False).select_related(
-            "product", "warehouse", "location", "approved_by", "created_by", "updated_by"
+            "product",
+            "warehouse",
+            "location",
+            "approved_by",
+            "created_by",
+            "updated_by",
         ),
         pk=pk,
     )
@@ -1041,7 +1062,10 @@ def transfer_receive(request, pk):
 
             StockTransferService.receive_transfer(transfer, request.user, received_quantities)
 
-            messages.success(request, f"调拨单 {transfer.transfer_number} 已完成收货！目标仓库库存已增加")
+            messages.success(
+                request,
+                f"调拨单 {transfer.transfer_number} 已完成收货！目标仓库库存已增加",
+            )
             return redirect("inventory:transfer_detail", pk=transfer.pk)
 
         except Exception as e:
@@ -2431,9 +2455,11 @@ def stock_alert_report(request):
             {
                 "stock": stock,
                 "shortage": shortage,
-                "shortage_rate": (shortage / stock.product.safety_stock * 100)
-                if stock.product.safety_stock > 0
-                else 0,
+                "shortage_rate": (
+                    (shortage / stock.product.safety_stock * 100)
+                    if stock.product.safety_stock > 0
+                    else 0
+                ),
             }
         )
 
@@ -2882,7 +2908,10 @@ def stock_import_submit(request):
                 created_by=request.user,
             )
 
-            messages.success(request, f"库存导入成功：{product.name} 数量 {quantity} 已添加到 {warehouse.name}")
+            messages.success(
+                request,
+                f"库存导入成功：{product.name} 数量 {quantity} 已添加到 {warehouse.name}",
+            )
             return redirect("inventory:stock_import")
 
         except Exception as e:
@@ -3128,7 +3157,8 @@ def data_export(request):
 
     except ImportError as e:
         messages.error(
-            request, f"缺少必要的库：{str(e)}。请安装 pandas 和 openpyxl：pip install pandas openpyxl"
+            request,
+            f"缺少必要的库：{str(e)}。请安装 pandas 和 openpyxl：pip install pandas openpyxl",
         )
         return redirect("inventory:stock_import")
     except Exception as e:
@@ -3216,7 +3246,10 @@ def data_import(request):
                     if brand_name:
                         brand, _ = Brand.objects.get_or_create(
                             name=brand_name,
-                            defaults={"code": brand_name[:50], "created_by": request.user},
+                            defaults={
+                                "code": brand_name[:50],
+                                "created_by": request.user,
+                            },
                         )
 
                     unit_symbol = str(row.get("单位", "")).strip()
@@ -3236,22 +3269,26 @@ def data_import(request):
                         status=str(row.get("状态", "active")).strip() or "active",
                         specifications=str(row.get("规格", "")).strip(),
                         model=str(row.get("型号", "")).strip(),
-                        cost_price=Decimal(str(row.get("成本价", 0)))
-                        if pd.notna(row.get("成本价"))
-                        else Decimal("0"),
-                        selling_price=Decimal(str(row.get("销售价", 0)))
-                        if pd.notna(row.get("销售价"))
-                        else Decimal("0"),
-                        min_stock=int(row.get("最小库存", 0)) if pd.notna(row.get("最小库存")) else 0,
-                        max_stock=int(row.get("最大库存", 0)) if pd.notna(row.get("最大库存")) else 0,
-                        reorder_point=int(row.get("再订货点", 0)) if pd.notna(row.get("再订货点")) else 0,
+                        cost_price=(
+                            Decimal(str(row.get("成本价", 0)))
+                            if pd.notna(row.get("成本价"))
+                            else Decimal("0")
+                        ),
+                        selling_price=(
+                            Decimal(str(row.get("销售价", 0)))
+                            if pd.notna(row.get("销售价"))
+                            else Decimal("0")
+                        ),
+                        min_stock=(int(row.get("最小库存", 0)) if pd.notna(row.get("最小库存")) else 0),
+                        max_stock=(int(row.get("最大库存", 0)) if pd.notna(row.get("最大库存")) else 0),
+                        reorder_point=(int(row.get("再订货点", 0)) if pd.notna(row.get("再订货点")) else 0),
                         track_inventory=str(row.get("库存管理", "是")).strip() == "是",
-                        warranty_period=int(row.get("保修期(月)", 0))
-                        if pd.notna(row.get("保修期(月)"))
-                        else 0,
-                        shelf_life=int(row.get("保质期(天)", 0))
-                        if pd.notna(row.get("保质期(天)"))
-                        else None,
+                        warranty_period=(
+                            int(row.get("保修期(月)", 0)) if pd.notna(row.get("保修期(月)")) else 0
+                        ),
+                        shelf_life=(
+                            int(row.get("保质期(天)", 0)) if pd.notna(row.get("保质期(天)")) else None
+                        ),
                         notes=str(row.get("备注", "")).strip(),
                         created_by=request.user,
                         updated_by=request.user,
@@ -3283,9 +3320,9 @@ def data_import(request):
                         shelf=str(row.get("货架", "")).strip(),
                         level=str(row.get("层级", "")).strip(),
                         position=str(row.get("位置", "")).strip(),
-                        capacity=Decimal(str(row.get("容量", 0)))
-                        if pd.notna(row.get("容量"))
-                        else None,
+                        capacity=(
+                            Decimal(str(row.get("容量", 0))) if pd.notna(row.get("容量")) else None
+                        ),
                         is_active=str(row.get("是否启用", "是")).strip() == "是",
                         created_by=request.user,
                         updated_by=request.user,
@@ -3326,19 +3363,25 @@ def data_import(request):
                         defaults={
                             "name": str(row.get("税率名称", "")).strip(),
                             "tax_type": str(row.get("税种", "vat")).strip() or "vat",
-                            "rate": Decimal(str(row.get("税率", 0)))
-                            if pd.notna(row.get("税率"))
-                            else Decimal("0"),
+                            "rate": (
+                                Decimal(str(row.get("税率", 0)))
+                                if pd.notna(row.get("税率"))
+                                else Decimal("0")
+                            ),
                             "is_default": str(row.get("是否默认", "否")).strip() == "是",
                             "is_active": str(row.get("是否启用", "是")).strip() == "是",
                             "description": str(row.get("适用说明", "")).strip(),
-                            "effective_date": pd.to_datetime(row.get("生效日期")).date()
-                            if pd.notna(row.get("生效日期"))
-                            else None,
-                            "expiry_date": pd.to_datetime(row.get("失效日期")).date()
-                            if pd.notna(row.get("失效日期"))
-                            else None,
-                            "sort_order": int(row.get("排序", 0)) if pd.notna(row.get("排序")) else 0,
+                            "effective_date": (
+                                pd.to_datetime(row.get("生效日期")).date()
+                                if pd.notna(row.get("生效日期"))
+                                else None
+                            ),
+                            "expiry_date": (
+                                pd.to_datetime(row.get("失效日期")).date()
+                                if pd.notna(row.get("失效日期"))
+                                else None
+                            ),
+                            "sort_order": (int(row.get("排序", 0)) if pd.notna(row.get("排序")) else 0),
                             "created_by": request.user,
                             "updated_by": request.user,
                         },
@@ -3362,7 +3405,10 @@ def data_import(request):
                     if category_name:
                         category, _ = CustomerCategory.objects.get_or_create(
                             name=category_name,
-                            defaults={"code": category_name[:50], "created_by": request.user},
+                            defaults={
+                                "code": category_name[:50],
+                                "created_by": request.user,
+                            },
                         )
 
                     # 查找销售代表
@@ -3391,13 +3437,17 @@ def data_import(request):
                             "bank_name": str(row.get("开户银行", "")).strip(),
                             "bank_account": str(row.get("银行账号", "")).strip(),
                             "sales_rep": sales_rep,
-                            "credit_limit": Decimal(str(row.get("信用额度", 0)))
-                            if pd.notna(row.get("信用额度"))
-                            else Decimal("0"),
+                            "credit_limit": (
+                                Decimal(str(row.get("信用额度", 0)))
+                                if pd.notna(row.get("信用额度"))
+                                else Decimal("0")
+                            ),
                             "payment_terms": str(row.get("付款方式", "")).strip(),
-                            "discount_rate": Decimal(str(row.get("折扣率", 0)))
-                            if pd.notna(row.get("折扣率"))
-                            else Decimal("0"),
+                            "discount_rate": (
+                                Decimal(str(row.get("折扣率", 0)))
+                                if pd.notna(row.get("折扣率"))
+                                else Decimal("0")
+                            ),
                             "source": str(row.get("客户来源", "")).strip(),
                             "notes": str(row.get("备注", "")).strip(),
                             "tags": str(row.get("标签", "")).strip(),
@@ -3424,7 +3474,10 @@ def data_import(request):
                     if category_name:
                         category, _ = SupplierCategory.objects.get_or_create(
                             name=category_name,
-                            defaults={"code": category_name[:50], "created_by": request.user},
+                            defaults={
+                                "code": category_name[:50],
+                                "created_by": request.user,
+                            },
                         )
 
                     # 查找采购员
@@ -3454,21 +3507,29 @@ def data_import(request):
                             "bank_name": str(row.get("开户银行", "")).strip(),
                             "bank_account": str(row.get("银行账号", "")).strip(),
                             "buyer": buyer,
-                            "lead_time": int(row.get("交货周期(天)", 0))
-                            if pd.notna(row.get("交货周期(天)"))
-                            else 0,
-                            "min_order_amount": Decimal(str(row.get("最小订单金额", 0)))
-                            if pd.notna(row.get("最小订单金额"))
-                            else Decimal("0"),
-                            "quality_rating": Decimal(str(row.get("质量评级", 0)))
-                            if pd.notna(row.get("质量评级"))
-                            else Decimal("0"),
-                            "delivery_rating": Decimal(str(row.get("交货评级", 0)))
-                            if pd.notna(row.get("交货评级"))
-                            else Decimal("0"),
-                            "service_rating": Decimal(str(row.get("服务评级", 0)))
-                            if pd.notna(row.get("服务评级"))
-                            else Decimal("0"),
+                            "lead_time": (
+                                int(row.get("交货周期(天)", 0)) if pd.notna(row.get("交货周期(天)")) else 0
+                            ),
+                            "min_order_amount": (
+                                Decimal(str(row.get("最小订单金额", 0)))
+                                if pd.notna(row.get("最小订单金额"))
+                                else Decimal("0")
+                            ),
+                            "quality_rating": (
+                                Decimal(str(row.get("质量评级", 0)))
+                                if pd.notna(row.get("质量评级"))
+                                else Decimal("0")
+                            ),
+                            "delivery_rating": (
+                                Decimal(str(row.get("交货评级", 0)))
+                                if pd.notna(row.get("交货评级"))
+                                else Decimal("0")
+                            ),
+                            "service_rating": (
+                                Decimal(str(row.get("服务评级", 0)))
+                                if pd.notna(row.get("服务评级"))
+                                else Decimal("0")
+                            ),
                             "certifications": str(row.get("认证资质", "")).strip(),
                             "is_active": str(row.get("是否启用", "是")).strip() == "是",
                             "is_approved": str(row.get("是否已审核", "否")).strip() == "是",
@@ -3486,7 +3547,8 @@ def data_import(request):
             messages.success(request, f"成功导入 {success_count} 条记录")
         if error_messages:
             messages.warning(
-                request, f"有 {len(error_messages)} 条记录导入失败：" + "; ".join(error_messages[:5])
+                request,
+                f"有 {len(error_messages)} 条记录导入失败：" + "; ".join(error_messages[:5]),
             )
             if len(error_messages) > 5:
                 messages.warning(request, f"...还有 {len(error_messages) - 5} 条错误")
@@ -3494,7 +3556,10 @@ def data_import(request):
         return redirect("inventory:stock_import")
 
     except ImportError:
-        messages.error(request, "缺少必要的库。请安装 pandas 和 openpyxl：pip install pandas openpyxl")
+        messages.error(
+            request,
+            "缺少必要的库。请安装 pandas 和 openpyxl：pip install pandas openpyxl",
+        )
         return redirect("inventory:stock_import")
     except Exception as e:
         import logging

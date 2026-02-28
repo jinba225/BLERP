@@ -84,11 +84,20 @@ class PlatformAccountAdmin(admin.ModelAdmin):
     readonly_fields = ["created_at", "updated_at"]
 
     fieldsets = (
-        ("基本信息", {"fields": ("account_name", "account_type", "platform", "is_active")}),
-        ("认证信息", {"fields": ("platform_user_id", "auth_config", "token_expires_at")}),
+        (
+            "基本信息",
+            {"fields": ("account_name", "account_type", "platform", "is_active")},
+        ),
+        (
+            "认证信息",
+            {"fields": ("platform_user_id", "auth_config", "token_expires_at")},
+        ),
         ("限流信息", {"fields": ("rate_limit_remaining", "rate_limit_reset_at")}),
         ("同步状态", {"fields": ("last_synced_at", "last_error")}),
-        ("时间信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "时间信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
 
     def platform_name(self, obj):
@@ -120,7 +129,17 @@ class PlatformOrderAdmin(admin.ModelAdmin):
     fieldsets = (
         ("基本信息", {"fields": ("platform", "account", "platform_order_id")}),
         ("订单信息", {"fields": ("order_status", "order_amount", "currency")}),
-        ("买家信息", {"fields": ("buyer_email", "buyer_name", "buyer_phone", "shipping_address")}),
+        (
+            "买家信息",
+            {
+                "fields": (
+                    "buyer_email",
+                    "buyer_name",
+                    "buyer_phone",
+                    "shipping_address",
+                )
+            },
+        ),
         (
             "同步状态",
             {
@@ -214,8 +233,18 @@ class ProductListingAdmin(admin.ModelAdmin):
         "sync_error_summary",
     ]
     list_filter = ["platform", "listing_status", "sync_enabled"]
-    search_fields = ["product__code", "product__name", "platform_sku", "platform_product_id"]
-    readonly_fields = ["created_at", "updated_at", "platform_sku", "platform_product_id"]
+    search_fields = [
+        "product__code",
+        "product__name",
+        "platform_sku",
+        "platform_product_id",
+    ]
+    readonly_fields = [
+        "created_at",
+        "updated_at",
+        "platform_sku",
+        "platform_product_id",
+    ]
 
     list_per_page = 50
 
@@ -230,11 +259,23 @@ class ProductListingAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("基本信息", {"fields": ("product", "platform", "account")}),
-        ("平台信息", {"fields": ("platform_product_id", "platform_sku", "listing_title")}),
+        (
+            "平台信息",
+            {"fields": ("platform_product_id", "platform_sku", "listing_title")},
+        ),
         ("Listing状态", {"fields": ("listing_status", "price", "quantity")}),
-        ("同步配置", {"fields": ("sync_enabled", "auto_update_price", "auto_update_stock")}),
-        ("同步状态", {"fields": ("last_synced_at", "sync_error"), "classes": ("collapse",)}),
-        ("时间信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "同步配置",
+            {"fields": ("sync_enabled", "auto_update_price", "auto_update_stock")},
+        ),
+        (
+            "同步状态",
+            {"fields": ("last_synced_at", "sync_error"), "classes": ("collapse",)},
+        ),
+        (
+            "时间信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
 
     def product_code(self, obj):
@@ -380,8 +421,14 @@ class StockSyncQueueAdmin(admin.ModelAdmin):
     fieldsets = (
         ("基本信息", {"fields": ("product", "platform", "account")}),
         ("同步信息", {"fields": ("sync_type", "quantity", "status")}),
-        ("处理状态", {"fields": ("retry_count", "max_retries", "processed_at", "error_message")}),
-        ("时间信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "处理状态",
+            {"fields": ("retry_count", "max_retries", "processed_at", "error_message")},
+        ),
+        (
+            "时间信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
 
     def product_code(self, obj):
@@ -427,14 +474,33 @@ class APICallLogAdmin(admin.ModelAdmin):
     ]
     list_filter = ["platform", "method", "success", "response_status"]
     search_fields = ["endpoint"]
-    readonly_fields = ["request_data", "response_data", "error_message", "created_at", "updated_at"]
+    readonly_fields = [
+        "request_data",
+        "response_data",
+        "error_message",
+        "created_at",
+        "updated_at",
+    ]
 
     fieldsets = (
         ("基本信息", {"fields": ("account", "platform", "endpoint", "method")}),
         ("请求信息", {"fields": ("request_data",), "classes": ("collapse",)}),
-        ("响应信息", {"fields": ("response_status", "response_data", "success", "execution_time")}),
+        (
+            "响应信息",
+            {
+                "fields": (
+                    "response_status",
+                    "response_data",
+                    "success",
+                    "execution_time",
+                )
+            },
+        ),
         ("错误信息", {"fields": ("error_message",), "classes": ("collapse",)}),
-        ("时间信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "时间信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
 
     def account_name(self, obj):

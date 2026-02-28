@@ -2,6 +2,7 @@
 监控服务 - API调用统计和性能指标采集
 支持实时监控、历史查询、告警触发
 """
+
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
@@ -216,7 +217,12 @@ class MonitorService:
                     data = self._get_metrics_data(key)
                 else:
                     # 聚合所有端点
-                    data = {"count": 0, "success_count": 0, "error_count": 0, "total_duration": 0}
+                    data = {
+                        "count": 0,
+                        "success_count": 0,
+                        "error_count": 0,
+                        "total_duration": 0,
+                    }
                     for k in keys:
                         d = self._get_metrics_data(k)
                         data["count"] += d["count"]

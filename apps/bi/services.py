@@ -1,6 +1,7 @@
 """
 BI报表服务
 """
+
 from datetime import date, timedelta
 from decimal import Decimal
 from typing import List, Optional
@@ -417,12 +418,14 @@ class PlatformComparisonService:
                 elif report_period == "weekly":
                     week_start = report_date - timedelta(days=report_date.weekday())
                     queryset = queryset.filter(
-                        created_at__date__gte=week_start, created_at__date__lte=report_date
+                        created_at__date__gte=week_start,
+                        created_at__date__lte=report_date,
                     )
                 elif report_period == "monthly":
                     month_start = report_date.replace(day=1)
                     queryset = queryset.filter(
-                        created_at__date__gte=month_start, created_at__date__lte=report_date
+                        created_at__date__gte=month_start,
+                        created_at__date__lte=report_date,
                     )
 
                 # 聚合数据
@@ -483,7 +486,9 @@ class PlatformComparisonService:
         try:
             # 查询当前期数据
             current_queryset = PlatformOrder.objects.filter(
-                platform=platform, platform_account=account, created_at__date__lte=current_date
+                platform=platform,
+                platform_account=account,
+                created_at__date__lte=current_date,
             )
 
             # 查询上期数据

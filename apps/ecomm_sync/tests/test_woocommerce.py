@@ -138,7 +138,12 @@ class WooCommerceMapperTest(TestCase):
             external_id="123456",
             external_url="https://item.taobao.com/item.htm?id=123456",
             product=self.product,
-            raw_data={"title": "测试产品", "price": 99.99, "description": "详细描述", "brand": "测试品牌"},
+            raw_data={
+                "title": "测试产品",
+                "price": 99.99,
+                "description": "详细描述",
+                "brand": "测试品牌",
+            },
             created_by=self.user,
         )
 

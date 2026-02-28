@@ -8,6 +8,7 @@
 - 科目余额表
 - 科目明细账
 """
+
 import logging
 from datetime import date
 from decimal import Decimal
@@ -103,7 +104,10 @@ class FinancialReportGenerator:
             QuerySet: 科目查询集
         """
         return Account.objects.filter(
-            account_type=account_type, is_leaf=True, is_active=True, is_deleted=False  # 只获取末级科目
+            account_type=account_type,
+            is_leaf=True,
+            is_active=True,
+            is_deleted=False,  # 只获取末级科目
         )
 
     def save_report(self, report_type, report_date, report_data, user=None, **kwargs):
@@ -219,7 +223,11 @@ class BalanceSheetGenerator(FinancialReportGenerator):
             if ending_balance == 0:
                 continue  # 跳过余额为0的科目
 
-            item = {"code": account.code, "name": account.name, "amount": float(ending_balance)}
+            item = {
+                "code": account.code,
+                "name": account.name,
+                "amount": float(ending_balance),
+            }
 
             # 根据科目分类归类
             if account.category == "current_asset":
@@ -260,7 +268,11 @@ class BalanceSheetGenerator(FinancialReportGenerator):
             if ending_balance == 0:
                 continue
 
-            item = {"code": account.code, "name": account.name, "amount": float(ending_balance)}
+            item = {
+                "code": account.code,
+                "name": account.name,
+                "amount": float(ending_balance),
+            }
 
             if account.category == "current_liability":
                 current_liabilities.append(item)
@@ -302,7 +314,11 @@ class BalanceSheetGenerator(FinancialReportGenerator):
                 continue
 
             items.append(
-                {"code": account.code, "name": account.name, "amount": float(ending_balance)}
+                {
+                    "code": account.code,
+                    "name": account.name,
+                    "amount": float(ending_balance),
+                }
             )
 
             total += ending_balance

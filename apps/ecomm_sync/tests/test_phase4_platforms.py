@@ -1,6 +1,7 @@
 """
 测试5个新平台适配器：Shopee, TikTok Shop, Temu, Wish, MercadoLibre
 """
+
 from unittest.mock import Mock, patch
 
 import pytest
@@ -134,7 +135,10 @@ class TestWishAdapter:
         mock_platform = Mock(spec=Platform)
         mock_account = Mock(spec=PlatformAccount)
         mock_account.account_type = "wish"
-        mock_account.auth_config = {"api_key": "test_api_key", "merchant_id": "test_merchant_id"}
+        mock_account.auth_config = {
+            "api_key": "test_api_key",
+            "merchant_id": "test_merchant_id",
+        }
         return mock_account
 
     @pytest.fixture

@@ -62,7 +62,10 @@ class TestSalesLoanFlowE2E:
 
         # 创建借用明细
         loan_item = SalesLoanItem.objects.create(
-            loan=loan, product=product1, quantity=Decimal("50"), returned_quantity=Decimal("0")
+            loan=loan,
+            product=product1,
+            quantity=Decimal("50"),
+            returned_quantity=Decimal("0"),
         )
 
         # 创建借用出库事务（从借用仓出库）
@@ -192,7 +195,10 @@ class TestSalesLoanFlowE2E:
 
         # 创建销售订单明细
         order_item = SalesOrderItem.objects.create(
-            order=order, product=product1, quantity=Decimal("50"), unit_price=Decimal("150.00")
+            order=order,
+            product=product1,
+            quantity=Decimal("50"),
+            unit_price=Decimal("150.00"),
         )
 
         # 重新计算订单总金额
@@ -317,7 +323,10 @@ class TestSalesLoanFlowE2E:
 
         # 创建销售订单明细（70件）
         order_item = SalesOrderItem.objects.create(
-            order=order, product=product1, quantity=Decimal("70"), unit_price=Decimal("150.00")
+            order=order,
+            product=product1,
+            quantity=Decimal("70"),
+            unit_price=Decimal("150.00"),
         )
 
         # 重新计算订单总金额

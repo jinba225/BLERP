@@ -1,6 +1,7 @@
 """
 Custom template filters for inventory app.
 """
+
 from decimal import Decimal
 
 from django import template

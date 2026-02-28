@@ -1,6 +1,7 @@
 """
 Product admin configuration.
 """
+
 from django.contrib import admin
 from django.utils.html import format_html
 from import_export.admin import ImportExportModelAdmin
@@ -150,14 +151,39 @@ class ProductAdmin(ImportExportModelAdmin):
     fieldsets = (
         (
             "基本信息",
-            {"fields": ("name", "code", "barcode", "category", "brand", "product_type", "status")},
+            {
+                "fields": (
+                    "name",
+                    "code",
+                    "barcode",
+                    "category",
+                    "brand",
+                    "product_type",
+                    "status",
+                )
+            },
         ),
         ("描述与规格", {"fields": ("description", "specifications", "model")}),
-        ("单位与尺寸", {"fields": ("unit", "weight", "length", "width", "height", "volume")}),
+        (
+            "单位与尺寸",
+            {"fields": ("unit", "weight", "length", "width", "height", "volume")},
+        ),
         ("价格信息", {"fields": ("cost_price", "selling_price", "profit_margin")}),
-        ("库存设置", {"fields": ("min_stock", "max_stock", "reorder_point"), "classes": ("collapse",)}),
+        (
+            "库存设置",
+            {
+                "fields": ("min_stock", "max_stock", "reorder_point"),
+                "classes": ("collapse",),
+            },
+        ),
         ("图片", {"fields": ("main_image",)}),
-        ("其他信息", {"fields": ("warranty_period", "shelf_life", "notes"), "classes": ("collapse",)}),
+        (
+            "其他信息",
+            {
+                "fields": ("warranty_period", "shelf_life", "notes"),
+                "classes": ("collapse",),
+            },
+        ),
         (
             "系统信息",
             {
@@ -198,14 +224,23 @@ class ProductAttributeAdmin(admin.ModelAdmin):
         "sort_order",
         "is_active",
     ]
-    list_filter = ["attribute_type", "is_required", "is_filterable", "is_active", "created_at"]
+    list_filter = [
+        "attribute_type",
+        "is_required",
+        "is_filterable",
+        "is_active",
+        "created_at",
+    ]
     search_fields = ["name", "code", "description"]
     readonly_fields = ["created_at", "updated_at", "created_by", "updated_by"]
     list_per_page = 50
 
     fieldsets = (
         ("基本信息", {"fields": ("name", "code", "attribute_type", "description")}),
-        ("设置", {"fields": ("is_required", "is_filterable", "sort_order", "is_active")}),
+        (
+            "设置",
+            {"fields": ("is_required", "is_filterable", "sort_order", "is_active")},
+        ),
         (
             "系统信息",
             {

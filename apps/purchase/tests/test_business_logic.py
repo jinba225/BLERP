@@ -1,6 +1,7 @@
 """
 Purchase business logic tests.
 """
+
 from datetime import timedelta
 from decimal import Decimal
 
@@ -183,7 +184,9 @@ class OrderApprovalTest(TestCase):
         """Test order approval with automatic receipt creation."""
         # Approve order with receipt creation
         receipt = self.order.approve_order(
-            approved_by_user=self.approver, warehouse=self.warehouse, auto_create_receipt=True
+            approved_by_user=self.approver,
+            warehouse=self.warehouse,
+            auto_create_receipt=True,
         )
 
         # Verify order status updated
@@ -337,7 +340,9 @@ class OrderUnapprovalTest(TestCase):
 
         # Approve with receipt
         self.receipt = self.order.approve_order(
-            approved_by_user=self.approver, warehouse=self.warehouse, auto_create_receipt=True
+            approved_by_user=self.approver,
+            warehouse=self.warehouse,
+            auto_create_receipt=True,
         )
 
     # 注释掉撤销审核相关测试，因为 PurchaseOrder 模型中没有 unapprove_order() 方法
@@ -484,7 +489,10 @@ class ReceiptProcessTest(TestCase):
 
         # First partial receipt of 100
         receipt_item2 = PurchaseReceiptItem.objects.create(
-            receipt=receipt2, order_item=order_item2, received_quantity=100, created_by=self.user
+            receipt=receipt2,
+            order_item=order_item2,
+            received_quantity=100,
+            created_by=self.user,
         )
 
         self.assertEqual(receipt_item2.received_quantity, Decimal("100"))
@@ -657,7 +665,9 @@ class IntegrationTest(TestCase):
 
         # 4. Approve order
         receipt = order.approve_order(
-            approved_by_user=self.user, warehouse=self.warehouse, auto_create_receipt=True
+            approved_by_user=self.user,
+            warehouse=self.warehouse,
+            auto_create_receipt=True,
         )
 
         # Verify complete flow

@@ -8,6 +8,7 @@
 4. extra_js块位置错误 (不在文件末尾)
 5. JavaScript代码重复 (函数定义重复)
 """
+
 import os
 import re
 from pathlib import Path
@@ -49,7 +50,11 @@ class TemplateChecker:
         # 检查2: HTML压缩问题
         if self.check_compressed_html(content):
             issues.append(
-                {"type": "compressed_html", "severity": "high", "description": "HTML内容被压缩在一行中"}
+                {
+                    "type": "compressed_html",
+                    "severity": "high",
+                    "description": "HTML内容被压缩在一行中",
+                }
             )
 
         # 检查3: 表单字段间距缺失

@@ -21,17 +21,35 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "invoice_number",
                     models.CharField(
-                        db_index=True, max_length=100, unique=True, verbose_name="发票号码"
+                        db_index=True,
+                        max_length=100,
+                        unique=True,
+                        verbose_name="发票号码",
                     ),
                 ),
                 (
@@ -42,7 +60,10 @@ class Migration(migrations.Migration):
                         verbose_name="发票类型",
                     ),
                 ),
-                ("invoice_code", models.CharField(blank=True, max_length=50, verbose_name="发票代码")),
+                (
+                    "invoice_code",
+                    models.CharField(blank=True, max_length=50, verbose_name="发票代码"),
+                ),
                 (
                     "status",
                     models.CharField(
@@ -59,17 +80,26 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("invoice_date", models.DateField(verbose_name="开票日期")),
-                ("tax_date", models.DateField(blank=True, null=True, verbose_name="税务日期")),
+                (
+                    "tax_date",
+                    models.DateField(blank=True, null=True, verbose_name="税务日期"),
+                ),
                 (
                     "amount_excluding_tax",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="不含税金额"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="不含税金额",
                     ),
                 ),
                 (
                     "tax_rate",
                     models.DecimalField(
-                        decimal_places=2, default=13, max_digits=5, verbose_name="税率(%)"
+                        decimal_places=2,
+                        default=13,
+                        max_digits=5,
+                        verbose_name="税率(%)",
                     ),
                 ),
                 (
@@ -81,7 +111,10 @@ class Migration(migrations.Migration):
                 (
                     "total_amount",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="价税合计"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="价税合计",
                     ),
                 ),
                 (
@@ -99,7 +132,10 @@ class Migration(migrations.Migration):
                 (
                     "attachment",
                     models.FileField(
-                        blank=True, null=True, upload_to="invoices/%Y/%m/", verbose_name="发票附件"
+                        blank=True,
+                        null=True,
+                        upload_to="invoices/%Y/%m/",
+                        verbose_name="发票附件",
                     ),
                 ),
                 ("remark", models.TextField(blank=True, verbose_name="备注")),
@@ -172,19 +208,37 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("description", models.CharField(max_length=200, verbose_name="品名")),
                 (
                     "specification",
                     models.CharField(blank=True, max_length=200, verbose_name="规格型号"),
                 ),
-                ("unit", models.CharField(blank=True, max_length=50, verbose_name="单位")),
+                (
+                    "unit",
+                    models.CharField(blank=True, max_length=50, verbose_name="单位"),
+                ),
                 (
                     "quantity",
                     models.DecimalField(decimal_places=4, max_digits=12, verbose_name="数量"),
@@ -202,7 +256,10 @@ class Migration(migrations.Migration):
                 (
                     "tax_rate",
                     models.DecimalField(
-                        decimal_places=2, default=13, max_digits=5, verbose_name="税率(%)"
+                        decimal_places=2,
+                        default=13,
+                        max_digits=5,
+                        verbose_name="税率(%)",
                     ),
                 ),
                 (
@@ -211,7 +268,10 @@ class Migration(migrations.Migration):
                         decimal_places=2, default=0, max_digits=12, verbose_name="税额"
                     ),
                 ),
-                ("sort_order", models.PositiveIntegerField(default=0, verbose_name="排序")),
+                (
+                    "sort_order",
+                    models.PositiveIntegerField(default=0, verbose_name="排序"),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(

@@ -1,6 +1,7 @@
 """
 Finance models tests.
 """
+
 from datetime import timedelta
 from decimal import Decimal
 
@@ -85,7 +86,11 @@ class AccountModelTest(TestCase):
         )
 
         child = Account.objects.create(
-            code="1001", name="库存现金", account_type="asset", parent=parent, created_by=self.user
+            code="1001",
+            name="库存现金",
+            account_type="asset",
+            parent=parent,
+            created_by=self.user,
         )
 
         expected = "资产 > 库存现金"

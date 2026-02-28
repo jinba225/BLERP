@@ -1,4 +1,5 @@
 """电商同步URL配置"""
+
 from django.urls import path
 
 from . import api_views
@@ -16,6 +17,14 @@ urlpatterns = [
     path("api/platforms/", api_views.platforms_list, name="platforms_list"),
     path("api/listings/", api_views.listings_list, name="listings_list_api"),
     path("api/listings/publish/", api_views.publish_listing, name="publish_listing"),
-    path("api/listings/<int:listing_id>/sync/", api_views.sync_listing, name="sync_listing"),
-    path("api/listings/batch-sync/", api_views.batch_sync_listings, name="batch_sync_listings"),
+    path(
+        "api/listings/<int:listing_id>/sync/",
+        api_views.sync_listing,
+        name="sync_listing",
+    ),
+    path(
+        "api/listings/batch-sync/",
+        api_views.batch_sync_listings,
+        name="batch_sync_listings",
+    ),
 ]

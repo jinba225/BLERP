@@ -1,6 +1,7 @@
 """
 Sales admin configuration.
 """
+
 # 打印模板模型已移至 core 模块
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
@@ -81,7 +82,15 @@ class QuoteAdmin(ImportExportModelAdmin):
     fieldsets = (
         (
             "基本信息",
-            {"fields": ("quote_number", "quote_type", "status", "customer", "contact_person")},
+            {
+                "fields": (
+                    "quote_number",
+                    "quote_type",
+                    "status",
+                    "customer",
+                    "contact_person",
+                )
+            },
         ),
         ("日期信息", {"fields": ("quote_date", "valid_until")}),
         ("销售信息", {"fields": ("sales_rep",)}),
@@ -304,7 +313,15 @@ class SalesLoanAdmin(ImportExportModelAdmin):
         ("日期信息", {"fields": ("loan_date", "expected_return_date")}),
         (
             "借用详情",
-            {"fields": ("purpose", "delivery_address", "contact_person", "contact_phone", "notes")},
+            {
+                "fields": (
+                    "purpose",
+                    "delivery_address",
+                    "contact_person",
+                    "contact_phone",
+                    "notes",
+                )
+            },
         ),
         (
             "转销售信息",

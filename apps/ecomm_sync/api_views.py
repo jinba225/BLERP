@@ -2,6 +2,7 @@
 Listing同步AJAX视图（轻量级实现）
 不使用DRF，直接使用Django原生能力
 """
+
 import json
 
 from core.models import Platform
@@ -38,9 +39,9 @@ def product_listings_fragment(request, product_id):
                 "quantity": l.quantity,
                 "platform_sku": l.platform_sku,
                 "product_name": l.product.name if l.product else "",
-                "last_synced_at": l.last_synced_at.strftime("%Y-%m-%d %H:%M:%S")
-                if l.last_synced_at
-                else None,
+                "last_synced_at": (
+                    l.last_synced_at.strftime("%Y-%m-%d %H:%M:%S") if l.last_synced_at else None
+                ),
                 "sync_enabled": l.sync_enabled,
                 "sync_error": l.sync_error,
             }
@@ -241,9 +242,9 @@ def listings_list(request):
                 "price": str(l.price),
                 "quantity": l.quantity,
                 "sync_enabled": l.sync_enabled,
-                "last_synced_at": l.last_synced_at.strftime("%Y-%m-%d %H:%M:%S")
-                if l.last_synced_at
-                else None,
+                "last_synced_at": (
+                    l.last_synced_at.strftime("%Y-%m-%d %H:%M:%S") if l.last_synced_at else None
+                ),
             }
             for l in page_obj
         ]

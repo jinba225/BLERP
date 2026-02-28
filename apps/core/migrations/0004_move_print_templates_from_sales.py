@@ -33,13 +33,22 @@ class Migration(migrations.Migration):
                             "created_at",
                             models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
                         ),
-                        ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                        ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                        (
+                            "updated_at",
+                            models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                        ),
+                        (
+                            "is_deleted",
+                            models.BooleanField(default=False, verbose_name="是否删除"),
+                        ),
                         (
                             "deleted_at",
                             models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
                         ),
-                        ("name", models.CharField(max_length=100, verbose_name="模板名称")),
+                        (
+                            "name",
+                            models.CharField(max_length=100, verbose_name="模板名称"),
+                        ),
                         (
                             "template_category",
                             models.CharField(
@@ -66,11 +75,16 @@ class Migration(migrations.Migration):
                                 verbose_name="适用单据类型",
                             ),
                         ),
-                        ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                        (
+                            "is_active",
+                            models.BooleanField(default=True, verbose_name="是否启用"),
+                        ),
                         (
                             "company_name",
                             models.CharField(
-                                default="BetterLaser 激光科技有限公司", max_length=200, verbose_name="公司名称"
+                                default="BetterLaser 激光科技有限公司",
+                                max_length=200,
+                                verbose_name="公司名称",
                             ),
                         ),
                         (
@@ -94,11 +108,16 @@ class Migration(migrations.Migration):
                                 verbose_name="公司Logo",
                             ),
                         ),
-                        ("layout_config", models.JSONField(default=dict, verbose_name="布局配置")),
+                        (
+                            "layout_config",
+                            models.JSONField(default=dict, verbose_name="布局配置"),
+                        ),
                         (
                             "custom_css",
                             models.TextField(
-                                blank=True, help_text="自定义CSS样式", verbose_name="自定义样式"
+                                blank=True,
+                                help_text="自定义CSS样式",
+                                verbose_name="自定义样式",
                             ),
                         ),
                         ("notes", models.TextField(blank=True, verbose_name="备注")),
@@ -159,8 +178,14 @@ class Migration(migrations.Migration):
                             "created_at",
                             models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
                         ),
-                        ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                        ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
+                        (
+                            "updated_at",
+                            models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                        ),
+                        (
+                            "is_deleted",
+                            models.BooleanField(default=False, verbose_name="是否删除"),
+                        ),
                         (
                             "deleted_at",
                             models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),

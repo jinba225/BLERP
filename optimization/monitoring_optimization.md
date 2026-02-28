@@ -84,7 +84,7 @@ MONITOR_METRICS = {
 # 智能告警服务
 class SmartAlertService:
     """智能告警服务"""
-    
+
     def __init__(self):
         self.alert_rules = {
             # 系统告警规则
@@ -108,15 +108,15 @@ class SmartAlertService:
         }
         self.alert_history = []
         self.alert_suppression = {}
-    
+
     def check_alert(self, metric_name, value, metric_type='system'):
         """检查是否需要触发告警
-        
+
         Args:
             metric_name: 指标名称
             value: 指标值
             metric_type: 指标类型
-        
+
         Returns:
             dict: 告警信息，如果不需要告警返回None
         """
@@ -124,11 +124,11 @@ class SmartAlertService:
         if f"{metric_type}:{metric_name}" in self.alert_suppression:
             if time.time() < self.alert_suppression[f"{metric_type}:{metric_name}"]:
                 return None
-        
+
         # 获取告警规则
         if metric_type in self.alert_rules and metric_name in self.alert_rules[metric_type]:
             rule = self.alert_rules[metric_type][metric_name]
-            
+
             # 检查是否触发告警
             trigger = False
             if rule.get('type') == 'decrease':
@@ -141,11 +141,11 @@ class SmartAlertService:
             else:
                 # 检查是否超过阈值
                 trigger = value > rule['threshold']
-            
+
             if trigger:
                 # 检查持续时间
                 # 这里需要历史数据来检查持续时间
-                
+
                 # 生成告警
                 alert = {
                     'metric_type': metric_type,
@@ -155,23 +155,23 @@ class SmartAlertService:
                     'severity': rule['severity'],
                     'timestamp': time.time(),
                 }
-                
+
                 # 检查是否需要关联告警
                 self._correlate_alerts(alert)
-                
+
                 # 添加到告警历史
                 self.alert_history.append(alert)
-                
+
                 # 抑制后续告警
                 self.alert_suppression[f"{metric_type}:{metric_name}"] = time.time() + 3600  # 1小时
-                
+
                 return alert
-        
+
         return None
-    
+
     def _correlate_alerts(self, new_alert):
         """关联告警
-        
+
         Args:
             new_alert: 新告警
         """
@@ -181,24 +181,24 @@ class SmartAlertService:
             if (alert['metric_type'] == new_alert['metric_type'] and
                 abs(alert['timestamp'] - new_alert['timestamp']) < 3600):
                 related_alerts.append(alert)
-        
+
         if related_alerts:
             # 合并相关告警
             new_alert['related_alerts'] = [alert['metric_name'] for alert in related_alerts]
-    
+
     def get_alert_status(self):
         """获取告警状态
-        
+
         Returns:
             list: 告警列表
         """
         # 过滤最近24小时的告警
         now = time.time()
         recent_alerts = [alert for alert in self.alert_history if now - alert['timestamp'] < 86400]
-        
+
         # 按严重程度排序
         recent_alerts.sort(key=lambda x: x['severity'], reverse=True)
-        
+
         return recent_alerts
 ```
 
@@ -232,17 +232,17 @@ class SmartAlertService:
 # 监控数据可视化服务
 class MonitoringVisualizationService:
     """监控数据可视化服务"""
-    
+
     def __init__(self, data_store):
         self.data_store = data_store
-    
+
     def get_dashboard_data(self, dashboard_type, time_range='24h'):
         """获取仪表盘数据
-        
+
         Args:
             dashboard_type: 仪表盘类型
             time_range: 时间范围
-        
+
         Returns:
             dict: 仪表盘数据
         """
@@ -256,7 +256,7 @@ class MonitoringVisualizationService:
             return self._get_alerts_dashboard(time_range)
         else:
             return {}
-    
+
     def _get_system_dashboard(self, time_range):
         """获取系统仪表盘数据"""
         # 获取系统指标数据
@@ -265,7 +265,7 @@ class MonitoringVisualizationService:
         disk_data = self.data_store.get_metric_data('system', 'disk_usage', time_range)
         network_data = self.data_store.get_metric_data('system', 'network_traffic', time_range)
         load_data = self.data_store.get_metric_data('system', 'system_load', time_range)
-        
+
         return {
             'cpu_usage': {
                 'data': cpu_data,
@@ -298,7 +298,7 @@ class MonitoringVisualizationService:
                 'unit': '',
             },
         }
-    
+
     def _get_application_dashboard(self, time_range):
         """获取应用仪表盘数据"""
         # 获取应用指标数据
@@ -306,7 +306,7 @@ class MonitoringVisualizationService:
         error_rate_data = self.data_store.get_metric_data('application', 'api_error_rate', time_range)
         throughput_data = self.data_store.get_metric_data('application', 'api_throughput', time_range)
         cache_hit_data = self.data_store.get_metric_data('application', 'cache_performance', time_range)
-        
+
         return {
             'api_response_time': {
                 'data': response_time_data,
@@ -333,14 +333,14 @@ class MonitoringVisualizationService:
                 'unit': '%',
             },
         }
-    
+
     def _get_business_dashboard(self, time_range):
         """获取业务仪表盘数据"""
         # 获取业务指标数据
         sales_data = self.data_store.get_metric_data('business', 'sales_order_volume', time_range)
         inventory_data = self.data_store.get_metric_data('business', 'inventory_levels', time_range)
         customer_data = self.data_store.get_metric_data('business', 'customer_activity', time_range)
-        
+
         return {
             'sales_order_volume': {
                 'data': sales_data,
@@ -361,24 +361,24 @@ class MonitoringVisualizationService:
                 'unit': '',
             },
         }
-    
+
     def _get_alerts_dashboard(self, time_range):
         """获取告警仪表盘数据"""
         # 获取告警数据
         alerts = self.data_store.get_alert_data(time_range)
-        
+
         # 按严重程度分组
         severity_counts = {
             'critical': 0,
             'warning': 0,
             'info': 0,
         }
-        
+
         for alert in alerts:
             severity = alert.get('severity', 'info')
             if severity in severity_counts:
                 severity_counts[severity] += 1
-        
+
         return {
             'alerts_over_time': {
                 'data': self._get_alerts_over_time(alerts),
@@ -399,7 +399,7 @@ class MonitoringVisualizationService:
                 'unit': '',
             },
         }
-    
+
     def _get_alerts_over_time(self, alerts):
         """获取告警趋势数据"""
         # 按小时分组
@@ -409,7 +409,7 @@ class MonitoringVisualizationService:
             if hour not in alerts_by_hour:
                 alerts_by_hour[hour] = 0
             alerts_by_hour[hour] += 1
-        
+
         # 转换为列表
         return [{'time': hour, 'count': count} for hour, count in alerts_by_hour.items()]
 ```

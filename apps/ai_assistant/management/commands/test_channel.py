@@ -4,7 +4,6 @@
 测试 Telegram、企业微信、钉钉的连接和配置
 """
 
-
 import requests
 from django.core.management.base import BaseCommand, CommandError
 
@@ -78,14 +77,14 @@ class Command(BaseCommand):
 
                 if bot_info:
                     self.stdout.write(
-                        self.style.SUCCESS(
-                            f'✅ Bot 连接成功！\n   Bot ID: {
+                        self.style.SUCCESS(f'✅ Bot 连接成功！\n   Bot ID: {
                                 bot_info.get("id")}\n   Bot 用户名: {
-                                bot_info.get("username")}'
-                        )
+                                bot_info.get("username")}')
                     )
                 else:
-                    self.stdout.write(self.style.ERROR("❌ Bot 连接失败：无法获取 Bot 信息"))
+                    self.stdout.write(
+                        self.style.ERROR("❌ Bot 连接失败：无法获取 Bot 信息")
+                    )
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"❌ Bot 连接测试失败: {str(e)}"))
 
@@ -107,9 +106,13 @@ class Command(BaseCommand):
                         else:
                             self.stdout.write("⚠️  Webhook 未设置")
                     else:
-                        self.stdout.write(f'❌ 获取 Webhook 信息失败: {result.get("description", "未知错误")}')
+                        self.stdout.write(
+                            f'❌ 获取 Webhook 信息失败: {result.get("description", "未知错误")}'
+                        )
                 except Exception as e:
-                    self.stdout.write(self.style.ERROR(f"❌ Webhook 测试失败: {str(e)}"))
+                    self.stdout.write(
+                        self.style.ERROR(f"❌ Webhook 测试失败: {str(e)}")
+                    )
             else:
                 self.stdout.write(
                     self.style.WARNING(
@@ -147,16 +150,26 @@ class Command(BaseCommand):
 
                 if access_token:
                     token_start = access_token[:10] + "..."
-                    self.stdout.write(self.style.SUCCESS(f"✅ Access Token 获取成功: {token_start}"))
+                    self.stdout.write(
+                        self.style.SUCCESS(f"✅ Access Token 获取成功: {token_start}")
+                    )
                 else:
                     self.stdout.write(self.style.ERROR("❌ Access Token 获取失败"))
             except Exception as e:
-                self.stdout.write(self.style.ERROR(f"❌ Access Token 测试失败: {str(e)}"))
+                self.stdout.write(
+                    self.style.ERROR(f"❌ Access Token 测试失败: {str(e)}")
+                )
 
         # Webhook 说明
         if action in ["all", "webhook"]:
-            self.stdout.write(self.style.WARNING("\n⚠️  企业微信 Webhook 需要在企业微信管理后台手动配置"))
-            self.stdout.write("   配置方法：登录企业微信管理后台 -> 应用管理 -> 应用 -> 接收消息 -> 设置回调 URL")
+            self.stdout.write(
+                self.style.WARNING(
+                    "\n⚠️  企业微信 Webhook 需要在企业微信管理后台手动配置"
+                )
+            )
+            self.stdout.write(
+                "   配置方法：登录企业微信管理后台 -> 应用管理 -> 应用 -> 接收消息 -> 设置回调 URL"
+            )
 
         self.stdout.write("=" * 60)
 
@@ -187,15 +200,23 @@ class Command(BaseCommand):
 
                 if access_token:
                     token_start = access_token[:10] + "..."
-                    self.stdout.write(self.style.SUCCESS(f"✅ Access Token 获取成功: {token_start}"))
+                    self.stdout.write(
+                        self.style.SUCCESS(f"✅ Access Token 获取成功: {token_start}")
+                    )
                 else:
                     self.stdout.write(self.style.ERROR("❌ Access Token 获取失败"))
             except Exception as e:
-                self.stdout.write(self.style.ERROR(f"❌ Access Token 测试失败: {str(e)}"))
+                self.stdout.write(
+                    self.style.ERROR(f"❌ Access Token 测试失败: {str(e)}")
+                )
 
         # Webhook 说明
         if action in ["all", "webhook"]:
-            self.stdout.write(self.style.WARNING("\n⚠️  钉钉 Webhook 需要在钉钉开放平台手动配置"))
-            self.stdout.write("   配置方法：登录钉钉开放平台 -> 应用开发 -> 企业内部应用 -> 机器人 -> 事件订阅 -> 设置回调 URL")
+            self.stdout.write(
+                self.style.WARNING("\n⚠️  钉钉 Webhook 需要在钉钉开放平台手动配置")
+            )
+            self.stdout.write(
+                "   配置方法：登录钉钉开放平台 -> 应用开发 -> 企业内部应用 -> 机器人 -> 事件订阅 -> 设置回调 URL"
+            )
 
         self.stdout.write("=" * 60)

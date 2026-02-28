@@ -39,7 +39,9 @@ class OpenAIProvider(BaseAIProvider):
         )
 
     def chat(
-        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+        self,
+        messages: List[Dict[str, str]],
+        tools: Optional[List[Dict[str, Any]]] = None,
     ) -> AIResponse:
         """
         发送对话请求
@@ -103,7 +105,9 @@ class OpenAIProvider(BaseAIProvider):
             raise ProviderAPIException(f"OpenAI API调用失败: {str(e)}")
 
     def stream_chat(
-        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+        self,
+        messages: List[Dict[str, str]],
+        tools: Optional[List[Dict[str, Any]]] = None,
     ) -> Iterator[str]:
         """
         流式对话请求

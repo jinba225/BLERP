@@ -1,6 +1,7 @@
 """
 表单模块
 """
+
 from django import forms
 
 from .models import CollectTask, FieldMapRule, Platform, PricingRule, ProductListing, Shop
@@ -13,11 +14,15 @@ class CollectTaskForm(forms.ModelForm):
     platform = forms.ModelChoiceField(
         queryset=Platform.objects.filter(is_deleted=False, is_active=True, platform_type="collect"),
         label="采集平台",
-        error_messages={"required": "请选择采集平台", "does_not_exist": "采集平台不存在或已禁用"},
+        error_messages={
+            "required": "请选择采集平台",
+            "does_not_exist": "采集平台不存在或已禁用",
+        },
     )
 
     collect_urls = forms.CharField(
-        widget=forms.Textarea(attrs={"rows": 6, "placeholder": "请输入商品链接，每行一个"}), label="采集商品链接"
+        widget=forms.Textarea(attrs={"rows": 6, "placeholder": "请输入商品链接，每行一个"}),
+        label="采集商品链接",
     )
 
     # 可选：同步到跨境平台
@@ -30,7 +35,9 @@ class CollectTaskForm(forms.ModelForm):
     )
 
     cross_shop = forms.ModelChoiceField(
-        queryset=Shop.objects.filter(is_deleted=False), required=False, label="目标跨境店铺"
+        queryset=Shop.objects.filter(is_deleted=False),
+        required=False,
+        label="目标跨境店铺",
     )
 
     # 可选：定价规则

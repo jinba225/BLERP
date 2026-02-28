@@ -1,6 +1,7 @@
 """
 Authentication views for the ERP system.
 """
+
 from django.conf import settings
 from django.contrib.auth import get_user_model, login, logout
 from drf_spectacular.utils import OpenApiResponse, extend_schema
@@ -209,13 +210,17 @@ def password_reset_view(request):
                 fail_silently=False,
             )
 
-            return Response({"message": "密码重置邮件已发送，请检查您的邮箱"}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "密码重置邮件已发送，请检查您的邮箱"},
+                status=status.HTTP_200_OK,
+            )
         except Exception as e:
             # For security reasons, don't reveal if email exists or not,
             # but here we already validated it in serializer so it's fine to log error
             print(f"Error sending email: {e}")
             return Response(
-                {"message": "发送邮件失败，请稍后重试"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"message": "发送邮件失败，请稍后重试"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -255,9 +260,15 @@ def password_reset_confirm_view(request):
             if default_token_generator.check_token(user, token):
                 user.set_password(new_password)
                 user.save()
-                return Response({"message": "密码重置成功，请使用新密码登录"}, status=status.HTTP_200_OK)
+                return Response(
+                    {"message": "密码重置成功，请使用新密码登录"},
+                    status=status.HTTP_200_OK,
+                )
             else:
-                return Response({"error": "无效或过期的重置链接"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "无效或过期的重置链接"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             return Response({"error": "无效的重置链接"}, status=status.HTTP_400_BAD_REQUEST)
 

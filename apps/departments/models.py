@@ -1,6 +1,7 @@
 """
 Department models for the ERP system.
 """
+
 from core.models import BaseModel
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -90,7 +91,10 @@ class Position(BaseModel):
     name = models.CharField("职位名称", max_length=100)
     code = models.CharField("职位代码", max_length=50, unique=True)
     department = models.ForeignKey(
-        Department, on_delete=models.CASCADE, related_name="positions", verbose_name="所属部门"
+        Department,
+        on_delete=models.CASCADE,
+        related_name="positions",
+        verbose_name="所属部门",
     )
     level = models.CharField("职位级别", max_length=20, choices=POSITION_LEVELS, default="junior")
     description = models.TextField("职位描述", blank=True)
@@ -128,7 +132,10 @@ class DepartmentBudget(BaseModel):
     ]
 
     department = models.ForeignKey(
-        Department, on_delete=models.CASCADE, related_name="budgets", verbose_name="部门"
+        Department,
+        on_delete=models.CASCADE,
+        related_name="budgets",
+        verbose_name="部门",
     )
     budget_type = models.CharField("预算类型", max_length=20, choices=BUDGET_TYPES)
     year = models.PositiveIntegerField("年份")

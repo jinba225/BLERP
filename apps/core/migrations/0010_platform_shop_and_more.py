@@ -18,14 +18,32 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
-                ("platform_name", models.CharField(max_length=100, verbose_name="平台名称")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "platform_name",
+                    models.CharField(max_length=100, verbose_name="平台名称"),
+                ),
                 (
                     "platform_code",
                     models.CharField(
@@ -48,7 +66,11 @@ class Migration(migrations.Migration):
                 (
                     "platform_type",
                     models.CharField(
-                        choices=[("collect", "采集平台"), ("cross", "跨境平台"), ("ecommerce", "电商平台")],
+                        choices=[
+                            ("collect", "采集平台"),
+                            ("cross", "跨境平台"),
+                            ("ecommerce", "电商平台"),
+                        ],
                         max_length=20,
                         verbose_name="平台类型",
                     ),
@@ -56,25 +78,43 @@ class Migration(migrations.Migration):
                 (
                     "api_key",
                     models.CharField(
-                        blank=True, help_text="平台API密钥", max_length=128, verbose_name="API Key"
+                        blank=True,
+                        help_text="平台API密钥",
+                        max_length=128,
+                        verbose_name="API Key",
                     ),
                 ),
                 (
                     "api_secret",
                     models.CharField(
-                        blank=True, help_text="平台API密钥", max_length=128, verbose_name="API Secret"
+                        blank=True,
+                        help_text="平台API密钥",
+                        max_length=128,
+                        verbose_name="API Secret",
                     ),
                 ),
-                ("api_url", models.URLField(blank=True, max_length=256, verbose_name="API网关地址")),
-                ("api_version", models.CharField(blank=True, max_length=16, verbose_name="API版本")),
+                (
+                    "api_url",
+                    models.URLField(blank=True, max_length=256, verbose_name="API网关地址"),
+                ),
+                (
+                    "api_version",
+                    models.CharField(blank=True, max_length=16, verbose_name="API版本"),
+                ),
                 (
                     "auth_type",
                     models.CharField(
-                        blank=True, help_text="如：oauth2, basic等", max_length=20, verbose_name="认证方式"
+                        blank=True,
+                        help_text="如：oauth2, basic等",
+                        max_length=20,
+                        verbose_name="认证方式",
                     ),
                 ),
                 ("access_token", models.TextField(blank=True, verbose_name="访问令牌")),
-                ("refresh_token", models.TextField(blank=True, verbose_name="刷新令牌")),
+                (
+                    "refresh_token",
+                    models.TextField(blank=True, verbose_name="刷新令牌"),
+                ),
                 (
                     "token_expires_at",
                     models.DateTimeField(blank=True, null=True, verbose_name="令牌过期时间"),
@@ -82,10 +122,16 @@ class Migration(migrations.Migration):
                 (
                     "platform_config",
                     models.JSONField(
-                        blank=True, default=dict, help_text="平台级别的配置信息", verbose_name="平台配置"
+                        blank=True,
+                        default=dict,
+                        help_text="平台级别的配置信息",
+                        verbose_name="平台配置",
                     ),
                 ),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="描述")),
                 (
                     "created_by",
@@ -133,41 +179,83 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
-                ("shop_name", models.CharField(max_length=200, verbose_name="店铺名称")),
-                ("shop_code", models.CharField(blank=True, max_length=100, verbose_name="店铺编码")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "shop_name",
+                    models.CharField(max_length=200, verbose_name="店铺名称"),
+                ),
+                (
+                    "shop_code",
+                    models.CharField(blank=True, max_length=100, verbose_name="店铺编码"),
+                ),
                 (
                     "shop_id",
                     models.CharField(
-                        blank=True, db_index=True, max_length=100, verbose_name="平台店铺ID"
+                        blank=True,
+                        db_index=True,
+                        max_length=100,
+                        verbose_name="平台店铺ID",
                     ),
                 ),
                 (
                     "shop_config",
                     models.JSONField(
-                        blank=True, default=dict, help_text="店铺级别的配置信息", verbose_name="店铺配置"
+                        blank=True,
+                        default=dict,
+                        help_text="店铺级别的配置信息",
+                        verbose_name="店铺配置",
                     ),
                 ),
-                ("currency", models.CharField(default="CNY", max_length=10, verbose_name="货币")),
-                ("country", models.CharField(blank=True, max_length=50, verbose_name="国家/地区")),
-                ("api_key", models.CharField(blank=True, max_length=128, verbose_name="店铺API Key")),
+                (
+                    "currency",
+                    models.CharField(default="CNY", max_length=10, verbose_name="货币"),
+                ),
+                (
+                    "country",
+                    models.CharField(blank=True, max_length=50, verbose_name="国家/地区"),
+                ),
+                (
+                    "api_key",
+                    models.CharField(blank=True, max_length=128, verbose_name="店铺API Key"),
+                ),
                 (
                     "api_secret",
                     models.CharField(blank=True, max_length=128, verbose_name="店铺API Secret"),
                 ),
                 ("access_token", models.TextField(blank=True, verbose_name="访问令牌")),
-                ("refresh_token", models.TextField(blank=True, verbose_name="刷新令牌")),
+                (
+                    "refresh_token",
+                    models.TextField(blank=True, verbose_name="刷新令牌"),
+                ),
                 (
                     "token_expires_at",
                     models.DateTimeField(blank=True, null=True, verbose_name="令牌过期时间"),
                 ),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="描述")),
                 (
                     "created_by",
@@ -228,7 +316,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="platform",
             index=models.Index(
-                fields=["platform_type", "is_active"], name="core_platfo_platfor_405342_idx"
+                fields=["platform_type", "is_active"],
+                name="core_platfo_platfor_405342_idx",
             ),
         ),
         migrations.AddIndex(

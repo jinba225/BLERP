@@ -34,7 +34,13 @@ class AIModelConfigAdmin(admin.ModelAdmin):
     ]
     list_filter = ["provider", "is_active", "is_default"]
     search_fields = ["name", "model_name"]
-    readonly_fields = ["total_requests", "total_tokens", "last_used_at", "created_at", "updated_at"]
+    readonly_fields = [
+        "total_requests",
+        "total_tokens",
+        "last_used_at",
+        "created_at",
+        "updated_at",
+    ]
 
     fieldsets = (
         ("基本信息", {"fields": ("name", "provider", "model_name")}),
@@ -48,7 +54,13 @@ class AIModelConfigAdmin(admin.ModelAdmin):
                 "classes": ("collapse",),
             },
         ),
-        ("系统信息", {"fields": ("created_at", "updated_at", "created_by"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {
+                "fields": ("created_at", "updated_at", "created_by"),
+                "classes": ("collapse",),
+            },
+        ),
     )
 
     def save_model(self, request, obj, form, change):
@@ -80,10 +92,19 @@ class AIConversationAdmin(admin.ModelAdmin):
     ]
 
     fieldsets = (
-        ("会话信息", {"fields": ("conversation_id", "user", "channel", "channel_user_id")}),
+        (
+            "会话信息",
+            {"fields": ("conversation_id", "user", "channel", "channel_user_id")},
+        ),
         ("会话状态", {"fields": ("status", "title", "context_summary")}),
-        ("统计信息", {"fields": ("message_count", "last_message_at"), "classes": ("collapse",)}),
-        ("系统信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "统计信息",
+            {"fields": ("message_count", "last_message_at"), "classes": ("collapse",)},
+        ),
+        (
+            "系统信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
 
 
@@ -106,12 +127,21 @@ class AIMessageAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("消息信息", {"fields": ("conversation", "role", "content", "content_type")}),
-        ("工具调用", {"fields": ("tool_calls", "tool_results"), "classes": ("collapse",)}),
+        (
+            "工具调用",
+            {"fields": ("tool_calls", "tool_results"), "classes": ("collapse",)},
+        ),
         (
             "模型信息",
-            {"fields": ("model_config", "tokens_used", "response_time"), "classes": ("collapse",)},
+            {
+                "fields": ("model_config", "tokens_used", "response_time"),
+                "classes": ("collapse",),
+            },
         ),
-        ("系统信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
 
     def conversation_link(self, obj):
@@ -146,7 +176,13 @@ class AIToolAdmin(admin.ModelAdmin):
     ]
     list_filter = ["category", "is_active", "requires_approval"]
     search_fields = ["tool_name", "display_name", "description"]
-    readonly_fields = ["call_count", "success_count", "last_called_at", "created_at", "updated_at"]
+    readonly_fields = [
+        "call_count",
+        "success_count",
+        "last_called_at",
+        "created_at",
+        "updated_at",
+    ]
 
     fieldsets = (
         ("基本信息", {"fields": ("tool_name", "display_name", "category")}),
@@ -157,9 +193,18 @@ class AIToolAdmin(admin.ModelAdmin):
         ("状态管理", {"fields": ("is_active",)}),
         (
             "使用统计",
-            {"fields": ("call_count", "success_count", "last_called_at"), "classes": ("collapse",)},
+            {
+                "fields": ("call_count", "success_count", "last_called_at"),
+                "classes": ("collapse",),
+            },
         ),
-        ("系统信息", {"fields": ("created_at", "updated_at", "created_by"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {
+                "fields": ("created_at", "updated_at", "created_by"),
+                "classes": ("collapse",),
+            },
+        ),
     )
 
     def save_model(self, request, obj, form, change):
@@ -181,7 +226,13 @@ class WeChatConfigAdmin(admin.ModelAdmin):
         ("基本信息", {"fields": ("corp_id", "corp_secret", "agent_id")}),
         ("安全配置", {"fields": ("token", "encoding_aes_key")}),
         ("状态管理", {"fields": ("is_active",)}),
-        ("系统信息", {"fields": ("created_at", "updated_at", "created_by"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {
+                "fields": ("created_at", "updated_at", "created_by"),
+                "classes": ("collapse",),
+            },
+        ),
     )
 
     def save_model(self, request, obj, form, change):
@@ -202,7 +253,13 @@ class DingTalkConfigAdmin(admin.ModelAdmin):
     fieldsets = (
         ("基本信息", {"fields": ("app_key", "app_secret", "agent_id")}),
         ("状态管理", {"fields": ("is_active",)}),
-        ("系统信息", {"fields": ("created_at", "updated_at", "created_by"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {
+                "fields": ("created_at", "updated_at", "created_by"),
+                "classes": ("collapse",),
+            },
+        ),
     )
 
     def save_model(self, request, obj, form, change):
@@ -224,7 +281,13 @@ class TelegramConfigAdmin(admin.ModelAdmin):
         ("基本信息", {"fields": ("bot_token", "bot_username", "webhook_url")}),
         ("功能设置", {"fields": ("allow_groups", "command_prefix")}),
         ("状态管理", {"fields": ("is_active",)}),
-        ("系统信息", {"fields": ("created_at", "updated_at", "created_by"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {
+                "fields": ("created_at", "updated_at", "created_by"),
+                "classes": ("collapse",),
+            },
+        ),
     )
 
     def save_model(self, request, obj, form, change):
@@ -248,7 +311,13 @@ class ChannelUserMappingAdmin(admin.ModelAdmin):
         ("系统用户", {"fields": ("user",)}),
         ("状态管理", {"fields": ("is_active",)}),
         ("元数据", {"fields": ("metadata",), "classes": ("collapse",)}),
-        ("系统信息", {"fields": ("created_at", "updated_at", "created_by"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {
+                "fields": ("created_at", "updated_at", "created_by"),
+                "classes": ("collapse",),
+            },
+        ),
     )
 
     def save_model(self, request, obj, form, change):

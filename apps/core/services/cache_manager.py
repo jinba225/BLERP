@@ -2,6 +2,7 @@
 核心缓存管理器
 管理系统级缓存，支持多级缓存和智能失效
 """
+
 import asyncio
 import json
 import logging
@@ -79,10 +80,11 @@ class CacheManager:
                 # 如果启用了压缩，需要解压缩
                 if self.compression_enabled and isinstance(value, bytes):
                     import zlib
+
                     try:
-                        value = zlib.decompress(value).decode('utf-8')
+                        value = zlib.decompress(value).decode("utf-8")
                         value = json.loads(value)
-                    except:
+                    except Exception:
                         pass
                 return value
             else:
@@ -98,22 +100,23 @@ class CacheManager:
                     if isinstance(value, bytes):
                         value = value.decode("utf-8")
                     value = json.loads(value)
-                except:
+                except Exception:
                     pass
 
                 # 回写L1缓存
                 if self.compression_enabled:
                     import zlib
+
                     try:
-                        compressed_value = zlib.compress(json.dumps(value).encode('utf-8'))
+                        compressed_value = zlib.compress(json.dumps(value).encode("utf-8"))
                         self.local_cache[key] = (compressed_value, datetime.now())
                         # 计算压缩率
-                        original_size = len(json.dumps(value).encode('utf-8'))
+                        original_size = len(json.dumps(value).encode("utf-8"))
                         compressed_size = len(compressed_value)
                         if original_size > 0:
                             compression_ratio = (original_size - compressed_size) / original_size
                             self.stats["compression_ratio"] = compression_ratio
-                    except:
+                    except Exception:
                         self.local_cache[key] = (value, datetime.now())
                 else:
                     self.local_cache[key] = (value, datetime.now())
@@ -155,7 +158,7 @@ class CacheManager:
         # 序列化值
         try:
             serialized_value = json.dumps(value)
-        except:
+        except Exception:
             serialized_value = str(value)
 
         # 根据策略写入
@@ -164,10 +167,11 @@ class CacheManager:
             if enable_local_cache:
                 if self.compression_enabled:
                     import zlib
+
                     try:
-                        compressed_value = zlib.compress(json.dumps(value).encode('utf-8'))
+                        compressed_value = zlib.compress(json.dumps(value).encode("utf-8"))
                         self.local_cache[key] = (compressed_value, datetime.now())
-                    except:
+                    except Exception:
                         self.local_cache[key] = (value, datetime.now())
                 else:
                     self.local_cache[key] = (value, datetime.now())
@@ -178,10 +182,11 @@ class CacheManager:
             if enable_local_cache:
                 if self.compression_enabled:
                     import zlib
+
                     try:
-                        compressed_value = zlib.compress(json.dumps(value).encode('utf-8'))
+                        compressed_value = zlib.compress(json.dumps(value).encode("utf-8"))
                         self.local_cache[key] = (compressed_value, datetime.now())
-                    except:
+                    except Exception:
                         self.local_cache[key] = (value, datetime.now())
                 else:
                     self.local_cache[key] = (value, datetime.now())
@@ -242,7 +247,9 @@ class CacheManager:
 
             if keys:
                 self.redis_client.delete_many(*keys)
-                logger.info(f"批量失效缓存: pattern={pattern}, count={len(keys)}, event_type={event_type}")
+                logger.info(
+                    f"批量失效缓存: pattern={pattern}, count={len(keys)}, event_type={event_type}"
+                )
             else:
                 logger.debug(f"无匹配缓存: pattern={pattern}")
 
@@ -265,28 +272,28 @@ class CacheManager:
         # 事件到缓存模式的映射
         event_patterns = {
             # 产品相关事件
-            'product_created': ['product:*'],
-            'product_updated': ['product:*', 'inventory:*'],
-            'product_deleted': ['product:*', 'inventory:*'],
+            "product_created": ["product:*"],
+            "product_updated": ["product:*", "inventory:*"],
+            "product_deleted": ["product:*", "inventory:*"],
             # 库存相关事件
-            'inventory_updated': ['inventory:*', 'product:*'],
-            'stock_adjusted': ['inventory:*'],
+            "inventory_updated": ["inventory:*", "product:*"],
+            "stock_adjusted": ["inventory:*"],
             # 订单相关事件
-            'order_created': ['order:*', 'customer:*'],
-            'order_updated': ['order:*'],
-            'order_deleted': ['order:*'],
+            "order_created": ["order:*", "customer:*"],
+            "order_updated": ["order:*"],
+            "order_deleted": ["order:*"],
             # 客户相关事件
-            'customer_created': ['customer:*'],
-            'customer_updated': ['customer:*'],
-            'customer_deleted': ['customer:*'],
+            "customer_created": ["customer:*"],
+            "customer_updated": ["customer:*"],
+            "customer_deleted": ["customer:*"],
             # 供应商相关事件
-            'supplier_created': ['supplier:*'],
-            'supplier_updated': ['supplier:*'],
-            'supplier_deleted': ['supplier:*'],
+            "supplier_created": ["supplier:*"],
+            "supplier_updated": ["supplier:*"],
+            "supplier_deleted": ["supplier:*"],
             # 系统配置事件
-            'config_updated': ['system_config:*'],
+            "config_updated": ["system_config:*"],
             # 分类相关事件
-            'category_updated': ['category:*', 'product:*'],
+            "category_updated": ["category:*", "product:*"],
         }
 
         # 获取对应的缓存模式
@@ -294,16 +301,16 @@ class CacheManager:
 
         # 处理特定事件的数据
         if event_data:
-            if event_type in ['product_updated', 'product_deleted']:
-                product_id = event_data.get('product_id')
+            if event_type in ["product_updated", "product_deleted"]:
+                product_id = event_data.get("product_id")
                 if product_id:
-                    patterns.append(f'product:{product_id}:*')
-                    patterns.append(f'inventory:*:{product_id}:*')
-            elif event_type in ['customer_updated', 'customer_deleted']:
-                customer_id = event_data.get('customer_id')
+                    patterns.append(f"product:{product_id}:*")
+                    patterns.append(f"inventory:*:{product_id}:*")
+            elif event_type in ["customer_updated", "customer_deleted"]:
+                customer_id = event_data.get("customer_id")
                 if customer_id:
-                    patterns.append(f'customer:{customer_id}:*')
-                    patterns.append(f'order:*:{customer_id}:*')
+                    patterns.append(f"customer:{customer_id}:*")
+                    patterns.append(f"order:*:{customer_id}:*")
 
         # 执行缓存失效
         for pattern in patterns:
@@ -311,7 +318,13 @@ class CacheManager:
 
         logger.info(f"事件处理完成: {event_type}, 失效模式数: {len(patterns)}")
 
-    async def warm_up(self, data_loader: callable, keys: List[str], cache_type: str = "default", batch_size: int = 10):
+    async def warm_up(
+        self,
+        data_loader: callable,
+        keys: List[str],
+        cache_type: str = "default",
+        batch_size: int = 10,
+    ):
         """
         缓存预热
 
@@ -396,8 +409,12 @@ class CacheManager:
         """
         total = self.stats["hits"] + self.stats["misses"]
         hit_rate = self.stats["hits"] / total if total > 0 else 0
-        local_cache_hit_rate = self.stats["local_cache_hits"] / self.stats["hits"] if self.stats["hits"] > 0 else 0
-        redis_cache_hit_rate = self.stats["redis_cache_hits"] / self.stats["hits"] if self.stats["hits"] > 0 else 0
+        local_cache_hit_rate = (
+            self.stats["local_cache_hits"] / self.stats["hits"] if self.stats["hits"] > 0 else 0
+        )
+        redis_cache_hit_rate = (
+            self.stats["redis_cache_hits"] / self.stats["hits"] if self.stats["hits"] > 0 else 0
+        )
 
         return {
             **self.stats,
@@ -454,40 +471,40 @@ class CacheManager:
         # 业务场景到缓存策略的映射
         scenario_strategies = {
             # 产品相关
-            'product_detail': 'product_info',
-            'product_list': 'product_info',
+            "product_detail": "product_info",
+            "product_list": "product_info",
             # 库存相关
-            'inventory_status': 'inventory',
-            'stock_levels': 'inventory',
+            "inventory_status": "inventory",
+            "stock_levels": "inventory",
             # 订单相关
-            'order_detail': 'order_list',
-            'order_list': 'order_list',
+            "order_detail": "order_list",
+            "order_list": "order_list",
             # 客户相关
-            'customer_detail': 'customer_info',
-            'customer_list': 'customer_info',
+            "customer_detail": "customer_info",
+            "customer_list": "customer_info",
             # 供应商相关
-            'supplier_detail': 'supplier_info',
-            'supplier_list': 'supplier_info',
+            "supplier_detail": "supplier_info",
+            "supplier_list": "supplier_info",
             # 系统配置
-            'system_config': 'system_config',
+            "system_config": "system_config",
             # 分类相关
-            'category_list': 'category_list',
+            "category_list": "category_list",
             # API响应
-            'api_response': 'api_response',
+            "api_response": "api_response",
             # 销售报价
-            'quote_detail': 'sales_quote',
-            'quote_list': 'sales_quote',
+            "quote_detail": "sales_quote",
+            "quote_list": "sales_quote",
             # 财务报表
-            'finance_report': 'finance_report',
-            'financial_summary': 'finance_report',
+            "finance_report": "finance_report",
+            "financial_summary": "finance_report",
             # 仪表盘
-            'dashboard_overview': 'dashboard',
-            'dashboard_sales': 'dashboard',
-            'dashboard_inventory': 'dashboard',
+            "dashboard_overview": "dashboard",
+            "dashboard_sales": "dashboard",
+            "dashboard_inventory": "dashboard",
         }
 
         # 获取对应的缓存类型
-        cache_type = scenario_strategies.get(business_scenario, 'default')
+        cache_type = scenario_strategies.get(business_scenario, "default")
         # 返回缓存策略配置
         return CACHE_STRATEGIES.get(cache_type, {})
 

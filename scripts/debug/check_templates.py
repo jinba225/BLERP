@@ -2,6 +2,7 @@
 """
 全面检查所有模板文件的语法问题
 """
+
 import re
 from pathlib import Path
 

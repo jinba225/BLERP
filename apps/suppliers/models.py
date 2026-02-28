@@ -1,6 +1,7 @@
 """
 Supplier models for the ERP system.
 """
+
 from core.models import PAYMENT_METHOD_CHOICES, BaseModel
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
@@ -45,7 +46,11 @@ class Supplier(BaseModel):
     name = models.CharField("供应商名称", max_length=200)
     code = models.CharField("供应商编码", max_length=100, unique=True)
     category = models.ForeignKey(
-        SupplierCategory, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="供应商分类"
+        SupplierCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="供应商分类",
     )
     level = models.CharField("供应商等级", max_length=1, choices=SUPPLIER_LEVELS, default="C")
 
@@ -151,7 +156,10 @@ class SupplierContact(BaseModel):
     ]
 
     supplier = models.ForeignKey(
-        Supplier, on_delete=models.CASCADE, related_name="contacts", verbose_name="供应商"
+        Supplier,
+        on_delete=models.CASCADE,
+        related_name="contacts",
+        verbose_name="供应商",
     )
     name = models.CharField("姓名", max_length=100)
     position = models.CharField("职位", max_length=100, blank=True)
@@ -180,7 +188,10 @@ class SupplierProduct(BaseModel):
     """
 
     supplier = models.ForeignKey(
-        Supplier, on_delete=models.CASCADE, related_name="products", verbose_name="供应商"
+        Supplier,
+        on_delete=models.CASCADE,
+        related_name="products",
+        verbose_name="供应商",
     )
     product = models.ForeignKey("products.Product", on_delete=models.CASCADE, verbose_name="产品")
     supplier_product_code = models.CharField("供应商产品编码", max_length=100, blank=True)
@@ -214,7 +225,10 @@ class SupplierEvaluation(BaseModel):
     ]
 
     supplier = models.ForeignKey(
-        Supplier, on_delete=models.CASCADE, related_name="evaluations", verbose_name="供应商"
+        Supplier,
+        on_delete=models.CASCADE,
+        related_name="evaluations",
+        verbose_name="供应商",
     )
     evaluation_period = models.CharField("评估周期", max_length=20, choices=EVALUATION_PERIODS)
     year = models.PositiveIntegerField("年份")

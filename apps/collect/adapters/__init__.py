@@ -1,6 +1,7 @@
 """
 适配器模块初始化
 """
+
 from .base import (
     BaseCollectAdapter,
     One688CollectAdapter,

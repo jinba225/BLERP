@@ -1,6 +1,7 @@
 """
 Finance app URLs.
 """
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -24,7 +25,9 @@ urlpatterns = [
     # Customer Accounts
     path("customer-accounts/", views.customer_account_list, name="customer_account_list"),
     path(
-        "customer-accounts/<int:pk>/", views.customer_account_detail, name="customer_account_detail"
+        "customer-accounts/<int:pk>/",
+        views.customer_account_detail,
+        name="customer_account_detail",
     ),
     path(
         "customer-accounts/<int:pk>/writeoff/",
@@ -39,7 +42,9 @@ urlpatterns = [
     # Supplier Accounts
     path("supplier-accounts/", views.supplier_account_list, name="supplier_account_list"),
     path(
-        "supplier-accounts/<int:pk>/", views.supplier_account_detail, name="supplier_account_detail"
+        "supplier-accounts/<int:pk>/",
+        views.supplier_account_detail,
+        name="supplier_account_detail",
     ),
     path(
         "supplier-accounts/generate-from-invoice/<int:invoice_id>/",
@@ -71,8 +76,16 @@ urlpatterns = [
     path("payments/<int:pk>/", views.payment_detail, name="payment_detail"),
     # 收款记录
     path("payment-receipts/", views.payment_receipt_list, name="payment_receipt_list"),
-    path("payment-receipts/create/", views.payment_receipt_create, name="payment_receipt_create"),
-    path("payment-receipts/<int:pk>/", views.payment_receipt_detail, name="payment_receipt_detail"),
+    path(
+        "payment-receipts/create/",
+        views.payment_receipt_create,
+        name="payment_receipt_create",
+    ),
+    path(
+        "payment-receipts/<int:pk>/",
+        views.payment_receipt_detail,
+        name="payment_receipt_detail",
+    ),
     path(
         "payment-receipts/<int:pk>/edit/",
         views.payment_receipt_update,
@@ -90,8 +103,16 @@ urlpatterns = [
     ),
     # 付款记录
     path("payment-payments/", views.payment_payment_list, name="payment_payment_list"),
-    path("payment-payments/create/", views.payment_payment_create, name="payment_payment_create"),
-    path("payment-payments/<int:pk>/", views.payment_payment_detail, name="payment_payment_detail"),
+    path(
+        "payment-payments/create/",
+        views.payment_payment_create,
+        name="payment_payment_create",
+    ),
+    path(
+        "payment-payments/<int:pk>/",
+        views.payment_payment_detail,
+        name="payment_payment_detail",
+    ),
     path(
         "payment-payments/<int:pk>/edit/",
         views.payment_payment_update,
@@ -126,7 +147,11 @@ urlpatterns = [
     path("tax-rates/<int:pk>/edit/", views.tax_rate_update, name="tax_rate_update"),
     path("tax-rates/<int:pk>/delete/", views.tax_rate_delete, name="tax_rate_delete"),
     # 预收预付
-    path("prepayments/customer/", views.customer_prepayment_list, name="customer_prepayment_list"),
+    path(
+        "prepayments/customer/",
+        views.customer_prepayment_list,
+        name="customer_prepayment_list",
+    ),
     path(
         "prepayments/customer/create/",
         views.customer_prepayment_create,
@@ -147,7 +172,11 @@ urlpatterns = [
         views.customer_prepayment_consolidate,
         name="customer_prepayment_consolidate",
     ),
-    path("prepayments/supplier/", views.supplier_prepayment_list, name="supplier_prepayment_list"),
+    path(
+        "prepayments/supplier/",
+        views.supplier_prepayment_list,
+        name="supplier_prepayment_list",
+    ),
     path(
         "prepayments/supplier/create/",
         views.supplier_prepayment_create,
@@ -182,12 +211,20 @@ urlpatterns = [
     path("expenses/<int:pk>/edit/", views_expense.expense_edit, name="expense_edit"),
     path("expenses/<int:pk>/delete/", views_expense.expense_delete, name="expense_delete"),
     path("expenses/<int:pk>/submit/", views_expense.expense_submit, name="expense_submit"),
-    path("expenses/<int:pk>/approve/", views_expense.expense_approve, name="expense_approve"),
+    path(
+        "expenses/<int:pk>/approve/",
+        views_expense.expense_approve,
+        name="expense_approve",
+    ),
     path("expenses/<int:pk>/reject/", views_expense.expense_reject, name="expense_reject"),
     path("expenses/<int:pk>/pay/", views_expense.expense_pay, name="expense_pay"),
     # 财务报表
     path("reports/", views_reports.financial_report_list, name="report_list"),
-    path("reports/generator/", views_reports.financial_report_generator, name="report_generator"),
+    path(
+        "reports/generator/",
+        views_reports.financial_report_generator,
+        name="report_generator",
+    ),
     path("reports/<int:pk>/", views_reports.financial_report_detail, name="report_detail"),
     # 财务报表生成器
     path(
@@ -201,7 +238,9 @@ urlpatterns = [
         name="generate_income_statement",
     ),
     path(
-        "reports/generate/cash-flow/", views_reports.generate_cash_flow, name="generate_cash_flow"
+        "reports/generate/cash-flow/",
+        views_reports.generate_cash_flow,
+        name="generate_cash_flow",
     ),
     path(
         "reports/generate/trial-balance/",

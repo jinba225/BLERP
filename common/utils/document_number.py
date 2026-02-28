@@ -6,6 +6,7 @@ Example: SO20251108001
 
 前缀支持系统配置，可在后台修改
 """
+
 from datetime import date
 
 from django.db import transaction
@@ -210,7 +211,10 @@ class DocumentNumberGenerator:
             return config.value
         except SystemConfig.DoesNotExist:
             # 如果配置不存在，尝试返回旧前缀，否则返回原始输入
-            for legacy_prefix, mapped_key in DocumentNumberGenerator.LEGACY_PREFIX_MAP.items():
+            for (
+                legacy_prefix,
+                mapped_key,
+            ) in DocumentNumberGenerator.LEGACY_PREFIX_MAP.items():
                 if DocumentNumberGenerator.PREFIX_CONFIG_MAP.get(mapped_key) == config_key:
                     return legacy_prefix
             return prefix_key
@@ -375,7 +379,8 @@ class DocumentNumberGenerator:
                     # Get active document numbers
                     active_numbers = set()
                     active_docs = model_class.objects.filter(
-                        **{f"{number_field}__startswith": f"{prefix}{date_str}"}, is_deleted=False
+                        **{f"{number_field}__startswith": f"{prefix}{date_str}"},
+                        is_deleted=False,
                     )
 
                     for doc in active_docs:

@@ -5,6 +5,7 @@ Django管理命令：查看缓存统计信息
     python manage.py cache_stats                    # 显示缓存统计
     python manage.py cache_stats --cache=default    # 查看特定缓存统计
 """
+
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 

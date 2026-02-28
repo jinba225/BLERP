@@ -52,11 +52,17 @@ class CustomerAIConfig(BaseModel):
 
     # 工具权限控制
     allowed_tools = models.JSONField(
-        "允许的工具", default=list, blank=True, help_text="允许客户 AI 助手使用的工具列表，留空则使用默认工具集"
+        "允许的工具",
+        default=list,
+        blank=True,
+        help_text="允许客户 AI 助手使用的工具列表，留空则使用默认工具集",
     )
 
     blocked_tools = models.JSONField(
-        "阻止的工具", default=list, blank=True, help_text="明确阻止的工具列表，优先级高于 allowed_tools"
+        "阻止的工具",
+        default=list,
+        blank=True,
+        help_text="明确阻止的工具列表，优先级高于 allowed_tools",
     )
 
     # 参数配置
@@ -72,7 +78,9 @@ class CustomerAIConfig(BaseModel):
     enable_data_query = models.BooleanField("启用数据查询", default=True, help_text="是否允许查询客户数据")
 
     enable_data_modification = models.BooleanField(
-        "启用数据修改", default=False, help_text="是否允许修改客户数据（需要 full_access 权限）"
+        "启用数据修改",
+        default=False,
+        help_text="是否允许修改客户数据（需要 full_access 权限）",
     )
 
     # 状态管理
@@ -203,15 +211,24 @@ class AIModelConfig(BaseModel):
     # API配置
     api_key = models.CharField("API Key", max_length=500, help_text="将被加密存储")
     api_base = models.CharField(
-        "API Base URL", max_length=500, blank=True, help_text="自定义API地址，留空使用默认"
+        "API Base URL",
+        max_length=500,
+        blank=True,
+        help_text="自定义API地址，留空使用默认",
     )
     model_name = models.CharField(
-        "模型名称", max_length=100, help_text="如: gpt-4, claude-3-5-sonnet, ernie-bot-4.0"
+        "模型名称",
+        max_length=100,
+        help_text="如: gpt-4, claude-3-5-sonnet, ernie-bot-4.0",
     )
 
     # 参数配置
     temperature = models.DecimalField(
-        "Temperature", max_digits=3, decimal_places=2, default=0.7, help_text="控制输出随机性，0-1之间"
+        "Temperature",
+        max_digits=3,
+        decimal_places=2,
+        default=0.7,
+        help_text="控制输出随机性，0-1之间",
     )
     max_tokens = models.IntegerField("Max Tokens", default=2000, help_text="最大生成Token数")
     timeout = models.IntegerField("超时时间(秒)", default=60)
@@ -266,7 +283,10 @@ class AIConversation(BaseModel):
 
     conversation_id = models.CharField("会话ID", max_length=100, unique=True, db_index=True)
     user = models.ForeignKey(
-        User, verbose_name="用户", on_delete=models.CASCADE, related_name="ai_conversations"
+        User,
+        verbose_name="用户",
+        on_delete=models.CASCADE,
+        related_name="ai_conversations",
     )
     channel = models.CharField("渠道", max_length=20, choices=CHANNEL_CHOICES)
     channel_user_id = models.CharField(
@@ -315,7 +335,10 @@ class AIMessage(BaseModel):
     ]
 
     conversation = models.ForeignKey(
-        AIConversation, verbose_name="会话", on_delete=models.CASCADE, related_name="messages"
+        AIConversation,
+        verbose_name="会话",
+        on_delete=models.CASCADE,
+        related_name="messages",
     )
     role = models.CharField("角色", max_length=20, choices=ROLE_CHOICES)
 
@@ -331,7 +354,11 @@ class AIMessage(BaseModel):
 
     # 模型信息
     model_config = models.ForeignKey(
-        AIModelConfig, verbose_name="使用的模型", on_delete=models.SET_NULL, null=True, blank=True
+        AIModelConfig,
+        verbose_name="使用的模型",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     tokens_used = models.IntegerField("消耗Token数", default=0)
     response_time = models.DecimalField(
@@ -375,7 +402,9 @@ class AITool(BaseModel):
 
     # 执行配置
     handler_path = models.CharField(
-        "处理器路径", max_length=200, help_text="如: ai_assistant.tools.sales.SearchCustomerTool"
+        "处理器路径",
+        max_length=200,
+        help_text="如: ai_assistant.tools.sales.SearchCustomerTool",
     )
     requires_approval = models.BooleanField("需要审批", default=False, help_text="高风险操作需要用户确认")
 
@@ -470,7 +499,10 @@ class AIToolExecutionLog(BaseModel):
     # 工具信息
     tool_name = models.CharField("工具名称", max_length=100)
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name="执行用户", related_name="ai_tool_executions"
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="执行用户",
+        related_name="ai_tool_executions",
     )
 
     # 执行参数和结果
@@ -523,7 +555,9 @@ class ChannelUserMapping(BaseModel):
     # 渠道信息
     channel = models.CharField("渠道", max_length=20, choices=CHANNEL_CHOICES)
     external_user_id = models.CharField(
-        "外部用户ID", max_length=200, help_text="微信OpenID、钉钉UserID或Telegram ChatID"
+        "外部用户ID",
+        max_length=200,
+        help_text="微信OpenID、钉钉UserID或Telegram ChatID",
     )
     external_username = models.CharField(
         "外部用户名", max_length=200, blank=True, help_text="外部平台的用户名或昵称"
@@ -531,7 +565,10 @@ class ChannelUserMapping(BaseModel):
 
     # 系统用户
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name="系统用户", related_name="channel_mappings"
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="系统用户",
+        related_name="channel_mappings",
     )
 
     # 状态

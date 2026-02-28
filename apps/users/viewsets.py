@@ -1,6 +1,7 @@
 """
 User viewsets for the ERP system.
 """
+
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, status, viewsets
@@ -26,7 +27,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.all()
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
     filterset_fields = ["is_active", "department", "gender"]
     search_fields = ["username", "email", "first_name", "last_name", "employee_id"]
     ordering_fields = ["username", "email", "date_joined", "last_login"]
@@ -74,7 +79,11 @@ class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
     filterset_fields = ["is_active"]
     search_fields = ["name", "code", "description"]
     ordering_fields = ["name", "code", "created_at"]
@@ -107,7 +116,11 @@ class PermissionViewSet(viewsets.ModelViewSet):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
     filterset_fields = ["permission_type", "module", "is_active"]
     search_fields = ["name", "code", "description"]
     ordering_fields = ["name", "code", "module"]

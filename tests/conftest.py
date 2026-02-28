@@ -99,7 +99,11 @@ def test_supplier(db):
     from suppliers.models import Supplier
 
     return Supplier.objects.create(
-        name="测试供应商", code="SUP001", address="测试地址", city="测试城市", payment_terms="bank_transfer"
+        name="测试供应商",
+        code="SUP001",
+        address="测试地址",
+        city="测试城市",
+        payment_terms="bank_transfer",
     )
 
 

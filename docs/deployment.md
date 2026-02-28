@@ -116,7 +116,7 @@ npm run build
 server {
     listen 80;
     server_name your-domain.com;
-    
+
     # Redirect HTTP to HTTPS
     return 301 https://$server_name$request_uri;
 }
@@ -124,37 +124,37 @@ server {
 server {
     listen 443 ssl http2;
     server_name your-domain.com;
-    
+
     # SSL Configuration
     ssl_certificate /path/to/your/certificate.crt;
     ssl_certificate_key /path/to/your/private.key;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
-    
+
     # Security Headers
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "no-referrer-when-downgrade" always;
     add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
-    
+
     client_max_body_size 50M;
-    
+
     # Static files
     location /static/ {
         alias /path/to/django_erp/staticfiles/;
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
-    
+
     # Media files
     location /media/ {
         alias /path/to/django_erp/media/;
         expires 1y;
         add_header Cache-Control "public";
     }
-    
+
     # Django application
     location / {
         proxy_pass http://127.0.0.1:8000;

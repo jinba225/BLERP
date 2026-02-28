@@ -1,6 +1,7 @@
 """
 Purchase models tests.
 """
+
 from datetime import timedelta
 from decimal import Decimal
 
@@ -135,7 +136,9 @@ class PurchaseRequestModelTest(TestCase):
     def setUp(self):
         """Set up test data."""
         self.user = User.objects.create_user(
-            username="testuser_request", email="testuser_request@test.com", password="testpass123"
+            username="testuser_request",
+            email="testuser_request@test.com",
+            password="testpass123",
         )
 
         self.supplier = Supplier.objects.create(
@@ -247,7 +250,9 @@ class PurchaseRequestModelTest(TestCase):
     def test_approve_without_auto_create_order(self):
         """Test approval without auto-creating order."""
         order, message = self.purchase_request.approve_and_convert_to_order(
-            approved_by_user=self.user, supplier_id=self.supplier.id, auto_create_order=False
+            approved_by_user=self.user,
+            supplier_id=self.supplier.id,
+            auto_create_order=False,
         )
 
         # Check request was approved but no order created

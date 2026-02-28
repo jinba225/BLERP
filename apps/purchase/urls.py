@@ -1,6 +1,7 @@
 """
 Purchase app URLs.
 """
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -25,7 +26,11 @@ urlpatterns = [
     ),
     path("requests/<int:pk>/submit/", views.request_submit, name="request_submit"),
     path("requests/<int:pk>/approve/", views.request_approve, name="request_approve"),
-    path("requests/<int:pk>/unapprove/", views.request_unapprove, name="request_unapprove"),
+    path(
+        "requests/<int:pk>/unapprove/",
+        views.request_unapprove,
+        name="request_unapprove",
+    ),
     path(
         "requests/<int:pk>/unapprove/confirm/",
         views.request_unapprove_confirm,
@@ -47,9 +52,17 @@ urlpatterns = [
     ),
     path("receipts/", views.receipt_list, name="receipt_list"),
     path("receipts/<int:pk>/", views.receipt_detail, name="receipt_detail"),
-    path("orders/<int:order_pk>/receipt/create/", views.receipt_create, name="receipt_create"),
+    path(
+        "orders/<int:order_pk>/receipt/create/",
+        views.receipt_create,
+        name="receipt_create",
+    ),
     path("receipts/<int:pk>/receive/", views.receipt_receive, name="receipt_receive"),
-    path("receipts/<int:pk>/unapprove/", views.receipt_unapprove, name="receipt_unapprove"),
+    path(
+        "receipts/<int:pk>/unapprove/",
+        views.receipt_unapprove,
+        name="receipt_unapprove",
+    ),
     path(
         "receipts/<int:pk>/unapprove/confirm/",
         views.receipt_unapprove_confirm,
@@ -57,7 +70,11 @@ urlpatterns = [
     ),
     path("returns/", views.return_list, name="return_list"),
     path("returns/<int:pk>/", views.return_detail, name="return_detail"),
-    path("orders/<int:order_pk>/return/create/", views.return_create, name="return_create"),
+    path(
+        "orders/<int:order_pk>/return/create/",
+        views.return_create,
+        name="return_create",
+    ),
     path("returns/<int:pk>/approve/", views.return_approve, name="return_approve"),
     path("returns/<int:pk>/unapprove/", views.return_unapprove, name="return_unapprove"),
     path(

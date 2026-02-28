@@ -8,7 +8,7 @@ ERP.LazyLoad = {
     // 图片懒加载
     initImages() {
         const images = document.querySelectorAll('img[data-src]');
-        
+
         if ('IntersectionObserver' in window) {
             const imageObserver = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
@@ -20,7 +20,7 @@ ERP.LazyLoad = {
                     }
                 });
             });
-            
+
             images.forEach(img => imageObserver.observe(img));
         } else {
             // 降级方案
@@ -30,30 +30,30 @@ ERP.LazyLoad = {
             });
         }
     },
-    
+
     // 脚本懒加载
     loadScript(src, callback) {
         const script = document.createElement('script');
         script.src = src;
         script.async = true;
-        
+
         if (callback) {
             script.onload = callback;
         }
-        
+
         document.head.appendChild(script);
     },
-    
+
     // 样式懒加载
     loadStyle(href, callback) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = href;
-        
+
         if (callback) {
             link.onload = callback;
         }
-        
+
         document.head.appendChild(link);
     }
 };
@@ -68,24 +68,24 @@ ERP.Cache = {
         };
         localStorage.setItem(key, JSON.stringify(item));
     },
-    
+
     get(key) {
         const itemStr = localStorage.getItem(key);
         if (!itemStr) return null;
-        
+
         const item = JSON.parse(itemStr);
         if (Date.now() > item.expiry) {
             localStorage.removeItem(key);
             return null;
         }
-        
+
         return item.value;
     },
-    
+
     remove(key) {
         localStorage.removeItem(key);
     },
-    
+
     clear() {
         localStorage.clear();
     }
@@ -105,7 +105,7 @@ ERP.Utils = {
             timeout = setTimeout(later, wait);
         };
     },
-    
+
     // 节流函数
     throttle(func, limit) {
         let inThrottle;
@@ -117,12 +117,12 @@ ERP.Utils = {
             }
         };
     },
-    
+
     // 深拷贝
     deepClone(obj) {
         return JSON.parse(JSON.stringify(obj));
     },
-    
+
     // 格式化日期
     formatDate(date, format = 'YYYY-MM-DD HH:mm:ss') {
         const d = new Date(date);
@@ -132,7 +132,7 @@ ERP.Utils = {
         const hours = String(d.getHours()).padStart(2, '0');
         const minutes = String(d.getMinutes()).padStart(2, '0');
         const seconds = String(d.getSeconds()).padStart(2, '0');
-        
+
         return format
             .replace('YYYY', year)
             .replace('MM', month)
@@ -141,12 +141,12 @@ ERP.Utils = {
             .replace('mm', minutes)
             .replace('ss', seconds);
     },
-    
+
     // 格式化数字
     formatNumber(num, decimals = 2) {
         return parseFloat(num).toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     },
-    
+
     // 生成唯一ID
     generateId() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -163,34 +163,34 @@ ERP.Api = {
                 'Content-Type': 'application/json'
             }
         };
-        
+
         const mergedOptions = { ...defaultOptions, ...options };
-        
+
         try {
             const response = await fetch(url, mergedOptions);
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             return await response.json();
         } catch (error) {
             console.error('API request failed:', error);
             throw error;
         }
     },
-    
+
     // GET请求
     get(url, params = {}) {
         const queryString = Object.entries(params)
             .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
             .join('&');
-        
+
         const fullUrl = queryString ? `${url}?${queryString}` : url;
-        
+
         return this.request(fullUrl);
     },
-    
+
     // POST请求
     post(url, data = {}) {
         return this.request(url, {
@@ -198,7 +198,7 @@ ERP.Api = {
             body: JSON.stringify(data)
         });
     },
-    
+
     // PUT请求
     put(url, data = {}) {
         return this.request(url, {
@@ -206,7 +206,7 @@ ERP.Api = {
             body: JSON.stringify(data)
         });
     },
-    
+
     // DELETE请求
     delete(url) {
         return this.request(url, {
@@ -221,7 +221,7 @@ ERP.Form = {
     validate(form) {
         const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
         let isValid = true;
-        
+
         inputs.forEach(input => {
             if (!input.value.trim()) {
                 input.classList.add('border-red-500');
@@ -230,22 +230,22 @@ ERP.Form = {
                 input.classList.remove('border-red-500');
             }
         });
-        
+
         return isValid;
     },
-    
+
     // 获取表单数据
     getData(form) {
         const formData = new FormData(form);
         const data = {};
-        
+
         formData.forEach((value, key) => {
             data[key] = value;
         });
-        
+
         return data;
     },
-    
+
     // 重置表单
     reset(form) {
         form.reset();
@@ -264,7 +264,7 @@ ERP.Modal = {
             document.body.classList.add('overflow-hidden');
         }
     },
-    
+
     close(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -279,7 +279,7 @@ ERP.Notification = {
     show(message, type = 'info', duration = 3000) {
         const notification = document.createElement('div');
         notification.className = `fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-0 opacity-100`;
-        
+
         switch (type) {
             case 'success':
                 notification.classList.add('bg-green-500', 'text-white');
@@ -293,10 +293,10 @@ ERP.Notification = {
             default:
                 notification.classList.add('bg-blue-500', 'text-white');
         }
-        
+
         notification.textContent = message;
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.classList.add('translate-x-full', 'opacity-0');
             setTimeout(() => {
@@ -312,32 +312,32 @@ ERP.Table = {
     sort(table, columnIndex) {
         const tbody = table.querySelector('tbody');
         const rows = Array.from(tbody.querySelectorAll('tr'));
-        
+
         // 切换排序方向
         const currentSort = table.dataset.sort || 'asc';
         const newSort = currentSort === 'asc' ? 'desc' : 'asc';
         table.dataset.sort = newSort;
-        
+
         // 排序行
         rows.sort((a, b) => {
             const aValue = a.cells[columnIndex].textContent.trim();
             const bValue = b.cells[columnIndex].textContent.trim();
-            
+
             if (!isNaN(aValue) && !isNaN(bValue)) {
                 return newSort === 'asc' ? parseFloat(aValue) - parseFloat(bValue) : parseFloat(bValue) - parseFloat(aValue);
             }
-            
+
             return newSort === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         });
-        
+
         // 重新插入行
         rows.forEach(row => tbody.appendChild(row));
     },
-    
+
     // 搜索
     search(table, searchTerm) {
         const rows = table.querySelectorAll('tbody tr');
-        
+
         rows.forEach(row => {
             const text = row.textContent.toLowerCase();
             if (text.includes(searchTerm.toLowerCase())) {
@@ -353,13 +353,13 @@ ERP.Table = {
 ERP.init = function() {
     // 初始化图片懒加载
     ERP.LazyLoad.initImages();
-    
+
     // 初始化事件监听器
     this.initEventListeners();
-    
+
     // 初始化表单验证
     this.initFormValidation();
-    
+
     console.log('ERP system initialized');
 };
 
@@ -372,7 +372,7 @@ ERP.initEventListeners = function() {
             ERP.Modal.close(modalId);
         });
     });
-    
+
     // 模态框打开按钮
     document.querySelectorAll('[data-modal-open]').forEach(button => {
         button.addEventListener('click', function() {
@@ -380,7 +380,7 @@ ERP.initEventListeners = function() {
             ERP.Modal.open(modalId);
         });
     });
-    
+
     // 表格排序
     document.querySelectorAll('th[data-sort]').forEach(th => {
         th.addEventListener('click', function() {
@@ -389,7 +389,7 @@ ERP.initEventListeners = function() {
             ERP.Table.sort(table, columnIndex);
         });
     });
-    
+
     // 表格搜索
     document.querySelectorAll('[data-table-search]').forEach(input => {
         input.addEventListener('input', ERP.Utils.debounce(function() {
@@ -398,7 +398,7 @@ ERP.initEventListeners = function() {
             ERP.Table.search(table, this.value);
         }, 300));
     });
-    
+
     // 表单提交
     document.querySelectorAll('form[data-validate]').forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -420,7 +420,7 @@ ERP.initFormValidation = function() {
                 this.classList.remove('border-red-500');
             }
         });
-        
+
         input.addEventListener('input', function() {
             if (this.value.trim()) {
                 this.classList.remove('border-red-500');
@@ -446,7 +446,7 @@ if ('performance' in window) {
     window.addEventListener('load', function() {
         const loadTime = performance.now();
         console.log(`页面加载时间: ${loadTime.toFixed(2)}ms`);
-        
+
         // 发送性能数据到服务器
         if (navigator.sendBeacon) {
             const performanceData = {
@@ -454,7 +454,7 @@ if ('performance' in window) {
                 navigationType: performance.navigation.type,
                 timestamp: new Date().toISOString()
             };
-            
+
             navigator.sendBeacon('/api/performance', JSON.stringify(performanceData));
         }
     });
@@ -463,7 +463,7 @@ if ('performance' in window) {
 // 错误监控
 window.addEventListener('error', function(e) {
     console.error('JavaScript error:', e.error);
-    
+
     // 发送错误数据到服务器
     if (navigator.sendBeacon) {
         const errorData = {
@@ -474,7 +474,7 @@ window.addEventListener('error', function(e) {
             colno: e.colno,
             timestamp: new Date().toISOString()
         };
-        
+
         navigator.sendBeacon('/api/error', JSON.stringify(errorData));
     }
 });
@@ -482,7 +482,7 @@ window.addEventListener('error', function(e) {
 // 未捕获的Promise错误
 window.addEventListener('unhandledrejection', function(e) {
     console.error('Unhandled Promise rejection:', e.reason);
-    
+
     // 发送错误数据到服务器
     if (navigator.sendBeacon) {
         const errorData = {
@@ -490,7 +490,7 @@ window.addEventListener('unhandledrejection', function(e) {
             stack: e.reason.stack,
             timestamp: new Date().toISOString()
         };
-        
+
         navigator.sendBeacon('/api/error', JSON.stringify(errorData));
     }
 });
@@ -499,7 +499,7 @@ window.addEventListener('unhandledrejection', function(e) {
 window.addEventListener('scroll', ERP.Utils.throttle(function() {
     // 滚动相关的逻辑
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
+
     // 处理导航栏样式变化
     const navbar = document.querySelector('.navbar');
     if (navbar) {
@@ -515,7 +515,7 @@ window.addEventListener('scroll', ERP.Utils.throttle(function() {
 window.addEventListener('resize', ERP.Utils.debounce(function() {
     // 响应式相关的逻辑
     const windowWidth = window.innerWidth;
-    
+
     // 处理侧边栏
     const sidebar = document.querySelector('.sidebar');
     if (sidebar) {
@@ -536,7 +536,7 @@ document.addEventListener('keydown', function(e) {
         });
         document.body.classList.remove('overflow-hidden');
     }
-    
+
     // Ctrl/Cmd + K 打开搜索
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();

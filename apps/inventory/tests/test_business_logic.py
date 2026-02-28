@@ -1,6 +1,7 @@
 """
 Inventory business logic tests.
 """
+
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -252,7 +253,8 @@ class InboundOrderProcessTest(TestCase):
 
         # Verify transaction created and stock updated
         self.assertEqual(
-            InventoryTransaction.objects.filter(reference_number=order.order_number).count(), 1
+            InventoryTransaction.objects.filter(reference_number=order.order_number).count(),
+            1,
         )
 
         stock = InventoryStock.objects.get(
@@ -481,7 +483,9 @@ class StockTransferProcessTest(TestCase):
 
         # Verify source stock reduced
         source_stock = InventoryStock.objects.get(
-            product=self.product, warehouse=self.warehouse_from, location=self.location_from
+            product=self.product,
+            warehouse=self.warehouse_from,
+            location=self.location_from,
         )
         self.assertEqual(source_stock.quantity, Decimal("70.00"))
 

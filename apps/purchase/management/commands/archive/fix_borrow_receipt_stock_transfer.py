@@ -13,6 +13,7 @@
 使用方法:
     python manage.py fix_borrow_receipt_stock_transfer [--dry-run]
 """
+
 from django.core.management.base import BaseCommand
 
 from apps.inventory.models import InventoryStock, InventoryTransaction, Warehouse
@@ -94,33 +95,39 @@ class Command(BaseCommand):
 
             if wrong_transactions.exists():
                 count = wrong_transactions.count()
-                self.stdout.write(self.style.WARNING(f"   ⚠️  发现 {count} 个错误的调拨事务"))
+                self.stdout.write(
+                    self.style.WARNING(f"   ⚠️  发现 {count} 个错误的调拨事务")
+                )
 
                 for t in wrong_transactions:
-                    self.stdout.write(
-                        f"      - {
+                    self.stdout.write(f"      - {
                             t.transaction_type}: {
                             t.product.name} | {
                             t.warehouse.name} | 数量: {
                             t.quantity} | ref_type: {
-                            t.reference_type}"
-                    )
+                            t.reference_type}")
 
                 if not dry_run:
                     wrong_transactions.delete()
                     stats["deleted_wrong_transfer"] += count
-                    self.stdout.write(self.style.SUCCESS(f"   ✅ 已删除 {count} 个错误事务"))
+                    self.stdout.write(
+                        self.style.SUCCESS(f"   ✅ 已删除 {count} 个错误事务")
+                    )
             else:
                 self.stdout.write(self.style.SUCCESS("   ✅ 无错误调拨事务"))
 
             # 2. 检查收货单
-            receipts = PurchaseReceipt.objects.filter(purchase_order=order, is_deleted=False)
+            receipts = PurchaseReceipt.objects.filter(
+                purchase_order=order, is_deleted=False
+            )
 
             if receipts.exists():
                 self.stdout.write("\n2. 检查收货单...")
 
                 for receipt in receipts:
-                    self.stdout.write(f"   收货单: {receipt.receipt_number} (状态: {receipt.status})")
+                    self.stdout.write(
+                        f"   收货单: {receipt.receipt_number} (状态: {receipt.status})"
+                    )
 
                     # 获取收货单的已收货明细
                     receipt_items = receipt.items.filter(received_quantity__gt=0)
@@ -138,9 +145,13 @@ class Command(BaseCommand):
                     )
 
                     if existing_transfer.exists():
-                        self.stdout.write(self.style.SUCCESS("      ✅ 已有正确的调拨事务"))
+                        self.stdout.write(
+                            self.style.SUCCESS("      ✅ 已有正确的调拨事务")
+                        )
                     else:
-                        self.stdout.write(self.style.WARNING("      ⚠️  缺少调拨事务，需要创建"))
+                        self.stdout.write(
+                            self.style.WARNING("      ⚠️  缺少调拨事务，需要创建")
+                        )
 
                         if not dry_run:
                             # 为每个收货明细创建调拨事务
@@ -179,7 +190,9 @@ class Command(BaseCommand):
                                 stats["created_correct_transfer"] += 2
 
                             stats["fixed_receipts"] += 1
-                            self.stdout.write(self.style.SUCCESS("      ✅ 已创建调拨事务"))
+                            self.stdout.write(
+                                self.style.SUCCESS("      ✅ 已创建调拨事务")
+                            )
             else:
                 self.stdout.write(self.style.SUCCESS("\n2. 订单未收货，无需修复"))
 
@@ -214,5 +227,7 @@ class Command(BaseCommand):
         if dry_run:
             self.stdout.write(self.style.WARNING("\n这是干运行模式，没有实际修复数据"))
             self.stdout.write(
-                self.style.WARNING("如需实际修复，请运行: python manage.py fix_borrow_receipt_stock_transfer")
+                self.style.WARNING(
+                    "如需实际修复，请运行: python manage.py fix_borrow_receipt_stock_transfer"
+                )
             )

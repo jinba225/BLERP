@@ -2,6 +2,7 @@
 重试管理器 - 基于指数退避算法
 支持智能错误判断、随机抖动、可配置重试策略
 """
+
 import asyncio
 import logging
 import random
@@ -261,7 +262,12 @@ class RetryManager:
         raise last_error
 
 
-def retry(max_retries: int = 3, base_delay: float = 1, max_delay: float = 60, jitter: bool = True):
+def retry(
+    max_retries: int = 3,
+    base_delay: float = 1,
+    max_delay: float = 60,
+    jitter: bool = True,
+):
     """
     重试装饰器
 

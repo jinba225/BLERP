@@ -78,7 +78,11 @@ class Command(BaseCommand):
             mapping, created = ChannelUserMapping.objects.get_or_create(
                 channel="telegram",
                 external_user_id=telegram_user_id,
-                defaults={"external_username": telegram_username, "user": user, "is_active": True},
+                defaults={
+                    "external_username": telegram_username,
+                    "user": user,
+                    "is_active": True,
+                },
             )
 
             if created:

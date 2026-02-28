@@ -17,7 +17,11 @@ class ApprovalLevel:
 
     # 根据金额确定审批级别
     LEVELS = {
-        1: {"name": "一级审批", "max_amount": 5000, "approvers": ["department_manager"]},
+        1: {
+            "name": "一级审批",
+            "max_amount": 5000,
+            "approvers": ["department_manager"],
+        },
         2: {"name": "二级审批", "max_amount": 20000, "approvers": ["director"]},
         3: {"name": "三级审批", "max_amount": 100000, "approvers": ["vice_president"]},
         4: {"name": "四级审批", "max_amount": float("inf"), "approvers": ["president"]},
@@ -209,7 +213,11 @@ class ApprovalService:
                 return ApprovalService._reject_purchase_order(request, approver, reason)
             else:
                 # 通用的拒绝逻辑
-                return False, f"拒绝实体类型 {request.entity_type} 的审批请求: {reason}", {}
+                return (
+                    False,
+                    f"拒绝实体类型 {request.entity_type} 的审批请求: {reason}",
+                    {},
+                )
 
         except Exception as e:
             return False, f"拒绝失败: {str(e)}", {}
@@ -335,7 +343,11 @@ class ApprovalService:
 
         # 检查状态
         if sales_return.status != "pending":
-            return False, f"退货单状态为 {sales_return.get_status_display()}，不能审批", {}
+            return (
+                False,
+                f"退货单状态为 {sales_return.get_status_display()}，不能审批",
+                {},
+            )
 
         # 执行批准
         sales_return.status = "approved"

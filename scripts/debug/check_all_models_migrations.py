@@ -4,6 +4,7 @@
 
 找出所有在迁移中添加但模型中缺失的字段
 """
+
 import os
 import re
 import sys

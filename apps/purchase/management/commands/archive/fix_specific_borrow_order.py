@@ -4,6 +4,7 @@
 使用方法:
     python manage.py fix_specific_borrow_order BO260116001 PO260116001 [--dry-run]
 """
+
 from django.core.management.base import BaseCommand
 
 from apps.inventory.models import InventoryStock, InventoryTransaction, Warehouse
@@ -99,11 +100,15 @@ class Command(BaseCommand):
 
             # 检查调拨事务
             transfer_out = InventoryTransaction.objects.filter(
-                reference_number=borrow.borrow_number, warehouse=borrow_wh, transaction_type="out"
+                reference_number=borrow.borrow_number,
+                warehouse=borrow_wh,
+                transaction_type="out",
             )
 
             transfer_in = InventoryTransaction.objects.filter(
-                reference_number=borrow.borrow_number, warehouse=main_wh, transaction_type="in"
+                reference_number=borrow.borrow_number,
+                warehouse=main_wh,
+                transaction_type="in",
             )
 
             if transfer_out.exists() and transfer_in.exists():

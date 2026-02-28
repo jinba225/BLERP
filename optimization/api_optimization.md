@@ -14,24 +14,24 @@ from rest_framework import status
 
 class BatchRequestView(APIView):
     """批量请求处理视图"""
-    
+
     def post(self, request, *args, **kwargs):
         """处理批量请求"""
         operations = request.data.get('operations', [])
         results = []
-        
+
         for operation in operations:
             method = operation.get('method', 'GET').upper()
             url = operation.get('url')
             data = operation.get('data', {})
             headers = operation.get('headers', {})
-            
+
             # 处理请求
             try:
                 # 使用内部请求处理
                 from django.test import Client
                 client = Client()
-                
+
                 if method == 'GET':
                     response = client.get(url, data, headers=headers)
                 elif method == 'POST':
@@ -42,7 +42,7 @@ class BatchRequestView(APIView):
                     response = client.delete(url, headers=headers)
                 else:
                     response = Response({'error': 'Invalid method'}, status=status.HTTP_400_BAD_REQUEST)
-                
+
                 results.append({
                     'id': operation.get('id'),
                     'status': response.status_code,
@@ -54,7 +54,7 @@ class BatchRequestView(APIView):
                     'status': 500,
                     'data': {'error': str(e)}
                 })
-        
+
         return Response({'results': results})
 ```
 
@@ -66,15 +66,15 @@ class BatchRequestView(APIView):
 # 批量查询视图
 class BatchRetrieveView(APIView):
     """批量查询视图"""
-    
+
     def get(self, request, *args, **kwargs):
         """批量查询资源"""
         model_name = request.query_params.get('model')
         ids = request.query_params.getlist('ids')
-        
+
         if not model_name or not ids:
             return Response({'error': 'Model and ids are required'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         # 根据模型名称获取对应的模型和序列化器
         model_map = {
             'company': (Company, CompanySerializer),
@@ -82,16 +82,16 @@ class BatchRetrieveView(APIView):
             'attachment': (Attachment, AttachmentSerializer),
             'audit_log': (AuditLog, AuditLogSerializer),
         }
-        
+
         if model_name not in model_map:
             return Response({'error': 'Invalid model name'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         model, serializer_class = model_map[model_name]
-        
+
         # 批量查询
         instances = model.objects.filter(id__in=ids)
         serializer = serializer_class(instances, many=True)
-        
+
         return Response(serializer.data)
 ```
 
@@ -105,21 +105,21 @@ class BatchRetrieveView(APIView):
 # 优化后的序列化器基类
 class OptimizedSerializer(serializers.ModelSerializer):
     """优化的序列化器基类"""
-    
+
     def __init__(self, *args, **kwargs):
         # 支持字段选择
         fields = kwargs.pop('fields', None)
         exclude = kwargs.pop('exclude', None)
-        
+
         super().__init__(*args, **kwargs)
-        
+
         # 处理字段选择
         if fields:
             allowed = set(fields.split(','))
             existing = set(self.fields.keys())
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
-        
+
         # 处理字段排除
         if exclude:
             excluded = set(exclude.split(','))
@@ -138,7 +138,7 @@ from functools import lru_cache
 
 class CachedSerializerMixin:
     """序列化器缓存混入"""
-    
+
     @lru_cache(maxsize=1024)
     def to_representation(self, instance):
         """缓存序列化结果"""
@@ -153,7 +153,7 @@ class CachedSerializerMixin:
 # 异步序列化器
 class AsyncSerializer(serializers.ModelSerializer):
     """异步序列化器"""
-    
+
     async def to_representation_async(self, instance):
         """异步序列化"""
         # 异步处理耗时操作
@@ -183,21 +183,21 @@ async def smart_cached_api_response(timeout=300, cache_key=None, cache_type="api
                 path = request.path
                 params = sorted(request.query_params.items())
                 key = f"api:{path}:{hash(str(params))}"
-            
+
             # 检查缓存
             cache_manager = get_cache_manager()
             cached_data = await cache_manager.get(key, cache_type)
-            
+
             if cached_data:
                 return Response(cached_data)
-            
+
             # 执行视图函数
             response = await view_func(self, request, *args, **kwargs)
-            
+
             # 缓存响应
             if response.status_code == 200:
                 await cache_manager.set(key, response.data, cache_type)
-            
+
             return response
         return wrapper
     return decorator
@@ -214,25 +214,25 @@ from hashlib import md5
 
 class ConditionalCacheMixin:
     """条件缓存混入"""
-    
+
     def dispatch(self, request, *args, **kwargs):
         # 生成ETag
         response = super().dispatch(request, *args, **kwargs)
-        
+
         if response.status_code == 200:
             # 生成内容哈希作为ETag
             content_hash = md5(str(response.data).encode()).hexdigest()
             etag = f'"{content_hash}"'
-            
+
             # 设置ETag和Last-Modified
             response['ETag'] = etag
             response['Last-Modified'] = http_date()
-            
+
             # 检查If-None-Match
             if_none_match = request.META.get('HTTP_IF_NONE_MATCH')
             if if_none_match == etag:
                 return Response(status=304)
-        
+
         return response
 ```
 
@@ -271,20 +271,20 @@ CACHE_STRATEGIES = {
 # API性能监控中间件
 class APIPerformanceMiddleware:
     """API性能监控中间件"""
-    
+
     def __init__(self, get_response):
         self.get_response = get_response
-    
+
     def __call__(self, request):
         # 记录开始时间
         start_time = time.time()
-        
+
         # 处理请求
         response = self.get_response(request)
-        
+
         # 计算响应时间
         response_time = (time.time() - start_time) * 1000  # 毫秒
-        
+
         # 记录性能指标
         if request.path.startswith('/api/'):
             from core.services.monitor import get_monitor
@@ -295,10 +295,10 @@ class APIPerformanceMiddleware:
                 success=200 <= response.status_code < 400,
                 duration=response_time / 1000
             )
-        
+
         # 添加响应时间头
         response['X-Response-Time'] = f'{response_time:.2f}ms'
-        
+
         return response
 ```
 
@@ -310,18 +310,18 @@ class APIPerformanceMiddleware:
 # API错误率监控
 class APIErrorMonitor:
     """API错误率监控"""
-    
+
     def __init__(self):
         self.error_counts = defaultdict(int)
         self.total_counts = defaultdict(int)
         self.error_threshold = 0.1  # 10%错误率阈值
-    
+
     def record_request(self, endpoint, success):
         """记录请求"""
         self.total_counts[endpoint] += 1
         if not success:
             self.error_counts[endpoint] += 1
-        
+
         # 检查错误率
         error_rate = self.error_counts[endpoint] / self.total_counts[endpoint]
         if error_rate > self.error_threshold:
@@ -346,29 +346,29 @@ class APIErrorMonitor:
 # 智能限流类
 class SmartRateThrottle(throttling.BaseThrottle):
     """智能限流"""
-    
+
     def allow_request(self, request, view):
         """判断是否允许请求"""
         # 根据用户类型设置不同的限流策略
         if request.user.is_staff:
             # 管理员用户，更高的限流
             return True
-        
+
         # 普通用户，基于Token Bucket算法的限流
         user_id = request.user.id if request.user.is_authenticated else 'anonymous'
         key = f'rate_limit:{user_id}'
-        
+
         # 使用Redis实现Token Bucket
         from django.core.cache import cache
-        
+
         # 获取当前令牌数
         current_tokens = cache.get(key, 100)  # 初始100个令牌
-        
+
         if current_tokens > 0:
             # 消耗一个令牌
             cache.set(key, current_tokens - 1, 3600)  # 1小时窗口
             return True
-        
+
         return False
 ```
 
@@ -380,26 +380,26 @@ class SmartRateThrottle(throttling.BaseThrottle):
 # 批量请求限流
 class BatchRequestThrottle(throttling.BaseThrottle):
     """批量请求限流"""
-    
+
     def allow_request(self, request, view):
         """判断是否允许批量请求"""
         if request.method == 'POST' and request.path == '/api/batch/':
             operations = request.data.get('operations', [])
             operation_count = len(operations)
-            
+
             # 限制批量操作数量
             if operation_count > 10:
                 return False
-            
+
             # 计算请求复杂度
             complexity = sum(self._calculate_complexity(op) for op in operations)
-            
+
             # 限制复杂度
             if complexity > 50:
                 return False
-        
+
         return True
-    
+
     def _calculate_complexity(self, operation):
         """计算操作复杂度"""
         method = operation.get('method', 'GET').upper()
@@ -421,7 +421,7 @@ class OptimizedPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = 'page_size'
     max_page_size = 100
-    
+
     def get_paginated_response(self, data):
         """优化的分页响应"""
         return Response({
@@ -445,31 +445,31 @@ class OptimizedPagination(PageNumberPagination):
 # 响应压缩中间件
 class ResponseCompressionMiddleware:
     """响应压缩中间件"""
-    
+
     def __init__(self, get_response):
         self.get_response = get_response
-    
+
     def __call__(self, request):
         response = self.get_response(request)
-        
+
         # 检查是否支持压缩
         accept_encoding = request.META.get('HTTP_ACCEPT_ENCODING', '')
-        
+
         if 'gzip' in accept_encoding and response.status_code == 200:
             # 压缩响应内容
             import gzip
             import io
-            
+
             content = response.content
             if len(content) > 1024:  # 只压缩大于1KB的内容
                 compressed_content = io.BytesIO()
                 with gzip.GzipFile(fileobj=compressed_content, mode='w') as f:
                     f.write(content)
-                
+
                 response.content = compressed_content.getvalue()
                 response['Content-Encoding'] = 'gzip'
                 response['Content-Length'] = str(len(response.content))
-        
+
         return response
 ```
 

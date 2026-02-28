@@ -18,13 +18,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "report_type",
                     models.CharField(
@@ -39,20 +54,32 @@ class Migration(migrations.Migration):
                         verbose_name="报表类型",
                     ),
                 ),
-                ("report_date", models.DateField(help_text="资产负债表的截止日期", verbose_name="报表日期")),
+                (
+                    "report_date",
+                    models.DateField(help_text="资产负债表的截止日期", verbose_name="报表日期"),
+                ),
                 (
                     "start_date",
                     models.DateField(
-                        blank=True, help_text="利润表和现金流量表的起始日期", null=True, verbose_name="开始日期"
+                        blank=True,
+                        help_text="利润表和现金流量表的起始日期",
+                        null=True,
+                        verbose_name="开始日期",
                     ),
                 ),
                 (
                     "end_date",
                     models.DateField(
-                        blank=True, help_text="利润表和现金流量表的截止日期", null=True, verbose_name="结束日期"
+                        blank=True,
+                        help_text="利润表和现金流量表的截止日期",
+                        null=True,
+                        verbose_name="结束日期",
                     ),
                 ),
-                ("report_data", models.JSONField(help_text="JSON格式存储报表详细数据", verbose_name="报表数据")),
+                (
+                    "report_data",
+                    models.JSONField(help_text="JSON格式存储报表详细数据", verbose_name="报表数据"),
+                ),
                 (
                     "total_assets",
                     models.DecimalField(
@@ -97,7 +124,10 @@ class Migration(migrations.Migration):
                         verbose_name="净利润",
                     ),
                 ),
-                ("generated_at", models.DateTimeField(auto_now_add=True, verbose_name="生成时间")),
+                (
+                    "generated_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="生成时间"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
                 (
                     "created_by",
@@ -150,7 +180,8 @@ class Migration(migrations.Migration):
                 "ordering": ["-report_date", "-created_at"],
                 "indexes": [
                     models.Index(
-                        fields=["report_type", "report_date"], name="finance_fin_report__d3ed23_idx"
+                        fields=["report_type", "report_date"],
+                        name="finance_fin_report__d3ed23_idx",
                     ),
                     models.Index(fields=["report_date"], name="finance_fin_report__eb8fd1_idx"),
                 ],

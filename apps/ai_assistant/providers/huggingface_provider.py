@@ -10,7 +10,6 @@ Hugging Face Provider - 开源模型平台
 官方文档：https://huggingface.co/docs/api-inference
 """
 
-
 import requests
 
 from .base import AIResponse, BaseAIProvider
@@ -52,7 +51,10 @@ class HuggingFaceProvider(BaseAIProvider):
         content = data.get("0", {}).get("generated_text", "")
 
         return AIResponse(
-            content=content, model=self.model_id, usage=data.get("usage", {}), raw_response=data
+            content=content,
+            model=self.model_id,
+            usage=data.get("usage", {}),
+            raw_response=data,
         )
 
     def _build_prompt(self, messages: list) -> str:

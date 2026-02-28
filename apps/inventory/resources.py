@@ -1,6 +1,7 @@
 """
 Inventory 模块的导入导出资源配置
 """
+
 from import_export import fields, resources
 from import_export.widgets import DateWidget, DecimalWidget, ForeignKeyWidget
 from products.models import Product
@@ -36,15 +37,21 @@ class StockMovementResource(resources.ModelResource):
     """库存变动记录导入导出资源"""
 
     product = fields.Field(
-        column_name="产品", attribute="product", widget=ForeignKeyWidget(Product, "code")
+        column_name="产品",
+        attribute="product",
+        widget=ForeignKeyWidget(Product, "code"),
     )
 
     warehouse = fields.Field(
-        column_name="仓库", attribute="warehouse", widget=ForeignKeyWidget(Warehouse, "code")
+        column_name="仓库",
+        attribute="warehouse",
+        widget=ForeignKeyWidget(Warehouse, "code"),
     )
 
     movement_date = fields.Field(
-        column_name="变动日期", attribute="movement_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="变动日期",
+        attribute="movement_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     quantity = fields.Field(column_name="变动数量", attribute="quantity", widget=DecimalWidget())
@@ -73,11 +80,15 @@ class StockAdjustmentResource(resources.ModelResource):
     """库存调整单导入导出资源"""
 
     warehouse = fields.Field(
-        column_name="仓库", attribute="warehouse", widget=ForeignKeyWidget(Warehouse, "code")
+        column_name="仓库",
+        attribute="warehouse",
+        widget=ForeignKeyWidget(Warehouse, "code"),
     )
 
     adjustment_date = fields.Field(
-        column_name="调整日期", attribute="adjustment_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="调整日期",
+        attribute="adjustment_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     class Meta:

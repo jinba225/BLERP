@@ -2,6 +2,7 @@
 Users模块 - API测试
 测试UserViewSet, RoleViewSet, UserRoleViewSet, PermissionViewSet, UserProfileViewSet, LoginLogViewSet的REST API端点
 """
+
 from datetime import date
 
 from django.contrib.auth import get_user_model
@@ -269,11 +270,18 @@ class RoleViewSetTestCase(UsersAPITestCaseBase):
         super().setUp()
         # 创建测试角色
         self.role1 = Role.objects.create(
-            name="管理员", code="ADMIN", description="系统管理员角色", created_by=self.user
+            name="管理员",
+            code="ADMIN",
+            description="系统管理员角色",
+            created_by=self.user,
         )
 
         self.role2 = Role.objects.create(
-            name="销售员", code="SALES", description="销售人员角色", is_active=False, created_by=self.user
+            name="销售员",
+            code="SALES",
+            description="销售人员角色",
+            is_active=False,
+            created_by=self.user,
         )
 
     def test_list_roles(self):
@@ -316,7 +324,12 @@ class RoleViewSetTestCase(UsersAPITestCaseBase):
     def test_create_role(self):
         """测试创建角色"""
         url = reverse("users:role-list")
-        data = {"name": "财务", "code": "FINANCE", "description": "财务人员角色", "is_active": True}
+        data = {
+            "name": "财务",
+            "code": "FINANCE",
+            "description": "财务人员角色",
+            "is_active": True,
+        }
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

@@ -2,6 +2,7 @@
 测试数据生成器
 生成和管理测试数据
 """
+
 import random
 from datetime import datetime, timedelta
 from decimal import Decimal

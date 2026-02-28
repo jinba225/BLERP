@@ -172,7 +172,8 @@ class APIUserBehavior(HttpUser):
         """获取API Token"""
         # 使用JWT获取token
         response = self.client.post(
-            "/api/auth/login/", json={"username": "api_user", "password": "api_password"}
+            "/api/auth/login/",
+            json={"username": "api_user", "password": "api_password"},
         )
 
         if response.status_code == 200:

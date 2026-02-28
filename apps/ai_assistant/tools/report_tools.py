@@ -28,7 +28,10 @@ class GenerateSalesReportTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "group_by": {
                     "type": "string",
@@ -143,7 +146,10 @@ class GeneratePurchaseReportTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "group_by": {
                     "type": "string",
@@ -240,7 +246,10 @@ class GenerateInventoryReportTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "warehouse_id": {"type": "integer", "description": "仓库ID（可选，不指定则统计所有仓库）"},
+                "warehouse_id": {
+                    "type": "integer",
+                    "description": "仓库ID（可选，不指定则统计所有仓库）",
+                },
                 "low_stock_only": {
                     "type": "boolean",
                     "description": "是否只显示低库存产品（默认false）",

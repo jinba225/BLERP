@@ -20,13 +20,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="物流公司名称")),
                 (
                     "code",
@@ -40,7 +55,10 @@ class Migration(migrations.Migration):
                 (
                     "api_endpoint",
                     models.URLField(
-                        blank=True, help_text="官方API地址", max_length=500, verbose_name="API端点"
+                        blank=True,
+                        help_text="官方API地址",
+                        max_length=500,
+                        verbose_name="API端点",
                     ),
                 ),
                 (
@@ -56,7 +74,10 @@ class Migration(migrations.Migration):
                     "tier",
                     models.CharField(
                         choices=[
-                            ("tier_1", "完整API支持（创建运单、查询轨迹、打印面单、取消运单）"),
+                            (
+                                "tier_1",
+                                "完整API支持（创建运单、查询轨迹、打印面单、取消运单）",
+                            ),
                             ("tier_2", "部分API支持（仅查询轨迹）"),
                             ("tier_3", "仅网页查询（爬虫支持）"),
                         ],
@@ -66,7 +87,10 @@ class Migration(migrations.Migration):
                         verbose_name="支持级别",
                     ),
                 ),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
                 (
                     "api_config",
                     models.JSONField(
@@ -76,8 +100,14 @@ class Migration(migrations.Migration):
                         verbose_name="API配置",
                     ),
                 ),
-                ("logo_url", models.URLField(blank=True, max_length=500, verbose_name="Logo URL")),
-                ("website", models.URLField(blank=True, max_length=500, verbose_name="官网地址")),
+                (
+                    "logo_url",
+                    models.URLField(blank=True, max_length=500, verbose_name="Logo URL"),
+                ),
+                (
+                    "website",
+                    models.URLField(blank=True, max_length=500, verbose_name="官网地址"),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -125,13 +155,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "tracking_number",
                     models.CharField(db_index=True, max_length=200, verbose_name="快递单号"),
@@ -186,8 +231,14 @@ class Migration(migrations.Migration):
                         verbose_name="体积(m³)",
                     ),
                 ),
-                ("shipped_at", models.DateTimeField(blank=True, null=True, verbose_name="发货时间")),
-                ("delivered_at", models.DateTimeField(blank=True, null=True, verbose_name="签收时间")),
+                (
+                    "shipped_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="发货时间"),
+                ),
+                (
+                    "delivered_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="签收时间"),
+                ),
                 (
                     "last_track_at",
                     models.DateTimeField(blank=True, null=True, verbose_name="最后查询时间"),
@@ -196,13 +247,19 @@ class Migration(migrations.Migration):
                 (
                     "waybill_image",
                     models.ImageField(
-                        blank=True, null=True, upload_to="waybills/%Y/%m/", verbose_name="面单图片"
+                        blank=True,
+                        null=True,
+                        upload_to="waybills/%Y/%m/",
+                        verbose_name="面单图片",
                     ),
                 ),
                 (
                     "waybill_pdf",
                     models.FileField(
-                        blank=True, null=True, upload_to="waybills/pdf/%Y/%m/", verbose_name="面单PDF"
+                        blank=True,
+                        null=True,
+                        upload_to="waybills/pdf/%Y/%m/",
+                        verbose_name="面单PDF",
                     ),
                 ),
                 (
@@ -270,13 +327,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "cost_type",
                     models.CharField(
@@ -298,11 +370,17 @@ class Migration(migrations.Migration):
                     models.DecimalField(decimal_places=2, max_digits=10, verbose_name="费用金额"),
                 ),
                 ("cost_date", models.DateField(verbose_name="费用日期")),
-                ("description", models.CharField(blank=True, max_length=500, verbose_name="费用描述")),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=500, verbose_name="费用描述"),
+                ),
                 (
                     "reference_number",
                     models.CharField(
-                        blank=True, help_text="物流公司提供的费用参考号", max_length=200, verbose_name="参考号"
+                        blank=True,
+                        help_text="物流公司提供的费用参考号",
+                        max_length=200,
+                        verbose_name="参考号",
                     ),
                 ),
                 (
@@ -361,14 +439,32 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
-                ("track_time", models.DateTimeField(db_index=True, verbose_name="轨迹时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "track_time",
+                    models.DateTimeField(db_index=True, verbose_name="轨迹时间"),
+                ),
                 (
                     "track_status",
                     models.CharField(db_index=True, max_length=100, verbose_name="轨迹状态"),
@@ -377,9 +473,18 @@ class Migration(migrations.Migration):
                     "track_location",
                     models.CharField(blank=True, max_length=500, verbose_name="轨迹地点"),
                 ),
-                ("track_description", models.TextField(blank=True, verbose_name="轨迹描述")),
-                ("operator", models.CharField(blank=True, max_length=200, verbose_name="操作人")),
-                ("raw_data", models.JSONField(blank=True, default=dict, verbose_name="原始数据")),
+                (
+                    "track_description",
+                    models.TextField(blank=True, verbose_name="轨迹描述"),
+                ),
+                (
+                    "operator",
+                    models.CharField(blank=True, max_length=200, verbose_name="操作人"),
+                ),
+                (
+                    "raw_data",
+                    models.JSONField(blank=True, default=dict, verbose_name="原始数据"),
+                ),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -436,13 +541,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="模板名称")),
                 (
                     "template_type",
@@ -461,7 +581,10 @@ class Migration(migrations.Migration):
                 ),
                 ("template_html", models.TextField(verbose_name="HTML模板")),
                 ("css_style", models.TextField(blank=True, verbose_name="CSS样式")),
-                ("is_default", models.BooleanField(default=False, verbose_name="是否默认模板")),
+                (
+                    "is_default",
+                    models.BooleanField(default=False, verbose_name="是否默认模板"),
+                ),
                 (
                     "thumbnail",
                     models.ImageField(
@@ -536,7 +659,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="shippingorder",
             index=models.Index(
-                fields=["platform_order", "-shipped_at"], name="logistics_s_platfor_0cddad_idx"
+                fields=["platform_order", "-shipped_at"],
+                name="logistics_s_platfor_0cddad_idx",
             ),
         ),
         migrations.AddIndex(
@@ -549,25 +673,29 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="logisticscost",
             index=models.Index(
-                fields=["shipping_order", "cost_date"], name="logistics_c_shippin_393440_idx"
+                fields=["shipping_order", "cost_date"],
+                name="logistics_c_shippin_393440_idx",
             ),
         ),
         migrations.AddIndex(
             model_name="logisticscost",
             index=models.Index(
-                fields=["cost_type", "-cost_date"], name="logistics_c_cost_ty_bde896_idx"
+                fields=["cost_type", "-cost_date"],
+                name="logistics_c_cost_ty_bde896_idx",
             ),
         ),
         migrations.AddIndex(
             model_name="trackinginfo",
             index=models.Index(
-                fields=["shipping_order", "-track_time"], name="logistics_t_shippin_3b7f2b_idx"
+                fields=["shipping_order", "-track_time"],
+                name="logistics_t_shippin_3b7f2b_idx",
             ),
         ),
         migrations.AddIndex(
             model_name="trackinginfo",
             index=models.Index(
-                fields=["track_status", "-track_time"], name="logistics_t_track_s_28cdd4_idx"
+                fields=["track_status", "-track_time"],
+                name="logistics_t_track_s_28cdd4_idx",
             ),
         ),
         migrations.AlterUniqueTogether(

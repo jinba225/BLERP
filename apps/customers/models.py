@@ -1,6 +1,7 @@
 """
 Customer models for the ERP system.
 """
+
 from core.models import PAYMENT_METHOD_CHOICES, BaseModel
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
@@ -156,7 +157,10 @@ class CustomerAddress(BaseModel):
     ]
 
     customer = models.ForeignKey(
-        Customer, on_delete=models.CASCADE, related_name="addresses", verbose_name="客户"
+        Customer,
+        on_delete=models.CASCADE,
+        related_name="addresses",
+        verbose_name="客户",
     )
     address_type = models.CharField("地址类型", max_length=20, choices=ADDRESS_TYPES, default="office")
     address = models.TextField("详细地址")
@@ -195,7 +199,10 @@ class CustomerCreditHistory(BaseModel):
     ]
 
     customer = models.ForeignKey(
-        Customer, on_delete=models.CASCADE, related_name="credit_history", verbose_name="客户"
+        Customer,
+        on_delete=models.CASCADE,
+        related_name="credit_history",
+        verbose_name="客户",
     )
     credit_type = models.CharField("信用操作", max_length=20, choices=CREDIT_TYPES)
     old_limit = models.DecimalField("原信用额度", max_digits=12, decimal_places=2)

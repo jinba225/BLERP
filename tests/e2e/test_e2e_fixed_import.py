@@ -110,12 +110,18 @@ class TestFixedImportE2E:
 
         # 创建销售订单
         order = SalesOrder.objects.create(
-            customer=customer, order_date=timezone.now().date(), status="pending", created_by=admin
+            customer=customer,
+            order_date=timezone.now().date(),
+            status="pending",
+            created_by=admin,
         )
 
         # 创建订单明细
         SalesOrderItem.objects.create(
-            sales_order=order, product=product, quantity=Decimal("50"), unit_price=Decimal("150.00")
+            sales_order=order,
+            product=product,
+            quantity=Decimal("50"),
+            unit_price=Decimal("150.00"),
         )
 
         # 重新计算总金额

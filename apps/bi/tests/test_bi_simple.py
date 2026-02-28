@@ -1,6 +1,7 @@
 """
 BI模块简化测试（避免依赖ecomm_sync模块的模型错误）
 """
+
 from datetime import date
 
 import pytest
@@ -19,7 +20,10 @@ class TestBIModels:
         platform = Platform.objects.create(name="测试平台")
 
         report = Report.objects.create(
-            name="测试销售报表", report_type="sales", platform=platform, description="这是一个测试报表"
+            name="测试销售报表",
+            report_type="sales",
+            platform=platform,
+            description="这是一个测试报表",
         )
 
         assert report.id is not None
@@ -36,7 +40,10 @@ class TestBIModels:
         )
 
         dashboard = Dashboard.objects.create(
-            name="测试仪表盘", description="这是一个测试仪表盘", created_by=user, is_public=True
+            name="测试仪表盘",
+            description="这是一个测试仪表盘",
+            created_by=user,
+            is_public=True,
         )
 
         assert dashboard.id is not None

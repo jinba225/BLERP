@@ -1,6 +1,7 @@
 """
 配置 Telegram Bot 的管理命令
 """
+
 from django.core.management.base import BaseCommand
 
 from apps.ai_assistant.models import TelegramConfig

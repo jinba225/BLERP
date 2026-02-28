@@ -13,7 +13,9 @@ class Migration(migrations.Migration):
             model_name="unit",
             name="is_default",
             field=models.BooleanField(
-                default=False, help_text="是否作为系统的默认计量单位", verbose_name="是否默认"
+                default=False,
+                help_text="是否作为系统的默认计量单位",
+                verbose_name="是否默认",
             ),
         ),
         migrations.AddConstraint(

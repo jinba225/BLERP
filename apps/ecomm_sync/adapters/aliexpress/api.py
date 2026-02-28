@@ -83,7 +83,12 @@ class AliexpressAdapter(BaseAdapter):
 
         order_statuses = filters.get(
             "order_statuses",
-            ["place_order_success", "in_payment", "in_cancel", "wait_seller_send_goods"],
+            [
+                "place_order_success",
+                "in_payment",
+                "in_cancel",
+                "wait_seller_send_goods",
+            ],
         )
         for i, status in enumerate(order_statuses, 1):
             params[f"orderStatus.{i}"] = status
@@ -133,7 +138,9 @@ class AliexpressAdapter(BaseAdapter):
             params["sign"] = self._generate_sign(params)
 
             response = self._make_request(
-                "POST", "/param2/1/aliexpress/solution/order/info/seller/ship", data=params
+                "POST",
+                "/param2/1/aliexpress/solution/order/info/seller/ship",
+                data=params,
             )
 
             return response.get("success") is True

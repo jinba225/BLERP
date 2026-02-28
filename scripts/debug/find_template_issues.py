@@ -19,7 +19,11 @@ def check_button_structure(content):
             # 如果下一行是 <svg 而不是同一行，可能有问题
             if i < len(lines) and "<svg" in lines[i] and not lines[i].startswith("            "):
                 issues.append(
-                    {"type": "button_structure", "line": i, "message": f"按钮可能缺少正确的缩进或闭合标签"}
+                    {
+                        "type": "button_structure",
+                        "line": i,
+                        "message": f"按钮可能缺少正确的缩进或闭合标签",
+                    }
                 )
 
     return issues
@@ -56,7 +60,11 @@ def check_form_spacing(content):
             # 如果是在表单中，可能是字段分隔
             if i > 10:  # 跳过文件开头部分
                 issues.append(
-                    {"type": "missing_spacing", "line": i + 1, "message": f"表单字段之间可能缺少空行"}
+                    {
+                        "type": "missing_spacing",
+                        "line": i + 1,
+                        "message": f"表单字段之间可能缺少空行",
+                    }
                 )
 
     return issues

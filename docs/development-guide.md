@@ -152,13 +152,13 @@ class YourModel(BaseModel):
     """
     name = models.CharField('名称', max_length=200)
     code = models.CharField('编码', max_length=50, unique=True)
-    
+
     class Meta:
         verbose_name = '显示名称'
         verbose_name_plural = '显示名称复数'
         db_table = 'your_table_name'
         ordering = ['-created_at']
-    
+
     def __str__(self):
         return self.name
 ```
@@ -195,7 +195,7 @@ def your_view(request, pk=None):
         obj = get_object_or_404(YourModel, pk=pk, is_deleted=False)
     else:
         obj = None
-    
+
     if request.method == 'POST':
         # 处理表单提交
         try:
@@ -204,7 +204,7 @@ def your_view(request, pk=None):
             return redirect('your_module:view_name')
         except Exception as e:
             messages.error(request, f'操作失败: {str(e)}')
-    
+
     context = {
         'object': obj,
     }
@@ -243,7 +243,7 @@ urlpatterns = [
 {% block content %}
 <div class="container mx-auto px-4">
     <h1 class="text-2xl font-bold mb-4">页面标题</h1>
-    
+
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">
@@ -251,7 +251,7 @@ urlpatterns = [
             </div>
         {% endfor %}
     {% endif %}
-    
+
     <!-- 页面内容 -->
 </div>
 {% endblock %}
@@ -268,20 +268,20 @@ from .models import YourModel
 
 class YourModelTestCase(TestCase):
     """测试用例文档字符串"""
-    
+
     def setUp(self):
         """测试前准备"""
         self.obj = YourModel.objects.create(
             name='Test Object',
             code='TEST001'
         )
-    
+
     def test_model_creation(self):
         """测试模型创建"""
         self.assertEqual(self.obj.name, 'Test Object')
         self.assertEqual(self.obj.code, 'TEST001')
         self.assertIsNotNone(self.obj.created_at)
-    
+
     def test_soft_delete(self):
         """测试软删除"""
         self.obj.delete()
@@ -328,7 +328,7 @@ class YourModelViewSet(viewsets.ModelViewSet):
     filterset_fields = ['field1', 'field2']
     search_fields = ['name', 'description']
     ordering_fields = ['created_at', 'name']
-    
+
     @action(detail=True, methods=['post'])
     def custom_action(self, request, pk=None):
         """自定义动作"""

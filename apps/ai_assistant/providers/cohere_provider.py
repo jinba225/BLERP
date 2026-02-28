@@ -10,7 +10,6 @@ Cohere Provider - 专注于 RAG（检索增强生成）
 官方文档：https://docs.cohere.com/
 """
 
-
 import cohere
 
 from .base import AIResponse, BaseAIProvider

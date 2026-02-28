@@ -16,15 +16,33 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="客户名称")),
-                ("code", models.CharField(max_length=100, unique=True, verbose_name="客户编码")),
+                (
+                    "code",
+                    models.CharField(max_length=100, unique=True, verbose_name="客户编码"),
+                ),
                 (
                     "customer_type",
                     models.CharField(
@@ -43,7 +61,12 @@ class Migration(migrations.Migration):
                 (
                     "customer_level",
                     models.CharField(
-                        choices=[("A", "A级客户"), ("B", "B级客户"), ("C", "C级客户"), ("D", "D级客户")],
+                        choices=[
+                            ("A", "A级客户"),
+                            ("B", "B级客户"),
+                            ("C", "C级客户"),
+                            ("D", "D级客户"),
+                        ],
                         default="C",
                         max_length=1,
                         verbose_name="客户等级",
@@ -74,7 +97,8 @@ class Migration(migrations.Migration):
                         max_length=20,
                         validators=[
                             django.core.validators.RegexValidator(
-                                message="请输入有效的电话号码", regex="^\\+?1?\\d{9,15}$"
+                                message="请输入有效的电话号码",
+                                regex="^\\+?1?\\d{9,15}$",
                             )
                         ],
                         verbose_name="电话",
@@ -87,32 +111,66 @@ class Migration(migrations.Migration):
                         max_length=20,
                         validators=[
                             django.core.validators.RegexValidator(
-                                message="请输入有效的手机号码", regex="^\\+?1?\\d{9,15}$"
+                                message="请输入有效的手机号码",
+                                regex="^\\+?1?\\d{9,15}$",
                             )
                         ],
                         verbose_name="手机",
                     ),
                 ),
-                ("email", models.EmailField(blank=True, max_length=254, verbose_name="邮箱")),
-                ("fax", models.CharField(blank=True, max_length=20, verbose_name="传真")),
+                (
+                    "email",
+                    models.EmailField(blank=True, max_length=254, verbose_name="邮箱"),
+                ),
+                (
+                    "fax",
+                    models.CharField(blank=True, max_length=20, verbose_name="传真"),
+                ),
                 ("website", models.URLField(blank=True, verbose_name="网站")),
                 ("address", models.TextField(blank=True, verbose_name="地址")),
-                ("city", models.CharField(blank=True, max_length=100, verbose_name="城市")),
-                ("province", models.CharField(blank=True, max_length=100, verbose_name="省份")),
-                ("country", models.CharField(default="中国", max_length=100, verbose_name="国家")),
-                ("postal_code", models.CharField(blank=True, max_length=20, verbose_name="邮政编码")),
-                ("industry", models.CharField(blank=True, max_length=100, verbose_name="行业")),
+                (
+                    "city",
+                    models.CharField(blank=True, max_length=100, verbose_name="城市"),
+                ),
+                (
+                    "province",
+                    models.CharField(blank=True, max_length=100, verbose_name="省份"),
+                ),
+                (
+                    "country",
+                    models.CharField(default="中国", max_length=100, verbose_name="国家"),
+                ),
+                (
+                    "postal_code",
+                    models.CharField(blank=True, max_length=20, verbose_name="邮政编码"),
+                ),
+                (
+                    "industry",
+                    models.CharField(blank=True, max_length=100, verbose_name="行业"),
+                ),
                 (
                     "business_license",
                     models.CharField(blank=True, max_length=100, verbose_name="营业执照号"),
                 ),
-                ("tax_number", models.CharField(blank=True, max_length=100, verbose_name="税号")),
-                ("bank_name", models.CharField(blank=True, max_length=200, verbose_name="开户银行")),
-                ("bank_account", models.CharField(blank=True, max_length=100, verbose_name="银行账号")),
+                (
+                    "tax_number",
+                    models.CharField(blank=True, max_length=100, verbose_name="税号"),
+                ),
+                (
+                    "bank_name",
+                    models.CharField(blank=True, max_length=200, verbose_name="开户银行"),
+                ),
+                (
+                    "bank_account",
+                    models.CharField(blank=True, max_length=100, verbose_name="银行账号"),
+                ),
                 (
                     "credit_limit",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="信用额度"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="信用额度",
                     ),
                 ),
                 (
@@ -125,9 +183,15 @@ class Migration(migrations.Migration):
                         decimal_places=2, default=0, max_digits=5, verbose_name="折扣率"
                     ),
                 ),
-                ("source", models.CharField(blank=True, max_length=100, verbose_name="客户来源")),
+                (
+                    "source",
+                    models.CharField(blank=True, max_length=100, verbose_name="客户来源"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
-                ("tags", models.CharField(blank=True, max_length=500, verbose_name="标签")),
+                (
+                    "tags",
+                    models.CharField(blank=True, max_length=500, verbose_name="标签"),
+                ),
             ],
             options={
                 "verbose_name": "客户",
@@ -141,13 +205,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "address_type",
                     models.CharField(
@@ -165,9 +244,18 @@ class Migration(migrations.Migration):
                 ("address", models.TextField(verbose_name="详细地址")),
                 ("city", models.CharField(max_length=100, verbose_name="城市")),
                 ("province", models.CharField(max_length=100, verbose_name="省份")),
-                ("country", models.CharField(default="中国", max_length=100, verbose_name="国家")),
-                ("postal_code", models.CharField(blank=True, max_length=20, verbose_name="邮政编码")),
-                ("is_default", models.BooleanField(default=False, verbose_name="是否默认地址")),
+                (
+                    "country",
+                    models.CharField(default="中国", max_length=100, verbose_name="国家"),
+                ),
+                (
+                    "postal_code",
+                    models.CharField(blank=True, max_length=20, verbose_name="邮政编码"),
+                ),
+                (
+                    "is_default",
+                    models.BooleanField(default=False, verbose_name="是否默认地址"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
@@ -182,23 +270,50 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
-                ("name", models.CharField(max_length=100, unique=True, verbose_name="分类名称")),
-                ("code", models.CharField(max_length=50, unique=True, verbose_name="分类代码")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=100, unique=True, verbose_name="分类名称"),
+                ),
+                (
+                    "code",
+                    models.CharField(max_length=50, unique=True, verbose_name="分类代码"),
+                ),
                 ("description", models.TextField(blank=True, verbose_name="分类描述")),
                 (
                     "discount_rate",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=5, verbose_name="默认折扣率"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=5,
+                        verbose_name="默认折扣率",
                     ),
                 ),
-                ("is_active", models.BooleanField(default=True, verbose_name="是否启用")),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="是否启用"),
+                ),
             ],
             options={
                 "verbose_name": "客户分类",
@@ -212,20 +327,53 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 ("name", models.CharField(max_length=100, verbose_name="姓名")),
-                ("position", models.CharField(blank=True, max_length=100, verbose_name="职位")),
-                ("department", models.CharField(blank=True, max_length=100, verbose_name="部门")),
-                ("phone", models.CharField(blank=True, max_length=20, verbose_name="电话")),
-                ("mobile", models.CharField(blank=True, max_length=20, verbose_name="手机")),
-                ("email", models.EmailField(blank=True, max_length=254, verbose_name="邮箱")),
-                ("is_primary", models.BooleanField(default=False, verbose_name="是否主要联系人")),
+                (
+                    "position",
+                    models.CharField(blank=True, max_length=100, verbose_name="职位"),
+                ),
+                (
+                    "department",
+                    models.CharField(blank=True, max_length=100, verbose_name="部门"),
+                ),
+                (
+                    "phone",
+                    models.CharField(blank=True, max_length=20, verbose_name="电话"),
+                ),
+                (
+                    "mobile",
+                    models.CharField(blank=True, max_length=20, verbose_name="手机"),
+                ),
+                (
+                    "email",
+                    models.EmailField(blank=True, max_length=254, verbose_name="邮箱"),
+                ),
+                (
+                    "is_primary",
+                    models.BooleanField(default=False, verbose_name="是否主要联系人"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
             ],
             options={
@@ -240,13 +388,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "credit_type",
                     models.CharField(
@@ -283,13 +446,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "visit_type",
                     models.CharField(

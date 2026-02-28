@@ -1,6 +1,7 @@
 """
 Customer views for the ERP system.
 """
+
 from core.choice_helpers import get_customer_context
 from core.utils.code_generator import CodeGenerator
 from django.contrib import messages

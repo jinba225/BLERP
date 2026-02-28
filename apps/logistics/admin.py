@@ -1,6 +1,7 @@
 """
 物流模块Admin配置
 """
+
 from django.contrib import admin
 from logistics.models import (
     LogisticsCompany,
@@ -53,7 +54,10 @@ class ShippingOrderAdmin(admin.ModelAdmin):
     readonly_fields = ["created_at", "updated_at"]
 
     fieldsets = (
-        ("订单信息", {"fields": ("platform_order", "logistics_company", "tracking_number")}),
+        (
+            "订单信息",
+            {"fields": ("platform_order", "logistics_company", "tracking_number")},
+        ),
         (
             "物流信息",
             {
@@ -68,7 +72,10 @@ class ShippingOrderAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        ("面单信息", {"fields": ("waybill_image", "waybill_pdf"), "classes": ("collapse",)}),
+        (
+            "面单信息",
+            {"fields": ("waybill_image", "waybill_pdf"), "classes": ("collapse",)},
+        ),
         ("其他", {"fields": ("note",), "classes": ("collapse",)}),
     )
 
@@ -80,7 +87,13 @@ class ShippingOrderAdmin(admin.ModelAdmin):
 class TrackingInfoAdmin(admin.ModelAdmin):
     """物流轨迹Admin"""
 
-    list_display = ["shipping_order", "track_time", "track_status", "track_location", "operator"]
+    list_display = [
+        "shipping_order",
+        "track_time",
+        "track_status",
+        "track_location",
+        "operator",
+    ]
     list_filter = ["track_status", "track_time"]
     search_fields = ["shipping_order__tracking_number", "track_status"]
     ordering = ["-track_time"]
@@ -95,14 +108,26 @@ class TrackingInfoAdmin(admin.ModelAdmin):
 class LogisticsCostAdmin(admin.ModelAdmin):
     """物流成本Admin"""
 
-    list_display = ["shipping_order", "cost_type", "cost_amount", "cost_date", "description"]
+    list_display = [
+        "shipping_order",
+        "cost_type",
+        "cost_amount",
+        "cost_date",
+        "description",
+    ]
     list_filter = ["cost_type", "cost_date"]
     search_fields = ["shipping_order__tracking_number", "reference_number"]
     ordering = ["-cost_date"]
 
     fieldsets = (
-        ("成本信息", {"fields": ("shipping_order", "cost_type", "cost_amount", "cost_date")}),
-        ("详细信息", {"fields": ("description", "reference_number"), "classes": ("collapse",)}),
+        (
+            "成本信息",
+            {"fields": ("shipping_order", "cost_type", "cost_amount", "cost_date")},
+        ),
+        (
+            "详细信息",
+            {"fields": ("description", "reference_number"), "classes": ("collapse",)},
+        ),
     )
 
     def get_queryset(self, request):
@@ -119,7 +144,10 @@ class WaybillTemplateAdmin(admin.ModelAdmin):
     ordering = ["-is_default", "name"]
 
     fieldsets = (
-        ("基本信息", {"fields": ("logistics_company", "name", "template_type", "is_default")}),
+        (
+            "基本信息",
+            {"fields": ("logistics_company", "name", "template_type", "is_default")},
+        ),
         ("模板内容", {"fields": ("template_html", "css_style")}),
         ("其他", {"fields": ("thumbnail",), "classes": ("collapse",)}),
     )

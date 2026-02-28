@@ -3,6 +3,7 @@ Jumia电商平台适配器
 
 Jumia是非洲最大的电商平台，覆盖多个非洲国家
 """
+
 import base64
 import hashlib
 import hmac

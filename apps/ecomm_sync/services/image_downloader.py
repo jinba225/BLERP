@@ -1,6 +1,7 @@
 """
 图片下载器（简化版，无外部依赖，避免LSP错误）
 """
+
 import logging
 import os
 
@@ -100,10 +101,10 @@ def compress_image(image_path, quality=85):
         if width > 1200 or height > 1200:
             max_dim = max(width, height)
             ratio = 1200.0 / max_dim
-            if ratio > 1:
+            if ratio < 1:
                 new_width = int(width * ratio)
                 new_height = int(height * ratio)
-                img = img.resize((new_width, new_height), Image.LANCZOS)
+                img = img.resize((new_width, new_height), PILImage.LANCZOS)
                 img.save(image_path, quality=quality, optimize=True)
                 logger.info(f"图片已压缩: {image_path}")
 
@@ -115,7 +116,7 @@ def compress_image(image_path, quality=85):
 
 def delete_duplicate_images(image_paths):
     """删除重复图片"""
-    seen = {}
+    seen_hashes = {}
     deleted_count = 0
 
     for path in image_paths:

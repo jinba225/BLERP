@@ -1,4 +1,5 @@
 """通知模型"""
+
 from core.models import BaseModel
 from django.db import models
 
@@ -96,10 +97,16 @@ class NotificationLog(BaseModel):
 
     log_type = models.CharField("日志类型", max_length=20, choices=NOTIFICATION_TYPES)
     channel = models.ForeignKey(
-        NotificationChannel, on_delete=models.CASCADE, related_name="logs", verbose_name="通知渠道"
+        NotificationChannel,
+        on_delete=models.CASCADE,
+        related_name="logs",
+        verbose_name="通知渠道",
     )
     template = models.ForeignKey(
-        NotificationTemplate, on_delete=models.SET_NULL, related_name="logs", verbose_name="通知模板"
+        NotificationTemplate,
+        on_delete=models.SET_NULL,
+        related_name="logs",
+        verbose_name="通知模板",
     )
     recipient = models.CharField("接收人", max_length=500, blank=True)
     subject = models.CharField("主题", max_length=500, blank=True)

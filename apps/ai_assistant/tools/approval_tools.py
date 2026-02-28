@@ -94,7 +94,7 @@ class ApproveSalesReturnTool(BaseTool):
                 entity_type="sales_return",
                 entity_id=sales_return.id,
                 entity_number=sales_return.return_number,
-                amount=float(sales_return.refund_amount) if sales_return.refund_amount else 0,
+                amount=(float(sales_return.refund_amount) if sales_return.refund_amount else 0),
                 requester=self.user,
                 description=f"审核退货单 {sales_return.return_number}",
             )
@@ -391,7 +391,8 @@ class ShipTransferTool(BaseTool):
 
             if transfer.status != "pending":
                 return ToolResult(
-                    success=False, error=f"调拨单状态为 {transfer.get_status_display()}，不能发货"
+                    success=False,
+                    error=f"调拨单状态为 {transfer.get_status_display()}，不能发货",
                 )
 
             # 使用工作流管理器执行发货
@@ -446,7 +447,8 @@ class ReceiveTransferTool(BaseTool):
 
             if transfer.status != "shipped":
                 return ToolResult(
-                    success=False, error=f"调拨单状态为 {transfer.get_status_display()}，不能收货"
+                    success=False,
+                    error=f"调拨单状态为 {transfer.get_status_display()}，不能收货",
                 )
 
             # 使用工作流管理器执行收货

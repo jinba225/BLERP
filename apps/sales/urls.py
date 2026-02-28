@@ -1,6 +1,7 @@
 """
 Sales app URLs.
 """
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -13,9 +14,15 @@ router = DefaultRouter()
 urlpatterns = [
     path("api/", include(router.urls)),
     path(
-        "api/customers/<int:customer_id>/info/", views.get_customer_info, name="api_customer_info"
+        "api/customers/<int:customer_id>/info/",
+        views.get_customer_info,
+        name="api_customer_info",
     ),
-    path("api/products/<int:product_id>/info/", views.get_product_info, name="api_product_info"),
+    path(
+        "api/products/<int:product_id>/info/",
+        views.get_product_info,
+        name="api_product_info",
+    ),
     path(
         "api/templates/available/",
         views.api_get_available_templates,
@@ -43,20 +50,36 @@ urlpatterns = [
     path("orders/<int:pk>/delete/", views.order_delete, name="order_delete"),
     path("orders/<int:pk>/approve/", views.order_approve, name="order_approve"),
     path("orders/<int:pk>/unapprove/", views.order_unapprove, name="order_unapprove"),
-    path("orders/<int:pk>/mark-invoiced/", views.order_mark_invoiced, name="order_mark_invoiced"),
+    path(
+        "orders/<int:pk>/mark-invoiced/",
+        views.order_mark_invoiced,
+        name="order_mark_invoiced",
+    ),
     path("deliveries/", views.delivery_list, name="delivery_list"),
     path("deliveries/<int:pk>/", views.delivery_detail, name="delivery_detail"),
     path("deliveries/<int:pk>/edit/", views.delivery_update, name="delivery_update"),
     path("deliveries/<int:pk>/delete/", views.delivery_delete, name="delivery_delete"),
-    path("orders/<int:order_pk>/delivery/create/", views.delivery_create, name="delivery_create"),
+    path(
+        "orders/<int:order_pk>/delivery/create/",
+        views.delivery_create,
+        name="delivery_create",
+    ),
     path("deliveries/<int:pk>/ship/", views.delivery_ship, name="delivery_ship"),
     path("returns/", views.return_list, name="return_list"),
     path("returns/statistics/", views.return_statistics, name="return_statistics"),
     path("returns/<int:pk>/", views.return_detail, name="return_detail"),
-    path("orders/<int:order_pk>/return/create/", views.return_create, name="return_create"),
+    path(
+        "orders/<int:order_pk>/return/create/",
+        views.return_create,
+        name="return_create",
+    ),
     path("returns/<int:pk>/edit/", views.return_update, name="return_update"),
     path("returns/<int:pk>/delete/", views.return_delete, name="return_delete"),
-    path("orders/<int:order_pk>/return/create/", views.return_create, name="return_create"),
+    path(
+        "orders/<int:order_pk>/return/create/",
+        views.return_create,
+        name="return_create",
+    ),
     path("returns/<int:pk>/approve/", views.return_approve, name="return_approve"),
     path("returns/<int:pk>/receive/", views.return_receive, name="return_receive"),
     path("returns/<int:pk>/process/", views.return_process, name="return_process"),

@@ -10,63 +10,63 @@
   "output_folder": "/Users/janjung/Code_Projects/django_erp/docs",
   "completed_steps": [
     {
-      "step": "step_1", 
-      "status": "completed", 
-      "timestamp": "2026-01-24T21:05:00+0800", 
+      "step": "step_1",
+      "status": "completed",
+      "timestamp": "2026-01-24T21:05:00+0800",
       "summary": "Classified as monolith with 1 part - Backend Django ERP system"
     },
     {
-      "step": "step_2", 
-      "status": "completed", 
-      "timestamp": "2026-01-24T21:10:00+0800", 
+      "step": "step_2",
+      "status": "completed",
+      "timestamp": "2026-01-24T21:10:00+0800",
       "summary": "Discovered existing documentation - found 12 technical docs"
     },
     {
-      "step": "step_3", 
-      "status": "completed", 
-      "timestamp": "2026-01-24T21:12:00+0800", 
+      "step": "step_3",
+      "status": "completed",
+      "timestamp": "2026-01-24T21:12:00+0800",
       "summary": "Technology stack analysis - Django 5.0 + DRF + Tailwind CSS"
     },
     {
-      "step": "step_4", 
-      "status": "completed", 
-      "timestamp": "2026-01-24T21:15:00+0800", 
+      "step": "step_4",
+      "status": "completed",
+      "timestamp": "2026-01-24T21:15:00+0800",
       "summary": "Conditional analysis complete - 80+ data models, 350+ API endpoints documented"
     },
     {
-      "step": "step_5", 
-      "status": "completed", 
-      "timestamp": "2026-01-24T21:17:00+0800", 
+      "step": "step_5",
+      "status": "completed",
+      "timestamp": "2026-01-24T21:17:00+0800",
       "summary": "Source tree analysis generated with 50+ directories documented"
     },
     {
-      "step": "step_6", 
-      "status": "completed", 
-      "timestamp": "2026-01-24T21:20:00+0800", 
+      "step": "step_6",
+      "status": "completed",
+      "timestamp": "2026-01-24T21:20:00+0800",
       "summary": "Development and deployment information extracted"
     },
     {
-      "step": "step_7", 
-      "status": "completed", 
-      "timestamp": "2026-01-24T21:22:00+0800", 
+      "step": "step_7",
+      "status": "completed",
+      "timestamp": "2026-01-24T21:22:00+0800",
       "summary": "Architecture documentation generated"
     },
     {
-      "step": "step_8", 
-      "status": "completed", 
-      "timestamp": "2026-01-24T21:25:00+0800", 
+      "step": "step_8",
+      "status": "completed",
+      "timestamp": "2026-01-24T21:25:00+0800",
       "summary": "Supporting documentation written"
     },
     {
-      "step": "step_9", 
-      "status": "completed", 
-      "timestamp": "2026-01-24T21:28:00+0800", 
+      "step": "step_9",
+      "status": "completed",
+      "timestamp": "2026-01-24T21:28:00+0800",
       "summary": "Master index generated"
     },
     {
-      "step": "step_10", 
-      "status": "completed", 
-      "timestamp": "2026-01-24T21:30:00+0800", 
+      "step": "step_10",
+      "status": "completed",
+      "timestamp": "2026-01-24T21:30:00+0800",
       "summary": "Validation and review complete"
     }
   ],
@@ -84,7 +84,7 @@
   "outputs_generated": [
     "project-scan-report.json",
     "index.md",
-    "project-overview.md", 
+    "project-overview.md",
     "architecture.md",
     "source-tree-analysis.md",
     "development-guide.md"

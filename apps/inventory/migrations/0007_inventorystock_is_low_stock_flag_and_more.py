@@ -16,7 +16,10 @@ class Migration(migrations.Migration):
             model_name="inventorystock",
             name="is_low_stock_flag",
             field=models.BooleanField(
-                db_index=True, default=False, help_text="冗余字段，用于优化查询性能", verbose_name="是否低库存"
+                db_index=True,
+                default=False,
+                help_text="冗余字段，用于优化查询性能",
+                verbose_name="是否低库存",
             ),
         ),
         migrations.AddIndex(

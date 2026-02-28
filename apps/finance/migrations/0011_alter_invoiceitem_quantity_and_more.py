@@ -8,7 +8,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     dependencies = [
         ("finance", "0010_update_payment_methods"),
-        ("suppliers", "0005_remove_supplier_contact_person_remove_supplier_email_and_more"),
+        (
+            "suppliers",
+            "0005_remove_supplier_contact_person_remove_supplier_email_and_more",
+        ),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -57,13 +60,28 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "detail_number",
                     models.CharField(max_length=100, unique=True, verbose_name="明细单号"),
@@ -79,7 +97,11 @@ class Migration(migrations.Migration):
                 (
                     "status",
                     models.CharField(
-                        choices=[("pending", "待核销"), ("partial", "部分核销"), ("allocated", "已核销")],
+                        choices=[
+                            ("pending", "待核销"),
+                            ("partial", "部分核销"),
+                            ("allocated", "已核销"),
+                        ],
                         default="pending",
                         max_length=20,
                         verbose_name="状态",
@@ -97,10 +119,16 @@ class Migration(migrations.Migration):
                 (
                     "allocated_amount",
                     models.DecimalField(
-                        decimal_places=2, default=0, max_digits=12, verbose_name="已核销金额"
+                        decimal_places=2,
+                        default=0,
+                        max_digits=12,
+                        verbose_name="已核销金额",
                     ),
                 ),
-                ("business_date", models.DateField(help_text="收货/退货日期", verbose_name="业务日期")),
+                (
+                    "business_date",
+                    models.DateField(help_text="收货/退货日期", verbose_name="业务日期"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
                 (
                     "created_by",
@@ -197,7 +225,8 @@ class Migration(migrations.Migration):
                 "ordering": ["-business_date", "-created_at"],
                 "indexes": [
                     models.Index(
-                        fields=["supplier", "status"], name="finance_sup_supplie_441144_idx"
+                        fields=["supplier", "status"],
+                        name="finance_sup_supplie_441144_idx",
                     ),
                     models.Index(
                         fields=["purchase_order", "detail_type"],

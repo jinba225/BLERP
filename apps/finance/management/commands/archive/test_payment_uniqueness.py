@@ -6,6 +6,7 @@
 用法:
     python manage.py test_payment_uniqueness
 """
+
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError, transaction
 from django.db.models import Count

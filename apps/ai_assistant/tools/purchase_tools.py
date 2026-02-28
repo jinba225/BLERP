@@ -27,8 +27,15 @@ class SearchSupplierTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "keyword": {"type": "string", "description": "搜索关键词（供应商名称、编号或联系人）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认10）", "default": 10},
+                "keyword": {
+                    "type": "string",
+                    "description": "搜索关键词（供应商名称、编号或联系人）",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认10）",
+                    "default": 10,
+                },
             },
             "required": ["keyword"],
         }
@@ -89,7 +96,10 @@ class CreatePurchaseRequestTool(BaseTool):
                         "properties": {
                             "product_id": {"type": "integer", "description": "产品ID"},
                             "quantity": {"type": "number", "description": "申请数量"},
-                            "required_date": {"type": "string", "description": "需求日期（YYYY-MM-DD）"},
+                            "required_date": {
+                                "type": "string",
+                                "description": "需求日期（YYYY-MM-DD）",
+                            },
                             "purpose": {"type": "string", "description": "用途说明"},
                         },
                         "required": ["product_id", "quantity"],
@@ -213,10 +223,17 @@ class QueryPurchaseOrdersTool(BaseTool):
                     ],
                 },
                 "supplier_id": {"type": "integer", "description": "供应商ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（订单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -307,7 +324,8 @@ class ApprovePurchaseOrderTool(BaseTool):
             # 检查订单状态
             if order.status != "pending":
                 return ToolResult(
-                    success=False, error=f"订单状态为 {order.get_status_display()}，不是待审核状态"
+                    success=False,
+                    error=f"订单状态为 {order.get_status_display()}，不是待审核状态",
                 )
 
             # 执行审核

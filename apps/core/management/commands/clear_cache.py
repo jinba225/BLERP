@@ -6,6 +6,7 @@ Django管理命令：清除缓存
     python manage.py clear_cache --cache=default    # 清除特定缓存
     python manage.py clear_cache --verbose          # 显示详细信息
 """
+
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 

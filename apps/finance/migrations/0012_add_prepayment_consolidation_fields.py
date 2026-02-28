@@ -31,7 +31,11 @@ class Migration(migrations.Migration):
             model_name="customerprepayment",
             name="status",
             field=models.CharField(
-                choices=[("active", "活跃"), ("merged", "已合并"), ("exhausted", "已用完")],
+                choices=[
+                    ("active", "活跃"),
+                    ("merged", "已合并"),
+                    ("exhausted", "已用完"),
+                ],
                 default="active",
                 max_length=20,
                 verbose_name="状态",
@@ -58,7 +62,11 @@ class Migration(migrations.Migration):
             model_name="supplierprepayment",
             name="status",
             field=models.CharField(
-                choices=[("active", "活跃"), ("merged", "已合并"), ("exhausted", "已用完")],
+                choices=[
+                    ("active", "活跃"),
+                    ("merged", "已合并"),
+                    ("exhausted", "已用完"),
+                ],
                 default="active",
                 max_length=20,
                 verbose_name="状态",

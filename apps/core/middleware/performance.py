@@ -3,6 +3,7 @@
 
 监控页面响应时间和数据库查询性能，识别慢请求。
 """
+
 import logging
 import time
 
@@ -29,7 +30,7 @@ class PerformanceMonitoringMiddleware(MiddlewareMixin):
         """请求开始时记录开始时间"""
         request.start_time = time.time()
         # 记录请求大小
-        if hasattr(request, 'body'):
+        if hasattr(request, "body"):
             request.request_size = len(request.body)
         else:
             request.request_size = 0
@@ -49,7 +50,9 @@ class PerformanceMonitoringMiddleware(MiddlewareMixin):
         # 计算数据库查询总时间
         db_query_time = 0
         if settings.DEBUG and connection.queries:
-            db_query_time = sum(float(query.get('time', 0)) for query in connection.queries) * 1000  # 转换为毫秒
+            db_query_time = (
+                sum(float(query.get("time", 0)) for query in connection.queries) * 1000
+            )  # 转换为毫秒
 
         # 记录慢请求（超过1秒）
         if duration > 1.0:
@@ -72,17 +75,17 @@ class PerformanceMonitoringMiddleware(MiddlewareMixin):
         try:
             # 延迟导入，避免循环导入
             from apps.bi.models import ApiPerformance
-            
+
             # 计算响应大小
             response_size = 0
-            if hasattr(response, 'content'):
+            if hasattr(response, "content"):
                 response_size = len(response.content)
-            
+
             # 提取错误信息
             error_message = ""
             if response.status_code >= 400:
                 error_message = str(response.content[:500])  # 只保存前500个字符
-            
+
             # 创建API性能记录
             ApiPerformance.objects.create(
                 endpoint=request.path,
@@ -90,10 +93,10 @@ class PerformanceMonitoringMiddleware(MiddlewareMixin):
                 response_time=duration * 1000,  # 转换为毫秒
                 status_code=response.status_code,
                 error_message=error_message,
-                request_size=getattr(request, 'request_size', 0),
-                response_size=response_size
+                request_size=getattr(request, "request_size", 0),
+                response_size=response_size,
             )
-            
+
         except Exception as e:
             logger.error(f"保存API性能数据失败: {e}")
 

@@ -2,6 +2,7 @@
 拼多多采集适配器
 支持拼多多开放平台API对接
 """
+
 import hashlib
 import logging
 import re
@@ -189,7 +190,9 @@ class PddCollectAdapter(BaseCollectAdapter):
         except Exception as e:
             logger.error(f"采集拼多多商品失败: {e}")
             raise CollectException(
-                code=500, msg=f"采集拼多多商品失败: {str(e)}", details={"item_url": item_url}
+                code=500,
+                msg=f"采集拼多多商品失败: {str(e)}",
+                details={"item_url": item_url},
             )
 
     def normalize_data(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:

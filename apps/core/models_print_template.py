@@ -1,6 +1,7 @@
 """
 Print template models for customizable quote/order printing.
 """
+
 from core.models import BaseModel
 from django.contrib.auth import get_user_model
 from django.db import models

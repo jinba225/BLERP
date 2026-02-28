@@ -27,7 +27,10 @@ class CheckInventoryTool(BaseTool):
             "type": "object",
             "properties": {
                 "product_id": {"type": "integer", "description": "产品ID"},
-                "warehouse_id": {"type": "integer", "description": "仓库ID（可选，不指定则查询所有仓库）"},
+                "warehouse_id": {
+                    "type": "integer",
+                    "description": "仓库ID（可选，不指定则查询所有仓库）",
+                },
             },
             "required": ["product_id"],
         }
@@ -94,8 +97,15 @@ class SearchProductTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "keyword": {"type": "string", "description": "搜索关键词（产品名称、编号或规格）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认10）", "default": 10},
+                "keyword": {
+                    "type": "string",
+                    "description": "搜索关键词（产品名称、编号或规格）",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认10）",
+                    "default": 10,
+                },
             },
             "required": ["keyword"],
         }
@@ -105,7 +115,8 @@ class SearchProductTool(BaseTool):
         try:
             # 构建搜索查询
             products = Product.objects.filter(
-                Q(name__icontains=keyword) | Q(code__icontains=keyword), is_deleted=False
+                Q(name__icontains=keyword) | Q(code__icontains=keyword),
+                is_deleted=False,
             )[:limit]
 
             # 格式化结果
@@ -143,7 +154,11 @@ class GetLowStockAlertTool(BaseTool):
         return {
             "type": "object",
             "properties": {
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20}
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                }
             },
         }
 

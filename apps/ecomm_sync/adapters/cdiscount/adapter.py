@@ -3,6 +3,7 @@ Cdiscount电商平台适配器
 
 Cdiscount是法国最大的电商平台之一
 """
+
 import base64
 import hashlib
 import hmac

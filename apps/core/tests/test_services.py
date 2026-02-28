@@ -2,6 +2,7 @@
 Core模块 - 服务层测试
 测试DocumentNumberGenerator单据号生成服务
 """
+
 import threading
 import unittest
 from datetime import date
@@ -152,10 +153,16 @@ class DocumentNumberGeneratorDateFormatTestCase(TestCase):
 
         # 创建销售订单前缀配置
         SystemConfig.objects.create(
-            key="document_prefix_sales_order", value="SO", config_type="business", is_active=True
+            key="document_prefix_sales_order",
+            value="SO",
+            config_type="business",
+            is_active=True,
         )
         SystemConfig.objects.create(
-            key="document_number_sequence_digits", value="3", config_type="business", is_active=True
+            key="document_number_sequence_digits",
+            value="3",
+            config_type="business",
+            is_active=True,
         )
 
     def test_date_format_yyyymmdd(self):
@@ -193,7 +200,10 @@ class DocumentNumberGeneratorDateFormatTestCase(TestCase):
     def test_date_format_yymm(self):
         """测试YYMM日期格式"""
         SystemConfig.objects.create(
-            key="document_number_date_format", value="YYMM", config_type="business", is_active=True
+            key="document_number_date_format",
+            value="YYMM",
+            config_type="business",
+            is_active=True,
         )
 
         test_date = date(2025, 11, 8)
@@ -226,7 +236,10 @@ class DocumentNumberGeneratorSequenceDigitsTestCase(TestCase):
         )
 
         SystemConfig.objects.create(
-            key="document_prefix_sales_order", value="SO", config_type="business", is_active=True
+            key="document_prefix_sales_order",
+            value="SO",
+            config_type="business",
+            is_active=True,
         )
         SystemConfig.objects.create(
             key="document_number_date_format",
@@ -238,7 +251,10 @@ class DocumentNumberGeneratorSequenceDigitsTestCase(TestCase):
     def test_sequence_digits_3(self):
         """测试3位序号"""
         SystemConfig.objects.create(
-            key="document_number_sequence_digits", value="3", config_type="business", is_active=True
+            key="document_number_sequence_digits",
+            value="3",
+            config_type="business",
+            is_active=True,
         )
 
         test_date = date(2025, 11, 8)
@@ -251,7 +267,10 @@ class DocumentNumberGeneratorSequenceDigitsTestCase(TestCase):
     def test_sequence_digits_4(self):
         """测试4位序号"""
         SystemConfig.objects.create(
-            key="document_number_sequence_digits", value="4", config_type="business", is_active=True
+            key="document_number_sequence_digits",
+            value="4",
+            config_type="business",
+            is_active=True,
         )
 
         test_date = date(2025, 11, 8)
@@ -264,7 +283,10 @@ class DocumentNumberGeneratorSequenceDigitsTestCase(TestCase):
     def test_sequence_digits_5(self):
         """测试5位序号"""
         SystemConfig.objects.create(
-            key="document_number_sequence_digits", value="5", config_type="business", is_active=True
+            key="document_number_sequence_digits",
+            value="5",
+            config_type="business",
+            is_active=True,
         )
 
         test_date = date(2025, 11, 8)
@@ -277,7 +299,10 @@ class DocumentNumberGeneratorSequenceDigitsTestCase(TestCase):
     def test_large_sequence_number(self):
         """测试大序号（超过位数）"""
         SystemConfig.objects.create(
-            key="document_number_sequence_digits", value="3", config_type="business", is_active=True
+            key="document_number_sequence_digits",
+            value="3",
+            config_type="business",
+            is_active=True,
         )
 
         test_date = date(2025, 11, 8)
@@ -361,7 +386,10 @@ class DocumentNumberGeneratorPrefixTestCase(TestCase):
     def test_get_prefix_from_config(self):
         """测试从配置获取前缀"""
         SystemConfig.objects.create(
-            key="document_prefix_sales_order", value="SO", config_type="business", is_active=True
+            key="document_prefix_sales_order",
+            value="SO",
+            config_type="business",
+            is_active=True,
         )
 
         prefix = DocumentNumberGenerator.get_prefix("sales_order")
@@ -382,7 +410,10 @@ class DocumentNumberGeneratorPrefixTestCase(TestCase):
     def test_get_prefix_legacy_mapping(self):
         """测试旧前缀映射"""
         SystemConfig.objects.create(
-            key="document_prefix_sales_order", value="SO", config_type="business", is_active=True
+            key="document_prefix_sales_order",
+            value="SO",
+            config_type="business",
+            is_active=True,
         )
 
         # 使用旧前缀'SO'应该映射到'sales_order'配置
@@ -434,7 +465,10 @@ class DocumentNumberGeneratorConfigTestCase(TestCase):
     def test_get_sequence_digits_from_config(self):
         """测试从配置获取序号位数"""
         SystemConfig.objects.create(
-            key="document_number_sequence_digits", value="4", config_type="business", is_active=True
+            key="document_number_sequence_digits",
+            value="4",
+            config_type="business",
+            is_active=True,
         )
 
         digits = DocumentNumberGenerator.get_sequence_digits()
@@ -473,7 +507,10 @@ class DocumentNumberGeneratorConcurrencyTestCase(TransactionTestCase):
         )
 
         SystemConfig.objects.create(
-            key="document_prefix_sales_order", value="SO", config_type="business", is_active=True
+            key="document_prefix_sales_order",
+            value="SO",
+            config_type="business",
+            is_active=True,
         )
         SystemConfig.objects.create(
             key="document_number_date_format",
@@ -482,7 +519,10 @@ class DocumentNumberGeneratorConcurrencyTestCase(TransactionTestCase):
             is_active=True,
         )
         SystemConfig.objects.create(
-            key="document_number_sequence_digits", value="3", config_type="business", is_active=True
+            key="document_number_sequence_digits",
+            value="3",
+            config_type="business",
+            is_active=True,
         )
 
     @unittest.skipIf(is_sqlite_database(), "SQLite不支持并发写入，跳过此测试")
@@ -519,7 +559,11 @@ class DocumentNumberGeneratorConcurrencyTestCase(TransactionTestCase):
 
         # 验证：所有单据号都是唯一的（没有重复）
         unique_numbers = set(generated_numbers)
-        self.assertEqual(len(unique_numbers), 10, f"发现重复的单据号！生成的号码: {sorted(generated_numbers)}")
+        self.assertEqual(
+            len(unique_numbers),
+            10,
+            f"发现重复的单据号！生成的号码: {sorted(generated_numbers)}",
+        )
 
         # 验证：所有单据号都符合预期格式
         for doc_number in generated_numbers:
@@ -572,7 +616,10 @@ class DocumentNumberGeneratorEdgeCaseTestCase(TestCase):
         )
 
         SystemConfig.objects.create(
-            key="document_prefix_sales_order", value="SO", config_type="business", is_active=True
+            key="document_prefix_sales_order",
+            value="SO",
+            config_type="business",
+            is_active=True,
         )
         SystemConfig.objects.create(
             key="document_number_date_format",
@@ -581,7 +628,10 @@ class DocumentNumberGeneratorEdgeCaseTestCase(TestCase):
             is_active=True,
         )
         SystemConfig.objects.create(
-            key="document_number_sequence_digits", value="3", config_type="business", is_active=True
+            key="document_number_sequence_digits",
+            value="3",
+            config_type="business",
+            is_active=True,
         )
 
     def test_year_2000_handling(self):
@@ -639,7 +689,10 @@ class DocumentNumberGeneratorEdgeCaseTestCase(TestCase):
     def test_empty_prefix(self):
         """测试空前缀"""
         SystemConfig.objects.create(
-            key="document_prefix_quotation", value="", config_type="business", is_active=True  # 空前缀
+            key="document_prefix_quotation",
+            value="",
+            config_type="business",
+            is_active=True,  # 空前缀
         )
 
         test_date = date(2025, 11, 8)

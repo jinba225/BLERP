@@ -247,9 +247,9 @@ class AmazonAdapter(BaseAdapter):
                     "name": product.get("ItemCondition"),
                     "price": 0,
                     "stock": int(product.get("TotalSupplyQuantity", 0)),
-                    "status": "onsale"
-                    if int(product.get("TotalSupplyQuantity", 0)) > 0
-                    else "offshelf",
+                    "status": (
+                        "onsale" if int(product.get("TotalSupplyQuantity", 0)) > 0 else "offshelf"
+                    ),
                 }
             )
         return parsed

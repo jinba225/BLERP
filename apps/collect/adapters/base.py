@@ -2,19 +2,17 @@
 采集适配器模块
 采用适配器模式封装不同平台的采集逻辑
 """
-import asyncio
+
 import hashlib
 import re
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import requests
-from django.conf import settings
-
+from core.services.monitor import get_monitor
 from core.services.rate_limiter import get_rate_limiter
 from core.services.retry_manager import get_retry_manager
-from core.services.monitor import get_monitor
 
 from ..exceptions import (
     APIResponseException,
@@ -89,6 +87,7 @@ class BaseCollectAdapter(ABC):
         Raises:
             CollectException: 采集异常
         """
+
         async def _collect_impl():
             return self.collect_item(item_url)
 
@@ -139,7 +138,7 @@ class BaseCollectAdapter(ABC):
         import aiohttp
 
         start_time = time.time()
-        endpoint = url.split('/')[-1] if '/' in url else url
+        endpoint = url.split("/")[-1] if "/" in url else url
 
         # 限流检查
         if self.rate_limiter:
@@ -148,11 +147,19 @@ class BaseCollectAdapter(ABC):
         try:
             async with aiohttp.ClientSession() as session:
                 if method.upper() == "GET":
-                    async with session.get(url, params=params, headers=headers, timeout=self.timeout) as response:
+                    async with session.get(
+                        url, params=params, headers=headers, timeout=self.timeout
+                    ) as response:
                         response.raise_for_status()
                         data = await response.json()
                 elif method.upper() == "POST":
-                    async with session.post(url, json=json_data, params=params, headers=headers, timeout=self.timeout) as response:
+                    async with session.post(
+                        url,
+                        json=json_data,
+                        params=params,
+                        headers=headers,
+                        timeout=self.timeout,
+                    ) as response:
                         response.raise_for_status()
                         data = await response.json()
                 else:
@@ -162,10 +169,7 @@ class BaseCollectAdapter(ABC):
             if self.monitor:
                 duration = time.time() - start_time
                 self.monitor.record_api_call(
-                    self.platform_code,
-                    endpoint,
-                    success=True,
-                    duration=duration
+                    self.platform_code, endpoint, success=True, duration=duration
                 )
 
             return data
@@ -178,7 +182,7 @@ class BaseCollectAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code="timeout"
+                    error_code="timeout",
                 )
             raise NetworkException(f"{self.platform_name} API请求超时")
         except aiohttp.ClientError as e:
@@ -189,7 +193,7 @@ class BaseCollectAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code="connection_error"
+                    error_code="connection_error",
                 )
             raise NetworkException(f"{self.platform_name} API网络请求失败: {str(e)}")
         except ValueError as e:
@@ -200,7 +204,7 @@ class BaseCollectAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code="parse_error"
+                    error_code="parse_error",
                 )
             raise DataParseException(f"{self.platform_name} API响应数据格式错误: {str(e)}")
 
@@ -230,7 +234,7 @@ class BaseCollectAdapter(ABC):
             APIResponseException: API响应异常
         """
         start_time = time.time()
-        endpoint = url.split('/')[-1] if '/' in url else url
+        endpoint = url.split("/")[-1] if "/" in url else url
 
         # 限流检查
         if self.rate_limiter:
@@ -241,7 +245,11 @@ class BaseCollectAdapter(ABC):
                 response = requests.get(url, params=params, headers=headers, timeout=self.timeout)
             elif method.upper() == "POST":
                 response = requests.post(
-                    url, json=json_data, params=params, headers=headers, timeout=self.timeout
+                    url,
+                    json=json_data,
+                    params=params,
+                    headers=headers,
+                    timeout=self.timeout,
                 )
             else:
                 raise NetworkException(f"不支持的HTTP方法: {method}")
@@ -253,10 +261,7 @@ class BaseCollectAdapter(ABC):
             if self.monitor:
                 duration = time.time() - start_time
                 self.monitor.record_api_call(
-                    self.platform_code,
-                    endpoint,
-                    success=True,
-                    duration=duration
+                    self.platform_code, endpoint, success=True, duration=duration
                 )
 
             return data
@@ -269,7 +274,7 @@ class BaseCollectAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code="timeout"
+                    error_code="timeout",
                 )
             raise NetworkException(f"{self.platform_name} API请求超时")
         except requests.exceptions.RequestException as e:
@@ -280,7 +285,7 @@ class BaseCollectAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code="connection_error"
+                    error_code="connection_error",
                 )
             raise NetworkException(f"{self.platform_name} API网络请求失败: {str(e)}")
         except ValueError as e:
@@ -291,7 +296,7 @@ class BaseCollectAdapter(ABC):
                     endpoint,
                     success=False,
                     duration=duration,
-                    error_code="parse_error"
+                    error_code="parse_error",
                 )
             raise DataParseException(f"{self.platform_name} API响应数据格式错误: {str(e)}")
 

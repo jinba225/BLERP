@@ -1,6 +1,7 @@
 """
 实时大屏模型
 """
+
 from core.models import BaseModel
 from django.db import models
 
@@ -30,7 +31,10 @@ class RealtimeDashboard(BaseModel):
     # 访问控制
     is_public = models.BooleanField("是否公开", default=False, help_text="公开大屏对所有用户可见")
     allowed_users = models.ManyToManyField(
-        "users.User", blank=True, related_name="accessible_dashboards", verbose_name="允许访问的用户"
+        "users.User",
+        blank=True,
+        related_name="accessible_dashboards",
+        verbose_name="允许访问的用户",
     )
 
     # 创建者信息
@@ -72,7 +76,10 @@ class RealtimeWidget(BaseModel):
     ]
 
     dashboard = models.ForeignKey(
-        RealtimeDashboard, on_delete=models.CASCADE, related_name="widgets", verbose_name="大屏"
+        RealtimeDashboard,
+        on_delete=models.CASCADE,
+        related_name="widgets",
+        verbose_name="大屏",
     )
 
     # 基础配置
@@ -84,7 +91,9 @@ class RealtimeWidget(BaseModel):
 
     # 数据源配置
     data_source = models.CharField(
-        "数据源", max_length=200, help_text="数据源类路径，如bi.services.realtimedata.RealtimeDataService"
+        "数据源",
+        max_length=200,
+        help_text="数据源类路径，如bi.services.realtimedata.RealtimeDataService",
     )
     data_params = models.JSONField("数据参数", default=dict, blank=True)
 
@@ -108,7 +117,10 @@ class RealtimeWidget(BaseModel):
 
     # 布局配置
     position = models.CharField(
-        "位置", max_length=100, blank=True, help_text="大屏中的位置，如 top-left, top-center"
+        "位置",
+        max_length=100,
+        blank=True,
+        help_text="大屏中的位置，如 top-left, top-center",
     )
     width = models.PositiveIntegerField("宽度", default=4, help_text="栅格系统宽度，最大12")
     height = models.PositiveIntegerField("高度", default=3, help_text="高度单位栅格数")
@@ -133,7 +145,10 @@ class RealtimeMetric(BaseModel):
     """实时指标"""
 
     widget = models.OneToOneField(
-        RealtimeWidget, on_delete=models.CASCADE, related_name="metric", verbose_name="组件"
+        RealtimeWidget,
+        on_delete=models.CASCADE,
+        related_name="metric",
+        verbose_name="组件",
     )
 
     # 指标配置
@@ -141,7 +156,10 @@ class RealtimeMetric(BaseModel):
     metric_key = models.CharField("指标键值", max_length=200, help_text="数据源中的键值，如sales.total_amount")
     metric_unit = models.CharField("指标单位", max_length=20, blank=True, default="个")
     metric_format = models.CharField(
-        "格式", max_length=50, default="{value}", help_text="数值格式，如{value}、{value,000}、{value:00:00}"
+        "格式",
+        max_length=50,
+        default="{value}",
+        help_text="数值格式，如{value}、{value,000}、{value:00:00}",
     )
 
     # 阈值配置
@@ -158,7 +176,10 @@ class RealtimeMetric(BaseModel):
     # 趋势配置
     show_trend = models.BooleanField("显示趋势", default=True)
     trend_period = models.CharField(
-        "趋势周期", max_length=20, default="24h", choices=["1h", "6h", "12h", "24h", "7d", "30d", "90d"]
+        "趋势周期",
+        max_length=20,
+        default="24h",
+        choices=["1h", "6h", "12h", "24h", "7d", "30d", "90d"],
     )
 
     # 颜色配置
@@ -188,7 +209,10 @@ class DataDrilldown(BaseModel):
     """数据下钻取"""
 
     report = models.ForeignKey(
-        "bi.Report", on_delete=models.CASCADE, related_name="drilldowns", verbose_name="报表"
+        "bi.Report",
+        on_delete=models.CASCADE,
+        related_name="drilldowns",
+        verbose_name="报表",
     )
 
     # 钻取维度

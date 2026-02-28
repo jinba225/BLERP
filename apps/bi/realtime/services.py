@@ -1,6 +1,7 @@
 """
 实时数据服务
 """
+
 import logging
 from datetime import date, datetime
 from typing import Dict
@@ -52,7 +53,8 @@ class RealtimeDataService:
             total_amount=Sum("total_amount"),
             total_quantity=Sum("total_quantity"),
             paid_orders=Count(
-                "id", filter=Q(status="paid") | Q(status="shipped") | Q(status="delivered")
+                "id",
+                filter=Q(status="paid") | Q(status="shipped") | Q(status="delivered"),
             ),
             cancelled_orders=Count("id", filter=Q(status="cancelled")),
             conversion_rate=Coalesce(Avg("conversion_rate"), 0) * 100,
@@ -209,10 +211,10 @@ class RealtimeDataService:
                     "platform_id": item.platform_id,
                     "order_count": item.order_count,
                     "sales_amount": float(item.sales_amount),
-                    "sales_growth_rate": float(item.sales_growth_rate)
-                    if item.sales_growth_rate
-                    else 0,
-                    "conversion_rate": float(item.conversion_rate) if item.conversion_rate else 0,
+                    "sales_growth_rate": (
+                        float(item.sales_growth_rate) if item.sales_growth_rate else 0
+                    ),
+                    "conversion_rate": (float(item.conversion_rate) if item.conversion_rate else 0),
                     "avg_order_value": float(item.avg_order_value),
                     "sales_rank": item.sales_rank if item.sales_rank else 0,
                     "order_rank": item.order_rank if item.order_rank else 0,
@@ -282,7 +284,7 @@ class RealtimeDashboardService:
             "description": dashboard.description,
             "layout": dashboard.layout,
             "widgets": widgets,
-            "background_image": dashboard.cover_image.url if dashboard.cover_image else "",
+            "background_image": (dashboard.cover_image.url if dashboard.cover_image else ""),
             "refresh_interval": dashboard.refresh_interval,
         }
 
@@ -293,15 +295,18 @@ class RealtimeDashboardService:
         # 根据数据源获取实时数据
         if widget.data_source == "SalesSummary":
             data = service.update_sales_realtime_data(
-                platform_id=widget.dashboard.platform_id, limit=widget.data_params.get("limit", 100)
+                platform_id=widget.dashboard.platform_id,
+                limit=widget.data_params.get("limit", 100),
             )
         elif widget.data_source == "InventoryAnalysis":
             data = service.update_inventory_realtime_data(
-                shop_id=widget.dashboard.shop_id, limit=widget.data_params.get("limit", 100)
+                shop_id=widget.dashboard.shop_id,
+                limit=widget.data_params.get("limit", 100),
             )
         elif widget.data_source == "PlatformComparison":
             data = service.update_platform_comparison_realtime_data(
-                platform_id=widget.dashboard.platform_id, limit=widget.data_params.get("limit", 100)
+                platform_id=widget.dashboard.platform_id,
+                limit=widget.data_params.get("limit", 100),
             )
         else:
             # 默认数据
@@ -375,9 +380,9 @@ class RealtimeDashboardService:
             "dashboard_id": dashboard.id,
             "name": dashboard.name,
             "widget_count": dashboard.widgets.count(),
-            "last_updated_at": dashboard.updated_at.strftime("%Y-%m-%d %H:%M")
-            if dashboard.updated_at
-            else "",
+            "last_updated_at": (
+                dashboard.updated_at.strftime("%Y-%m-%d %H:%M") if dashboard.updated_at else ""
+            ),
             "widgets": [
                 {
                     "widget_id": widget.id,
@@ -406,9 +411,9 @@ class RealtimeDashboardService:
             "theme": dashboard.theme,
             "layout": dashboard.layout,
             "widgets": [],
-            "last_updated_at": dashboard.updated_at.strftime("%Y-%m-%d %H:%M")
-            if dashboard.updated_at
-            else "",
+            "last_updated_at": (
+                dashboard.updated_at.strftime("%Y-%m-%d %H:%M") if dashboard.updated_at else ""
+            ),
             "refresh_interval": dashboard.refresh_interval,
             "total_widgets": dashboard.widgets.count(),
         }

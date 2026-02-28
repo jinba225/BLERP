@@ -259,9 +259,9 @@ class TestDataConsistencyE2E:
                 issues.append(
                     {
                         "account_id": account.id,
-                        "order_number": account.purchase_order.order_number
-                        if account.purchase_order
-                        else None,
+                        "order_number": (
+                            account.purchase_order.order_number if account.purchase_order else None
+                        ),
                         "account_invoice": account.invoice_amount,
                         "detail_total": detail_total,
                         "difference": account.invoice_amount - detail_total,
@@ -291,9 +291,9 @@ class TestDataConsistencyE2E:
                 issues.append(
                     {
                         "account_id": account.id,
-                        "order_number": account.sales_order.order_number
-                        if account.sales_order
-                        else None,
+                        "order_number": (
+                            account.sales_order.order_number if account.sales_order else None
+                        ),
                         "account_invoice": account.invoice_amount,
                         "detail_total": detail_total,
                         "difference": account.invoice_amount - detail_total,

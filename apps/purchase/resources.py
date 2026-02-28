@@ -1,6 +1,7 @@
 """
 Purchase 模块的导入导出资源配置
 """
+
 from django.contrib.auth import get_user_model
 from import_export import fields, resources
 from import_export.widgets import DateWidget, DecimalWidget, ForeignKeyWidget
@@ -15,11 +16,15 @@ class PurchaseOrderResource(resources.ModelResource):
     """采购订单导入导出资源"""
 
     supplier = fields.Field(
-        column_name="供应商", attribute="supplier", widget=ForeignKeyWidget(Supplier, "name")
+        column_name="供应商",
+        attribute="supplier",
+        widget=ForeignKeyWidget(Supplier, "name"),
     )
 
     order_date = fields.Field(
-        column_name="订单日期", attribute="order_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="订单日期",
+        attribute="order_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     expected_delivery_date = fields.Field(
@@ -64,11 +69,15 @@ class PurchaseReceiptResource(resources.ModelResource):
     )
 
     supplier = fields.Field(
-        column_name="供应商", attribute="supplier", widget=ForeignKeyWidget(Supplier, "name")
+        column_name="供应商",
+        attribute="supplier",
+        widget=ForeignKeyWidget(Supplier, "name"),
     )
 
     receipt_date = fields.Field(
-        column_name="收货日期", attribute="receipt_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="收货日期",
+        attribute="receipt_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     class Meta:
@@ -100,11 +109,15 @@ class PurchaseReturnResource(resources.ModelResource):
     )
 
     supplier = fields.Field(
-        column_name="供应商", attribute="supplier", widget=ForeignKeyWidget(Supplier, "name")
+        column_name="供应商",
+        attribute="supplier",
+        widget=ForeignKeyWidget(Supplier, "name"),
     )
 
     return_date = fields.Field(
-        column_name="退货日期", attribute="return_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="退货日期",
+        attribute="return_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     class Meta:
@@ -131,15 +144,21 @@ class SupplierQuotationResource(resources.ModelResource):
     """供应商报价导入导出资源"""
 
     supplier = fields.Field(
-        column_name="供应商", attribute="supplier", widget=ForeignKeyWidget(Supplier, "name")
+        column_name="供应商",
+        attribute="supplier",
+        widget=ForeignKeyWidget(Supplier, "name"),
     )
 
     quotation_date = fields.Field(
-        column_name="报价日期", attribute="quotation_date", widget=DateWidget(format="%Y-%m-%d")
+        column_name="报价日期",
+        attribute="quotation_date",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     valid_until = fields.Field(
-        column_name="有效期至", attribute="valid_until", widget=DateWidget(format="%Y-%m-%d")
+        column_name="有效期至",
+        attribute="valid_until",
+        widget=DateWidget(format="%Y-%m-%d"),
     )
 
     class Meta:

@@ -1,6 +1,7 @@
 """
 Listing管理视图
 """
+
 from core.models import Platform
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator

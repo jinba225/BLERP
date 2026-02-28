@@ -2,6 +2,7 @@
 """
 修复缺少{% endblock %}的extra_js块 - 改进版本
 """
+
 from pathlib import Path
 
 

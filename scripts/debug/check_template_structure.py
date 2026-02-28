@@ -91,7 +91,14 @@ def check_template_structure(file_path):
         return issues
 
     except Exception as e:
-        return [{"type": "error", "severity": "high", "message": f"无法读取文件: {str(e)}", "line": 0}]
+        return [
+            {
+                "type": "error",
+                "severity": "high",
+                "message": f"无法读取文件: {str(e)}",
+                "line": 0,
+            }
+        ]
 
 
 def main():

@@ -3,6 +3,7 @@ MercadoLibre电商平台适配器
 
 MercadoLibre是拉丁美洲最大的电商平台
 """
+
 import base64
 import hashlib
 import hmac

@@ -2,6 +2,7 @@
 阿里国际站（AliExpress）采集适配器
 支持AliExpress开放平台API对接
 """
+
 import base64
 import hashlib
 import hmac
@@ -194,7 +195,9 @@ class AliExpressCollectAdapter(BaseCollectAdapter):
         except Exception as e:
             logger.error(f"采集AliExpress商品失败: {e}")
             raise CollectException(
-                code=500, msg=f"采集AliExpress商品失败: {str(e)}", details={"item_url": item_url}
+                code=500,
+                msg=f"采集AliExpress商品失败: {str(e)}",
+                details={"item_url": item_url},
             )
 
     def normalize_data(self, raw_data: Dict[str, Any]) -> Dict[str, Any]:

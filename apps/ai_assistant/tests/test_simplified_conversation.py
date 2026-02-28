@@ -43,7 +43,11 @@ class SimplifiedConversationFlowTest(TestCase):
 
         # 测试查询意图识别
         result = nlp_service.parse_user_input("查询产品")
-        self.assertEqual(result.intent.value, "query_product", "查询产品意图应该被识别为query_product")
+        self.assertEqual(
+            result.intent.value,
+            "query_product",
+            "查询产品意图应该被识别为query_product",
+        )
 
     def test_entity_extraction(self):
         """测试实体提取"""
@@ -91,7 +95,9 @@ class SimplifiedConversationFlowTest(TestCase):
 
         # 第二轮：提供客户信息
         reply2, completed2 = conversation_manager.process_message(
-            session_id=session_id, user_id=user_id, user_message="客户是北京科技有限公司"
+            session_id=session_id,
+            user_id=user_id,
+            user_message="客户是北京科技有限公司",
         )
 
         # 测试第二轮
@@ -127,7 +133,9 @@ class SimplifiedConversationFlowTest(TestCase):
 
         # 第二轮：提供客户信息
         reply2, completed2 = conversation_manager.process_message(
-            session_id=session_id, user_id=user_id, user_message="客户是北京科技有限公司"
+            session_id=session_id,
+            user_id=user_id,
+            user_message="客户是北京科技有限公司",
         )
 
         self.assertIn("产品", reply2, "第二轮应该询问产品信息")

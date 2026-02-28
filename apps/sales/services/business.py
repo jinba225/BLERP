@@ -68,9 +68,9 @@ class QuoteService:
             for item_data in items_data:
                 QuoteItem.objects.create(
                     quote=quote,
-                    created_by=user
-                    if not item_data.get("id")
-                    else None,  # preserve creator if needed?
+                    created_by=(
+                        user if not item_data.get("id") else None
+                    ),  # preserve creator if needed?
                     updated_by=user,
                     **item_data
                 )

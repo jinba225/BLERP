@@ -34,8 +34,15 @@ class QueryWarehousesTool(BaseTool):
             "type": "object",
             "properties": {
                 "is_active": {"type": "boolean", "description": "是否仅显示启用的仓库"},
-                "keyword": {"type": "string", "description": "搜索关键词（仓库名称或代码）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认50）", "default": 50},
+                "keyword": {
+                    "type": "string",
+                    "description": "搜索关键词（仓库名称或代码）",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认50）",
+                    "default": 50,
+                },
             },
         }
 
@@ -101,10 +108,17 @@ class QueryStockTransfersTool(BaseTool):
                 },
                 "source_warehouse_id": {"type": "integer", "description": "源仓库ID"},
                 "target_warehouse_id": {"type": "integer", "description": "目标仓库ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（调拨单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -153,18 +167,22 @@ class QueryStockTransfersTool(BaseTool):
                     {
                         "id": transfer.id,
                         "transfer_number": transfer.transfer_number,
-                        "source_warehouse": transfer.source_warehouse.name
-                        if transfer.source_warehouse
-                        else "",
-                        "target_warehouse": transfer.target_warehouse.name
-                        if transfer.target_warehouse
-                        else "",
-                        "transfer_date": transfer.transfer_date.strftime("%Y-%m-%d")
-                        if transfer.transfer_date
-                        else None,
+                        "source_warehouse": (
+                            transfer.source_warehouse.name if transfer.source_warehouse else ""
+                        ),
+                        "target_warehouse": (
+                            transfer.target_warehouse.name if transfer.target_warehouse else ""
+                        ),
+                        "transfer_date": (
+                            transfer.transfer_date.strftime("%Y-%m-%d")
+                            if transfer.transfer_date
+                            else None
+                        ),
                         "status": transfer.status,
                         "status_display": transfer.get_status_display(),
-                        "items_count": transfer.items.count() if hasattr(transfer, "items") else 0,
+                        "items_count": (
+                            transfer.items.count() if hasattr(transfer, "items") else 0
+                        ),
                     }
                 )
 
@@ -193,10 +211,17 @@ class QueryStockCountsTool(BaseTool):
                     "enum": ["draft", "in_progress", "completed", "cancelled"],
                 },
                 "warehouse_id": {"type": "integer", "description": "仓库ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（盘点单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -240,12 +265,12 @@ class QueryStockCountsTool(BaseTool):
                         "id": count.id,
                         "count_number": count.count_number,
                         "warehouse": count.warehouse.name if count.warehouse else "",
-                        "count_date": count.count_date.strftime("%Y-%m-%d")
-                        if count.count_date
-                        else None,
+                        "count_date": (
+                            count.count_date.strftime("%Y-%m-%d") if count.count_date else None
+                        ),
                         "status": count.status,
                         "status_display": count.get_status_display(),
-                        "items_count": count.items.count() if hasattr(count, "items") else 0,
+                        "items_count": (count.items.count() if hasattr(count, "items") else 0),
                     }
                 )
 
@@ -274,10 +299,17 @@ class QueryInboundOrdersTool(BaseTool):
                     "enum": ["draft", "pending", "approved", "cancelled"],
                 },
                 "warehouse_id": {"type": "integer", "description": "仓库ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（入库单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -320,13 +352,15 @@ class QueryInboundOrdersTool(BaseTool):
                     {
                         "id": inbound.id,
                         "inbound_number": inbound.inbound_number,
-                        "warehouse": inbound.warehouse.name if inbound.warehouse else "",
-                        "inbound_date": inbound.inbound_date.strftime("%Y-%m-%d")
-                        if inbound.inbound_date
-                        else None,
+                        "warehouse": (inbound.warehouse.name if inbound.warehouse else ""),
+                        "inbound_date": (
+                            inbound.inbound_date.strftime("%Y-%m-%d")
+                            if inbound.inbound_date
+                            else None
+                        ),
                         "status": inbound.status,
                         "status_display": inbound.get_status_display(),
-                        "items_count": inbound.items.count() if hasattr(inbound, "items") else 0,
+                        "items_count": (inbound.items.count() if hasattr(inbound, "items") else 0),
                     }
                 )
 
@@ -355,10 +389,17 @@ class QueryOutboundOrdersTool(BaseTool):
                     "enum": ["draft", "pending", "approved", "cancelled"],
                 },
                 "warehouse_id": {"type": "integer", "description": "仓库ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（出库单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -401,13 +442,17 @@ class QueryOutboundOrdersTool(BaseTool):
                     {
                         "id": outbound.id,
                         "outbound_number": outbound.outbound_number,
-                        "warehouse": outbound.warehouse.name if outbound.warehouse else "",
-                        "outbound_date": outbound.outbound_date.strftime("%Y-%m-%d")
-                        if outbound.outbound_date
-                        else None,
+                        "warehouse": (outbound.warehouse.name if outbound.warehouse else ""),
+                        "outbound_date": (
+                            outbound.outbound_date.strftime("%Y-%m-%d")
+                            if outbound.outbound_date
+                            else None
+                        ),
                         "status": outbound.status,
                         "status_display": outbound.get_status_display(),
-                        "items_count": outbound.items.count() if hasattr(outbound, "items") else 0,
+                        "items_count": (
+                            outbound.items.count() if hasattr(outbound, "items") else 0
+                        ),
                     }
                 )
 
@@ -436,10 +481,17 @@ class QueryStockAdjustmentsTool(BaseTool):
                     "enum": ["draft", "pending", "approved", "cancelled"],
                 },
                 "warehouse_id": {"type": "integer", "description": "仓库ID"},
-                "date_from": {"type": "string", "description": "开始日期（YYYY-MM-DD）"},
+                "date_from": {
+                    "type": "string",
+                    "description": "开始日期（YYYY-MM-DD）",
+                },
                 "date_to": {"type": "string", "description": "结束日期（YYYY-MM-DD）"},
                 "keyword": {"type": "string", "description": "搜索关键词（调整单号）"},
-                "limit": {"type": "integer", "description": "返回结果数量限制（默认20）", "default": 20},
+                "limit": {
+                    "type": "integer",
+                    "description": "返回结果数量限制（默认20）",
+                    "default": 20,
+                },
             },
         }
 
@@ -485,14 +537,16 @@ class QueryStockAdjustmentsTool(BaseTool):
                         "id": adj.id,
                         "adjustment_number": adj.adjustment_number,
                         "warehouse": adj.warehouse.name if adj.warehouse else "",
-                        "adjustment_date": adj.adjustment_date.strftime("%Y-%m-%d")
-                        if adj.adjustment_date
-                        else None,
+                        "adjustment_date": (
+                            adj.adjustment_date.strftime("%Y-%m-%d")
+                            if adj.adjustment_date
+                            else None
+                        ),
                         "adjustment_reason": adj.adjustment_reason,
                         "adjustment_reason_display": adj.get_adjustment_reason_display(),
                         "status": adj.status,
                         "status_display": adj.get_status_display(),
-                        "items_count": adj.items.count() if hasattr(adj, "items") else 0,
+                        "items_count": (adj.items.count() if hasattr(adj, "items") else 0),
                     }
                 )
 

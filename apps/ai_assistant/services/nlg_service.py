@@ -341,7 +341,14 @@ class NLGGenerator:
         Returns:
             确认提示文本
         """
-        lines = ["⚠️ 请确认操作", "", f"操作：{action}", f"对象：{entity}", "", "详细信息："]
+        lines = [
+            "⚠️ 请确认操作",
+            "",
+            f"操作：{action}",
+            f"对象：{entity}",
+            "",
+            "详细信息：",
+        ]
 
         for key, value in details.items():
             lines.append(f"  • {key}: {value}")

@@ -5,94 +5,135 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('customers', '0005_remove_customer_contact_person_remove_customer_email_and_more'),
-        ('inventory', '0010_remove_inventorystock_inventory_s_quantit_287c3e_idx_and_more'),
-        ('products', '0004_add_default_unit'),
-        ('sales', '0019_remove_salesorder_sales_order_cust_status_date_idx_and_more'),
+        (
+            "customers",
+            "0005_remove_customer_contact_person_remove_customer_email_and_more",
+        ),
+        (
+            "inventory",
+            "0010_remove_inventorystock_inventory_s_quantit_287c3e_idx_and_more",
+        ),
+        ("products", "0004_add_default_unit"),
+        ("sales", "0019_remove_salesorder_sales_order_cust_status_date_idx_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddIndex(
-            model_name='delivery',
-            index=models.Index(fields=['status', 'planned_date'], name='sales_deliv_status_2bc679_idx'),
+            model_name="delivery",
+            index=models.Index(
+                fields=["status", "planned_date"], name="sales_deliv_status_2bc679_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='delivery',
-            index=models.Index(fields=['sales_order', 'status'], name='sales_deliv_sales_o_451b87_idx'),
+            model_name="delivery",
+            index=models.Index(
+                fields=["sales_order", "status"], name="sales_deliv_sales_o_451b87_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='delivery',
-            index=models.Index(fields=['warehouse', 'status'], name='sales_deliv_warehou_608f4a_idx'),
+            model_name="delivery",
+            index=models.Index(
+                fields=["warehouse", "status"], name="sales_deliv_warehou_608f4a_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='delivery',
-            index=models.Index(fields=['tracking_number'], name='sales_deliv_trackin_77fa64_idx'),
+            model_name="delivery",
+            index=models.Index(fields=["tracking_number"], name="sales_deliv_trackin_77fa64_idx"),
         ),
         migrations.AddIndex(
-            model_name='quote',
-            index=models.Index(fields=['status', 'quote_date'], name='sales_quote_status_63f2a2_idx'),
+            model_name="quote",
+            index=models.Index(
+                fields=["status", "quote_date"], name="sales_quote_status_63f2a2_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='quote',
-            index=models.Index(fields=['customer', 'status'], name='sales_quote_custome_47e5dd_idx'),
+            model_name="quote",
+            index=models.Index(
+                fields=["customer", "status"], name="sales_quote_custome_47e5dd_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='quote',
-            index=models.Index(fields=['valid_until', 'status'], name='sales_quote_valid_u_2a6e92_idx'),
+            model_name="quote",
+            index=models.Index(
+                fields=["valid_until", "status"], name="sales_quote_valid_u_2a6e92_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='salesloan',
-            index=models.Index(fields=['status', 'loan_date'], name='sales_loan_status_ec7418_idx'),
+            model_name="salesloan",
+            index=models.Index(fields=["status", "loan_date"], name="sales_loan_status_ec7418_idx"),
         ),
         migrations.AddIndex(
-            model_name='salesloan',
-            index=models.Index(fields=['customer', 'status'], name='sales_loan_custome_25fd24_idx'),
+            model_name="salesloan",
+            index=models.Index(fields=["customer", "status"], name="sales_loan_custome_25fd24_idx"),
         ),
         migrations.AddIndex(
-            model_name='salesloan',
-            index=models.Index(fields=['salesperson', 'status'], name='sales_loan_salespe_4899cc_idx'),
+            model_name="salesloan",
+            index=models.Index(
+                fields=["salesperson", "status"], name="sales_loan_salespe_4899cc_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='salesorder',
-            index=models.Index(fields=['status', 'order_date'], name='sales_order_status_a80236_idx'),
+            model_name="salesorder",
+            index=models.Index(
+                fields=["status", "order_date"], name="sales_order_status_a80236_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='salesorder',
-            index=models.Index(fields=['payment_status', 'order_date'], name='sales_order_payment_6813fc_idx'),
+            model_name="salesorder",
+            index=models.Index(
+                fields=["payment_status", "order_date"],
+                name="sales_order_payment_6813fc_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='salesorder',
-            index=models.Index(fields=['customer', 'status'], name='sales_order_custome_21cf73_idx'),
+            model_name="salesorder",
+            index=models.Index(
+                fields=["customer", "status"], name="sales_order_custome_21cf73_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='salesorder',
-            index=models.Index(fields=['sales_rep', 'order_date'], name='sales_order_sales_r_bf27da_idx'),
+            model_name="salesorder",
+            index=models.Index(
+                fields=["sales_rep", "order_date"],
+                name="sales_order_sales_r_bf27da_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='salesorderitem',
-            index=models.Index(fields=['order', 'product'], name='sales_order_order_i_dba744_idx'),
+            model_name="salesorderitem",
+            index=models.Index(fields=["order", "product"], name="sales_order_order_i_dba744_idx"),
         ),
         migrations.AddIndex(
-            model_name='salesorderitem',
-            index=models.Index(fields=['product', 'delivered_quantity'], name='sales_order_product_ef5433_idx'),
+            model_name="salesorderitem",
+            index=models.Index(
+                fields=["product", "delivered_quantity"],
+                name="sales_order_product_ef5433_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='salesorderitem',
-            index=models.Index(fields=['order', 'delivered_quantity'], name='sales_order_order_i_84208d_idx'),
+            model_name="salesorderitem",
+            index=models.Index(
+                fields=["order", "delivered_quantity"],
+                name="sales_order_order_i_84208d_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='salesreturn',
-            index=models.Index(fields=['status', 'return_date'], name='sales_retur_status_167b01_idx'),
+            model_name="salesreturn",
+            index=models.Index(
+                fields=["status", "return_date"], name="sales_retur_status_167b01_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='salesreturn',
-            index=models.Index(fields=['sales_order', 'status'], name='sales_retur_sales_o_c8c1fb_idx'),
+            model_name="salesreturn",
+            index=models.Index(
+                fields=["sales_order", "status"], name="sales_retur_sales_o_c8c1fb_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='salesreturn',
-            index=models.Index(fields=['delivery', 'status'], name='sales_retur_deliver_fb17a7_idx'),
+            model_name="salesreturn",
+            index=models.Index(
+                fields=["delivery", "status"], name="sales_retur_deliver_fb17a7_idx"
+            ),
         ),
     ]

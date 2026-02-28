@@ -2,6 +2,7 @@
 Purchase模块 - 服务层测试
 测试PurchaseOrderService, PurchaseRequestService业务逻辑
 """
+
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -155,7 +156,11 @@ class PurchaseOrderServiceTestCase(PurchaseServiceTestCaseBase):
         }
 
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("5000.00")},
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("5000.00"),
+            },
         ]
 
         order = PurchaseOrderService.create_order(self.user, order_data, items_data)
@@ -173,10 +178,18 @@ class PurchaseOrderServiceTestCase(PurchaseServiceTestCaseBase):
         }
 
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("5000.00")},
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("5000.00"),
+            },
             {},  # 空明细
             {"product_id": None},  # 空product_id
-            {"product": self.product2, "quantity": Decimal("2"), "unit_price": Decimal("3000.00")},
+            {
+                "product": self.product2,
+                "quantity": Decimal("2"),
+                "unit_price": Decimal("3000.00"),
+            },
         ]
 
         order = PurchaseOrderService.create_order(self.user, order_data, items_data)
@@ -194,7 +207,11 @@ class PurchaseOrderServiceTestCase(PurchaseServiceTestCaseBase):
             "warehouse": self.warehouse,
         }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("5000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("5000.00"),
+            }
         ]
         order = PurchaseOrderService.create_order(self.user, order_data, items_data)
         original_number = order.order_number
@@ -202,8 +219,16 @@ class PurchaseOrderServiceTestCase(PurchaseServiceTestCaseBase):
         # 更新订单
         update_data = {"status": "approved", "notes": "已审核订单"}
         new_items_data = [
-            {"product": self.product1, "quantity": Decimal("2"), "unit_price": Decimal("4800.00")},
-            {"product": self.product2, "quantity": Decimal("3"), "unit_price": Decimal("3000.00")},
+            {
+                "product": self.product1,
+                "quantity": Decimal("2"),
+                "unit_price": Decimal("4800.00"),
+            },
+            {
+                "product": self.product2,
+                "quantity": Decimal("3"),
+                "unit_price": Decimal("3000.00"),
+            },
         ]
 
         updated_order = PurchaseOrderService.update_order(
@@ -229,7 +254,11 @@ class PurchaseOrderServiceTestCase(PurchaseServiceTestCaseBase):
             "warehouse": self.warehouse,
         }
         items_data = [
-            {"product": self.product1, "quantity": Decimal("1"), "unit_price": Decimal("5000.00")}
+            {
+                "product": self.product1,
+                "quantity": Decimal("1"),
+                "unit_price": Decimal("5000.00"),
+            }
         ]
         order = PurchaseOrderService.create_order(self.user, order_data, items_data)
         original_item_count = order.items.count()

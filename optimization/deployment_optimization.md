@@ -475,7 +475,7 @@ def validate_config():
         'JWT_SECRET_KEY',
         'ALLOWED_HOSTS',
     ]
-    
+
     missing_configs = []
     for config_name in required_configs:
         try:
@@ -484,7 +484,7 @@ def validate_config():
                 missing_configs.append(config_name)
         except:
             missing_configs.append(config_name)
-    
+
     if missing_configs:
         print(f"缺少配置项: {', '.join(missing_configs)}")
         return False

@@ -1,10 +1,11 @@
 """
 Sales views for the ERP system.
 """
+
 import json
 
-from core.models import Notification
 from core.decorators import sync_cached_api_response
+from core.models import Notification
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -80,7 +81,7 @@ def quote_list(request):
     List all quotes with search and filter capabilities.
     """
     from django.db.models import Prefetch
-    
+
     # 预加载相关数据，减少数据库查询
     quotes = (
         Quote.objects.filter(is_deleted=False)
@@ -221,17 +222,41 @@ def quote_create(request):
     from django.core.serializers.json import DjangoJSONEncoder
     from products.models import Product
 
-    customers = Customer.objects.filter(is_deleted=False, status="active").only("id", "name", "code", "contact", "phone", "address")
-    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit").only("id", "name", "code", "specifications", "unit__name", "selling_price", "cost_price")
+    customers = Customer.objects.filter(is_deleted=False, status="active").only(
+        "id", "name", "code", "contact", "phone", "address"
+    )
+    products = (
+        Product.objects.filter(is_deleted=False, status="active")
+        .select_related("unit")
+        .only(
+            "id",
+            "name",
+            "code",
+            "specifications",
+            "unit__name",
+            "selling_price",
+            "cost_price",
+        )
+    )
 
     # 序列化JSON数据用于可搜索下拉框
     customers_json = json.dumps(
-        list(customers.values('id', 'name', 'code', 'contact', 'phone', 'address')),
-        cls=DjangoJSONEncoder
+        list(customers.values("id", "name", "code", "contact", "phone", "address")),
+        cls=DjangoJSONEncoder,
     )
     products_json = json.dumps(
-        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'selling_price', 'cost_price')),
-        cls=DjangoJSONEncoder
+        list(
+            products.values(
+                "id",
+                "name",
+                "code",
+                "specifications",
+                "unit__name",
+                "selling_price",
+                "cost_price",
+            )
+        ),
+        cls=DjangoJSONEncoder,
     )
 
     context = {
@@ -298,17 +323,41 @@ def quote_update(request, pk):
     from django.core.serializers.json import DjangoJSONEncoder
     from products.models import Product
 
-    customers = Customer.objects.filter(is_deleted=False, status="active").only("id", "name", "code", "contact", "phone", "address")
-    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit").only("id", "name", "code", "specifications", "unit__name", "selling_price", "cost_price")
+    customers = Customer.objects.filter(is_deleted=False, status="active").only(
+        "id", "name", "code", "contact", "phone", "address"
+    )
+    products = (
+        Product.objects.filter(is_deleted=False, status="active")
+        .select_related("unit")
+        .only(
+            "id",
+            "name",
+            "code",
+            "specifications",
+            "unit__name",
+            "selling_price",
+            "cost_price",
+        )
+    )
 
     # 序列化JSON数据用于可搜索下拉框
     customers_json = json.dumps(
-        list(customers.values('id', 'name', 'code', 'contact', 'phone', 'address')),
-        cls=DjangoJSONEncoder
+        list(customers.values("id", "name", "code", "contact", "phone", "address")),
+        cls=DjangoJSONEncoder,
     )
     products_json = json.dumps(
-        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'selling_price', 'cost_price')),
-        cls=DjangoJSONEncoder
+        list(
+            products.values(
+                "id",
+                "name",
+                "code",
+                "specifications",
+                "unit__name",
+                "selling_price",
+                "cost_price",
+            )
+        ),
+        cls=DjangoJSONEncoder,
     )
 
     context = {
@@ -389,9 +438,14 @@ def quote_convert_to_order(request, pk):
                     extra_data["notes"] = form.cleaned_data["notes"]
 
                 # Convert quote to order using service
-                order = OrderService.convert_quote_to_order(quote, request.user, extra_data)
+                order = OrderService.convert_quote_to_order(
+                    quote, request.user, extra_data
+                )
 
-                messages.success(request, f"报价单 {quote.quote_number} 已成功转换为订单 {order.order_number}")
+                messages.success(
+                    request,
+                    f"报价单 {quote.quote_number} 已成功转换为订单 {order.order_number}",
+                )
                 return redirect("sales:order_detail", pk=order.pk)
             except Exception as e:
                 messages.error(request, f"转换失败: {str(e)}")
@@ -458,9 +512,9 @@ def quote_print(request, pk):
     Print quote as PDF using custom print template.
     """
     quote = get_object_or_404(
-        Quote.objects.select_related("customer", "contact_person", "sales_rep").prefetch_related(
-            "items__product"
-        ),
+        Quote.objects.select_related(
+            "customer", "contact_person", "sales_rep"
+        ).prefetch_related("items__product"),
         pk=pk,
         is_deleted=False,
     )
@@ -503,7 +557,9 @@ def quote_print(request, pk):
         "print_date": timezone.now(),
         "template": print_template,
         "layout_config": print_template.layout_config,
-        "layout_config_json": json.dumps(print_template.layout_config, ensure_ascii=False),
+        "layout_config_json": json.dumps(
+            print_template.layout_config, ensure_ascii=False
+        ),
     }
     return render(request, "modules/sales/quote_print_hiprint.html", context)
 
@@ -556,7 +612,9 @@ def quote_duplicate(request, pk):
             new_quote.calculate_totals()
             new_quote.save()
 
-            messages.success(request, f"已复制报价单，新报价单号：{new_quote.quote_number}")
+            messages.success(
+                request, f"已复制报价单，新报价单号：{new_quote.quote_number}"
+            )
             return redirect("sales:quote_detail", pk=new_quote.pk)
 
     messages.error(request, "无效的请求")
@@ -569,7 +627,7 @@ def quote_duplicate(request, pk):
 @login_required
 def order_list(request):
     """List all sales orders with search and filter."""
-    from django.db.models import Subquery, OuterRef, Sum, Prefetch
+    from django.db.models import OuterRef, Prefetch, Subquery, Sum
     from sales.models import SalesReturnItem
 
     # 预加载相关数据，减少数据库查询
@@ -613,11 +671,11 @@ def order_list(request):
     orders = orders.annotate(
         total_returned_quantity=Subquery(
             SalesReturnItem.objects.filter(
-                return_order__sales_order=OuterRef('pk'),
-                return_order__is_deleted=False
-            ).values('return_order__sales_order')
-            .annotate(total=Sum('quantity'))
-            .values('total')[:1]
+                return_order__sales_order=OuterRef("pk"), return_order__is_deleted=False
+            )
+            .values("return_order__sales_order")
+            .annotate(total=Sum("quantity"))
+            .values("total")[:1]
         )
     ).order_by("-created_at")
 
@@ -651,22 +709,26 @@ def order_detail(request, pk):
     can_create_delivery = False
     if order.approved_by:
         # Check if any items have remaining quantity
-        can_create_delivery = any(item.remaining_quantity > 0 for item in order.items.all())
+        can_create_delivery = any(
+            item.remaining_quantity > 0 for item in order.items.all()
+        )
 
     # 查询关联的出库单
     from inventory.models import OutboundOrder
+
     outbound_orders = OutboundOrder.objects.filter(
-        reference_type="sales_order",
-        reference_id=order.id,
-        is_deleted=False
+        reference_type="sales_order", reference_id=order.id, is_deleted=False
     ).order_by("-created_at")
 
     # 查询关联的入库单(销售退货)
     from inventory.models import InboundOrder
+
     inbound_orders = InboundOrder.objects.filter(
         reference_type="sales_return",
-        reference_id__in=order.returns.filter(is_deleted=False).values_list("id", flat=True),
-        is_deleted=False
+        reference_id__in=order.returns.filter(is_deleted=False).values_list(
+            "id", flat=True
+        ),
+        is_deleted=False,
     ).order_by("-created_at")
 
     context = {
@@ -748,37 +810,71 @@ def order_create(request):
     User = get_user_model()
 
     # 查询数据（保留原有查询用于兼容）
-    customers = Customer.objects.filter(is_deleted=False, status="active").prefetch_related('contacts').only("id", "name", "code", "address", "payment_terms")
-    sales_reps = User.objects.filter(is_active=True).only("id", "username", "first_name", "last_name")
-    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit").only("id", "name", "code", "specifications", "unit__name", "selling_price", "cost_price")
+    customers = (
+        Customer.objects.filter(is_deleted=False, status="active")
+        .prefetch_related("contacts")
+        .only("id", "name", "code", "address", "payment_terms")
+    )
+    sales_reps = User.objects.filter(is_active=True).only(
+        "id", "username", "first_name", "last_name"
+    )
+    products = (
+        Product.objects.filter(is_deleted=False, status="active")
+        .select_related("unit")
+        .only(
+            "id",
+            "name",
+            "code",
+            "specifications",
+            "unit__name",
+            "selling_price",
+            "cost_price",
+        )
+    )
 
     # 序列化JSON数据用于可搜索下拉框（包含主联系人信息）
     customers_data = []
     for customer in customers:
         # 获取主要联系人或第一个联系人
         primary_contact = None
-        if hasattr(customer, 'contacts') and customer.contacts.exists():
-            primary_contact = customer.contacts.filter(is_deleted=False).order_by('-is_primary').first()
+        if hasattr(customer, "contacts") and customer.contacts.exists():
+            primary_contact = (
+                customer.contacts.filter(is_deleted=False)
+                .order_by("-is_primary")
+                .first()
+            )
             if primary_contact:
                 primary_contact = {
-                    'name': primary_contact.name,
-                    'phone': primary_contact.phone or primary_contact.mobile or '',
-                    'email': primary_contact.email or ''
+                    "name": primary_contact.name,
+                    "phone": primary_contact.phone or primary_contact.mobile or "",
+                    "email": primary_contact.email or "",
                 }
 
-        customers_data.append({
-            'id': customer.id,
-            'name': customer.name,
-            'code': customer.code,
-            'address': customer.address or '',
-            'payment_terms': customer.payment_terms or '',
-            'primary_contact': primary_contact or {}
-        })
+        customers_data.append(
+            {
+                "id": customer.id,
+                "name": customer.name,
+                "code": customer.code,
+                "address": customer.address or "",
+                "payment_terms": customer.payment_terms or "",
+                "primary_contact": primary_contact or {},
+            }
+        )
 
     customers_json = json.dumps(customers_data, cls=DjangoJSONEncoder)
     products_json = json.dumps(
-        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'selling_price', 'cost_price')),
-        cls=DjangoJSONEncoder
+        list(
+            products.values(
+                "id",
+                "name",
+                "code",
+                "specifications",
+                "unit__name",
+                "selling_price",
+                "cost_price",
+            )
+        ),
+        cls=DjangoJSONEncoder,
     )
 
     context = {
@@ -861,37 +957,71 @@ def order_update(request, pk):
     User = get_user_model()
 
     # 查询数据（保留原有查询用于兼容）
-    customers = Customer.objects.filter(is_deleted=False, status="active").prefetch_related('contacts').only("id", "name", "code", "address", "payment_terms")
-    sales_reps = User.objects.filter(is_active=True).only("id", "username", "first_name", "last_name")
-    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit").only("id", "name", "code", "specifications", "unit__name", "selling_price", "cost_price")
+    customers = (
+        Customer.objects.filter(is_deleted=False, status="active")
+        .prefetch_related("contacts")
+        .only("id", "name", "code", "address", "payment_terms")
+    )
+    sales_reps = User.objects.filter(is_active=True).only(
+        "id", "username", "first_name", "last_name"
+    )
+    products = (
+        Product.objects.filter(is_deleted=False, status="active")
+        .select_related("unit")
+        .only(
+            "id",
+            "name",
+            "code",
+            "specifications",
+            "unit__name",
+            "selling_price",
+            "cost_price",
+        )
+    )
 
     # 序列化JSON数据用于可搜索下拉框（包含主联系人信息）
     customers_data = []
     for customer in customers:
         # 获取主要联系人或第一个联系人
         primary_contact = None
-        if hasattr(customer, 'contacts') and customer.contacts.exists():
-            primary_contact = customer.contacts.filter(is_deleted=False).order_by('-is_primary').first()
+        if hasattr(customer, "contacts") and customer.contacts.exists():
+            primary_contact = (
+                customer.contacts.filter(is_deleted=False)
+                .order_by("-is_primary")
+                .first()
+            )
             if primary_contact:
                 primary_contact = {
-                    'name': primary_contact.name,
-                    'phone': primary_contact.phone or primary_contact.mobile or '',
-                    'email': primary_contact.email or ''
+                    "name": primary_contact.name,
+                    "phone": primary_contact.phone or primary_contact.mobile or "",
+                    "email": primary_contact.email or "",
                 }
 
-        customers_data.append({
-            'id': customer.id,
-            'name': customer.name,
-            'code': customer.code,
-            'address': customer.address or '',
-            'payment_terms': customer.payment_terms or '',
-            'primary_contact': primary_contact or {}
-        })
+        customers_data.append(
+            {
+                "id": customer.id,
+                "name": customer.name,
+                "code": customer.code,
+                "address": customer.address or "",
+                "payment_terms": customer.payment_terms or "",
+                "primary_contact": primary_contact or {},
+            }
+        )
 
     customers_json = json.dumps(customers_data, cls=DjangoJSONEncoder)
     products_json = json.dumps(
-        list(products.values('id', 'name', 'code', 'specifications', 'unit__name', 'selling_price', 'cost_price')),
-        cls=DjangoJSONEncoder
+        list(
+            products.values(
+                "id",
+                "name",
+                "code",
+                "specifications",
+                "unit__name",
+                "selling_price",
+                "cost_price",
+            )
+        ),
+        cls=DjangoJSONEncoder,
     )
 
     context = {
@@ -971,9 +1101,11 @@ def get_customer_info(request, customer_id):
                     "name": customer.name,
                     "contact_person": contact_person_name,
                     "phone": contact_phone,
-                    "payment_terms": customer.get_payment_terms_display()
-                    if customer.payment_terms
-                    else "",
+                    "payment_terms": (
+                        customer.get_payment_terms_display()
+                        if customer.payment_terms
+                        else ""
+                    ),
                 },
                 "contacts": contacts_data,
                 "primary_contact": primary_contact,
@@ -1046,7 +1178,9 @@ def order_approve(request, pk):
 
         # Check if delivery was created (depends on system configuration)
         if delivery:
-            messages.success(request, f"订单审核成功!已生成发货单 {delivery.delivery_number}")
+            messages.success(
+                request, f"订单审核成功!已生成发货单 {delivery.delivery_number}"
+            )
         else:
             messages.success(request, "订单审核成功!")
         return redirect("sales:order_detail", pk=pk)
@@ -1083,7 +1217,10 @@ def order_unapprove(request, pk):
             # Unapprove order
             order.unapprove_order()
 
-            messages.success(request, f"订单 {order.order_number} 审核已撤销，相关发货单和应收账款已删除")
+            messages.success(
+                request,
+                f"订单 {order.order_number} 审核已撤销，相关发货单和应收账款已删除",
+            )
             return redirect("sales:order_detail", pk=pk)
 
         except ValueError as e:
@@ -1158,7 +1295,11 @@ def delivery_detail(request, pk):
     delivery = get_object_or_404(
         Delivery.objects.filter(is_deleted=False)
         .select_related(
-            "sales_order", "sales_order__customer", "warehouse", "prepared_by", "shipped_by"
+            "sales_order",
+            "sales_order__customer",
+            "warehouse",
+            "prepared_by",
+            "shipped_by",
         )
         .prefetch_related("items__order_item__product"),
         pk=pk,
@@ -1177,7 +1318,8 @@ def delivery_detail(request, pk):
 def delivery_create(request, order_pk):
     """Create a new delivery from an order (supports partial delivery)."""
     order = get_object_or_404(
-        SalesOrder.objects.filter(is_deleted=False).prefetch_related("items__product"), pk=order_pk
+        SalesOrder.objects.filter(is_deleted=False).prefetch_related("items__product"),
+        pk=order_pk,
     )
 
     # Check if order is approved
@@ -1186,7 +1328,9 @@ def delivery_create(request, order_pk):
         return redirect("sales:order_detail", pk=order_pk)
 
     # Check if order has items with remaining quantity
-    items_with_remaining = [item for item in order.items.all() if item.remaining_quantity > 0]
+    items_with_remaining = [
+        item for item in order.items.all() if item.remaining_quantity > 0
+    ]
     if not items_with_remaining:
         messages.error(request, "订单所有产品已全部发货")
         return redirect("sales:order_detail", pk=order_pk)
@@ -1201,7 +1345,9 @@ def delivery_create(request, order_pk):
 
             from inventory.models import Warehouse
 
-            warehouse = Warehouse.objects.get(pk=warehouse_id, is_deleted=False, is_active=True)
+            warehouse = Warehouse.objects.get(
+                pk=warehouse_id, is_deleted=False, is_active=True
+            )
 
             # Create delivery
             delivery = Delivery.objects.create(
@@ -1209,10 +1355,14 @@ def delivery_create(request, order_pk):
                 sales_order=order,
                 status="preparing",
                 planned_date=request.POST.get("planned_date") or timezone.now().date(),
-                shipping_address=request.POST.get("shipping_address") or order.shipping_address,
-                shipping_contact=request.POST.get("shipping_contact") or order.shipping_contact,
-                shipping_phone=request.POST.get("shipping_phone") or order.shipping_phone,
-                shipping_method=request.POST.get("shipping_method") or order.shipping_method,
+                shipping_address=request.POST.get("shipping_address")
+                or order.shipping_address,
+                shipping_contact=request.POST.get("shipping_contact")
+                or order.shipping_contact,
+                shipping_phone=request.POST.get("shipping_phone")
+                or order.shipping_phone,
+                shipping_method=request.POST.get("shipping_method")
+                or order.shipping_method,
                 warehouse=warehouse,
                 notes=request.POST.get("notes", ""),
                 created_by=request.user,
@@ -1223,13 +1373,20 @@ def delivery_create(request, order_pk):
             items_data = json.loads(items_json)
 
             for item_data in items_data:
-                if item_data.get("order_item_id") and float(item_data.get("quantity", 0)) > 0:
-                    order_item = SalesOrderItem.objects.get(pk=item_data["order_item_id"])
+                if (
+                    item_data.get("order_item_id")
+                    and float(item_data.get("quantity", 0)) > 0
+                ):
+                    order_item = SalesOrderItem.objects.get(
+                        pk=item_data["order_item_id"]
+                    )
 
                     # Validate quantity
                     quantity = Decimal(str(item_data["quantity"]))
                     if quantity > order_item.remaining_quantity:
-                        raise ValueError(f"产品 {order_item.product.name} 发货数量超过剩余数量")
+                        raise ValueError(
+                            f"产品 {order_item.product.name} 发货数量超过剩余数量"
+                        )
 
                     DeliveryItem.objects.create(
                         delivery=delivery,
@@ -1276,18 +1433,28 @@ def delivery_update(request, pk):
 
     if request.method == "POST":
         try:
-            delivery.planned_date = request.POST.get("planned_date") or delivery.planned_date
+            delivery.planned_date = (
+                request.POST.get("planned_date") or delivery.planned_date
+            )
             delivery.shipping_address = request.POST.get(
                 "shipping_address", delivery.shipping_address
             )
             delivery.shipping_contact = request.POST.get(
                 "shipping_contact", delivery.shipping_contact
             )
-            delivery.shipping_phone = request.POST.get("shipping_phone", delivery.shipping_phone)
-            delivery.shipping_method = request.POST.get("shipping_method", delivery.shipping_method)
+            delivery.shipping_phone = request.POST.get(
+                "shipping_phone", delivery.shipping_phone
+            )
+            delivery.shipping_method = request.POST.get(
+                "shipping_method", delivery.shipping_method
+            )
             delivery.carrier = request.POST.get("carrier", delivery.carrier)
-            delivery.tracking_number = request.POST.get("tracking_number", delivery.tracking_number)
-            delivery.warehouse_id = request.POST.get("warehouse") or delivery.warehouse_id
+            delivery.tracking_number = request.POST.get(
+                "tracking_number", delivery.tracking_number
+            )
+            delivery.warehouse_id = (
+                request.POST.get("warehouse") or delivery.warehouse_id
+            )
             delivery.updated_by = request.user
             delivery.save()
 
@@ -1336,7 +1503,9 @@ def delivery_ship(request, pk):
 
     # Check status - 允许部分发货状态的发货单继续发货
     if delivery.status not in ["preparing", "ready", "partially_shipped"]:
-        messages.error(request, f"发货单状态为 {delivery.get_status_display()}，无法发货")
+        messages.error(
+            request, f"发货单状态为 {delivery.get_status_display()}，无法发货"
+        )
         return redirect("sales:delivery_detail", pk=pk)
 
     if request.method == "POST":
@@ -1371,7 +1540,9 @@ def delivery_ship(request, pk):
 
                 # 验证发货数量必须大于0
                 if shipped_qty <= 0:
-                    raise ValueError(f"产品 {delivery_item.order_item.product.name} 的发货数量必须大于0")
+                    raise ValueError(
+                        f"产品 {delivery_item.order_item.product.name} 的发货数量必须大于0"
+                    )
 
             # Check inventory availability before shipment (库存检查)
             # 只对需要库存管理的产品进行检查
@@ -1414,7 +1585,9 @@ def delivery_ship(request, pk):
                 error_message = "库存不足，无法发货：\n"
                 for item in insufficient_stock_items:
                     error_message += f'\n• {item["product"]} ({item["code"]}): '
-                    error_message += f'需要 {item["required"]}，可用 {item["available"]}，'
+                    error_message += (
+                        f'需要 {item["required"]}，可用 {item["available"]}，'
+                    )
                     error_message += f'缺少 {item["shortage"]}'
                 raise ValueError(error_message)
 
@@ -1485,7 +1658,9 @@ def delivery_ship(request, pk):
             )
 
             # Check if any items are partially delivered
-            any_items_delivered = any(item.delivered_quantity > 0 for item in order.items.all())
+            any_items_delivered = any(
+                item.delivered_quantity > 0 for item in order.items.all()
+            )
 
             if all_items_delivered:
                 # All items fully delivered
@@ -1526,15 +1701,17 @@ def delivery_ship(request, pk):
                     continue
 
                 oi = delivery_item.order_item
-                discount_factor = (Decimal("100") - (oi.discount_rate or Decimal("0"))) / Decimal(
-                    "100"
-                )
+                discount_factor = (
+                    Decimal("100") - (oi.discount_rate or Decimal("0"))
+                ) / Decimal("100")
                 # Calculate tax-exclusive unit price
                 # SalesOrder uses tax-inclusive pricing, but Invoice uses tax-exclusive
                 # pricing + tax
                 unit_price_after_discount = oi.unit_price * discount_factor
                 tax_rate_decimal = order.tax_rate / Decimal("100")
-                unit_price_exclusive = unit_price_after_discount / (Decimal("1") + tax_rate_decimal)
+                unit_price_exclusive = unit_price_after_discount / (
+                    Decimal("1") + tax_rate_decimal
+                )
 
                 InvoiceItem.objects.create(
                     invoice=invoice,
@@ -1577,7 +1754,10 @@ def delivery_ship(request, pk):
 
             # 根据发货状态显示不同的消息
             if delivery.is_fully_shipped:
-                messages.success(request, f"发货单 {delivery.delivery_number} 已全部发货完成，并生成销售发票与应收账款")
+                messages.success(
+                    request,
+                    f"发货单 {delivery.delivery_number} 已全部发货完成，并生成销售发票与应收账款",
+                )
             else:
                 messages.success(
                     request,
@@ -1670,7 +1850,9 @@ def return_detail(request, pk):
     """Display sales return details."""
     sales_return = get_object_or_404(
         SalesReturn.objects.filter(is_deleted=False)
-        .select_related("sales_order", "sales_order__customer", "delivery", "approved_by")
+        .select_related(
+            "sales_order", "sales_order__customer", "delivery", "approved_by"
+        )
         .prefetch_related("items__order_item__product"),
         pk=pk,
     )
@@ -1687,10 +1869,9 @@ def return_detail(request, pk):
 
     # 查询关联的入库单
     from inventory.models import InboundOrder
+
     inbound_order = InboundOrder.objects.filter(
-        reference_type="sales_return",
-        reference_id=sales_return.id,
-        is_deleted=False
+        reference_type="sales_return", reference_id=sales_return.id, is_deleted=False
     ).first()
 
     context = {
@@ -1698,7 +1879,8 @@ def return_detail(request, pk):
         "items": sales_return.items.all(),
         "can_approve": sales_return.status == "pending",
         "can_receive": sales_return.status == "approved",
-        "can_process": sales_return.status == "received",  # 在已收货状态时显示处理按钮,但通常不会出现,因为确认收货后直接跳到已处理
+        "can_process": sales_return.status
+        == "received",  # 在已收货状态时显示处理按钮,但通常不会出现,因为确认收货后直接跳到已处理
         "refund_payment": refund_payment,
         "inbound_order": inbound_order,
     }
@@ -1710,7 +1892,8 @@ def return_detail(request, pk):
 def return_create(request, order_pk):
     """Create a new sales return from an order."""
     order = get_object_or_404(
-        SalesOrder.objects.filter(is_deleted=False).prefetch_related("items__product"), pk=order_pk
+        SalesOrder.objects.filter(is_deleted=False).prefetch_related("items__product"),
+        pk=order_pk,
     )
 
     # Check if order can be returned
@@ -1759,7 +1942,8 @@ def return_create(request, order_pk):
 
                     # 计算该订单项的总退货数量（退货单还未保存,所以只考虑其他退货单的退货数量）
                     existing_return_quantity = SalesReturnItem.objects.filter(
-                        order_item=order_item, return_order__sales_order=order_item.order
+                        order_item=order_item,
+                        return_order__sales_order=order_item.order,
                     ).aggregate(total=Sum("quantity"))["total"] or Decimal("0")
 
                     # 验证退货数量不能大于(已交付数量 - 已退货数量)
@@ -1779,8 +1963,12 @@ def return_create(request, order_pk):
                         unit_price = Decimal(str(unit_price_raw))
 
                     # Quantize to match model precision
-                    quantity = quantity.quantize(Decimal("0.0000"), rounding=ROUND_HALF_UP)
-                    unit_price = unit_price.quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)
+                    quantity = quantity.quantize(
+                        Decimal("0.0000"), rounding=ROUND_HALF_UP
+                    )
+                    unit_price = unit_price.quantize(
+                        Decimal("0.00"), rounding=ROUND_HALF_UP
+                    )
 
                     return_item = SalesReturnItem.objects.create(
                         return_order=sales_return,
@@ -1840,7 +2028,9 @@ def return_create(request, order_pk):
             return redirect("sales:order_detail", pk=order_pk)
 
     # GET request
-    deliveries = order.deliveries.filter(is_deleted=False, status__in=["shipped", "delivered"])
+    deliveries = order.deliveries.filter(
+        is_deleted=False, status__in=["shipped", "delivered"]
+    )
 
     # 为每个订单项计算已退货数量和剩余可退数量
     order_items_with_return_info = []
@@ -1882,7 +2072,9 @@ def return_update(request, pk):
     if request.method == "POST":
         try:
             sales_return.reason = request.POST.get("reason", sales_return.reason)
-            sales_return.return_date = request.POST.get("return_date") or sales_return.return_date
+            sales_return.return_date = (
+                request.POST.get("return_date") or sales_return.return_date
+            )
             sales_return.notes = request.POST.get("notes", sales_return.notes)
             sales_return.updated_by = request.user
             sales_return.save()
@@ -1933,7 +2125,9 @@ def return_approve(request, pk):
 
     # Check status
     if sales_return.status != "pending":
-        messages.error(request, f"退货单状态为 {sales_return.get_status_display()}，无法审核")
+        messages.error(
+            request, f"退货单状态为 {sales_return.get_status_display()}，无法审核"
+        )
         return redirect("sales:return_detail", pk=pk)
 
     if request.method == "POST":
@@ -2002,11 +2196,15 @@ def return_approve(request, pk):
                 from common.utils import DocumentNumberGenerator
 
                 # 获取默认仓库
-                warehouse = sales_return.delivery.warehouse if sales_return.delivery else None
+                warehouse = (
+                    sales_return.delivery.warehouse if sales_return.delivery else None
+                )
                 if not warehouse:
                     from inventory.models import Warehouse
 
-                    warehouse = Warehouse.objects.filter(is_active=True, is_deleted=False).first()
+                    warehouse = Warehouse.objects.filter(
+                        is_active=True, is_deleted=False
+                    ).first()
 
                 if warehouse:
                     inbound_order = InboundOrder.objects.create(
@@ -2071,7 +2269,9 @@ def return_approve(request, pk):
                     and sales_return.refund_amount > 0
                 ):
                     # 创建应付账款记录（用于退款给客户）
-                    due_date = timezone.now().date() + timezone.timedelta(days=7)  # 默认7天内退款
+                    due_date = timezone.now().date() + timezone.timedelta(
+                        days=7
+                    )  # 默认7天内退款
                     SupplierAccount.objects.create(
                         customer=sales_return.sales_order.customer,
                         sales_return=sales_return,
@@ -2096,7 +2296,10 @@ def return_approve(request, pk):
                         f"审核人：{request.user.username}",
                     )
 
-                messages.success(request, f"退货单 {sales_return.return_number} 已批准,退款应付已自动生成,已自动生成入库单")
+                messages.success(
+                    request,
+                    f"退货单 {sales_return.return_number} 已批准,退款应付已自动生成,已自动生成入库单",
+                )
                 return redirect("sales:return_detail", pk=pk)
 
         except Exception as e:
@@ -2123,7 +2326,9 @@ def return_receive(request, pk):
 
     # Check status
     if sales_return.status != "approved":
-        messages.error(request, f"退货单状态为 {sales_return.get_status_display()}，无法收货")
+        messages.error(
+            request, f"退货单状态为 {sales_return.get_status_display()}，无法收货"
+        )
         return redirect("sales:return_detail", pk=pk)
 
     if request.method == "POST":
@@ -2137,12 +2342,16 @@ def return_receive(request, pk):
             from inventory.models import InventoryTransaction
 
             # 获取原发货的仓库
-            warehouse = sales_return.delivery.warehouse if sales_return.delivery else None
+            warehouse = (
+                sales_return.delivery.warehouse if sales_return.delivery else None
+            )
             if not warehouse:
                 # 如果没有关联发货单，使用默认仓库
                 from inventory.models import Warehouse
 
-                warehouse = Warehouse.objects.filter(is_deleted=False, is_active=True).first()
+                warehouse = Warehouse.objects.filter(
+                    is_deleted=False, is_active=True
+                ).first()
                 if not warehouse:
                     raise ValueError("找不到可用的仓库")
 
@@ -2178,7 +2387,8 @@ def return_receive(request, pk):
 
             # 查找原订单关联的客户账款
             customer_account = CustomerAccount.objects.filter(
-                sales_order=sales_return.sales_order, customer=sales_return.sales_order.customer
+                sales_order=sales_return.sales_order,
+                customer=sales_return.sales_order.customer,
             ).first()
 
             # 计算实际退款金额（退款金额 - 重新入库费）
@@ -2212,7 +2422,9 @@ def return_receive(request, pk):
                     existing_payment.status = "pending"
 
                 existing_payment.payment_date = timezone.now().date()
-                existing_payment.description = f"销售退货退款（待付款） - {sales_return.return_number}"
+                existing_payment.description = (
+                    f"销售退货退款（待付款） - {sales_return.return_number}"
+                )
                 existing_payment.save()
             else:
                 # ============ 在独立事务中生成唯一的付款单号 ============
@@ -2284,7 +2496,10 @@ def return_receive(request, pk):
                     f"处理人：{request.user.username}\n收货并处理完成",
                 )
 
-            if sales_return.approved_by and sales_return.approved_by != sales_return.created_by:
+            if (
+                sales_return.approved_by
+                and sales_return.approved_by != sales_return.created_by
+            ):
                 _create_return_notification(
                     sales_return,
                     "processed",
@@ -2293,10 +2508,14 @@ def return_receive(request, pk):
                 )
 
             # Notify sales rep
-            if sales_return.sales_order.sales_rep and sales_return.sales_order.sales_rep not in [
-                sales_return.created_by,
-                sales_return.approved_by,
-            ]:
+            if (
+                sales_return.sales_order.sales_rep
+                and sales_return.sales_order.sales_rep
+                not in [
+                    sales_return.created_by,
+                    sales_return.approved_by,
+                ]
+            ):
                 _create_return_notification(
                     sales_return,
                     "processed",
@@ -2305,7 +2524,9 @@ def return_receive(request, pk):
                 )
 
             messages.success(
-                request, f"退货单 {sales_return.return_number} 已收货并处理完成。" "已创建库存入库记录，退款已更新。"
+                request,
+                f"退货单 {sales_return.return_number} 已收货并处理完成。"
+                "已创建库存入库记录，退款已更新。",
             )
             return redirect("sales:return_detail", pk=pk)
         except Exception as e:
@@ -2336,7 +2557,9 @@ def return_process(request, pk):
 
     # Check status
     if sales_return.status != "received":
-        messages.error(request, f"退货单状态为 {sales_return.get_status_display()}，无法处理")
+        messages.error(
+            request, f"退货单状态为 {sales_return.get_status_display()}，无法处理"
+        )
         return redirect("sales:return_detail", pk=pk)
 
     if request.method == "POST":
@@ -2351,12 +2574,16 @@ def return_process(request, pk):
                 from inventory.models import InventoryTransaction
 
                 # 获取原发货的仓库
-                warehouse = sales_return.delivery.warehouse if sales_return.delivery else None
+                warehouse = (
+                    sales_return.delivery.warehouse if sales_return.delivery else None
+                )
                 if not warehouse:
                     # 如果没有关联发货单，使用默认仓库
                     from inventory.models import Warehouse
 
-                    warehouse = Warehouse.objects.filter(is_deleted=False, is_active=True).first()
+                    warehouse = Warehouse.objects.filter(
+                        is_deleted=False, is_active=True
+                    ).first()
                     if not warehouse:
                         raise ValueError("找不到可用的仓库")
 
@@ -2392,7 +2619,8 @@ def return_process(request, pk):
 
                 # 查找原订单关联的客户账款
                 customer_account = CustomerAccount.objects.filter(
-                    sales_order=sales_return.sales_order, customer=sales_return.sales_order.customer
+                    sales_order=sales_return.sales_order,
+                    customer=sales_return.sales_order.customer,
                 ).first()
 
                 # 计算实际退款金额（退款金额 - 重新入库费）
@@ -2418,7 +2646,9 @@ def return_process(request, pk):
                         existing_payment.amount = actual_refund
                         existing_payment.status = "completed"
                         existing_payment.payment_date = timezone.now().date()
-                        existing_payment.description = f"销售退货退款 - {sales_return.return_number}"
+                        existing_payment.description = (
+                            f"销售退货退款 - {sales_return.return_number}"
+                        )
                         existing_payment.save()
                     else:
                         # ============ 在独立事务中生成唯一的付款单号 ============
@@ -2451,7 +2681,9 @@ def return_process(request, pk):
                                     return pn
                                 except IntegrityError:
                                     continue
-                            raise Exception(f"生成付款单号失败：已尝试 {max_retries} 次")
+                            raise Exception(
+                                f"生成付款单号失败：已尝试 {max_retries} 次"
+                            )
 
                         try:
                             payment_number = generate_unique_payment_number()
@@ -2492,7 +2724,10 @@ def return_process(request, pk):
                             sales_return.restocking_fee}",
                     )
 
-                if sales_return.approved_by and sales_return.approved_by != sales_return.created_by:
+                if (
+                    sales_return.approved_by
+                    and sales_return.approved_by != sales_return.created_by
+                ):
                     _create_return_notification(
                         sales_return,
                         "processed",
@@ -2515,7 +2750,8 @@ def return_process(request, pk):
 
                 messages.success(
                     request,
-                    f"退货单 {sales_return.return_number} 已处理完成。" f"已创建库存入库记录，实际退款金额：¥{actual_refund}",
+                    f"退货单 {sales_return.return_number} 已处理完成。"
+                    f"已创建库存入库记录，实际退款金额：¥{actual_refund}",
                 )
                 return redirect("sales:return_detail", pk=pk)
         except Exception as e:
@@ -2544,7 +2780,9 @@ def return_reject(request, pk):
 
     # Check status
     if sales_return.status not in ["pending", "approved"]:
-        messages.error(request, f"退货单状态为 {sales_return.get_status_display()}，无法拒绝")
+        messages.error(
+            request, f"退货单状态为 {sales_return.get_status_display()}，无法拒绝"
+        )
         return redirect("sales:return_detail", pk=pk)
 
     if request.method == "POST":
@@ -2684,7 +2922,9 @@ def return_statistics(request):
     )
     total_orders = completed_orders.count()
     orders_with_returns = (
-        completed_orders.filter(salesreturn__isnull=False, salesreturn__is_deleted=False)
+        completed_orders.filter(
+            salesreturn__isnull=False, salesreturn__is_deleted=False
+        )
         .distinct()
         .count()
     )
@@ -2760,7 +3000,9 @@ def api_get_available_templates(request):
 
     # 确定完整的单据类型（如果是报价单，区分国内/海外）
     if document_type == "quote" and quote_type:
-        document_type_full = "quote_domestic" if quote_type == "DOMESTIC" else "quote_overseas"
+        document_type_full = (
+            "quote_domestic" if quote_type == "DOMESTIC" else "quote_overseas"
+        )
     else:
         document_type_full = document_type
 
@@ -2815,7 +3057,11 @@ def api_set_default_template(request):
 
         if not template_id or not document_type:
             return JsonResponse(
-                {"success": False, "error": "缺少必要参数: template_id 或 document_type"}, status=400
+                {
+                    "success": False,
+                    "error": "缺少必要参数: template_id 或 document_type",
+                },
+                status=400,
             )
 
         # 验证模板是否存在
@@ -2846,7 +3092,9 @@ def api_set_default_template(request):
         )
 
     except Exception as e:
-        return JsonResponse({"success": False, "error": f"设置默认模板失败: {str(e)}"}, status=500)
+        return JsonResponse(
+            {"success": False, "error": f"设置默认模板失败: {str(e)}"}, status=500
+        )
 
 
 # ============================================
@@ -2929,7 +3177,9 @@ def sales_order_report(request):
     # 备注/说明
     notes = request.GET.get("notes", "").strip()
     if notes:
-        queryset = queryset.filter(Q(notes__icontains=notes) | Q(customer_notes__icontains=notes))
+        queryset = queryset.filter(
+            Q(notes__icontains=notes) | Q(customer_notes__icontains=notes)
+        )
 
     # 金额范围
     amount_min = request.GET.get("amount_min", "").strip()
@@ -3145,7 +3395,8 @@ def loan_create(request):
                 "customer_id": request.POST.get("customer"),
                 "salesperson_id": request.POST.get("salesperson") or request.user.id,
                 "loan_date": request.POST.get("loan_date"),
-                "expected_return_date": request.POST.get("expected_return_date") or None,
+                "expected_return_date": request.POST.get("expected_return_date")
+                or None,
                 "purpose": request.POST.get("purpose", ""),
                 "delivery_address": request.POST.get("delivery_address", ""),
                 "contact_person": request.POST.get("contact_person", ""),
@@ -3169,7 +3420,9 @@ def loan_create(request):
                 quantity = Decimal(str(item_data.get("quantity", 0)))
 
                 if product_id and quantity > 0:
-                    quantity = quantity.quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP)
+                    quantity = quantity.quantize(
+                        Decimal("0.0001"), rounding=ROUND_HALF_UP
+                    )
 
                     loan_item = SalesLoanItem.objects.create(
                         loan=loan,
@@ -3196,7 +3449,10 @@ def loan_create(request):
             # 创建通知
             if loan.salesperson and loan.salesperson != request.user:
                 _create_loan_notification(
-                    loan, "created", loan.salesperson, f"创建人：{request.user.username}"
+                    loan,
+                    "created",
+                    loan.salesperson,
+                    f"创建人：{request.user.username}",
                 )
 
             messages.success(request, f"借用单 {loan.loan_number} 创建成功！")
@@ -3225,7 +3481,9 @@ def loan_detail(request, pk):
     """借用单详情"""
     loan = get_object_or_404(
         SalesLoan.objects.filter(is_deleted=False)
-        .select_related("customer", "salesperson", "converted_order", "conversion_approved_by")
+        .select_related(
+            "customer", "salesperson", "converted_order", "conversion_approved_by"
+        )
         .prefetch_related("items__product"),
         pk=pk,
     )
@@ -3234,10 +3492,12 @@ def loan_detail(request, pk):
     can_edit = loan.status == "draft"
     can_delete = loan.status == "draft"
     can_return = (
-        loan.status in ["loaned", "partially_returned"] and loan.total_remaining_quantity > 0
+        loan.status in ["loaned", "partially_returned"]
+        and loan.total_remaining_quantity > 0
     )
     can_request_conversion = (
-        loan.status in ["loaned", "partially_returned"] and loan.total_remaining_quantity > 0
+        loan.status in ["loaned", "partially_returned"]
+        and loan.total_remaining_quantity > 0
     )
     can_approve_conversion = request.user.is_staff and loan.status == "converting"
 
@@ -3297,7 +3557,9 @@ def loan_update(request, pk):
                 quantity = Decimal(str(item_data.get("quantity", 0)))
 
                 if product_id and quantity > 0:
-                    quantity = quantity.quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP)
+                    quantity = quantity.quantize(
+                        Decimal("0.0001"), rounding=ROUND_HALF_UP
+                    )
 
                     SalesLoanItem.objects.create(
                         loan=loan,
@@ -3422,7 +3684,10 @@ def loan_return(request, pk):
             # 创建通知
             if loan.salesperson:
                 _create_loan_notification(
-                    loan, "returned", loan.salesperson, f"归还处理人：{request.user.username}"
+                    loan,
+                    "returned",
+                    loan.salesperson,
+                    f"归还处理人：{request.user.username}",
                 )
 
             messages.success(request, "归还处理成功！")
@@ -3592,7 +3857,9 @@ def loan_approve_conversion(request, pk):
                 f"审核人：{request.user.username}\n" f"订单号：{order.order_number}",
             )
 
-        messages.success(request, f"转销售已审核通过，生成销售订单 {order.order_number}")
+        messages.success(
+            request, f"转销售已审核通过，生成销售订单 {order.order_number}"
+        )
         return redirect("sales:order_detail", pk=order.pk)
 
     except Exception as e:
@@ -3613,28 +3880,24 @@ def customer_contacts_api(request, customer_id):
         customer = get_object_or_404(Customer, pk=customer_id, is_deleted=False)
 
         # 获取所有联系人，按主联系人排序
-        contacts = customer.contacts.filter(
-            is_deleted=False
-        ).order_by('-is_primary', 'id')
+        contacts = customer.contacts.filter(is_deleted=False).order_by(
+            "-is_primary", "id"
+        )
 
         contacts_data = []
         for contact in contacts:
-            contacts_data.append({
-                'id': contact.id,
-                'name': contact.name,
-                'position': contact.position or '',
-                'phone': contact.phone or '',
-                'email': contact.email or '',
-                'is_primary': contact.is_primary
-            })
+            contacts_data.append(
+                {
+                    "id": contact.id,
+                    "name": contact.name,
+                    "position": contact.position or "",
+                    "phone": contact.phone or "",
+                    "email": contact.email or "",
+                    "is_primary": contact.is_primary,
+                }
+            )
 
-        return JsonResponse({
-            'success': True,
-            'contacts': contacts_data
-        })
+        return JsonResponse({"success": True, "contacts": contacts_data})
 
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=400)
+        return JsonResponse({"success": False, "error": str(e)}, status=400)

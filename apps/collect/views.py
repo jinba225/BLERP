@@ -1,6 +1,7 @@
 """
 视图模块
 """
+
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -185,7 +186,11 @@ def collect_task_create_ajax(request):
         collect_task.save()
 
         return JsonResponse(
-            {"code": 200, "msg": "采集任务已触发，正在后台处理", "data": {"task_id": collect_task.id}}
+            {
+                "code": 200,
+                "msg": "采集任务已触发，正在后台处理",
+                "data": {"task_id": collect_task.id},
+            }
         )
     else:
         return JsonResponse({"code": 400, "msg": "表单验证失败", "data": {"errors": form.errors}})
@@ -251,7 +256,7 @@ def collect_item_list_ajax(request):
             "collect_status": item.collect_status,
             "land_status": item.land_status,
             "land_error": item.land_error or "",
-            "collected_at": item.collected_at.isoformat() if item.collected_at else None,
+            "collected_at": (item.collected_at.isoformat() if item.collected_at else None),
             "landed_at": item.landed_at.isoformat() if item.landed_at else None,
         }
 
@@ -292,4 +297,10 @@ def create_listing_ajax(request):
         target_language,
     )
 
-    return JsonResponse({"code": 200, "msg": "Listing创建任务已提交", "data": {"task_id": celery_task.id}})
+    return JsonResponse(
+        {
+            "code": 200,
+            "msg": "Listing创建任务已提交",
+            "data": {"task_id": celery_task.id},
+        }
+    )

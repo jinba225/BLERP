@@ -23,7 +23,7 @@ class Warehouse(BaseModel):
 ```
 
 ### Stock (库存)
-```python  
+```python
 class Stock(BaseModel):
     product = ForeignKey('products.Product')              # 产品
     warehouse = ForeignKey(Warehouse)                     # 仓库
@@ -37,11 +37,11 @@ class Stock(BaseModel):
 class StockMovement(BaseModel):
     MOVEMENT_TYPES = [
         ('in', '入库'),
-        ('out', '出库'), 
+        ('out', '出库'),
         ('transfer', '调拨'),
         ('adjustment', '调整'),
     ]
-    
+
     product = ForeignKey('products.Product')
     warehouse = ForeignKey(Warehouse)
     movement_type = CharField('变动类型', choices=MOVEMENT_TYPES)
@@ -59,7 +59,7 @@ class StockMovement(BaseModel):
 ## 页面模板
 - `warehouse_list.html` - 仓库列表
 - `warehouse_detail.html` - 仓库详情
-- `stock_list.html` - 库存列表  
+- `stock_list.html` - 库存列表
 - `stock_detail.html` - 库存详情
 - `transaction_list.html` - 库存事务
 

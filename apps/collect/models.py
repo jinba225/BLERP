@@ -5,10 +5,10 @@
 1. Platform和Shop模型已移至core/models.py，统一管理
 2. ProductListing模型已存在于ecomm_sync/models.py，这里不再重复定义
 """
+
 import math
 
-from core.models import BaseModel, Platform, Shop
-from django.core.exceptions import ValidationError
+from core.models import BaseModel, Platform
 from django.db import models
 from products.models import Product
 
@@ -55,10 +55,18 @@ class CollectTask(BaseModel):
 
     # 任务状态
     collect_status = models.CharField(
-        "采集状态", max_length=16, choices=COLLECT_STATUS_CHOICES, default="pending", db_index=True
+        "采集状态",
+        max_length=16,
+        choices=COLLECT_STATUS_CHOICES,
+        default="pending",
+        db_index=True,
     )
     land_status = models.CharField(
-        "落地状态", max_length=16, choices=LAND_STATUS_CHOICES, default="unland", db_index=True
+        "落地状态",
+        max_length=16,
+        choices=LAND_STATUS_CHOICES,
+        default="unland",
+        db_index=True,
     )
     celery_task_id = models.CharField("Celery任务ID", max_length=64, blank=True)
 
@@ -135,7 +143,10 @@ class CollectItem(BaseModel):
     )
 
     collect_task = models.ForeignKey(
-        CollectTask, on_delete=models.CASCADE, related_name="collect_items", verbose_name="关联采集任务"
+        CollectTask,
+        on_delete=models.CASCADE,
+        related_name="collect_items",
+        verbose_name="关联采集任务",
     )
     product = models.ForeignKey(
         Product,
@@ -215,7 +226,10 @@ class FieldMapRule(BaseModel):
     target_field = models.CharField("目标字段", max_length=64, help_text="如产品库的name, main_image等")
     rule_type = models.CharField("规则类型", max_length=16, choices=MAP_RULE_TYPES, default="direct")
     map_rule = models.CharField(
-        "映射规则", max_length=256, blank=True, help_text="如: 拼接-精品, price*1.5, length*height*width"
+        "映射规则",
+        max_length=256,
+        blank=True,
+        help_text="如: 拼接-精品, price*1.5, length*height*width",
     )
     sort_order = models.IntegerField("排序权重", default=0)
     is_active = models.BooleanField("是否启用", default=True)
@@ -253,18 +267,29 @@ class PricingRule(BaseModel):
     name = models.CharField("规则名称", max_length=100)
     rule_type = models.CharField("规则类型", max_length=20, choices=RULE_TYPES)
     platform = models.ForeignKey(
-        Platform, on_delete=models.CASCADE, related_name="pricing_rules", verbose_name="适用平台"
+        Platform,
+        on_delete=models.CASCADE,
+        related_name="pricing_rules",
+        verbose_name="适用平台",
     )
 
     # 定价规则配置
     markup_percent = models.DecimalField(
-        "加成百分比", max_digits=5, decimal_places=2, blank=True, null=True, help_text="如: 50 表示加价50%"
+        "加成百分比",
+        max_digits=5,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text="如: 50 表示加价50%",
     )
     fixed_price = models.DecimalField(
         "固定价格", max_digits=10, decimal_places=2, blank=True, null=True
     )
     formula = models.CharField(
-        "定价公式", max_length=500, blank=True, help_text="如: cost * 1.5 + shipping_cost"
+        "定价公式",
+        max_length=500,
+        blank=True,
+        help_text="如: cost * 1.5 + shipping_cost",
     )
 
     # 其他配置
@@ -305,10 +330,11 @@ class PricingRule(BaseModel):
         elif self.rule_type == "formula":
             try:
                 # 使用 simpleeval 进行安全的表达式求值
-                from simpleeval import SimpleEval
+                from simpleeval import EvalError, SimpleEval
+
                 evaluator = SimpleEval(names={"cost": cost_price})
                 price = evaluator.eval(self.formula)
-            except:
+            except (EvalError, ValueError, TypeError):
                 price = cost_price
         else:
             price = cost_price

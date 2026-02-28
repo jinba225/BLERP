@@ -3,6 +3,7 @@
 
 参考顺丰API文档实现
 """
+
 import base64
 import hashlib
 import hmac

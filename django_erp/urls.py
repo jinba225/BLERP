@@ -1,6 +1,7 @@
 """
 URL configuration for better_laser_erp project.
 """
+
 from core import views as core_views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -13,14 +14,22 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # API Documentation
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path(
+        "api/docs/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     # Authentication routes
     path("login/", core_views.login_view, name="login"),
     path("logout/", core_views.logout_view, name="logout"),
     # Frontend routes (Django template views)
     path("", core_views.dashboard_view, name="dashboard"),
-    path("test-icons/", TemplateView.as_view(template_name="test_icons.html"), name="test_icons"),
+    path(
+        "test-icons/",
+        TemplateView.as_view(template_name="test_icons.html"),
+        name="test_icons",
+    ),
     path(
         "test-sidebar-icons/",
         TemplateView.as_view(template_name="test_sidebar_icons.html"),
@@ -32,7 +41,9 @@ urlpatterns = [
         name="test_sidebar_standalone",
     ),
     path(
-        "simple-test/", TemplateView.as_view(template_name="simple_test.html"), name="simple_test"
+        "simple-test/",
+        TemplateView.as_view(template_name="simple_test.html"),
+        name="simple_test",
     ),
     # App frontend routes
     path("sales/", include("sales.urls")),
@@ -63,7 +74,6 @@ urlpatterns = [
     path("api/core/", include("core.api_urls")),
     path("api/ecomm/", include("ecomm_sync.urls")),
     path("api/bi/", include("apps.bi.urls")),
-
 ]
 
 # Serve media files in development

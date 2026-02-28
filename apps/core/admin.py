@@ -1,6 +1,7 @@
 """
 Core admin configuration.
 """
+
 import re
 import shlex
 import subprocess
@@ -31,7 +32,14 @@ class CompanyAdmin(admin.ModelAdmin):
         ("基本信息", {"fields": ("name", "code", "is_active")}),
         (
             "公司信息",
-            {"fields": ("legal_representative", "registration_number", "tax_number", "address")},
+            {
+                "fields": (
+                    "legal_representative",
+                    "registration_number",
+                    "tax_number",
+                    "address",
+                )
+            },
         ),
         ("联系方式", {"fields": ("phone", "fax", "email", "website")}),
         ("Logo和描述", {"fields": ("logo", "description", "description_en")}),
@@ -56,7 +64,10 @@ class SystemConfigAdmin(admin.ModelAdmin):
     fieldsets = (
         ("基本信息", {"fields": ("key", "value", "config_type", "is_active")}),
         ("说明", {"fields": ("description",)}),
-        ("系统信息", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        (
+            "系统信息",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
     )
 
     def display_value(self, obj):
@@ -77,7 +88,11 @@ class SystemConfigAdmin(admin.ModelAdmin):
         select_across = forms.CharField(required=False, initial="1", widget=forms.HiddenInput)
         timestamp = forms.CharField(required=False, label=_("备份时间戳"))
 
-    actions = ["backup_database_action", "restore_database_action", "flush_test_data_action"]
+    actions = [
+        "backup_database_action",
+        "restore_database_action",
+        "flush_test_data_action",
+    ]
     action_form = ActionForm
 
     def changelist_view(self, request, extra_context=None):
@@ -121,7 +136,9 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 self.message_user(request, f"SQLite 数据库备份完成: {dst}", level=messages.SUCCESS)
             else:
                 self.message_user(
-                    request, f"SQLite 备份失败: {result.stderr or result.stdout}", level=messages.ERROR
+                    request,
+                    f"SQLite 备份失败: {result.stderr or result.stdout}",
+                    level=messages.ERROR,
                 )
             return
         result = self._run_backup_script()
@@ -129,7 +146,9 @@ class SystemConfigAdmin(admin.ModelAdmin):
             self.message_user(request, "数据库备份完成", level=messages.SUCCESS)
         else:
             self.message_user(
-                request, f"备份失败: {result.stderr or result.stdout}", level=messages.ERROR
+                request,
+                f"备份失败: {result.stderr or result.stdout}",
+                level=messages.ERROR,
             )
 
     backup_database_action.short_description = "立即备份数据库"
@@ -137,7 +156,11 @@ class SystemConfigAdmin(admin.ModelAdmin):
     def restore_database_action(self, request, queryset):
         ts = request.POST.get("timestamp") or ""
         if not re.match(r"^\d{8}_\d{6}$", ts):
-            self.message_user(request, "请在动作表单中填写备份时间戳，如 20250101_120000", level=messages.ERROR)
+            self.message_user(
+                request,
+                "请在动作表单中填写备份时间戳，如 20250101_120000",
+                level=messages.ERROR,
+            )
             return
         db = settings.DATABASES["default"]
         engine = db["ENGINE"]
@@ -148,7 +171,11 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 return
             dst = Path(db["NAME"])
             result = subprocess.run(
-                ["bash", "-lc", f"cp {shlex.quote(str(backup_file))} {shlex.quote(str(dst))}"],
+                [
+                    "bash",
+                    "-lc",
+                    f"cp {shlex.quote(str(backup_file))} {shlex.quote(str(dst))}",
+                ],
                 capture_output=True,
                 text=True,
             )
@@ -156,7 +183,9 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 self.message_user(request, "SQLite 数据库恢复完成", level=messages.SUCCESS)
             else:
                 self.message_user(
-                    request, f"恢复失败: {result.stderr or result.stdout}", level=messages.ERROR
+                    request,
+                    f"恢复失败: {result.stderr or result.stdout}",
+                    level=messages.ERROR,
                 )
             return
         host = db.get("HOST", "localhost")
@@ -174,7 +203,9 @@ class SystemConfigAdmin(admin.ModelAdmin):
             self.message_user(request, "数据库恢复完成", level=messages.SUCCESS)
         else:
             self.message_user(
-                request, f"恢复失败: {result.stderr or result.stdout}", level=messages.ERROR
+                request,
+                f"恢复失败: {result.stderr or result.stdout}",
+                level=messages.ERROR,
             )
 
     restore_database_action.short_description = "从时间戳恢复数据库"
@@ -201,7 +232,11 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 for model in config.get_models():
                     deleted, _ = model.objects.all().delete()
                     total_deleted += deleted
-            self.message_user(request, f"测试数据已清除，共删除 {total_deleted} 条记录", level=messages.SUCCESS)
+            self.message_user(
+                request,
+                f"测试数据已清除，共删除 {total_deleted} 条记录",
+                level=messages.SUCCESS,
+            )
         except Exception as e:
             self.message_user(request, f"清除失败: {e}", level=messages.ERROR)
 
@@ -232,7 +267,14 @@ class AuditLogAdmin(admin.ModelAdmin):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ["recipient", "title", "category", "notification_type", "is_read", "created_at"]
+    list_display = [
+        "recipient",
+        "title",
+        "category",
+        "notification_type",
+        "is_read",
+        "created_at",
+    ]
     list_filter = ["notification_type", "category", "is_read", "created_at"]
     search_fields = ["recipient__username", "title", "message"]
     readonly_fields = ["created_at", "read_at"]
@@ -263,7 +305,10 @@ class PrintTemplateAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at", "created_by", "updated_by")
 
     fieldsets = (
-        ("基本信息", {"fields": ("name", "template_category", "suitable_for", "is_active")}),
+        (
+            "基本信息",
+            {"fields": ("name", "template_category", "suitable_for", "is_active")},
+        ),
         (
             "公司信息",
             {
@@ -361,7 +406,13 @@ class ChoiceOptionAdmin(admin.ModelAdmin):
         (
             "系统信息",
             {
-                "fields": ("is_system", "created_at", "updated_at", "created_by", "updated_by"),
+                "fields": (
+                    "is_system",
+                    "created_at",
+                    "updated_at",
+                    "created_by",
+                    "updated_by",
+                ),
                 "classes": ("collapse",),
             },
         ),

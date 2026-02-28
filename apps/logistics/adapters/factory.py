@@ -3,6 +3,7 @@
 
 根据物流公司代码动态创建适配器实例
 """
+
 from typing import Dict, Type
 
 from logistics.adapters.base import LogisticsAdapterBase

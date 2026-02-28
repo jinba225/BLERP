@@ -123,7 +123,7 @@ class BaseModel(TimeStampedModel, SoftDeleteModel):
     """
     提供统一的基础功能：
     - 时间戳: created_at, updated_at
-    - 软删除: is_deleted, deleted_at  
+    - 软删除: is_deleted, deleted_at
     - 审计追踪: created_by, updated_by
     """
     pass
@@ -189,7 +189,7 @@ class SalesOrderViewSet(ModelViewSet):
     queryset = SalesOrder.objects.filter(is_deleted=False)
     serializer_class = SalesOrderSerializer
     permission_classes = [IsAuthenticated]
-    
+
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
         """订单审核业务逻辑"""
@@ -313,15 +313,15 @@ services:
     depends_on:
       - db
       - redis
-  
+
   db:
     image: mysql:8.0
     environment:
       MYSQL_DATABASE: better_laser_erp
-  
+
   redis:
     image: redis:6.0
-  
+
   nginx:
     image: nginx:latest
     ports: ["80:80", "443:443"]
@@ -342,12 +342,12 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    
+
     # 第三方应用
     'rest_framework',
     'django_filters',
     'corsheaders',
-    
+
     # 业务应用
     'apps.core',
     'apps.authentication',
@@ -395,20 +395,20 @@ MIDDLEWARE = [
 class Meta:
     # 明确指定表名
     db_table = 'sales_salesorder'
-    
+
     # 显示名称
     verbose_name = '销售订单'
     verbose_name_plural = '销售订单'
-    
+
     # 默认排序
     ordering = ['-created_at']
-    
+
     # 联合索引
     indexes = [
         models.Index(fields=['customer', 'order_date']),
         models.Index(fields=['-created_at']),
     ]
-    
+
     # 权限
     default_permissions = ('add', 'change', 'delete', 'view')
 ```

@@ -1,6 +1,7 @@
 """
 页面自动刷新功能测试
 """
+
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase, override_settings
 

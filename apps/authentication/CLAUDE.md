@@ -21,7 +21,7 @@ Authentication模块负责系统的身份认证和权限控制。主要职责包
 ```python
 # settings.py
 JWT_SECRET_KEY = config('JWT_SECRET_KEY', default=SECRET_KEY)
-JWT_ALGORITHM = 'HS256'  
+JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION_DELTA = 86400  # 24 hours
 
 REST_FRAMEWORK = {

@@ -1,6 +1,7 @@
 """
 Management command to migrate data from legacy ERP system.
 """
+
 import csv
 import os
 from decimal import Decimal

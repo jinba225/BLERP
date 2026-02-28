@@ -1,12 +1,14 @@
 """
 BI报表API视图
 """
-from django.db.models import Avg, Count, Sum
+
+from django.db.models import Avg, Count, Q, Sum
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.bi.models import (
+    ApiPerformance,
     Dashboard,
     DashboardWidget,
     InventoryAnalysis,
@@ -16,9 +18,9 @@ from apps.bi.models import (
     ReportData,
     SalesSummary,
     SystemHealth,
-    ApiPerformance,
 )
 from apps.bi.serializers import (
+    ApiPerformanceSerializer,
     DashboardSerializer,
     DashboardWidgetSerializer,
     InventoryAnalysisSerializer,
@@ -27,7 +29,6 @@ from apps.bi.serializers import (
     ReportSerializer,
     SalesSummarySerializer,
     SystemHealthSerializer,
-    ApiPerformanceSerializer,
 )
 from apps.bi.services import ReportGenerator
 
@@ -47,7 +48,8 @@ class ReportViewSet(viewsets.ModelViewSet):
         # 根据报表类型生成对应数据
         if report.report_type == "sales":
             results = service.sales_service.generate_daily_sales_summary(
-                platform_id=report.platform_id, platform_account_id=report.platform_account_id
+                platform_id=report.platform_id,
+                platform_account_id=report.platform_account_id,
             )
             serializer = SalesSummarySerializer(results)
         elif report.report_type == "inventory":
@@ -66,7 +68,11 @@ class ReportViewSet(viewsets.ModelViewSet):
         )
 
         return Response(
-            {"report_id": report.id, "report_data_id": report_data.id, "data": serializer.data}
+            {
+                "report_id": report.id,
+                "report_data_id": report_data.id,
+                "data": serializer.data,
+            }
         )
 
 
@@ -367,9 +373,13 @@ class SystemHealthViewSet(viewsets.ModelViewSet):
         # 根据时间范围过滤
         if time_range == "24h":
             from django.utils import timezone
-            queryset = queryset.filter(record_time__gte=timezone.now() - timezone.timedelta(hours=24))
+
+            queryset = queryset.filter(
+                record_time__gte=timezone.now() - timezone.timedelta(hours=24)
+            )
         elif time_range == "7d":
             from django.utils import timezone
+
             queryset = queryset.filter(record_time__gte=timezone.now() - timezone.timedelta(days=7))
 
         return queryset.order_by("-record_time")
@@ -387,25 +397,36 @@ class SystemHealthViewSet(viewsets.ModelViewSet):
     def status_summary(self, request):
         """获取状态摘要"""
         from django.utils import timezone
+
         last_24h = timezone.now() - timezone.timedelta(hours=24)
-        
+
         # 统计最近24小时的状态
-        status_counts = SystemHealth.objects.filter(record_time__gte=last_24h).values("status").annotate(count=Count("id"))
-        
+        status_counts = (
+            SystemHealth.objects.filter(record_time__gte=last_24h)
+            .values("status")
+            .annotate(count=Count("id"))
+        )
+
         # 计算平均响应时间
-        avg_response_time = SystemHealth.objects.filter(record_time__gte=last_24h).aggregate(avg=Avg("api_response_time"))
-        
+        avg_response_time = SystemHealth.objects.filter(record_time__gte=last_24h).aggregate(
+            avg=Avg("api_response_time")
+        )
+
         # 计算平均错误率
-        error_count = SystemHealth.objects.filter(record_time__gte=last_24h).aggregate(total=Sum("error_count"))
+        error_count = SystemHealth.objects.filter(record_time__gte=last_24h).aggregate(
+            total=Sum("error_count")
+        )
         total_records = SystemHealth.objects.filter(record_time__gte=last_24h).count()
         avg_error_rate = (error_count["total"] / total_records * 100) if total_records > 0 else 0
-        
-        return Response({
-            "status_counts": status_counts,
-            "avg_response_time": avg_response_time["avg"],
-            "avg_error_rate": avg_error_rate,
-            "total_records": total_records
-        })
+
+        return Response(
+            {
+                "status_counts": status_counts,
+                "avg_response_time": avg_response_time["avg"],
+                "avg_error_rate": avg_error_rate,
+                "total_records": total_records,
+            }
+        )
 
 
 class ApiPerformanceViewSet(viewsets.ModelViewSet):
@@ -427,14 +448,20 @@ class ApiPerformanceViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(method=method)
         if status_code:
             queryset = queryset.filter(status_code=status_code)
-        
+
         # 根据时间范围过滤
         if time_range == "24h":
             from django.utils import timezone
-            queryset = queryset.filter(request_time__gte=timezone.now() - timezone.timedelta(hours=24))
+
+            queryset = queryset.filter(
+                request_time__gte=timezone.now() - timezone.timedelta(hours=24)
+            )
         elif time_range == "7d":
             from django.utils import timezone
-            queryset = queryset.filter(request_time__gte=timezone.now() - timezone.timedelta(days=7))
+
+            queryset = queryset.filter(
+                request_time__gte=timezone.now() - timezone.timedelta(days=7)
+            )
 
         return queryset.order_by("-request_time")
 
@@ -443,10 +470,10 @@ class ApiPerformanceViewSet(viewsets.ModelViewSet):
         """获取慢API端点"""
         threshold = float(request.query_params.get("threshold", 1000))  # 默认1秒
         queryset = self.get_queryset().filter(response_time__gt=threshold)
-        
+
         # 按响应时间降序排序
         slow_endpoints = queryset.order_by("-response_time")[:100]
-        
+
         serializer = self.get_serializer(slow_endpoints, many=True)
         return Response(serializer.data)
 
@@ -454,10 +481,10 @@ class ApiPerformanceViewSet(viewsets.ModelViewSet):
     def error_endpoints(self, request):
         """获取错误API端点"""
         queryset = self.get_queryset().filter(status_code__gte=400)
-        
+
         # 按请求时间降序排序
         error_endpoints = queryset.order_by("-request_time")[:100]
-        
+
         serializer = self.get_serializer(error_endpoints, many=True)
         return Response(serializer.data)
 
@@ -465,24 +492,38 @@ class ApiPerformanceViewSet(viewsets.ModelViewSet):
     def performance_summary(self, request):
         """获取性能摘要"""
         from django.utils import timezone
+
         last_24h = timezone.now() - timezone.timedelta(hours=24)
-        
+
         # 统计最近24小时的API性能
         total_requests = ApiPerformance.objects.filter(request_time__gte=last_24h).count()
-        error_requests = ApiPerformance.objects.filter(request_time__gte=last_24h, status_code__gte=400).count()
-        avg_response_time = ApiPerformance.objects.filter(request_time__gte=last_24h).aggregate(avg=Avg("response_time"))
-        
+        error_requests = ApiPerformance.objects.filter(
+            request_time__gte=last_24h, status_code__gte=400
+        ).count()
+        avg_response_time = ApiPerformance.objects.filter(request_time__gte=last_24h).aggregate(
+            avg=Avg("response_time")
+        )
+
         # 按端点分组统计
-        endpoint_stats = ApiPerformance.objects.filter(request_time__gte=last_24h).values("endpoint").annotate(
-            count=Count("id"),
-            avg_response_time=Avg("response_time"),
-            error_count=Count("id", filter=models.Q(status_code__gte=400))
-        ).order_by("-count")[:20]
-        
-        return Response({
-            "total_requests": total_requests,
-            "error_requests": error_requests,
-            "error_rate": (error_requests / total_requests * 100) if total_requests > 0 else 0,
-            "avg_response_time": avg_response_time["avg"],
-            "top_endpoints": endpoint_stats
-        })
+        endpoint_stats = (
+            ApiPerformance.objects.filter(request_time__gte=last_24h)
+            .values("endpoint")
+            .annotate(
+                count=Count("id"),
+                avg_response_time=Avg("response_time"),
+                error_count=Count("id", filter=models.Q(status_code__gte=400)),
+            )
+            .order_by("-count")[:20]
+        )
+
+        return Response(
+            {
+                "total_requests": total_requests,
+                "error_requests": error_requests,
+                "error_rate": (
+                    (error_requests / total_requests * 100) if total_requests > 0 else 0
+                ),
+                "avg_response_time": avg_response_time["avg"],
+                "top_endpoints": endpoint_stats,
+            }
+        )

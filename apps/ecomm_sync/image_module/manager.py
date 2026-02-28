@@ -14,7 +14,11 @@ class ImageDownloader:
         self.timeout = timeout
         self.session = requests.Session()
         self.session.headers.update(
-            {"User-Agent": "Mozilla/5.0", "Accept": "image/*", "Accept-Language": "zh-CN,zh;q=0.9"}
+            {
+                "User-Agent": "Mozilla/5.0",
+                "Accept": "image/*",
+                "Accept-Language": "zh-CN,zh;q=0.9",
+            }
         )
 
     def download_product_images(self, image_urls: List[str], product_code: str) -> dict:

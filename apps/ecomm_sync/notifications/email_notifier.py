@@ -1,4 +1,5 @@
 """邮件通知器"""
+
 from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
@@ -8,7 +9,11 @@ class EmailNotifier:
     """邮件通知器"""
 
     def send_sync_success(
-        self, products_count: int, success_count: int, failed_count: int, details: dict = None
+        self,
+        products_count: int,
+        success_count: int,
+        failed_count: int,
+        details: dict = None,
     ):
         """发送同步成功通知"""
         try:

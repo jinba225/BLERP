@@ -22,18 +22,36 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
-                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
-                ("is_deleted", models.BooleanField(default=False, verbose_name="是否删除")),
-                ("deleted_at", models.DateTimeField(blank=True, null=True, verbose_name="删除时间")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="是否删除"),
+                ),
+                (
+                    "deleted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="删除时间"),
+                ),
                 (
                     "expense_number",
                     models.CharField(max_length=100, unique=True, verbose_name="费用单号"),
                 ),
-                ("expense_date", models.DateField(help_text="费用发生日期", verbose_name="费用日期")),
+                (
+                    "expense_date",
+                    models.DateField(help_text="费用发生日期", verbose_name="费用日期"),
+                ),
                 (
                     "category",
                     models.CharField(
@@ -81,13 +99,19 @@ class Migration(migrations.Migration):
                 (
                     "project",
                     models.CharField(
-                        blank=True, help_text="费用关联的项目名称", max_length=200, verbose_name="关联项目"
+                        blank=True,
+                        help_text="费用关联的项目名称",
+                        max_length=200,
+                        verbose_name="关联项目",
                     ),
                 ),
                 (
                     "reference_number",
                     models.CharField(
-                        blank=True, help_text="关联的其他单据号", max_length=100, verbose_name="参考单号"
+                        blank=True,
+                        help_text="关联的其他单据号",
+                        max_length=100,
+                        verbose_name="参考单号",
                     ),
                 ),
                 (
@@ -106,11 +130,26 @@ class Migration(migrations.Migration):
                         verbose_name="状态",
                     ),
                 ),
-                ("submitted_at", models.DateTimeField(blank=True, null=True, verbose_name="提交时间")),
-                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="审批时间")),
-                ("rejection_reason", models.TextField(blank=True, verbose_name="拒绝原因")),
-                ("paid_at", models.DateTimeField(blank=True, null=True, verbose_name="支付时间")),
-                ("description", models.TextField(help_text="详细说明费用用途和明细", verbose_name="费用说明")),
+                (
+                    "submitted_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="提交时间"),
+                ),
+                (
+                    "approved_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="审批时间"),
+                ),
+                (
+                    "rejection_reason",
+                    models.TextField(blank=True, verbose_name="拒绝原因"),
+                ),
+                (
+                    "paid_at",
+                    models.DateTimeField(blank=True, null=True, verbose_name="支付时间"),
+                ),
+                (
+                    "description",
+                    models.TextField(help_text="详细说明费用用途和明细", verbose_name="费用说明"),
+                ),
                 ("notes", models.TextField(blank=True, verbose_name="备注")),
                 (
                     "applicant",
@@ -217,7 +256,8 @@ class Migration(migrations.Migration):
                 "ordering": ["-expense_date", "-created_at"],
                 "indexes": [
                     models.Index(
-                        fields=["applicant", "status"], name="finance_exp_applica_dabe2b_idx"
+                        fields=["applicant", "status"],
+                        name="finance_exp_applica_dabe2b_idx",
                     ),
                     models.Index(fields=["expense_date"], name="finance_exp_expense_a60cc7_idx"),
                     models.Index(fields=["category"], name="finance_exp_categor_54fa26_idx"),

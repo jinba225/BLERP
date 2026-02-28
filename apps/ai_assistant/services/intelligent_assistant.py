@@ -63,10 +63,18 @@ class IntelligentAssistant:
         # 如果用户最近在查询订单
         elif "query_order" in last_intents:
             suggestions.append(
-                {"action": "get_order_detail", "suggestion": "查看订单详情", "reason": "可以查看订单的详细信息"}
+                {
+                    "action": "get_order_detail",
+                    "suggestion": "查看订单详情",
+                    "reason": "可以查看订单的详细信息",
+                }
             )
             suggestions.append(
-                {"action": "create_delivery", "suggestion": "为订单创建发货单", "reason": "订单可能需要发货"}
+                {
+                    "action": "create_delivery",
+                    "suggestion": "为订单创建发货单",
+                    "reason": "订单可能需要发货",
+                }
             )
 
         # 如果用户最近在查询库存
@@ -83,7 +91,11 @@ class IntelligentAssistant:
         # 如果用户最近在创建单据
         elif "create_" in last_intents:
             suggestions.append(
-                {"action": "query_recent", "suggestion": "查看最近创建的单据", "reason": "确认创建是否成功"}
+                {
+                    "action": "query_recent",
+                    "suggestion": "查看最近创建的单据",
+                    "reason": "确认创建是否成功",
+                }
             )
 
         return suggestions

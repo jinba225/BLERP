@@ -19,7 +19,7 @@ class PurchaseOrder(BaseModel):
     order_date = DateField('订单日期')
     expected_date = DateField('预计到货日期')
     total_amount = DecimalField('总金额', max_digits=12, decimal_places=2)
-    
+
 class PurchaseOrderItem(BaseModel):
     purchase_order = ForeignKey(PurchaseOrder)
     product = ForeignKey('products.Product')

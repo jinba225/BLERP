@@ -118,7 +118,12 @@ def wechat_webhook(request):
             channel.send_message(
                 message.external_user_id,
                 type(
-                    "OutgoingMessage", (), {"content": "您还未绑定系统账号，请联系管理员", "message_type": "text"}
+                    "OutgoingMessage",
+                    (),
+                    {
+                        "content": "您还未绑定系统账号，请联系管理员",
+                        "message_type": "text",
+                    },
                 )(),
             )
             return HttpResponse("OK")
@@ -173,7 +178,12 @@ def dingtalk_webhook(request):
             channel.send_message(
                 message.external_user_id,
                 type(
-                    "OutgoingMessage", (), {"content": "您还未绑定系统账号，请联系管理员", "message_type": "text"}
+                    "OutgoingMessage",
+                    (),
+                    {
+                        "content": "您还未绑定系统账号，请联系管理员",
+                        "message_type": "text",
+                    },
                 )(),
             )
             return JsonResponse({"success": True})
@@ -232,7 +242,10 @@ def telegram_webhook(request):
 
             channel.send_message(
                 str(chat_id),
-                OutgoingMessage(content="你还未绑定系统账号，请联系管理员绑定 (>_<)", message_type="text"),
+                OutgoingMessage(
+                    content="你还未绑定系统账号，请联系管理员绑定 (>_<)",
+                    message_type="text",
+                ),
             )
             return JsonResponse({"ok": True})
 

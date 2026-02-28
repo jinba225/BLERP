@@ -1,6 +1,7 @@
 """
 Inventory tasks for the ERP system.
 """
+
 import logging
 
 from celery import shared_task
@@ -52,7 +53,9 @@ def update_inventory_status():
                         reference_id=str(product.id),
                     )
 
-        logger.info(f"Updated inventory status, found {low_stock_count} low stock items")
+        logger.info(
+            f"Updated inventory status, found {low_stock_count} low stock items"
+        )
         return f"Updated inventory status, found {low_stock_count} low stock items"
 
     except Exception as e:
@@ -125,7 +128,9 @@ def auto_reorder_products():
         from common.utils import DocumentNumberGenerator
 
         User = get_user_model()
-        system_user = User.objects.filter(is_superuser=True).first()  # Use a system user or admin
+        system_user = User.objects.filter(
+            is_superuser=True
+        ).first()  # Use a system user or admin
 
         # Find products below reorder point
         reorder_products = Product.objects.filter(
@@ -140,7 +145,8 @@ def auto_reorder_products():
             if total_quantity <= product.reorder_point:
                 # Check if there is already a pending request for this product
                 pending_request = PurchaseRequestItem.objects.filter(
-                    product=product, request__status__in=["draft", "submitted", "approved"]
+                    product=product,
+                    request__status__in=["draft", "submitted", "approved"],
                 ).exists()
 
                 if not pending_request:
@@ -152,13 +158,16 @@ def auto_reorder_products():
 
                     if department and system_user:
                         request = PurchaseRequest.objects.create(
-                            request_number=DocumentNumberGenerator.generate("purchase_request"),
+                            request_number=DocumentNumberGenerator.generate(
+                                "purchase_request"
+                            ),
                             department=department,
                             requester=system_user,
                             status="draft",
                             priority="normal",
                             request_date=timezone.now().date(),
-                            required_date=timezone.now().date() + timezone.timedelta(days=7),
+                            required_date=timezone.now().date()
+                            + timezone.timedelta(days=7),
                             purpose="系统自动补货",
                             justification=f"库存({total_quantity})低于再订货点({product.reorder_point})",
                         )
@@ -203,7 +212,9 @@ def reconcile_inventory():
             # Calculate quantity from transactions
             calculated_qty = (
                 InventoryTransaction.objects.filter(
-                    product=stock.product, warehouse=stock.warehouse, location=stock.location
+                    product=stock.product,
+                    warehouse=stock.warehouse,
+                    location=stock.location,
                 ).aggregate(total=Sum("quantity"))["total"]
                 or 0
             )

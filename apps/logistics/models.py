@@ -3,6 +3,7 @@
 
 支持多物流公司对接、物流追踪、成本管理等功能
 """
+
 from core.models import BaseModel
 from django.core.validators import URLValidator
 from django.db import models
@@ -18,7 +19,12 @@ class LogisticsCompany(BaseModel):
     ]
 
     name = models.CharField("物流公司名称", max_length=200)
-    code = models.CharField("物流公司代码", max_length=50, unique=True, help_text="唯一标识，如SF、YTO、DHL等")
+    code = models.CharField(
+        "物流公司代码",
+        max_length=50,
+        unique=True,
+        help_text="唯一标识，如SF、YTO、DHL等",
+    )
     api_endpoint = models.URLField("API端点", blank=True, max_length=500, help_text="官方API地址")
     tracking_url_template = models.CharField(
         "查询URL模板",
@@ -27,11 +33,18 @@ class LogisticsCompany(BaseModel):
         help_text="物流查询URL模板，如https://www.sf-express.com/waybill/#search/all/{tracking_number}",
     )
     tier = models.CharField(
-        "支持级别", max_length=10, choices=TIER_CHOICES, default="tier_1", help_text="API支持级别"
+        "支持级别",
+        max_length=10,
+        choices=TIER_CHOICES,
+        default="tier_1",
+        help_text="API支持级别",
     )
     is_active = models.BooleanField("是否启用", default=True)
     api_config = models.JSONField(
-        "API配置", default=dict, blank=True, help_text="API配置信息，如app_id、app_secret等"
+        "API配置",
+        default=dict,
+        blank=True,
+        help_text="API配置信息，如app_id、app_secret等",
     )
     logo_url = models.URLField("Logo URL", blank=True, max_length=500)
     website = models.URLField("官网地址", blank=True, max_length=500)
@@ -80,10 +93,20 @@ class ShippingOrder(BaseModel):
         "物流费用", max_digits=10, decimal_places=2, default=0, help_text="物流总费用"
     )
     weight = models.DecimalField(
-        "重量(kg)", max_digits=10, decimal_places=3, null=True, blank=True, help_text="订单总重量"
+        "重量(kg)",
+        max_digits=10,
+        decimal_places=3,
+        null=True,
+        blank=True,
+        help_text="订单总重量",
     )
     volume = models.DecimalField(
-        "体积(m³)", max_digits=10, decimal_places=3, null=True, blank=True, help_text="订单总体积"
+        "体积(m³)",
+        max_digits=10,
+        decimal_places=3,
+        null=True,
+        blank=True,
+        help_text="订单总体积",
     )
     shipped_at = models.DateTimeField("发货时间", null=True, blank=True)
     delivered_at = models.DateTimeField("签收时间", null=True, blank=True)
@@ -123,7 +146,10 @@ class TrackingInfo(BaseModel):
     """物流轨迹模型"""
 
     shipping_order = models.ForeignKey(
-        ShippingOrder, on_delete=models.CASCADE, related_name="tracking_infos", verbose_name="物流订单"
+        ShippingOrder,
+        on_delete=models.CASCADE,
+        related_name="tracking_infos",
+        verbose_name="物流订单",
     )
     track_time = models.DateTimeField("轨迹时间", db_index=True)
     track_status = models.CharField("轨迹状态", max_length=100, db_index=True)
@@ -160,7 +186,10 @@ class LogisticsCost(BaseModel):
     ]
 
     shipping_order = models.ForeignKey(
-        ShippingOrder, on_delete=models.CASCADE, related_name="costs", verbose_name="物流订单"
+        ShippingOrder,
+        on_delete=models.CASCADE,
+        related_name="costs",
+        verbose_name="物流订单",
     )
     cost_type = models.CharField("费用类型", max_length=50, choices=COST_TYPE_CHOICES)
     cost_amount = models.DecimalField("费用金额", max_digits=10, decimal_places=2)
@@ -201,7 +230,10 @@ class WaybillTemplate(BaseModel):
     )
     name = models.CharField("模板名称", max_length=200)
     template_type = models.CharField(
-        "模板类型", max_length=50, choices=TEMPLATE_TYPE_CHOICES, default="thermal_100x180"
+        "模板类型",
+        max_length=50,
+        choices=TEMPLATE_TYPE_CHOICES,
+        default="thermal_100x180",
     )
     template_html = models.TextField("HTML模板")
     css_style = models.TextField("CSS样式", blank=True)

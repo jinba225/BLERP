@@ -13,7 +13,7 @@ Departments模块负责组织架构和部门管理。主要职责包括：
 ```python
 class Department(BaseModel):
     name = CharField('部门名称', max_length=100)
-    code = CharField('部门代码', max_length=50, unique=True)  
+    code = CharField('部门代码', max_length=50, unique=True)
     parent = ForeignKey('self', on_delete=SET_NULL, null=True) # 上级部门
     manager = ForeignKey(User, verbose_name='部门经理')
     description = TextField('部门描述', blank=True)

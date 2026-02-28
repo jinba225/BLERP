@@ -1,6 +1,7 @@
 """
 BI模块测试
 """
+
 from decimal import Decimal
 
 import pytest
@@ -68,7 +69,10 @@ class TestReportModels:
         platform = Platform.objects.create(name="测试平台")
 
         report = Report.objects.create(
-            name="测试销售报表", report_type="sales", platform=platform, description="这是一个测试报表"
+            name="测试销售报表",
+            report_type="sales",
+            platform=platform,
+            description="这是一个测试报表",
         )
 
         assert report.id is not None
@@ -84,7 +88,10 @@ class TestReportModels:
         )
 
         dashboard = Dashboard.objects.create(
-            name="测试仪表盘", description="这是一个测试仪表盘", created_by=user, is_public=True
+            name="测试仪表盘",
+            description="这是一个测试仪表盘",
+            created_by=user,
+            is_public=True,
         )
 
         assert dashboard.id is not None

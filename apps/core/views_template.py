@@ -1,6 +1,7 @@
 """
 Print template editor views (moved from sales module).
 """
+
 import json
 
 from django.contrib import messages
@@ -233,7 +234,8 @@ def template_export(request, pk):
 
     # Create response
     response = HttpResponse(
-        json.dumps(export_data, ensure_ascii=False, indent=2), content_type="application/json"
+        json.dumps(export_data, ensure_ascii=False, indent=2),
+        content_type="application/json",
     )
     filename = (
         f"{template.name}_{template.template_category}_{timezone.now().strftime('%Y%m%d')}.json"

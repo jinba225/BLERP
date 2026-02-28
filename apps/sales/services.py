@@ -2,6 +2,7 @@
 Sales Order Service
 封装销售订单的业务逻辑
 """
+
 from decimal import Decimal, InvalidOperation
 
 from core.models import Notification
@@ -66,7 +67,9 @@ class SalesOrderService:
                     # 计算明细金额
                     unit_price = Decimal(str(item_data.get("unit_price", "0")))
                     quantity = int(item_data.get("quantity", 0))
-                    discount_rate = Decimal(str(item_data.get("discount_rate", "0"))) / 100
+                    discount_rate = (
+                        Decimal(str(item_data.get("discount_rate", "0"))) / 100
+                    )
                     discount_amount = unit_price * quantity * discount_rate
                     line_total = (unit_price * quantity) - discount_amount
 

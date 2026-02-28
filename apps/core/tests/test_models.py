@@ -1,6 +1,7 @@
 """
 Core models tests.
 """
+
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
@@ -177,7 +178,10 @@ class AttachmentModelTest(TestCase):
         for file_type in types:
             test_file = SimpleUploadedFile(f"test_{file_type}.txt", b"content")
             attachment = Attachment.objects.create(
-                name=f"测试{file_type}", file=test_file, file_type=file_type, created_by=self.user
+                name=f"测试{file_type}",
+                file=test_file,
+                file_type=file_type,
+                created_by=self.user,
             )
             self.assertEqual(attachment.file_type, file_type)
 
@@ -194,7 +198,10 @@ class AttachmentModelTest(TestCase):
         """Test file size display for KB."""
         test_file = SimpleUploadedFile("test.txt", b"content")
         attachment = Attachment.objects.create(
-            name="测试文件", file=test_file, file_size=2048, created_by=self.user  # 2 KB
+            name="测试文件",
+            file=test_file,
+            file_size=2048,
+            created_by=self.user,  # 2 KB
         )
 
         self.assertEqual(attachment.file_size_display, "2.0 KB")
@@ -203,7 +210,10 @@ class AttachmentModelTest(TestCase):
         """Test file size display for MB."""
         test_file = SimpleUploadedFile("test.txt", b"content")
         attachment = Attachment.objects.create(
-            name="测试文件", file=test_file, file_size=2 * 1024 * 1024, created_by=self.user  # 2 MB
+            name="测试文件",
+            file=test_file,
+            file_size=2 * 1024 * 1024,
+            created_by=self.user,  # 2 MB
         )
 
         self.assertEqual(attachment.file_size_display, "2.0 MB")
@@ -257,17 +267,33 @@ class AuditLogModelTest(TestCase):
 
     def test_audit_log_action_types(self):
         """Test all action types."""
-        actions = ["create", "update", "delete", "view", "login", "logout", "export", "import"]
+        actions = [
+            "create",
+            "update",
+            "delete",
+            "view",
+            "login",
+            "logout",
+            "export",
+            "import",
+        ]
 
         for action in actions:
             log = AuditLog.objects.create(
-                user=self.user, action=action, model_name="TestModel", ip_address="192.168.1.1"
+                user=self.user,
+                action=action,
+                model_name="TestModel",
+                ip_address="192.168.1.1",
             )
             self.assertEqual(log.action, action)
 
     def test_audit_log_changes_json(self):
         """Test audit log changes as JSON."""
-        changes = {"name": ["旧名称", "新名称"], "price": [100, 150], "is_active": [True, False]}
+        changes = {
+            "name": ["旧名称", "新名称"],
+            "price": [100, 150],
+            "is_active": [True, False],
+        }
 
         log = AuditLog.objects.create(
             user=self.user,
@@ -282,11 +308,17 @@ class AuditLogModelTest(TestCase):
     def test_audit_log_ordering(self):
         """Test audit logs are ordered by timestamp desc."""
         log1 = AuditLog.objects.create(
-            user=self.user, action="create", model_name="Product", ip_address="192.168.1.1"
+            user=self.user,
+            action="create",
+            model_name="Product",
+            ip_address="192.168.1.1",
         )
 
         log2 = AuditLog.objects.create(
-            user=self.user, action="update", model_name="Product", ip_address="192.168.1.1"
+            user=self.user,
+            action="update",
+            model_name="Product",
+            ip_address="192.168.1.1",
         )
 
         logs = list(AuditLog.objects.all())
@@ -296,7 +328,10 @@ class AuditLogModelTest(TestCase):
     def test_audit_log_str_representation(self):
         """Test audit log string representation."""
         log = AuditLog.objects.create(
-            user=self.user, action="create", model_name="Product", ip_address="192.168.1.1"
+            user=self.user,
+            action="create",
+            model_name="Product",
+            ip_address="192.168.1.1",
         )
 
         # User str includes email, so expected format is: "username (email) - action - timestamp"
@@ -412,7 +447,10 @@ class NotificationModelTest(TestCase):
 
         for category in categories:
             notification = Notification.objects.create(
-                recipient=self.user, title=f"{category}通知", message="消息内容", category=category
+                recipient=self.user,
+                title=f"{category}通知",
+                message="消息内容",
+                category=category,
             )
             self.assertEqual(notification.category, category)
 

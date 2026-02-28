@@ -1,6 +1,7 @@
 """
 Customer admin configuration.
 """
+
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
@@ -75,7 +76,10 @@ class CustomerAdmin(ImportExportModelAdmin):
     inlines = [CustomerContactInline, CustomerAddressInline]
 
     fieldsets = (
-        ("基本信息", {"fields": ("name", "code", "customer_level", "status", "category")}),
+        (
+            "基本信息",
+            {"fields": ("name", "code", "customer_level", "status", "category")},
+        ),
         ("联系信息", {"fields": ("website",)}),
         (
             "地址信息",
@@ -97,7 +101,10 @@ class CustomerAdmin(ImportExportModelAdmin):
                 "classes": ("collapse",),
             },
         ),
-        ("销售信息", {"fields": ("sales_rep", "credit_limit", "payment_terms", "discount_rate")}),
+        (
+            "销售信息",
+            {"fields": ("sales_rep", "credit_limit", "payment_terms", "discount_rate")},
+        ),
         ("附加信息", {"fields": ("source", "tags", "notes"), "classes": ("collapse",)}),
         (
             "系统信息",
@@ -134,7 +141,14 @@ class CustomerContactAdmin(ImportExportModelAdmin):
 class CustomerAddressAdmin(admin.ModelAdmin):
     """客户地址管理"""
 
-    list_display = ["customer", "address_type", "city", "province", "country", "is_default"]
+    list_display = [
+        "customer",
+        "address_type",
+        "city",
+        "province",
+        "country",
+        "is_default",
+    ]
     list_filter = ["address_type", "country", "province", "is_default", "created_at"]
     search_fields = ["customer__name", "address", "city"]
     readonly_fields = ["created_at", "updated_at"]
@@ -205,7 +219,10 @@ class CustomerVisitAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        ("拜访内容", {"fields": ("content", "result", "next_action", "next_visit_date")}),
+        (
+            "拜访内容",
+            {"fields": ("content", "result", "next_action", "next_visit_date")},
+        ),
         (
             "系统信息",
             {

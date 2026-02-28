@@ -21,7 +21,9 @@ class MockAIProvider(BaseAIProvider):
     provider_name = "mock"
 
     def chat(
-        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+        self,
+        messages: List[Dict[str, str]],
+        tools: Optional[List[Dict[str, Any]]] = None,
     ) -> AIResponse:
         """
         模拟AI对话
@@ -171,7 +173,18 @@ class MockAIProvider(BaseAIProvider):
         从消息中提取关键词
         """
         # 移除常见的查询词
-        remove_words = ["查询", "搜索", "查看", "找", "帮我", "请", "search", "find", "query", "check"]
+        remove_words = [
+            "查询",
+            "搜索",
+            "查看",
+            "找",
+            "帮我",
+            "请",
+            "search",
+            "find",
+            "query",
+            "check",
+        ]
 
         words = message.split()
         keywords = [w for w in words if w not in remove_words]
@@ -216,7 +229,17 @@ class MockAIProvider(BaseAIProvider):
             return "好的，我将按照你的要求执行操作～ ✓"
 
         # 默认响应（如果包含任何业务关键词，也尝试识别意图）
-        business_keywords = ["订单", "客户", "产品", "库存", "查询", "创建", "报价", "审核", "拒绝"]
+        business_keywords = [
+            "订单",
+            "客户",
+            "产品",
+            "库存",
+            "查询",
+            "创建",
+            "报价",
+            "审核",
+            "拒绝",
+        ]
         if any(keyword in message_lower for keyword in business_keywords):
             return self._generate_intent_response(message)
 
@@ -468,7 +491,18 @@ class MockAIProvider(BaseAIProvider):
         return entities
 
         # 提取产品名称
-        product_keywords = ["笔记本电脑", "台式机", "显示器", "打印机", "复印机", "服务器", "鼠标", "键盘", "电脑", "设备"]
+        product_keywords = [
+            "笔记本电脑",
+            "台式机",
+            "显示器",
+            "打印机",
+            "复印机",
+            "服务器",
+            "鼠标",
+            "键盘",
+            "电脑",
+            "设备",
+        ]
         for keyword in product_keywords:
             if keyword in message:
                 entities["product_name"] = keyword
@@ -505,7 +539,9 @@ class MockAIProvider(BaseAIProvider):
         return entities
 
     def stream_chat(
-        self, messages: List[Dict[str, str]], tools: Optional[List[Dict[str, Any]]] = None
+        self,
+        messages: List[Dict[str, str]],
+        tools: Optional[List[Dict[str, Any]]] = None,
     ):
         """
         流式对话（Mock版本不支持流式）

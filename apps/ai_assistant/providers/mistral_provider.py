@@ -9,7 +9,6 @@ Mistral Provider - 法国 Mistral AI 的开源大模型
 官方文档：https://docs.mistral.ai/
 """
 
-
 import requests
 
 from .base import AIResponse, BaseAIProvider
@@ -27,7 +26,10 @@ class MistralProvider(BaseAIProvider):
 
     def chat(self, messages: list, **kwargs) -> AIResponse:
         """调用 Mistral API"""
-        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}"}
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
 
         payload = {
             "model": self.model_id,
@@ -38,7 +40,10 @@ class MistralProvider(BaseAIProvider):
         }
 
         response = requests.post(
-            f"{self.base_url}/chat/completions", json=payload, headers=headers, timeout=60
+            f"{self.base_url}/chat/completions",
+            json=payload,
+            headers=headers,
+            timeout=60,
         )
         response.raise_for_status()
 

@@ -1,6 +1,7 @@
 """
 Django自定义模板过滤器
 """
+
 from django import template
 
 register = template.Library()

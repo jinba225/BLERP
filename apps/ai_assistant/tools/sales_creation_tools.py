@@ -46,7 +46,10 @@ class CreateDeliveryTool(BaseTool):
                         "required": ["product_id", "quantity"],
                     },
                 },
-                "delivery_date": {"type": "string", "description": "发货日期（YYYY-MM-DD，默认今天）"},
+                "delivery_date": {
+                    "type": "string",
+                    "description": "发货日期（YYYY-MM-DD，默认今天）",
+                },
                 "tracking_number": {"type": "string", "description": "快递单号"},
                 "shipping_address": {"type": "string", "description": "收货地址"},
                 "notes": {"type": "string", "description": "备注"},
@@ -76,27 +79,37 @@ class CreateDeliveryTool(BaseTool):
 
             # 验证订单状态
             if order.status not in ["confirmed", "in_production", "ready_to_ship"]:
-                return ToolResult(success=False, error=f"订单状态为 {order.get_status_display()}，不能发货")
+                return ToolResult(
+                    success=False,
+                    error=f"订单状态为 {order.get_status_display()}，不能发货",
+                )
 
             # 验证明细并计算
             validated_items = []
             for item in items:
                 try:
-                    product = Product.objects.get(id=item["product_id"], is_deleted=False)
+                    product = Product.objects.get(
+                        id=item["product_id"], is_deleted=False
+                    )
                 except Product.DoesNotExist:
-                    return ToolResult(success=False, error=f"产品ID {item['product_id']} 不存在")
+                    return ToolResult(
+                        success=False, error=f"产品ID {item['product_id']} 不存在"
+                    )
 
                 quantity = float(item["quantity"])
 
                 # 检查订单明细中的剩余数量
                 order_item = order.items.filter(product_id=product.id).first()
                 if not order_item:
-                    return ToolResult(success=False, error=f"订单中不包含产品 {product.name}")
+                    return ToolResult(
+                        success=False, error=f"订单中不包含产品 {product.name}"
+                    )
 
                 remaining = order_item.remaining_quantity
                 if quantity > remaining:
                     return ToolResult(
-                        success=False, error=f"产品 {product.name} 发货数量 {quantity} 超过剩余数量 {remaining}"
+                        success=False,
+                        error=f"产品 {product.name} 发货数量 {quantity} 超过剩余数量 {remaining}",
                     )
 
                 validated_items.append(
@@ -180,7 +193,10 @@ class CreateSalesReturnTool(BaseTool):
                         "properties": {
                             "product_id": {"type": "integer", "description": "产品ID"},
                             "quantity": {"type": "number", "description": "退货数量"},
-                            "refund_amount": {"type": "number", "description": "退款金额"},
+                            "refund_amount": {
+                                "type": "number",
+                                "description": "退款金额",
+                            },
                         },
                         "required": ["product_id", "quantity"],
                     },
@@ -190,7 +206,10 @@ class CreateSalesReturnTool(BaseTool):
                     "description": "退货原因（quality/wrong/damaged/customer_other）",
                     "enum": ["quality", "wrong", "damaged", "customer_other"],
                 },
-                "request_date": {"type": "string", "description": "退货申请日期（YYYY-MM-DD，默认今天）"},
+                "request_date": {
+                    "type": "string",
+                    "description": "退货申请日期（YYYY-MM-DD，默认今天）",
+                },
                 "notes": {"type": "string", "description": "备注"},
             },
             "required": ["customer_id", "items", "return_reason"],
@@ -231,7 +250,9 @@ class CreateSalesReturnTool(BaseTool):
                 try:
                     delivery = Delivery.objects.get(id=delivery_id, is_deleted=False)
                 except Delivery.DoesNotExist:
-                    return ToolResult(success=False, error=f"发货单ID {delivery_id} 不存在")
+                    return ToolResult(
+                        success=False, error=f"发货单ID {delivery_id} 不存在"
+                    )
 
             # 验证明细并计算
             validated_items = []
@@ -239,9 +260,13 @@ class CreateSalesReturnTool(BaseTool):
 
             for item in items:
                 try:
-                    product = Product.objects.get(id=item["product_id"], is_deleted=False)
+                    product = Product.objects.get(
+                        id=item["product_id"], is_deleted=False
+                    )
                 except Product.DoesNotExist:
-                    return ToolResult(success=False, error=f"产品ID {item['product_id']} 不存在")
+                    return ToolResult(
+                        success=False, error=f"产品ID {item['product_id']} 不存在"
+                    )
 
                 quantity = float(item["quantity"])
                 refund_amount = float(item.get("refund_amount", 0))
@@ -333,8 +358,14 @@ class CreateSalesLoanTool(BaseTool):
                         "required": ["product_id", "quantity"],
                     },
                 },
-                "loan_date": {"type": "string", "description": "借货日期（YYYY-MM-DD，默认今天）"},
-                "expected_return_date": {"type": "string", "description": "预计归还日期（YYYY-MM-DD）"},
+                "loan_date": {
+                    "type": "string",
+                    "description": "借货日期（YYYY-MM-DD，默认今天）",
+                },
+                "expected_return_date": {
+                    "type": "string",
+                    "description": "预计归还日期（YYYY-MM-DD）",
+                },
                 "notes": {"type": "string", "description": "备注"},
             },
             "required": ["customer_id", "items"],
@@ -364,9 +395,13 @@ class CreateSalesLoanTool(BaseTool):
 
             for item in items:
                 try:
-                    product = Product.objects.get(id=item["product_id"], is_deleted=False)
+                    product = Product.objects.get(
+                        id=item["product_id"], is_deleted=False
+                    )
                 except Product.DoesNotExist:
-                    return ToolResult(success=False, error=f"产品ID {item['product_id']} 不存在")
+                    return ToolResult(
+                        success=False, error=f"产品ID {item['product_id']} 不存在"
+                    )
 
                 quantity = float(item["quantity"])
 
@@ -421,7 +456,9 @@ class CreateSalesLoanTool(BaseTool):
                     "loan_number": loan.loan_number,
                     "customer_name": customer.name,
                     "loan_date": loan.loan_date.strftime("%Y-%m-%d"),
-                    "expected_return_date": loan.expected_return_date.strftime("%Y-%m-%d"),
+                    "expected_return_date": loan.expected_return_date.strftime(
+                        "%Y-%m-%d"
+                    ),
                     "items_count": len(validated_items),
                 },
                 message=f"借货单 {
@@ -449,7 +486,10 @@ class ConvertQuoteToOrderTool(BaseTool):
             "type": "object",
             "properties": {
                 "quote_id": {"type": "integer", "description": "报价单ID"},
-                "delivery_address": {"type": "string", "description": "交付地址（可选）"},
+                "delivery_address": {
+                    "type": "string",
+                    "description": "交付地址（可选）",
+                },
                 "notes": {"type": "string", "description": "备注"},
             },
             "required": ["quote_id"],
@@ -471,13 +511,15 @@ class ConvertQuoteToOrderTool(BaseTool):
             # 检查报价单状态
             if quote.status != "accepted":
                 return ToolResult(
-                    success=False, error=f"报价单状态为 {quote.get_status_display()}，只有已接受的报价单才能转为订单"
+                    success=False,
+                    error=f"报价单状态为 {quote.get_status_display()}，只有已接受的报价单才能转为订单",
                 )
 
             # 检查是否已转换
             if hasattr(quote, "converted_to_order") and quote.converted_to_order:
                 return ToolResult(
-                    success=False, error=f"该报价单已转换为订单 {quote.converted_to_order.order_number}"
+                    success=False,
+                    error=f"该报价单已转换为订单 {quote.converted_to_order.order_number}",
                 )
 
             # 获取报价明细

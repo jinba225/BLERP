@@ -2,6 +2,7 @@
 Core模块 - API测试
 测试CompanyViewSet, SystemConfigViewSet, AttachmentViewSet, AuditLogViewSet的REST API端点
 """
+
 import unittest
 
 from django.contrib.auth import get_user_model
@@ -144,7 +145,11 @@ class CompanyViewSetTestCase(CoreAPITestCaseBase):
     def test_create_company_with_duplicate_code(self):
         """测试创建重复编码的公司（应该失败）"""
         url = reverse("core_api:company-list")
-        data = {"name": "重复编码公司", "code": "COMP001", "legal_representative": "赵六"}  # 已存在
+        data = {
+            "name": "重复编码公司",
+            "code": "COMP001",
+            "legal_representative": "赵六",
+        }  # 已存在
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -225,7 +230,10 @@ class SystemConfigViewSetTestCase(CoreAPITestCaseBase):
         )
 
         self.config3 = SystemConfig.objects.create(
-            key="test_key_3", value="test_value_3", config_type="system", created_by=self.user
+            key="test_key_3",
+            value="test_value_3",
+            config_type="system",
+            created_by=self.user,
         )
 
     def test_list_configs(self):
@@ -296,7 +304,11 @@ class SystemConfigViewSetTestCase(CoreAPITestCaseBase):
     def test_create_config_with_duplicate_key(self):
         """测试创建重复键的配置（应该失败）"""
         url = reverse("core_api:systemconfig-list")
-        data = {"key": "test_key_1", "value": "duplicate_value", "config_type": "system"}  # 已存在
+        data = {
+            "key": "test_key_1",
+            "value": "duplicate_value",
+            "config_type": "system",
+        }  # 已存在
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

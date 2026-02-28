@@ -332,14 +332,14 @@ body {
         padding-left: 1rem;
         padding-right: 1rem;
     }
-    
+
     .sidebar {
         width: 100%;
         position: fixed;
         left: -100%;
         transition: left 0.3s ease-in-out;
     }
-    
+
     .sidebar.open {
         left: 0;
     }
@@ -600,12 +600,12 @@ body {
     .no-print {
         display: none !important;
     }
-    
+
     body {
         font-size: 12px;
         line-height: 1.4;
     }
-    
+
     .card {
         box-shadow: none;
         border: 1px solid #ccc;
@@ -639,49 +639,49 @@ body {
         background-color: #1f2937;
         color: #f3f4f6;
     }
-    
+
     .card {
         background-color: #374151;
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
     }
-    
+
     .table th {
         background-color: #4b5563;
     }
-    
+
     .table tr:hover {
         background-color: #4b5563;
     }
-    
+
     .form-control {
         background-color: #374151;
         border-color: #4b5563;
         color: #f3f4f6;
     }
-    
+
     .searchable-select-input {
         background-color: #374151;
         border-color: #4b5563;
         color: #f3f4f6;
     }
-    
+
     .searchable-select-dropdown {
         background-color: #374151;
         border-color: #4b5563;
     }
-    
+
     .searchable-select-option {
         color: #f3f4f6;
     }
-    
+
     .searchable-select-option:hover {
         background-color: #4b5563;
     }
-    
+
     .searchable-select-option.highlighted {
         background-color: #4b5563;
     }
-    
+
     .searchable-select-option.selected {
         background-color: rgba(var(--theme-500), 0.2);
         color: rgb(var(--theme-300));
