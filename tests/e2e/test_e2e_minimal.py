@@ -7,7 +7,6 @@ Django ERP 最简化E2E测试
 from decimal import Decimal
 
 import pytest
-from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 

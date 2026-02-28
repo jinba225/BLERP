@@ -95,7 +95,7 @@ class ModelFieldScanner:
                                 "field": field.name,
                                 "related_model": field.related_model.__name__,
                                 "severity": "warning",
-                                "message": f"外键使用 CASCADE 级联删除",
+                                "message": "外键使用 CASCADE 级联删除",
                                 "recommendation": "考虑使用 PROTECT 保护核心数据",
                             }
                         )
@@ -188,7 +188,7 @@ class ModelFieldScanner:
                                 "recommendation": f"考虑为 {field_name} 添加索引",
                             }
                         )
-                except:
+                except Exception:
                     pass
 
         self.issues.extend(issues)

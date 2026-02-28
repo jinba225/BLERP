@@ -20,14 +20,11 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 django.setup()
 
 from django.contrib.auth import get_user_model
-from django.test import Client
 
 from apps.products.models import Product
 from apps.purchase.models import (
     PurchaseOrder,
     PurchaseOrderItem,
-    PurchaseReturn,
-    PurchaseReturnItem,
 )
 from apps.suppliers.models import Supplier
 

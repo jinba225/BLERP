@@ -20,26 +20,18 @@ import pytest
 from django.db.models import Sum
 from finance.models import (
     CustomerAccount,
-    CustomerAccountDetail,
     SupplierAccount,
-    SupplierAccountDetail,
 )
 from inventory.models import InventoryTransaction
 from purchase.models import (
     PurchaseOrder,
-    PurchaseOrderItem,
     PurchaseReceipt,
-    PurchaseReceiptItem,
     PurchaseReturn,
-    PurchaseReturnItem,
 )
 from sales.models import (
     SalesDelivery,
-    SalesDeliveryItem,
     SalesOrder,
-    SalesOrderItem,
     SalesReturn,
-    SalesReturnItem,
 )
 
 

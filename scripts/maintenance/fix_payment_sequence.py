@@ -24,7 +24,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "better_laser_erp.settings")
 django.setup()
 
 from core.models import DocumentNumberSequence
-from django.db.models import Max
 from finance.models import Payment
 
 
