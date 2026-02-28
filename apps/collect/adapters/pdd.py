@@ -108,8 +108,8 @@ class PddCollectAdapter(BaseCollectAdapter):
         # 3. 追加密钥
         params_str += self.client_secret
 
-        # 4. MD5加密并转大写
-        sign = hashlib.md5(params_str.encode("utf-8")).hexdigest().upper()
+        # 4. SHA-256加密并转大写
+        sign = hashlib.sha256(params_str.encode("utf-8")).hexdigest().upper()
 
         logger.debug(f"生成签名: {sign}")
 

@@ -1,0 +1,7 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pip in /opt/miniconda3/lib/python3.13/site-packages (25.1)
+Collecting pip
+  Using cached pip-26.0.1-py3-none-any.whl.metadata (4.7 kB)
+Using cached pip-26.0.1-py3-none-any.whl (1.8 MB)
+Installing collected packages: pip
+Successfully installed pip-26.0.1

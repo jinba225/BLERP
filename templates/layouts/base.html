@@ -32,8 +32,8 @@
                 document.documentElement.setAttribute('data-theme', 'blue');
             }
         })();
-    </script> <!-- Tailwind CSS（编译后的版本） -->
-    <link rel="stylesheet" href="{% static 'css/components/output.css' %}"> <!-- 主题色样式 -->
+    </script> <!-- 优化后的CSS -->
+    <link rel="stylesheet" href="{% static 'optimized/combined.css' %}?v={% get_static_prefix %}{% static 'optimized/version.txt' %}"> <!-- 主题色样式 -->
     <style>
         :root {
             --theme-50: 239, 246, 255;
@@ -182,11 +182,9 @@
         }
     </style>
 
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <!-- 可搜索下拉框工具库 -->
-    <script src="{% static 'js/searchable-utils.js' %}"></script>
+    <!-- 优化后的JavaScript -->
+    <script defer src="{% static 'optimized/alpinejs.min.js' %}"></script>
+    <script src="{% static 'optimized/combined.js' %}?v={% get_static_prefix %}{% static 'optimized/version.txt' %}"></script>
 
     <!-- Custom CSS -->
     <style>

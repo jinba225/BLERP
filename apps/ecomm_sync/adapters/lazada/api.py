@@ -41,7 +41,7 @@ class LazadaAdapter(BaseAdapter):
         sign_str = "".join([f"{k}{v}" for k, v in parameters_sorted])
         sign_str = self.auth_config["app_secret"] + sign_str + self.auth_config["app_secret"]
 
-        return hashlib.md5(sign_str.encode("utf-8")).hexdigest()
+        return hashlib.sha256(sign_str.encode("utf-8")).hexdigest()
 
     def _make_request_with_signature(self, method: str, action: str, params: Dict = None) -> Dict:
         """发送带签名的请求"""

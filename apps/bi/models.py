@@ -397,3 +397,107 @@ class DashboardWidgetConfig(BaseModel):
 
     def __str__(self):
         return f"{self.dashboard.name} - {self.widget.title}"
+
+
+class SystemHealth(BaseModel):
+    """系统健康状态"""
+
+    # 系统指标
+    api_response_time = models.DecimalField("API响应时间(ms)", max_digits=10, decimal_places=2, default=0)
+    db_query_count = models.PositiveIntegerField("数据库查询次数", default=0)
+    db_query_time = models.DecimalField("数据库查询时间(ms)", max_digits=10, decimal_places=2, default=0)
+    cache_hit_rate = models.DecimalField("缓存命中率(%)", max_digits=5, decimal_places=2, default=0)
+    celery_task_count = models.PositiveIntegerField("Celery任务数", default=0)
+    celery_task_success_rate = models.DecimalField("Celery任务成功率(%)", max_digits=5, decimal_places=2, default=0)
+    active_users = models.PositiveIntegerField("活跃用户数", default=0)
+    memory_usage = models.DecimalField("内存使用率(%)", max_digits=5, decimal_places=2, default=0)
+    cpu_usage = models.DecimalField("CPU使用率(%)", max_digits=5, decimal_places=2, default=0)
+
+    # 状态
+    status = models.CharField(
+        "系统状态",
+        max_length=20,
+        default="normal",
+        choices=[("normal", "正常"), ("warning", "警告"), ("critical", "严重")],
+    )
+    error_count = models.PositiveIntegerField("错误数", default=0)
+    warning_count = models.PositiveIntegerField("警告数", default=0)
+
+    # 时间维度
+    record_time = models.DateTimeField("记录时间", auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = "系统健康状态"
+        verbose_name_plural = "系统健康状态"
+        db_table = "bi_system_health"
+        ordering = ["-record_time"]
+        indexes = [
+            models.Index(fields=["-record_time"]),
+            models.Index(fields=["status"]),
+        ]
+
+    def __str__(self):
+        return f"{self.record_time} - {self.get_status_display()}"
+
+
+class ApiPerformance(BaseModel):
+    """API性能监控"""
+
+    endpoint = models.CharField("API端点", max_length=255, db_index=True)
+    method = models.CharField("HTTP方法", max_length=10, db_index=True)
+    response_time = models.DecimalField("响应时间(ms)", max_digits=10, decimal_places=2, default=0)
+    status_code = models.PositiveIntegerField("状态码", db_index=True)
+    error_message = models.TextField("错误信息", blank=True)
+    request_size = models.PositiveIntegerField("请求大小(bytes)", default=0)
+    response_size = models.PositiveIntegerField("响应大小(bytes)", default=0)
+
+    # 时间维度
+    request_time = models.DateTimeField("请求时间", auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = "API性能监控"
+        verbose_name_plural = "API性能监控"
+        db_table = "bi_api_performance"
+        ordering = ["-request_time"]
+        indexes = [
+            models.Index(fields=["endpoint", "method"]),
+            models.Index(fields=["-request_time"]),
+            models.Index(fields=["status_code"]),
+        ]
+
+    def __str__(self):
+        return f"{self.method} {self.endpoint} - {self.status_code} - {self.response_time}ms"
+
+
+class TaskPerformance(BaseModel):
+    """任务执行性能监控"""
+
+    task_name = models.CharField("任务名称", max_length=255, db_index=True)
+    execution_time = models.DecimalField("执行时间(ms)", max_digits=10, decimal_places=2, default=0)
+    status = models.CharField(
+        "执行状态",
+        max_length=20,
+        default="success",
+        choices=[("success", "成功"), ("failed", "失败")],
+        db_index=True
+    )
+    error_message = models.TextField("错误信息", blank=True)
+    args = models.CharField("任务参数", max_length=255, blank=True)
+    kwargs = models.CharField("任务关键字参数", max_length=255, blank=True)
+
+    # 时间维度
+    execution_time_stamp = models.DateTimeField("执行时间", auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = "任务执行性能监控"
+        verbose_name_plural = "任务执行性能监控"
+        db_table = "bi_task_performance"
+        ordering = ["-execution_time_stamp"]
+        indexes = [
+            models.Index(fields=["task_name"]),
+            models.Index(fields=["-execution_time_stamp"]),
+            models.Index(fields=["status"]),
+        ]
+
+    def __str__(self):
+        return f"{self.task_name} - {self.status} - {self.execution_time}ms"

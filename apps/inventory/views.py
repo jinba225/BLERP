@@ -61,21 +61,17 @@ def stock_list(request):
     stock_status = request.GET.get("stock_status", "")
     if stock_status == "low":
         # Low stock: quantity <= min_stock
-        stocks = [s for s in stocks if s.is_low_stock]
+        stocks = stocks.filter(quantity__lte=F('min_stock'))
     elif stock_status == "out":
         # Out of stock: quantity = 0
         stocks = stocks.filter(quantity=0)
     elif stock_status == "normal":
         # Normal stock: quantity > min_stock
-        stocks = [s for s in stocks if not s.is_low_stock and s.quantity > 0]
+        stocks = stocks.filter(quantity__gt=F('min_stock'))
 
     # Calculate total stock value
-    if isinstance(stocks, list):
-        total_value = sum(s.quantity * s.cost_price for s in stocks)
-        paginator = Paginator(stocks, 20)
-    else:
-        total_value = sum(stock.quantity * stock.cost_price for stock in stocks)
-        paginator = Paginator(stocks, 20)
+    total_value = sum(stock.quantity * stock.cost_price for stock in stocks)
+    paginator = Paginator(stocks, 20)
 
     page_obj = paginator.get_page(request.GET.get("page"))
 
@@ -234,11 +230,12 @@ def warehouse_detail(request, pk):
     stocks = (
         InventoryStock.objects.filter(warehouse=warehouse, is_deleted=False)
         .select_related("product", "product__unit")
+        .only("id", "product__id", "product__code", "product__name", "product__unit__name", "quantity", "cost_price", "min_stock")
         .order_by("product__code")
     )
 
     # Get locations for this warehouse
-    locations = Location.objects.filter(warehouse=warehouse, is_deleted=False).order_by("code")
+    locations = Location.objects.filter(warehouse=warehouse, is_deleted=False).only("id", "code", "name", "is_active").order_by("code")
 
     # Calculate statistics
     total_items = stocks.count()

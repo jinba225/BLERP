@@ -62,7 +62,8 @@ urlpatterns = [
     path("api/auth/", include("authentication.urls")),
     path("api/core/", include("core.api_urls")),
     path("api/ecomm/", include("ecomm_sync.urls")),
-    path("api/bi/", include("bi.urls")),
+    path("api/bi/", include("apps.bi.urls")),
+
 ]
 
 # Serve media files in development

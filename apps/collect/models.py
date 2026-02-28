@@ -304,8 +304,10 @@ class PricingRule(BaseModel):
             price = self.fixed_price or cost_price
         elif self.rule_type == "formula":
             try:
-                # 简单的公式解析，实际应用中可以使用更安全的表达式解析库
-                price = eval(self.formula, {"__builtins__": None}, {"cost": cost_price})
+                # 使用 simpleeval 进行安全的表达式求值
+                from simpleeval import SimpleEval
+                evaluator = SimpleEval(names={"cost": cost_price})
+                price = evaluator.eval(self.formula)
             except:
                 price = cost_price
         else:

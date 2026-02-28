@@ -6,6 +6,7 @@ from rest_framework import filters, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from .decorators import sync_cached_api_response
 from .models import Attachment, AuditLog, Company, SystemConfig
 from .serializers import (
     AttachmentSerializer,
@@ -27,6 +28,14 @@ class CompanyViewSet(viewsets.ModelViewSet):
     ordering_fields = ["name", "code", "created_at"]
     ordering = ["name"]
 
+    @sync_cached_api_response(timeout=300)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @sync_cached_api_response(timeout=300)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
 
 class SystemConfigViewSet(viewsets.ModelViewSet):
     """System configuration viewset."""
@@ -40,6 +49,15 @@ class SystemConfigViewSet(viewsets.ModelViewSet):
     ordering_fields = ["key", "config_type", "created_at"]
     ordering = ["key"]
 
+    @sync_cached_api_response(timeout=300)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @sync_cached_api_response(timeout=300)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @sync_cached_api_response(timeout=300)
     @action(detail=False, methods=["get"])
     def by_type(self, request):
         """Get configurations by type."""
@@ -64,6 +82,14 @@ class AttachmentViewSet(viewsets.ModelViewSet):
     ordering_fields = ["name", "file_size", "created_at"]
     ordering = ["-created_at"]
 
+    @sync_cached_api_response(timeout=300)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @sync_cached_api_response(timeout=300)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
 
 class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     """Audit log viewset (read-only)."""
@@ -76,3 +102,11 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ["object_repr", "model_name"]
     ordering_fields = ["timestamp", "action"]
     ordering = ["-timestamp"]
+
+    @sync_cached_api_response(timeout=180)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @sync_cached_api_response(timeout=180)
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)

@@ -53,7 +53,7 @@ class ImageDownloader:
             response.raise_for_status()
 
             # 生成文件名
-            file_hash = hashlib.md5(image_url.encode()).hexdigest()[:8]
+            file_hash = hashlib.sha256(image_url.encode()).hexdigest()[:8]
             ext = self._get_extension(response.headers.get("content-type", ""))
             filename = f"{file_hash}{ext}"
 

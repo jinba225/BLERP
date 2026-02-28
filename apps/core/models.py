@@ -109,6 +109,10 @@ class Company(BaseModel):
         verbose_name = "公司信息"
         verbose_name_plural = "公司信息"
         db_table = "core_company"
+        indexes = [
+            models.Index(fields=["name"]),
+            models.Index(fields=["is_active"]),
+        ]
 
     def __str__(self):
         return self.name
@@ -136,6 +140,10 @@ class SystemConfig(BaseModel):
         verbose_name = "系统配置"
         verbose_name_plural = "系统配置"
         db_table = "core_system_config"
+        indexes = [
+            models.Index(fields=["key"]),
+            models.Index(fields=["config_type", "is_active"]),
+        ]
 
     def __str__(self):
         return f"{self.key}: {self.value}"
@@ -171,6 +179,10 @@ class Attachment(BaseModel):
         verbose_name = "附件"
         verbose_name_plural = "附件"
         db_table = "core_attachment"
+        indexes = [
+            models.Index(fields=["file_type"]),
+            models.Index(fields=["content_type", "object_id"]),
+        ]
 
     def __str__(self):
         return self.name
@@ -221,6 +233,11 @@ class AuditLog(models.Model):
         verbose_name_plural = "审计日志"
         db_table = "core_audit_log"
         ordering = ["-timestamp"]
+        indexes = [
+            models.Index(fields=["user", "action"]),
+            models.Index(fields=["model_name", "object_id"]),
+            models.Index(fields=["-timestamp"]),
+        ]
 
     def __str__(self):
         return f"{self.user} - {self.action} - {self.timestamp}"

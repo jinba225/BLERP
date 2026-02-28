@@ -3,7 +3,7 @@ BI报表序列化器
 """
 from rest_framework import serializers
 
-from .models import (
+from apps.bi.models import (
     Dashboard,
     DashboardWidget,
     DashboardWidgetConfig,
@@ -13,6 +13,8 @@ from .models import (
     Report,
     ReportData,
     SalesSummary,
+    SystemHealth,
+    ApiPerformance,
 )
 
 
@@ -118,4 +120,22 @@ class DashboardWidgetConfigSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DashboardWidgetConfig
+        fields = "__all__"
+
+
+class SystemHealthSerializer(serializers.ModelSerializer):
+    """系统健康状态序列化器"""
+
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+
+    class Meta:
+        model = SystemHealth
+        fields = "__all__"
+
+
+class ApiPerformanceSerializer(serializers.ModelSerializer):
+    """API性能监控序列化器"""
+
+    class Meta:
+        model = ApiPerformance
         fields = "__all__"

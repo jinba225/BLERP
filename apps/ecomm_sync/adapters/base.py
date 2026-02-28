@@ -1,9 +1,14 @@
+import asyncio
 import logging
 import time
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
 import requests
+
+from core.services.rate_limiter import get_rate_limiter
+from core.services.retry_manager import get_retry_manager
+from core.services.monitor import get_monitor
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +27,12 @@ class BaseAdapter(ABC):
         self.auth_config = account.auth_config
         self.base_url = ""
         self.timeout = 30
-        self.max_retries = 3
-        self.retry_delay = 2
+
+        # 集成核心服务
+        self.platform = account.account_type
+        self.rate_limiter = get_rate_limiter(self.platform)
+        self.retry_manager = get_retry_manager()
+        self.monitor = get_monitor()
 
         self.session = requests.Session()
         self._setup_session()
@@ -172,16 +181,15 @@ class BaseAdapter(ABC):
 
     # ========== 通用方法 ==========
 
-    def _make_request(
+    async def _make_request_async(
         self,
         method: str,
         endpoint: str,
         data: Dict = None,
         params: Dict = None,
         headers: Dict = None,
-        retry_count: int = 0,
     ) -> Dict:
-        """发送HTTP请求（带重试）
+        """发送HTTP请求（异步版本，带限流和监控）
 
         Args:
             method: HTTP方法
@@ -189,7 +197,121 @@ class BaseAdapter(ABC):
             data: 请求体数据
             params: URL参数
             headers: 请求头
-            retry_count: 当前重试次数
+
+        Returns:
+            API响应数据
+
+        Raises:
+            Exception: 请求失败
+        """
+        import aiohttp
+
+        url = f"{self.base_url}/{endpoint.lstrip('/')}" if self.base_url else endpoint
+        start_time = time.time()
+
+        # 限流检查
+        if self.rate_limiter:
+            await self.rate_limiter.acquire()
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.request(
+                    method=method,
+                    url=url,
+                    json=data,
+                    params=params,
+                    headers=headers,
+                    timeout=self.timeout,
+                ) as response:
+                    response.raise_for_status()
+                    result = await response.json()
+
+            # 记录监控
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform,
+                    endpoint,
+                    success=True,
+                    duration=duration
+                )
+
+            return result
+
+        except aiohttp.ClientTimeout as e:
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code="timeout"
+                )
+            raise Exception(f"请求超时: {url}")
+
+        except aiohttp.ClientResponseError as e:
+            status_code = e.status
+
+            if status_code == 429:
+                if self.monitor:
+                    duration = time.time() - start_time
+                    self.monitor.record_api_call(
+                        self.platform,
+                        endpoint,
+                        success=False,
+                        duration=duration,
+                        error_code="rate_limit"
+                    )
+                raise Exception(f"API限流: {url}")
+
+            error_data = {}
+            try:
+                error_data = await e.response.json()
+            except:
+                pass
+
+            error_msg = error_data.get("message", str(e))
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code=str(status_code)
+                )
+
+            raise Exception(f"HTTP错误 {status_code}: {url}")
+
+        except Exception as e:
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code="connection_error"
+                )
+            raise Exception(f"请求失败: {str(e)}")
+
+    def _make_request(
+        self,
+        method: str,
+        endpoint: str,
+        data: Dict = None,
+        params: Dict = None,
+        headers: Dict = None,
+    ) -> Dict:
+        """发送HTTP请求（同步版本，带限流和监控）
+
+        Args:
+            method: HTTP方法
+            endpoint: API端点
+            data: 请求体数据
+            params: URL参数
+            headers: 请求头
 
         Returns:
             API响应数据
@@ -198,6 +320,11 @@ class BaseAdapter(ABC):
             Exception: 请求失败
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}" if self.base_url else endpoint
+        start_time = time.time()
+
+        # 限流检查
+        if self.rate_limiter:
+            self.rate_limiter.acquire_sync()
 
         try:
             response = self.session.request(
@@ -209,24 +336,44 @@ class BaseAdapter(ABC):
                 timeout=self.timeout,
             )
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+
+            # 记录监控
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform,
+                    endpoint,
+                    success=True,
+                    duration=duration
+                )
+
+            return result
 
         except requests.exceptions.Timeout as e:
-            logger.warning(f"请求超时 ({retry_count + 1}/{self.max_retries}): {endpoint}")
-            if retry_count < self.max_retries - 1:
-                time.sleep(self.retry_delay * (retry_count + 1))
-                return self._make_request(method, endpoint, data, params, headers, retry_count + 1)
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code="timeout"
+                )
             raise Exception(f"请求超时: {url}")
 
         except requests.exceptions.HTTPError as e:
             status_code = e.response.status_code
 
             if status_code == 429:
-                logger.warning(f"API限流: {endpoint}")
-                if retry_count < self.max_retries - 1:
-                    time.sleep(5 ** (retry_count + 1))
-                    return self._make_request(
-                        method, endpoint, data, params, headers, retry_count + 1
+                if self.monitor:
+                    duration = time.time() - start_time
+                    self.monitor.record_api_call(
+                        self.platform,
+                        endpoint,
+                        success=False,
+                        duration=duration,
+                        error_code="rate_limit"
                     )
                 raise Exception(f"API限流: {url}")
 
@@ -237,12 +384,28 @@ class BaseAdapter(ABC):
                 pass
 
             error_msg = error_data.get("message", str(e))
-            logger.error(f"HTTP错误 {status_code}: {endpoint}, 错误: {error_msg}")
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code=str(status_code)
+                )
 
             raise Exception(f"HTTP错误 {status_code}: {url}")
 
         except Exception as e:
-            logger.error(f"请求失败: {endpoint}, 错误: {e}")
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code="connection_error"
+                )
             raise Exception(f"请求失败: {str(e)}")
 
     def _extract_price(self, price_str: str) -> float:

@@ -2,6 +2,7 @@
 采集适配器模块
 采用适配器模式封装不同平台的采集逻辑
 """
+import asyncio
 import hashlib
 import re
 import time
@@ -10,6 +11,10 @@ from typing import Any, Dict, List, Optional
 
 import requests
 from django.conf import settings
+
+from core.services.rate_limiter import get_rate_limiter
+from core.services.retry_manager import get_retry_manager
+from core.services.monitor import get_monitor
 
 from ..exceptions import (
     APIResponseException,
@@ -50,6 +55,11 @@ class BaseCollectAdapter(ABC):
         # 请求超时设置
         self.timeout = 30
 
+        # 集成核心服务
+        self.rate_limiter = get_rate_limiter(self.platform_code)
+        self.retry_manager = get_retry_manager()
+        self.monitor = get_monitor()
+
     @abstractmethod
     def collect_item(self, item_url: str) -> Dict[str, Any]:
         """
@@ -66,6 +76,27 @@ class BaseCollectAdapter(ABC):
         """
         pass
 
+    async def collect_item_async(self, item_url: str) -> Dict[str, Any]:
+        """
+        异步采集单个商品（带重试）
+
+        Args:
+            item_url: 商品链接
+
+        Returns:
+            dict: 标准化采集数据
+
+        Raises:
+            CollectException: 采集异常
+        """
+        async def _collect_impl():
+            return self.collect_item(item_url)
+
+        if self.retry_manager:
+            return await self.retry_manager.execute_with_retry(_collect_impl)
+        else:
+            return await _collect_impl()
+
     def sign(self, params: Dict[str, Any]) -> str:
         """
         通用签名方法（各平台可重写）
@@ -78,9 +109,9 @@ class BaseCollectAdapter(ABC):
         """
         # 按平台规则拼接参数+api_secret，做MD5/SHA256签名
         params_str = "".join([f"{k}{v}" for k, v in sorted(params.items())]) + self.api_secret
-        return hashlib.md5(params_str.encode()).hexdigest()
+        return hashlib.sha256(params_str.encode()).hexdigest()
 
-    def _make_request(
+    async def _make_request_async(
         self,
         method: str,
         url: str,
@@ -89,7 +120,7 @@ class BaseCollectAdapter(ABC):
         headers: Dict[str, Any] = None,
     ) -> Dict[str, Any]:
         """
-        发起HTTP请求的通用方法
+        发起HTTP请求的通用方法（异步版本）
 
         Args:
             method: HTTP方法 (GET, POST, etc.)
@@ -105,6 +136,106 @@ class BaseCollectAdapter(ABC):
             NetworkException: 网络异常
             APIResponseException: API响应异常
         """
+        import aiohttp
+
+        start_time = time.time()
+        endpoint = url.split('/')[-1] if '/' in url else url
+
+        # 限流检查
+        if self.rate_limiter:
+            await self.rate_limiter.acquire()
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                if method.upper() == "GET":
+                    async with session.get(url, params=params, headers=headers, timeout=self.timeout) as response:
+                        response.raise_for_status()
+                        data = await response.json()
+                elif method.upper() == "POST":
+                    async with session.post(url, json=json_data, params=params, headers=headers, timeout=self.timeout) as response:
+                        response.raise_for_status()
+                        data = await response.json()
+                else:
+                    raise NetworkException(f"不支持的HTTP方法: {method}")
+
+            # 记录监控
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform_code,
+                    endpoint,
+                    success=True,
+                    duration=duration
+                )
+
+            return data
+
+        except aiohttp.ClientTimeout:
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform_code,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code="timeout"
+                )
+            raise NetworkException(f"{self.platform_name} API请求超时")
+        except aiohttp.ClientError as e:
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform_code,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code="connection_error"
+                )
+            raise NetworkException(f"{self.platform_name} API网络请求失败: {str(e)}")
+        except ValueError as e:
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform_code,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code="parse_error"
+                )
+            raise DataParseException(f"{self.platform_name} API响应数据格式错误: {str(e)}")
+
+    def _make_request(
+        self,
+        method: str,
+        url: str,
+        params: Dict[str, Any] = None,
+        json_data: Dict[str, Any] = None,
+        headers: Dict[str, Any] = None,
+    ) -> Dict[str, Any]:
+        """
+        发起HTTP请求的通用方法（同步版本）
+
+        Args:
+            method: HTTP方法 (GET, POST, etc.)
+            url: 请求URL
+            params: URL参数
+            json_data: JSON请求体
+            headers: 请求头
+
+        Returns:
+            dict: 响应数据
+
+        Raises:
+            NetworkException: 网络异常
+            APIResponseException: API响应异常
+        """
+        start_time = time.time()
+        endpoint = url.split('/')[-1] if '/' in url else url
+
+        # 限流检查
+        if self.rate_limiter:
+            self.rate_limiter.acquire_sync()
+
         try:
             if method.upper() == "GET":
                 response = requests.get(url, params=params, headers=headers, timeout=self.timeout)
@@ -116,13 +247,52 @@ class BaseCollectAdapter(ABC):
                 raise NetworkException(f"不支持的HTTP方法: {method}")
 
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+
+            # 记录监控
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform_code,
+                    endpoint,
+                    success=True,
+                    duration=duration
+                )
+
+            return data
 
         except requests.exceptions.Timeout:
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform_code,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code="timeout"
+                )
             raise NetworkException(f"{self.platform_name} API请求超时")
         except requests.exceptions.RequestException as e:
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform_code,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code="connection_error"
+                )
             raise NetworkException(f"{self.platform_name} API网络请求失败: {str(e)}")
         except ValueError as e:
+            if self.monitor:
+                duration = time.time() - start_time
+                self.monitor.record_api_call(
+                    self.platform_code,
+                    endpoint,
+                    success=False,
+                    duration=duration,
+                    error_code="parse_error"
+                )
             raise DataParseException(f"{self.platform_name} API响应数据格式错误: {str(e)}")
 
     def extract_item_id(self, item_url: str) -> str:

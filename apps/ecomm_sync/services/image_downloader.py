@@ -68,7 +68,7 @@ def get_image_hash(image_path):
     with open(image_path, "rb") as f:
         import hashlib
 
-        return hashlib.md5(f.read()).hexdigest()[:8]
+        return hashlib.sha256(f.read()).hexdigest()[:8]
 
 
 def get_image_size(image_path):

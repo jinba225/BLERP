@@ -44,7 +44,7 @@ class Command(BaseCommand):
 
             # 获取最近的更新
             url = f"https://api.telegram.org/bot{token}/getUpdates"
-            response = requests.get(url)
+            response = requests.get(url, timeout=10)
             data = response.json()
 
             if not data.get("ok") or not data.get("result"):

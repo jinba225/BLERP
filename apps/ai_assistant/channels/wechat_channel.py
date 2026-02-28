@@ -95,7 +95,7 @@ class WeChatChannel(BaseChannel):
             tmp_list = [token, timestamp, nonce, msg]
             tmp_list.sort()
             tmp_str = "".join(tmp_list)
-            tmp_signature = hashlib.sha1(tmp_str.encode()).hexdigest()
+            tmp_signature = hashlib.sha256(tmp_str.encode()).hexdigest()
             return tmp_signature == signature
         except Exception:
             return False

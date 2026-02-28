@@ -4,6 +4,7 @@ Sales views for the ERP system.
 import json
 
 from core.models import Notification
+from core.decorators import sync_cached_api_response
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -78,9 +79,15 @@ def quote_list(request):
     """
     List all quotes with search and filter capabilities.
     """
+    from django.db.models import Prefetch
+    
+    # 预加载相关数据，减少数据库查询
     quotes = (
         Quote.objects.filter(is_deleted=False)
         .select_related("customer", "sales_rep")
+        .prefetch_related(
+            Prefetch("items", queryset=QuoteItem.objects.select_related("product"))
+        )
         .order_by("-quote_date", "-created_at")
     )
 
@@ -123,7 +130,7 @@ def quote_list(request):
     context = {
         "page_obj": page_obj,
         "search_form": search_form,
-        "total_count": quotes.count(),
+        "total_count": paginator.count,  # 使用paginator.count避免额外查询
     }
     return render(request, "modules/sales/quote_list.html", context)
 
@@ -214,8 +221,8 @@ def quote_create(request):
     from django.core.serializers.json import DjangoJSONEncoder
     from products.models import Product
 
-    customers = Customer.objects.filter(is_deleted=False, status="active")
-    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+    customers = Customer.objects.filter(is_deleted=False, status="active").only("id", "name", "code", "contact", "phone", "address")
+    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit").only("id", "name", "code", "specifications", "unit__name", "selling_price", "cost_price")
 
     # 序列化JSON数据用于可搜索下拉框
     customers_json = json.dumps(
@@ -291,8 +298,8 @@ def quote_update(request, pk):
     from django.core.serializers.json import DjangoJSONEncoder
     from products.models import Product
 
-    customers = Customer.objects.filter(is_deleted=False, status="active")
-    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+    customers = Customer.objects.filter(is_deleted=False, status="active").only("id", "name", "code", "contact", "phone", "address")
+    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit").only("id", "name", "code", "specifications", "unit__name", "selling_price", "cost_price")
 
     # 序列化JSON数据用于可搜索下拉框
     customers_json = json.dumps(
@@ -562,9 +569,17 @@ def quote_duplicate(request, pk):
 @login_required
 def order_list(request):
     """List all sales orders with search and filter."""
+    from django.db.models import Subquery, OuterRef, Sum, Prefetch
     from sales.models import SalesReturnItem
 
-    orders = SalesOrder.objects.filter(is_deleted=False).select_related("customer", "sales_rep")
+    # 预加载相关数据，减少数据库查询
+    orders = (
+        SalesOrder.objects.filter(is_deleted=False)
+        .select_related("customer", "sales_rep")
+        .prefetch_related(
+            Prefetch("items", queryset=SalesOrderItem.objects.select_related("product"))
+        )
+    )
 
     # Search
     search = request.GET.get("search", "")
@@ -594,19 +609,17 @@ def order_list(request):
     if date_to:
         orders = orders.filter(order_date__lte=date_to)
 
-    # 按创建时间降序（最新的在最上面）
-    orders = orders.order_by("-created_at")
-
-    # 为每个订单计算已退货数量
-    for order in orders:
-        # 计算该订单的总退货数量
-        total_returned = (
+    # 按创建时间降序（最新的在最上面）并添加退货数量注解
+    orders = orders.annotate(
+        total_returned_quantity=Subquery(
             SalesReturnItem.objects.filter(
-                return_order__sales_order=order, return_order__is_deleted=False
-            ).aggregate(total=Sum("quantity"))["total"]
-            or 0
+                return_order__sales_order=OuterRef('pk'),
+                return_order__is_deleted=False
+            ).values('return_order__sales_order')
+            .annotate(total=Sum('quantity'))
+            .values('total')[:1]
         )
-        order.total_returned_quantity = total_returned
+    ).order_by("-created_at")
 
     # Pagination
     paginator = Paginator(orders, 20)
@@ -735,9 +748,9 @@ def order_create(request):
     User = get_user_model()
 
     # 查询数据（保留原有查询用于兼容）
-    customers = Customer.objects.filter(is_deleted=False, status="active").prefetch_related('contacts')
-    sales_reps = User.objects.filter(is_active=True)
-    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+    customers = Customer.objects.filter(is_deleted=False, status="active").prefetch_related('contacts').only("id", "name", "code", "address", "payment_terms")
+    sales_reps = User.objects.filter(is_active=True).only("id", "username", "first_name", "last_name")
+    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit").only("id", "name", "code", "specifications", "unit__name", "selling_price", "cost_price")
 
     # 序列化JSON数据用于可搜索下拉框（包含主联系人信息）
     customers_data = []
@@ -848,9 +861,9 @@ def order_update(request, pk):
     User = get_user_model()
 
     # 查询数据（保留原有查询用于兼容）
-    customers = Customer.objects.filter(is_deleted=False, status="active").prefetch_related('contacts')
-    sales_reps = User.objects.filter(is_active=True)
-    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
+    customers = Customer.objects.filter(is_deleted=False, status="active").prefetch_related('contacts').only("id", "name", "code", "address", "payment_terms")
+    sales_reps = User.objects.filter(is_active=True).only("id", "username", "first_name", "last_name")
+    products = Product.objects.filter(is_deleted=False, status="active").select_related("unit").only("id", "name", "code", "specifications", "unit__name", "selling_price", "cost_price")
 
     # 序列化JSON数据用于可搜索下拉框（包含主联系人信息）
     customers_data = []
@@ -917,6 +930,7 @@ def order_delete(request, pk):
     return render(request, "modules/sales/order_confirm_delete.html", context)
 
 
+@sync_cached_api_response(timeout=300, cache_type="api_response")
 @login_required
 def get_customer_info(request, customer_id):
     """
@@ -971,6 +985,7 @@ def get_customer_info(request, customer_id):
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
+@sync_cached_api_response(timeout=300, cache_type="api_response")
 @login_required
 def get_product_info(request, product_id):
     """
@@ -2719,7 +2734,7 @@ def return_statistics(request):
 # ============================================
 
 
-@login_required
+@sync_cached_api_response(timeout=300, cache_type="api_response")
 def api_get_available_templates(request):
     """
     获取当前单据类型的可用模板列表

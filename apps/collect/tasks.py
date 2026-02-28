@@ -74,9 +74,10 @@ def apply_field_map_rules(
             # 计算规则
             try:
                 if rule.map_rule:
-                    mapped_data[rule.target_field] = eval(
-                        rule.map_rule, {"__builtins__": None}, {"value": source_value}
-                    )
+                    # 使用 simpleeval 进行安全的表达式求值
+                    from simpleeval import SimpleEval
+                    evaluator = SimpleEval(names={"value": source_value})
+                    mapped_data[rule.target_field] = evaluator.eval(rule.map_rule)
             except:
                 mapped_data[rule.target_field] = source_value
         elif rule.rule_type == "fixed":

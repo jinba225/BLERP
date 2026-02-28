@@ -10,6 +10,8 @@ This module provides fine-grained access control based on:
 from django.contrib.auth import get_user_model
 from rest_framework import permissions
 
+from .models import Permission, UserRole
+
 User = get_user_model()
 
 

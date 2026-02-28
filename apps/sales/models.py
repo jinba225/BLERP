@@ -124,6 +124,12 @@ class SalesOrder(BaseModel):
         verbose_name_plural = "销售订单"
         db_table = "sales_order"
         ordering = ["-order_date", "-created_at"]
+        indexes = [
+            models.Index(fields=["status", "order_date"]),
+            models.Index(fields=["payment_status", "order_date"]),
+            models.Index(fields=["customer", "status"]),
+            models.Index(fields=["sales_rep", "order_date"]),
+        ]
 
     def __str__(self):
         return f"{self.order_number} - {self.customer.name}"
@@ -389,6 +395,11 @@ class SalesOrderItem(BaseModel):
         verbose_name_plural = "销售订单明细"
         db_table = "sales_order_item"
         ordering = ["sort_order"]
+        indexes = [
+            models.Index(fields=["order", "product"]),
+            models.Index(fields=["product", "delivered_quantity"]),
+            models.Index(fields=["order", "delivered_quantity"]),
+        ]
 
     def __str__(self):
         return f"{self.order.order_number} - {self.product.name}"
@@ -494,6 +505,11 @@ class Quote(BaseModel):
         verbose_name_plural = "销售报价"
         db_table = "sales_quote"
         ordering = ["-quote_date", "-created_at"]
+        indexes = [
+            models.Index(fields=["status", "quote_date"]),
+            models.Index(fields=["customer", "status"]),
+            models.Index(fields=["valid_until", "status"]),
+        ]
 
     def __str__(self):
         return f"{self.quote_number} - {self.customer.name}"
@@ -654,6 +670,10 @@ class QuoteItem(BaseModel):
         verbose_name_plural = "报价明细"
         db_table = "sales_quote_item"
         ordering = ["sort_order"]
+        indexes = [
+            models.Index(fields=["quote", "product"]),
+            models.Index(fields=["sort_order"]),
+        ]
 
     def __str__(self):
         return f"{self.quote.quote_number} - {self.product.name}"
@@ -739,6 +759,12 @@ class Delivery(BaseModel):
         verbose_name_plural = "发货单"
         db_table = "sales_delivery"
         ordering = ["-planned_date", "-created_at"]
+        indexes = [
+            models.Index(fields=["status", "planned_date"]),
+            models.Index(fields=["sales_order", "status"]),
+            models.Index(fields=["warehouse", "status"]),
+            models.Index(fields=["tracking_number"]),
+        ]
 
     def __str__(self):
         return f"{self.delivery_number} - {self.sales_order.customer.name}"
@@ -795,6 +821,11 @@ class DeliveryItem(BaseModel):
         verbose_name = "发货明细"
         verbose_name_plural = "发货明细"
         db_table = "sales_delivery_item"
+        indexes = [
+            models.Index(fields=["delivery", "order_item"]),
+            models.Index(fields=["order_item"]),
+            models.Index(fields=["batch_number"]),
+        ]
 
     def __str__(self):
         return f"{self.delivery.delivery_number} - {self.order_item.product.name}"
@@ -873,6 +904,11 @@ class SalesReturn(BaseModel):
         verbose_name_plural = "销售退货"
         db_table = "sales_return"
         ordering = ["-return_date", "-created_at"]
+        indexes = [
+            models.Index(fields=["status", "return_date"]),
+            models.Index(fields=["sales_order", "status"]),
+            models.Index(fields=["delivery", "status"]),
+        ]
 
     def __str__(self):
         return f"{self.return_number} - {self.sales_order.customer.name}"
@@ -905,6 +941,11 @@ class SalesReturnItem(BaseModel):
         verbose_name = "退货明细"
         verbose_name_plural = "退货明细"
         db_table = "sales_return_item"
+        indexes = [
+            models.Index(fields=["return_order", "order_item"]),
+            models.Index(fields=["order_item"]),
+            models.Index(fields=["batch_number"]),
+        ]
 
     def __str__(self):
         return f"{self.return_order.return_number} - {self.order_item.product.name}"
@@ -1027,6 +1068,11 @@ class SalesLoan(BaseModel):
         verbose_name_plural = "销售借用单"
         db_table = "sales_loan"
         ordering = ["-loan_date", "-created_at"]
+        indexes = [
+            models.Index(fields=["status", "loan_date"]),
+            models.Index(fields=["customer", "status"]),
+            models.Index(fields=["salesperson", "status"]),
+        ]
 
     def __str__(self):
         return f"{self.loan_number} - {self.customer.name}"
@@ -1085,6 +1131,10 @@ class SalesLoanItem(BaseModel):
         verbose_name = "销售借用明细"
         verbose_name_plural = "销售借用明细"
         db_table = "sales_loan_item"
+        indexes = [
+            models.Index(fields=["loan", "product"]),
+            models.Index(fields=["batch_number"]),
+        ]
 
     def __str__(self):
         return f"{self.loan.loan_number} - {self.product.name}"

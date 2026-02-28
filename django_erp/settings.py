@@ -84,7 +84,7 @@ INSTALLED_APPS = [
     "ecomm_sync",
     "collect",
     "logistics",
-    "bi",
+    "apps.bi",
 ]
 
 # ============================================
@@ -92,6 +92,7 @@ INSTALLED_APPS = [
 # ============================================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "core.middleware.performance.PerformanceMonitoringMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.cache.UpdateCacheMiddleware",
@@ -101,6 +102,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.core.middleware.csp_nonce.CSPNonceMiddleware",
+    "apps.core.middleware.rate_limit.APIRateLimitMiddleware",
+    "apps.core.middleware.api_logging.APILoggingMiddleware",
 ]
 
 # Templates Configuration
@@ -116,6 +120,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.company_info",
+                "apps.core.context_processors.csp_nonce",
             ],
         },
     },
@@ -163,9 +168,11 @@ if DB_ENGINE == "django.db.backends.postgresql":
             "HOST": DB_HOST,
             "PORT": DB_PORT,
             "CONN_MAX_AGE": 600,  # 10分钟连接重用（实现简单的连接池）
+            "CONN_HEALTH_CHECKS": True,  # 启用连接健康检查
             "OPTIONS": {
                 "connect_timeout": 10,
                 "options": "-c statement_timeout=30000",  # 30秒查询超时
+                "sslmode": "prefer",  # 优先使用SSL连接
             },
         }
     )
@@ -276,6 +283,10 @@ LOGGING = {
             "format": "{levelname} {message}",
             "style": "{",
         },
+        "security": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} USER:{user} IP:{ip} ACTION:{action} DETAIL:{message}",
+            "style": "{",
+        },
     },
     "handlers": {
         "file": {
@@ -288,6 +299,18 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "simple",
+        },
+        "security": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "logs" / "security.log",
+            "formatter": "security",
+        },
+        "audit": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "logs" / "audit.log",
+            "formatter": "verbose",
         },
     },
     "root": {
@@ -303,6 +326,21 @@ LOGGING = {
         "django_erp": {
             "handlers": ["console", "file"],
             "level": "DEBUG",
+            "propagate": False,
+        },
+        "django.security": {
+            "handlers": ["console", "security"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django_erp.security": {
+            "handlers": ["console", "security"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django_erp.audit": {
+            "handlers": ["console", "audit"],
+            "level": "INFO",
             "propagate": False,
         },
     },
@@ -359,10 +397,14 @@ if CELERY_BROKER_URL:
     CELERY_TASK_TRACK_STARTED = True
     CELERY_TASK_TIME_LIMIT = 30 * 60  # 30分钟超时
     CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25分钟软超时
-    CELERY_WORKER_PREFETCH_MULTIPLIER = 4
-    CELERY_WORKER_MAX_TASKS_PER_CHILD = 1000  # Worker 重启阈值
+    CELERY_WORKER_PREFETCH_MULTIPLIER = 2  # 减少预取数量，避免任务积压
+    CELERY_WORKER_MAX_TASKS_PER_CHILD = 500  # 减少每个worker处理的任务数，避免内存泄漏
     CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
     CELERY_RESULT_EXPIRES = 3600  # 结果保留1小时
+    CELERY_WORKER_CONCURRENCY = 4  # 根据服务器CPU核心数调整
+    CELERY_WORKER_DISABLE_RATE_LIMITS = True  # 禁用速率限制，提高性能
+    CELERY_BROKER_POOL_LIMIT = 10  # 连接池大小
+    CELERY_BROKER_CONNECTION_TIMEOUT = 30  # 连接超时时间
 
 # Celery Beat 定时任务配置
 CELERY_BEAT_SCHEDULE = {
@@ -495,6 +537,12 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute="*/30"),  # 每30分钟
         "options": {"expires": 1800},
     },
+    # 系统健康状态收集
+    "collect-system-health": {
+        "task": "core.tasks.collect_system_health",
+        "schedule": crontab(minute="*/5"),  # 每5分钟
+        "options": {"expires": 300},
+    },
     # MercadoLibre平台同步
     "sync-mercadolibre-products": {
         "task": "ecomm_sync.tasks.sync_mercadolibre_products_task",
@@ -527,16 +575,30 @@ X_FRAME_OPTIONS = "DENY"  # 禁止在 iframe 中嵌入
 SESSION_COOKIE_HTTPONLY = True  # 防止 JavaScript 访问 session cookie
 CSRF_COOKIE_HTTPONLY = True  # 防止 JavaScript 访问 CSRF cookie
 
+# 增强安全头部
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_SECONDS = 31536000  # 1年
+
+# 内容安全策略（CSP）
+CSP_DEFAULT_SRC = "'self'"
+CSP_SCRIPT_SRC = "'self'"
+CSP_STYLE_SRC = "'self'"
+CSP_IMG_SRC = "'self' data:"
+CSP_FONT_SRC = "'self'"
+CSP_CONNECT_SRC = "'self'"
+CSP_OBJECT_SRC = "'none'"
+CSP_BASE_URI = "'self'"
+CSP_FRAME_ANCESTORS = "'none'"
+CSP_FORM_ACTION = "'self'"
+CSP_INCLUDE_NONCE_IN_SCRIPT_SRC = True
+
 # 生产环境 HTTPS 强化配置
 if not DEBUG:
     # 强制 HTTPS 重定向
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
-    # HSTS (HTTP Strict Transport Security)
-    SECURE_HSTS_SECONDS = 31536000  # 1年
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
 
     # Cookie 安全
     SESSION_COOKIE_SECURE = True  # 仅通过 HTTPS 传输 session cookie
@@ -549,18 +611,56 @@ if not DEBUG:
     SESSION_SAVE_EVERY_REQUEST = True  # 每次请求刷新 session
     SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-    # 其他安全设置
-    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+    # 增强安全设置
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_HOST = None
+    SECURE_SSL_REDIRECT = True
+
+# 确保在生产环境中 DEBUG 为 False
+if os.environ.get('ENVIRONMENT') == 'production':
+    DEBUG = False
 
     # 日志级别调整
     LOGGING["root"]["level"] = "WARNING"
     LOGGING["loggers"]["django"]["level"] = "WARNING"
     LOGGING["loggers"]["django_erp"]["level"] = "INFO"
+    
+    # 安全审计日志
+    LOGGING["loggers"]["django.security"] = {
+        "handlers": ["console", "file"],
+        "level": "INFO",
+        "propagate": False,
+    }
 
-# ============================================
-# 会话配置
-# ============================================
-SESSION_ENGINE = "django.contrib.sessions.backends.db"  # 使用数据库存储 session
+# ============================================ # 会话配置 # ============================================ SESSION_ENGINE = "django.contrib.sessions.backends.db"  # 使用数据库存储 session
+
+# ============================================ # 密码验证配置 # ============================================
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 12,
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'apps.users.validators.SpecialCharacterValidator',
+    },
+    {
+        'NAME': 'apps.users.validators.UppercaseValidator',
+    },
+    {
+        'NAME': 'apps.users.validators.LowercaseValidator',
+    },
+    {
+        'NAME': 'apps.users.validators.NumberValidator',
+    },
+]
 
 # 如果启用 Redis,可以使用 Redis 存储 session (性能更好)
 # 开发环境不使用 Redis，避免依赖
@@ -572,6 +672,15 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"  # 使用数据库存储 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"
+
+# 自定义用户模型
+AUTH_USER_MODEL = "users.CustomUser"
+
+# 认证后端
+AUTHENTICATION_BACKENDS = [
+    "apps.users.backends.CustomAuthBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
 
 # ============================================
 # AI助手配置

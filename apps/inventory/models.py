@@ -44,6 +44,10 @@ class Warehouse(BaseModel):
         verbose_name = "仓库"
         verbose_name_plural = "仓库"
         db_table = "inventory_warehouse"
+        indexes = [
+            models.Index(fields=["is_active"]),
+            models.Index(fields=["warehouse_type", "is_active"]),
+        ]
 
     def __str__(self):
         return f"{self.code} - {self.name}"
@@ -142,6 +146,13 @@ class InventoryStock(BaseModel):
         verbose_name_plural = "库存"
         db_table = "inventory_stock"
         unique_together = ["product", "warehouse", "location"]
+        indexes = [
+            models.Index(fields=["warehouse", "product"]),
+            models.Index(fields=["warehouse", "is_low_stock_flag"]),
+            models.Index(fields=["location"]),
+            models.Index(fields=["last_in_date"]),
+            models.Index(fields=["last_out_date"]),
+        ]
 
     def __str__(self):
         return f"{self.product.name} - {self.warehouse.name} - {self.quantity}"
@@ -215,6 +226,13 @@ class InventoryTransaction(BaseModel):
         verbose_name_plural = "库存交易"
         db_table = "inventory_transaction"
         ordering = ["-transaction_date"]
+        indexes = [
+            models.Index(fields=["transaction_type", "warehouse"]),
+            models.Index(fields=["product", "warehouse"]),
+            models.Index(fields=["reference_type", "reference_id"]),
+            models.Index(fields=["batch_number"]),
+            models.Index(fields=["-transaction_date"]),
+        ]
 
     def __str__(self):
         return f"{self.get_transaction_type_display()} - {self.product.name} - {self.quantity}"

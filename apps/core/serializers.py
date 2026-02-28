@@ -31,6 +31,17 @@ class CompanySerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
+        
+    def __init__(self, *args, **kwargs):
+        # 支持字段选择
+        fields = kwargs.pop('fields', None)
+        super().__init__(*args, **kwargs)
+        
+        if fields:
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
 
 
 class SystemConfigSerializer(serializers.ModelSerializer):
@@ -49,6 +60,17 @@ class SystemConfigSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
+        
+    def __init__(self, *args, **kwargs):
+        # 支持字段选择
+        fields = kwargs.pop('fields', None)
+        super().__init__(*args, **kwargs)
+        
+        if fields:
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
 
 
 class AttachmentSerializer(serializers.ModelSerializer):
@@ -77,6 +99,17 @@ class AttachmentSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "file_size", "created_at", "updated_at"]
+        
+    def __init__(self, *args, **kwargs):
+        # 支持字段选择
+        fields = kwargs.pop('fields', None)
+        super().__init__(*args, **kwargs)
+        
+        if fields:
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
 
 
 class AuditLogSerializer(serializers.ModelSerializer):
@@ -100,3 +133,14 @@ class AuditLogSerializer(serializers.ModelSerializer):
             "timestamp",
         ]
         read_only_fields = ["id", "timestamp"]
+        
+    def __init__(self, *args, **kwargs):
+        # 支持字段选择
+        fields = kwargs.pop('fields', None)
+        super().__init__(*args, **kwargs)
+        
+        if fields:
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)

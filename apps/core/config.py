@@ -121,6 +121,12 @@ RETRY_CONFIG = {
 # 缓存策略配置
 # ============================================
 CACHE_STRATEGIES = {
+    "system_config": {
+        "ttl": 3600,  # 1小时
+        "strategy": "write_through",  # 写透缓存
+        "invalidation": "event_based",  # 事件驱动失效
+        "enable_local_cache": True,
+    },
     "product_info": {
         "ttl": 3600,  # 1小时
         "strategy": "write_through",  # 写透缓存
@@ -145,19 +151,57 @@ CACHE_STRATEGIES = {
         "invalidation": "ttl_based",
         "enable_local_cache": False,  # 订单数据不使用本地缓存
     },
+    "customer_info": {
+        "ttl": 7200,  # 2小时
+        "strategy": "write_through",
+        "invalidation": "version_based",
+        "enable_local_cache": True,
+    },
+    "supplier_info": {
+        "ttl": 7200,  # 2小时
+        "strategy": "write_through",
+        "invalidation": "version_based",
+        "enable_local_cache": True,
+    },
     "shop_info": {
         "ttl": 7200,  # 2小时
         "strategy": "write_through",
         "invalidation": "version_based",
         "enable_local_cache": True,
     },
+    "api_response": {
+        "ttl": 60,  # 1分钟
+        "strategy": "cache_aside",
+        "invalidation": "ttl_based",
+        "enable_local_cache": True,
+    },
+    "sales_quote": {
+        "ttl": 600,  # 10分钟
+        "strategy": "cache_aside",
+        "invalidation": "event_based",
+        "enable_local_cache": True,
+    },
+    "finance_report": {
+        "ttl": 3600,  # 1小时
+        "strategy": "cache_aside",
+        "invalidation": "ttl_based",
+        "enable_local_cache": True,
+    },
+    "dashboard": {
+        "ttl": 300,  # 5分钟
+        "strategy": "cache_aside",
+        "invalidation": "ttl_based",
+        "enable_local_cache": True,
+    },
 }
 
 # 本地缓存配置
 LOCAL_CACHE_CONFIG = {
-    "max_size": 1000,  # 最大缓存项数
-    "ttl": 300,  # 默认过期时间（秒）
+    "max_size": 2000,  # 最大缓存项数
+    "ttl": 600,  # 默认过期时间（秒）
     "eviction_policy": "lru",  # LRU淘汰策略
+    "compression": True,  # 启用内存压缩
+    "stats_enabled": True,  # 启用统计
 }
 
 
@@ -174,6 +218,13 @@ MONITOR_CONFIG = {
         "error_rate": 0.1,  # 错误率 > 10% 触发告警
         "p95_latency": 5000,  # P95延迟 > 5秒 触发告警
         "success_rate": 0.9,  # 成功率 < 90% 触发告警
+        "cpu_usage": 80,  # CPU使用率 > 80% 触发告警
+        "memory_usage": 85,  # 内存使用率 > 85% 触发告警
+        "disk_usage": 90,  # 磁盘使用率 > 90% 触发告警
+        "active_users": 100,  # 活跃用户数 > 100 触发告警
+        "order_processing_time": 1000,  # 订单处理时间 > 1秒 触发告警
+        "inventory_turnover": 0.5,  # 库存周转率 < 0.5 触发告警
+        "api_quota_usage": 0.9,  # API配额使用 > 90% 触发告警
     },
     # 监控数据聚合粒度
     "aggregation_intervals": [
@@ -182,6 +233,23 @@ MONITOR_CONFIG = {
         "1h",  # 1小时
         "1d",  # 1天
     ],
+    # 智能告警配置
+    "smart_alert": {
+        "enabled": True,
+        "anomaly_detection": {
+            "enabled": True,
+            "window_size": 60,  # 异常检测窗口大小（分钟）
+            "threshold_factor": 3.0,  # 异常阈值因子
+        },
+        "alert_correlation": {
+            "enabled": True,
+            "time_window": 60,  # 关联时间窗口（分钟）
+        },
+        "auto_resolution": {
+            "enabled": False,  # 自动解决告警
+            "resolution_time": 30,  # 自动解决时间（分钟）
+        },
+    },
 }
 
 
@@ -218,6 +286,62 @@ ALERT_RULES = {
         "condition": "quota_usage > 0.9",  # 配额使用 > 90%
         "severity": "warning",
         "cooldown": 1800,  # 30分钟冷却期
+        "enabled": True,
+        "channels": ["dingtalk"],
+    },
+    "high_cpu_usage": {
+        "name": "CPU使用率过高告警",
+        "condition": "cpu_usage > 80",  # CPU使用率 > 80%
+        "severity": "warning",
+        "cooldown": 300,  # 5分钟冷却期
+        "enabled": True,
+        "channels": ["dingtalk"],
+    },
+    "high_memory_usage": {
+        "name": "内存使用率过高告警",
+        "condition": "memory_usage > 85",  # 内存使用率 > 85%
+        "severity": "critical",
+        "cooldown": 300,
+        "enabled": True,
+        "channels": ["dingtalk", "email"],
+    },
+    "high_disk_usage": {
+        "name": "磁盘使用率过高告警",
+        "condition": "disk_usage > 90",  # 磁盘使用率 > 90%
+        "severity": "critical",
+        "cooldown": 600,  # 10分钟冷却期
+        "enabled": True,
+        "channels": ["dingtalk", "email"],
+    },
+    "high_active_users": {
+        "name": "活跃用户数过高告警",
+        "condition": "active_users > 100",  # 活跃用户数 > 100
+        "severity": "warning",
+        "cooldown": 600,
+        "enabled": True,
+        "channels": ["dingtalk"],
+    },
+    "slow_order_processing": {
+        "name": "订单处理缓慢告警",
+        "condition": "order_processing_time > 1000",  # 订单处理时间 > 1秒
+        "severity": "warning",
+        "cooldown": 300,
+        "enabled": True,
+        "channels": ["dingtalk"],
+    },
+    "low_inventory_turnover": {
+        "name": "库存周转率低告警",
+        "condition": "inventory_turnover < 0.5",  # 库存周转率 < 0.5
+        "severity": "warning",
+        "cooldown": 3600,  # 1小时冷却期
+        "enabled": True,
+        "channels": ["dingtalk"],
+    },
+    "anomaly_detected": {
+        "name": "异常检测告警",
+        "condition": "anomaly_score > 3.0",  # 异常分数 > 3.0
+        "severity": "warning",
+        "cooldown": 300,
         "enabled": True,
         "channels": ["dingtalk"],
     },

@@ -38,7 +38,7 @@ class CacheService:
         """
         # 将参数转换为字符串并哈希
         params_str = json.dumps(params, sort_keys=True)
-        params_hash = hashlib.md5(params_str.encode()).hexdigest()[:8]
+        params_hash = hashlib.sha256(params_str.encode()).hexdigest()[:8]
 
         return f"{CacheService.CACHE_KEY_PREFIX}:{tool_name}:{params_hash}"
 

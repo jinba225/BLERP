@@ -1306,14 +1306,16 @@ class DatabaseHelper:
                 if DatabaseHelper.is_sqlite():
                     # SQLite：删除 sqlite_sequence 表中的记录
                     for table in tables:
-                        cursor.execute(f"DELETE FROM sqlite_sequence WHERE name='{table}'")
+                        # 使用参数化查询，避免 SQL 注入
+                        cursor.execute("DELETE FROM sqlite_sequence WHERE name=%s", [table])
                     return True, "SQLite 自增ID已重置"
 
                 elif DatabaseHelper.is_mysql():
                     # MySQL：重置 AUTO_INCREMENT
                     for table in tables:
                         try:
-                            cursor.execute(f"ALTER TABLE {table} AUTO_INCREMENT = 1")
+                            # 使用参数化查询，避免 SQL 注入
+                            cursor.execute("ALTER TABLE %s AUTO_INCREMENT = 1", [table])
                         except Exception:
                             # 忽略不存在的表
                             pass

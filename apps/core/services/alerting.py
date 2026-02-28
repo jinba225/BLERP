@@ -14,6 +14,7 @@ from django.core.cache import cache
 
 from .config import ALERT_RULES, EMAIL_ALERT_CONFIG
 from .monitor import get_monitor
+from .smart_alert import get_smart_alert
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,7 @@ class AlertingService:
         """
         self.redis_client = redis_client or cache
         self.monitor = get_monitor()
+        self.smart_alert = get_smart_alert()
         self.rules = ALERT_RULES
 
         # 钉钉配置
@@ -93,6 +95,10 @@ class AlertingService:
             alert: 告警信息
         """
         try:
+            # 防止告警风暴
+            if self.smart_alert.prevent_alert_storm(alert):
+                return
+
             # 查找匹配的告警规则
             rule = self._find_rule(alert["alert_type"])
 
@@ -103,6 +109,11 @@ class AlertingService:
             if self._is_in_cooldown(alert["alert_type"], alert["platform"]):
                 logger.debug(f"告警在冷却期内: {alert['alert_type']} - {alert['platform']}")
                 return
+
+            # 智能告警路由
+            channels = self.smart_alert.route_alert(alert)
+            if channels:
+                rule["channels"] = channels
 
             # 触发告警
             self._trigger_alert(alert, rule)
