@@ -1,13 +1,10 @@
-import asyncio
 import logging
 from typing import Dict
 
 from django.utils import timezone
 from ecomm_sync.models import EcommPlatform, EcommProduct, ProductChangeLog, SyncLog
 
-from .scrapers.base import BaseScraper
 from .scrapers.hybrid import HybridScraper
-from .transformers.product import ProductTransformer
 from .woocommerce.batch_sync import WooCommerceBatchSync
 
 logger = logging.getLogger(__name__)

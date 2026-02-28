@@ -67,7 +67,6 @@ class StockSyncService:
         Returns:
             同步结果
         """
-        from django.utils import timezone
         from ecomm_sync.adapters import get_adapter
         from ecomm_sync.models import PlatformAccount, StockSyncQueue
 

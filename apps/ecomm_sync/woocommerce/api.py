@@ -73,7 +73,7 @@ class WooCommerceAPI:
             error_data = {}
             try:
                 error_data = e.response.json()
-            except:
+            except Exception:
                 pass
 
             raise WooCommerceAPIError(

@@ -9,9 +9,7 @@
 """
 
 import logging
-from datetime import datetime
-from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Dict, Any, List, Optional
 
 from core.config import CONFLICT_STRATEGIES, ResolutionStrategy
 from django.utils import timezone

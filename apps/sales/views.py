@@ -1382,6 +1382,7 @@ def delivery_create(request, order_pk):
                     )
 
                     # Validate quantity
+                    from decimal import Decimal
                     quantity = Decimal(str(item_data["quantity"]))
                     if quantity > order_item.remaining_quantity:
                         raise ValueError(
@@ -1641,11 +1642,11 @@ def delivery_ship(request, pk):
                     quantity=shipped_qty,  # 使用实际发货数量
                     unit_cost=product.cost_price,
                     reference_type="sales_order",
-                    reference_id=str(order.id),
+                    reference_id=str(delivery_item.order_item.order.id),
                     reference_number=delivery.delivery_number,
                     batch_number=delivery_item.batch_number,
                     operator=request.user,
-                    notes=f"销售出库 - 订单 {order.order_number}",
+                    notes=f"销售出库 - 订单 {delivery_item.order_item.order.order_number}",
                     created_by=request.user,
                 )
 
@@ -2136,6 +2137,7 @@ def return_approve(request, pk):
 
         if sales_return.refund_amount and sales_return.refund_amount > 0:
             # 检查是否已经存在关联的退款付款记录
+            from finance.models import Payment
             existing_payment = Payment.objects.filter(
                 is_deleted=False,
                 payment_type="payment",

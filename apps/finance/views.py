@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import Count, F, Max, Q, Sum
+from django.db.models import Count, Max, Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -75,6 +75,8 @@ def _generate_supplier_account_from_invoice(invoice):
             )
 
         # 创建应付账款
+        from purchase.models import PurchaseOrder
+
         account = SupplierAccount.objects.create(
             supplier=invoice.supplier,
             purchase_order=invoice.reference_type == "purchase_order"
@@ -3625,6 +3627,9 @@ def supplier_account_payment_allocate(request, pk):
     )
 
     # 获取所有待核销的明细（按余额排序，先核销余额小的）
+    from django.db.models import Expression, F
+    from django.db.models.fields import DecimalField
+
     details = (
         account.details.filter(is_deleted=False)
         .exclude(status="allocated")  # 排除已全额核销的

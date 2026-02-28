@@ -184,11 +184,11 @@ class ProductTransformer:
         new_desc = raw_data.get("description", "")
         if new_desc and new_desc != product.description:
             product.description = new_desc
-            logger.info(f"描述更新")
+            logger.info("描述更新")
 
         new_specs = raw_data.get("specifications", "")
         if new_specs and new_specs != product.specifications:
             product.specifications = new_specs
-            logger.info(f"规格更新")
+            logger.info("规格更新")
 
         product.save()

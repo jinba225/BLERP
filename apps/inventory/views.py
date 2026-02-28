@@ -555,7 +555,6 @@ def adjustment_create(request):
             messages.error(request, f"创建失败：{str(e)}")
 
     # GET request - show form
-    from products.models import Product
 
     warehouses = Warehouse.objects.filter(is_deleted=False, is_active=True)
     products = Product.objects.filter(is_deleted=False, status="active").select_related("unit")
@@ -1584,6 +1583,11 @@ def inbound_create(request):
             messages.error(request, f"创建失败：{str(e)}")
 
     # GET request - show form
+    from suppliers.models import Supplier
+    from products.models import Product
+    import json
+    from django.core.serializers.json import DjangoJSONEncoder
+
     warehouses = Warehouse.objects.filter(is_deleted=False, is_active=True)
     suppliers = Supplier.objects.filter(is_deleted=False, is_active=True)
     products = Product.objects.filter(is_deleted=False, status="active").values(
@@ -1624,6 +1628,7 @@ def inbound_update(request, pk):
 
     if request.method == "POST":
         # Parse items JSON
+        import json
         items_json = request.POST.get("items_json", "[]")
         items_data = json.loads(items_json)
 
@@ -1662,6 +1667,11 @@ def inbound_update(request, pk):
         return redirect("inventory:inbound_detail", pk=inbound.pk)
 
     # GET request - show form
+    from suppliers.models import Supplier
+    from products.models import Product
+    import json
+    from django.core.serializers.json import DjangoJSONEncoder
+
     warehouses = Warehouse.objects.filter(is_deleted=False, is_active=True)
     suppliers = Supplier.objects.filter(is_deleted=False, is_active=True)
     products = Product.objects.filter(is_deleted=False, status="active").values(
@@ -1787,6 +1797,8 @@ def inbound_complete(request, pk):
             stock.save()
 
             # Create stock transaction record
+            from inventory.models import StockTransaction
+
             StockTransaction.objects.create(
                 product=item.product,
                 warehouse=inbound.warehouse,
@@ -1940,6 +1952,7 @@ def outbound_create(request):
     """Create a new outbound order."""
     if request.method == "POST":
         from common.utils import DocumentNumberGenerator
+        import json
 
         # Generate order number
         order_number = DocumentNumberGenerator.generate("OBO")
@@ -1984,6 +1997,11 @@ def outbound_create(request):
         return redirect("inventory:outbound_detail", pk=outbound.pk)
 
     # GET request - show form
+    from customers.models import Customer
+    from products.models import Product
+    import json
+    from django.core.serializers.json import DjangoJSONEncoder
+
     warehouses = Warehouse.objects.filter(is_deleted=False, is_active=True)
     customers = Customer.objects.filter(is_deleted=False, status="active")
     products = Product.objects.filter(is_deleted=False, status="active").values(
@@ -2026,6 +2044,7 @@ def outbound_update(request, pk):
 
     if request.method == "POST":
         # Parse items JSON
+        import json
         items_json = request.POST.get("items_json", "[]")
         items_data = json.loads(items_json)
 
@@ -2063,6 +2082,11 @@ def outbound_update(request, pk):
         return redirect("inventory:outbound_detail", pk=outbound.pk)
 
     # GET request - show form
+    from customers.models import Customer
+    from products.models import Product
+    import json
+    from django.core.serializers.json import DjangoJSONEncoder
+
     warehouses = Warehouse.objects.filter(is_deleted=False, is_active=True)
     customers = Customer.objects.filter(is_deleted=False, status="active")
     products = Product.objects.filter(is_deleted=False, status="active").values(
@@ -2197,6 +2221,8 @@ def outbound_complete(request, pk):
             stock.save()
 
             # Create stock transaction record
+            from inventory.models import StockTransaction
+
             StockTransaction.objects.create(
                 product=item.product,
                 warehouse=outbound.warehouse,

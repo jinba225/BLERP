@@ -11,13 +11,10 @@
 import asyncio
 import logging
 import time
-from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Optional
 
 from core.services.monitor import get_monitor
 from core.services.rate_limiter import get_rate_limiter
-from django.conf import settings
-from django.utils import timezone
 
 from ..adapters.base import BaseAdapter
 from .cache_manager import get_cache_manager

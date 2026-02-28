@@ -1,6 +1,4 @@
-from typing import Dict, List, Optional
 
-from django.conf import settings
 from django.utils.text import slugify
 
 
