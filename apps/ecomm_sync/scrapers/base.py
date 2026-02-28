@@ -2,10 +2,9 @@ import abc
 import asyncio
 import logging
 import random
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List
 
-from core.models import Platform
+from ecomm_sync.models import EcommPlatform
 
 logger = logging.getLogger(__name__)
 

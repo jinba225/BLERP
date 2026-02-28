@@ -2,7 +2,7 @@ import asyncio
 import logging
 from typing import Dict, List, Optional
 
-from core.models import Platform
+from ecomm_sync.models import EcommPlatform
 
 from .base import BaseScraper
 
@@ -124,14 +124,14 @@ class HybridScraper(BaseScraper):
 
         if self.api_client:
             try:
-                logger.info(f"使用API采集列表")
+                logger.info("使用API采集列表")
                 return await self.api_client.get_products(limit)
             except Exception as e:
                 logger.warning(f"API采集列表失败: {e}")
 
         if self.browser_scraper:
             try:
-                logger.info(f"使用浏览器采集列表")
+                logger.info("使用浏览器采集列表")
                 return await self.browser_scraper.scrape_product_list(limit)
             except Exception as e:
                 logger.error(f"浏览器采集列表也失败: {e}")

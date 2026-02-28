@@ -54,7 +54,7 @@ def test_connection(test_url="https://www.baidu.com"):
     try:
         response = requests.head(test_url, timeout=10)
         response.raise_for_status()
-        logger.info(f"网络测试成功")
+        logger.info("网络测试成功")
         return True
     except Exception as e:
         logger.error(f"网络测试失败: {e}")

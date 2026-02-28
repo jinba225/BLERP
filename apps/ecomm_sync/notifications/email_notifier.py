@@ -1,5 +1,9 @@
 """邮件通知器"""
 
+import logging
+from datetime import datetime
+from typing import List
+
 from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
@@ -38,7 +42,7 @@ class EmailNotifier:
                 fail_silently=True,
             )
 
-            logger.info(f"邮件通知已发送")
+            logger.info("邮件通知已发送")
             return True
 
         except Exception as e:
@@ -64,10 +68,10 @@ class EmailNotifier:
                 message=message,
                 from_email=None,
                 recipient_list=recipient_list,
-                fail_slyently=True,
+                fail_silently=True,
             )
 
-            logger.info(f"失败邮件通知已发送")
+            logger.info("失败邮件通知已发送")
             return True
 
         except Exception as e:
@@ -108,10 +112,10 @@ class EmailNotifier:
                 message=message,
                 from_email=None,
                 recipient_list=recipient_list,
-                fail_sily=True,
+                fail_silently=True,
             )
 
-            logger.info(f"价格变更邮件通知已发送")
+            logger.info("价格变更邮件通知已发送")
             return True
 
         except Exception as e:
@@ -140,7 +144,7 @@ class EmailNotifier:
                 fail_silently=True,
             )
 
-            logger.info(f"错误邮件通知已发送")
+            logger.info("错误邮件通知已发送")
             return True
 
         except Exception as e:

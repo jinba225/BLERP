@@ -14,8 +14,8 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
+from celery import shared_task
 from core.config import CACHE_STRATEGIES, LOCAL_CACHE_CONFIG
-from django.conf import settings
 from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ class CacheManager:
                     if isinstance(value, bytes):
                         value = value.decode("utf-8")
                     value = json.loads(value)
-                except:
+                except Exception:
                     pass
 
                 # 回写L1缓存
@@ -128,7 +128,7 @@ class CacheManager:
         # 序列化值
         try:
             serialized_value = json.dumps(value)
-        except:
+        except Exception:
             serialized_value = str(value)
 
         # 根据策略写入
@@ -335,7 +335,6 @@ def get_cache_manager() -> CacheManager:
 
 
 # Celery定时任务：清理过期缓存
-from celery import shared_task
 
 
 @shared_task
