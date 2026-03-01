@@ -372,21 +372,7 @@ locust -f locustfile.py --host=http://localhost:8000
 
 ---
 
-## 👥 团队
 
-- **项目负责人**: [Your Name]
-- **核心开发者**: [Team Members]
-- **贡献者**: [Contributors]
-
----
-
-## 📞 联系方式
-
-- **问题反馈**: [GitHub Issues](https://github.com/your-org/django-erp/issues)
-- **邮件**: support@example.com
-- **文档**: [Wiki](https://github.com/your-org/django-erp/wiki)
-
----
 
 ## 🙏 致谢
 
