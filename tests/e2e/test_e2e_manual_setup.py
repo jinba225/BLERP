@@ -6,8 +6,12 @@ Django ERP 简化版E2E测试（手动Django setup）
 
 import os
 import sys
+from decimal import Decimal
 
+import django
 import pytest
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 # 设置Django环境
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
@@ -16,14 +20,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "apps"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-import django
-
 django.setup()
-
-from decimal import Decimal
-
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 
 
 @pytest.mark.django_db

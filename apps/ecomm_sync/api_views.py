@@ -5,14 +5,13 @@ Listing同步AJAX视图（轻量级实现）
 
 import json
 
-from core.models import Platform
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
 
-from .models import EcommProduct, PlatformAccount, ProductListing, SyncLog
+from .models import Platform, PlatformAccount, ProductListing
 from .services.listing_sync import ListingService
 
 
@@ -30,22 +29,24 @@ def product_listings_fragment(request, product_id):
 
         data = [
             {
-                "id": l.id,
-                "platform_name": l.platform.name,
-                "listing_title": l.listing_title,
-                "listing_status": l.listing_status,
-                "listing_status_display": l.get_listing_status_display(),
-                "price": str(l.price),
-                "quantity": l.quantity,
-                "platform_sku": l.platform_sku,
-                "product_name": l.product.name if l.product else "",
+                "id": listing.id,
+                "platform_name": listing.platform.name,
+                "listing_title": listing.listing_title,
+                "listing_status": listing.listing_status,
+                "listing_status_display": listing.get_listing_status_display(),
+                "price": str(listing.price),
+                "quantity": listing.quantity,
+                "platform_sku": listing.platform_sku,
+                "product_name": listing.product.name if listing.product else "",
                 "last_synced_at": (
-                    l.last_synced_at.strftime("%Y-%m-%d %H:%M:%S") if l.last_synced_at else None
+                    listing.last_synced_at.strftime("%Y-%m-%d %H:%M:%S")
+                    if listing.last_synced_at
+                    else None
                 ),
-                "sync_enabled": l.sync_enabled,
-                "sync_error": l.sync_error,
+                "sync_enabled": listing.sync_enabled,
+                "sync_error": listing.sync_error,
             }
-            for l in listings
+            for listing in listings
         ]
 
         return JsonResponse({"listings": data}, safe=False)
@@ -226,27 +227,29 @@ def listings_list(request):
 
         data = [
             {
-                "id": l.id,
-                "product_id": l.product.id,
-                "product_code": l.product.code,
-                "product_name": l.product.name,
-                "platform_id": l.platform.id,
-                "platform_name": l.platform.name,
-                "account_id": l.account.id if l.account else None,
-                "account_name": l.account.account_name if l.account else "",
-                "listing_title": l.listing_title,
-                "listing_status": l.listing_status,
-                "listing_status_display": l.get_listing_status_display(),
-                "platform_sku": l.platform_sku,
-                "platform_product_id": l.platform_product_id,
-                "price": str(l.price),
-                "quantity": l.quantity,
-                "sync_enabled": l.sync_enabled,
+                "id": listing.id,
+                "product_id": listing.product.id,
+                "product_code": listing.product.code,
+                "product_name": listing.product.name,
+                "platform_id": listing.platform.id,
+                "platform_name": listing.platform.name,
+                "account_id": listing.account.id if listing.account else None,
+                "account_name": listing.account.account_name if listing.account else "",
+                "listing_title": listing.listing_title,
+                "listing_status": listing.listing_status,
+                "listing_status_display": listing.get_listing_status_display(),
+                "platform_sku": listing.platform_sku,
+                "platform_product_id": listing.platform_product_id,
+                "price": str(listing.price),
+                "quantity": listing.quantity,
+                "sync_enabled": listing.sync_enabled,
                 "last_synced_at": (
-                    l.last_synced_at.strftime("%Y-%m-%d %H:%M:%S") if l.last_synced_at else None
+                    listing.last_synced_at.strftime("%Y-%m-%d %H:%M:%S")
+                    if listing.last_synced_at
+                    else None
                 ),
             }
-            for l in page_obj
+            for listing in page_obj
         ]
 
         return JsonResponse(

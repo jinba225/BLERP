@@ -1,5 +1,4 @@
-from core.models import BaseModel, Platform, Shop
-from django.core.validators import URLValidator
+from core.models import BaseModel, Platform
 from django.db import models
 from products.models import Product
 

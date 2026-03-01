@@ -15,6 +15,9 @@ import os
 import sys
 from pathlib import Path
 
+from django.conf import settings
+from django.test.utils import get_runner
+
 # 添加项目根目录到路径
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
@@ -26,14 +29,9 @@ sys.path.insert(0, str(APPS_DIR))
 # 设置 Django 环境
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
 
-import django
+import django  # noqa: E402
 
 django.setup()
-
-import unittest
-
-from django.conf import settings
-from django.test.utils import get_runner
 
 
 def run_tests(test_labels=None, verbosity=2, keepdb=False):

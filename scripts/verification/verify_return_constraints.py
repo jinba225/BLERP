@@ -15,25 +15,21 @@
 import os
 
 import django
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
-django.setup()
-
 from django.contrib.auth import get_user_model
 
 from apps.products.models import Product
-from apps.purchase.models import (
-    PurchaseOrder,
-    PurchaseOrderItem,
-)
+from apps.purchase.models import PurchaseOrder, PurchaseOrderItem
 from apps.suppliers.models import Supplier
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_erp.settings")
+django.setup()
 
 User = get_user_model()
 
 
 def print_section(title):
     """打印分隔线"""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"  {title}")
     print("=" * 60)
 
@@ -87,8 +83,8 @@ def test_scenario_1_normal_return():
     order, order_item, user = create_test_data()
 
     # 尝试退货3个
-    print(f"\n操作：退货 3 个")
-    print(f"预期：成功（可退货数量 = 10）")
+    print("\n操作：退货 3 个")
+    print("预期：成功（可退货数量 = 10）")
 
     # 模拟前端验证逻辑
     returnable_qty = 10
@@ -97,20 +93,20 @@ def test_scenario_1_normal_return():
     if return_qty <= returnable_qty:
         print(f"✅ 前端验证通过：{return_qty} <= {returnable_qty}")
     else:
-        print(f"❌ 前端验证失败")
+        print("❌ 前端验证失败")
 
     # 模拟后端验证
     try:
         if return_qty > order_item.quantity:
-            raise ValueError(f"退货数量超过订单数量")
+            raise ValueError("退货数量超过订单数量")
 
         returned_qty = 0  # 已退货数量
         returnable_qty = order_item.received_quantity - returned_qty
 
         if return_qty > returnable_qty:
-            raise ValueError(f"退货数量超过可退货数量")
+            raise ValueError("退货数量超过可退货数量")
 
-        print(f"✅ 后端验证通过")
+        print("✅ 后端验证通过")
         print(f"✅ 退货成功！剩余可退货数量: {returnable_qty - return_qty}")
     except ValueError as e:
         print(f"❌ 后端验证失败: {e}")
@@ -127,13 +123,13 @@ def test_scenario_2_excess_return():
     order, order_item, user = create_test_data()
 
     # 先退货5个
-    print(f"\n步骤1：第一次退货 5 个")
+    print("\n步骤1：第一次退货 5 个")
     return_qty_1 = 5
-    print(f"✅ 第一次退货成功")
+    print("✅ 第一次退货成功")
     print(f"   已收货: 10, 已退货: {return_qty_1}, 剩余可退货: {10 - return_qty_1}")
 
     # 尝试第二次退货6个（超过可退货数量）
-    print(f"\n步骤2：第二次退货 6 个（超额）")
+    print("\n步骤2：第二次退货 6 个（超额）")
     return_qty_2 = 6
     returnable_qty = 10 - return_qty_1  # 5个
 
@@ -141,10 +137,10 @@ def test_scenario_2_excess_return():
 
     # 前端验证
     if return_qty_2 > returnable_qty:
-        print(f"✅ 前端验证通过：阻止超额退货")
+        print("✅ 前端验证通过：阻止超额退货")
         print(f"   提示：退货数量不能超过可退货数量 {returnable_qty}（已收货10 - 已退货{return_qty_1}）")
     else:
-        print(f"❌ 前端验证失败：应该阻止")
+        print("❌ 前端验证失败：应该阻止")
 
     # 后端验证
     try:
@@ -157,7 +153,7 @@ def test_scenario_2_excess_return():
                 f"已收货{order_item.received_quantity} - 已退货{returned_qty})"
             )
 
-        print(f"❌ 后端验证失败：应该阻止")
+        print("❌ 后端验证失败：应该阻止")
     except ValueError as e:
         print(f"✅ 后端验证通过：{e}")
 
@@ -187,7 +183,7 @@ def test_scenario_3_boundary_test():
         if return_qty > returnable_qty:
             print(f"❌ 前端：阻止（{return_qty} > {returnable_qty}）")
         elif return_qty == 0:
-            print(f"✅ 前端：允许（退货0个）")
+            print("✅ 前端：允许（退货0个）")
         else:
             print(f"✅ 前端：允许（{return_qty} <= {returnable_qty}）")
 

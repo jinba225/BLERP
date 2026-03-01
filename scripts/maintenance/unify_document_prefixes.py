@@ -52,13 +52,13 @@ for update in updates:
             config.value = update["new_value"]
             config.description = update["description"]
             config.save()
-            print(f"  ✅ 已更新")
+            print("  ✅ 已更新")
         else:
-            print(f"  ⏭️  无需更新（已经是目标值）")
+            print("  ⏭️  无需更新（已经是目标值）")
         print()
     except SystemConfig.DoesNotExist:
         print(f"⚠️  配置不存在: {update['key']}")
-        print(f"  将创建新配置...")
+        print("  将创建新配置...")
         SystemConfig.objects.create(
             key=update["key"],
             value=update["new_value"],
@@ -66,7 +66,7 @@ for update in updates:
             description=update["description"],
             is_active=True,
         )
-        print(f"  ✅ 已创建")
+        print("  ✅ 已创建")
         print()
 
 print("=" * 60)

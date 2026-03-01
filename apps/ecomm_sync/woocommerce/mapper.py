@@ -1,3 +1,4 @@
+from typing import List
 
 from django.utils.text import slugify
 

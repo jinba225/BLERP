@@ -1,10 +1,7 @@
-from core.models import Platform, Shop
 from django.contrib import admin
-from django.utils.html import format_html
 
 from .models import (
     APICallLog,
-    EcommProduct,
     PlatformAccount,
     PlatformOrder,
     PlatformOrderItem,
@@ -12,7 +9,6 @@ from .models import (
     ProductListing,
     StockSyncQueue,
     SyncLog,
-    SyncStrategy,
 )
 from .services.listing_sync import ListingService
 

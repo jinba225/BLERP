@@ -50,8 +50,6 @@ class AutoFixer:
         问题: 订单总金额与明细汇总不一致
         修复: 重新从明细汇总计算总金额
         """
-        
-
         calculated_total = order.items.filter(is_deleted=False).aggregate(total=Sum("line_total"))[
             "total"
         ] or Decimal("0")
@@ -78,8 +76,6 @@ class AutoFixer:
         问题: 订单总金额与明细汇总不一致
         修复: 重新从明细汇总计算总金额
         """
-        
-
         calculated_total = order.items.filter(is_deleted=False).aggregate(total=Sum("line_total"))[
             "total"
         ] or Decimal("0")
@@ -106,8 +102,6 @@ class AutoFixer:
         问题: 收货单总金额与明细汇总不一致
         修复: 重新从明细汇总计算总金额
         """
-        from apps.purchase.models import PurchaseReceipt
-
         calculated_total = receipt.items.aggregate(total=Sum("line_total"))["total"] or Decimal("0")
 
         if receipt.total_amount != calculated_total:
@@ -132,8 +126,6 @@ class AutoFixer:
         问题: 发货单总金额与明细汇总不一致
         修复: 重新从明细汇总计算总金额
         """
-        from apps.sales.models import SalesDelivery
-
         calculated_total = delivery.items.aggregate(total=Sum("line_total"))["total"] or Decimal(
             "0"
         )
@@ -160,8 +152,6 @@ class AutoFixer:
         问题: 应付账款主单金额与明细汇总不一致
         修复: 重新从明细汇总计算应付金额
         """
-        from apps.finance.models import SupplierAccount, SupplierAccountDetail
-
         detail_total = account.details.aggregate(total=Sum("amount"))["total"] or Decimal("0")
 
         if account.invoice_amount != detail_total:
@@ -191,8 +181,6 @@ class AutoFixer:
         问题: 应收账款主单金额与明细汇总不一致
         修复: 重新从明细汇总计算应收金额
         """
-        from apps.finance.models import CustomerAccount, CustomerAccountDetail
-
         detail_total = account.details.aggregate(total=Sum("amount"))["total"] or Decimal("0")
 
         if account.invoice_amount != detail_total:
@@ -259,7 +247,7 @@ class AutoFixer:
         问题: 订单明细的已收货数量与收货单汇总不一致
         修复: 重新从收货单汇总计算已收货数量
         """
-        from apps.purchase.models import PurchaseReceipt, PurchaseReceiptItem
+        from apps.purchase.models import PurchaseReceiptItem
 
         fixed = False
 
@@ -294,7 +282,7 @@ class AutoFixer:
         问题: 订单明细的已发货数量与发货单汇总不一致
         修复: 重新从发货单汇总计算已发货数量
         """
-        from apps.sales.models import SalesDelivery, SalesDeliveryItem
+        from apps.sales.models import SalesDeliveryItem
 
         fixed = False
 

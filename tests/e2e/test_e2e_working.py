@@ -265,7 +265,7 @@ class TestWorkingE2E:
         assert order.total_amount == Decimal("10000.00")
         assert account.invoice_amount == Decimal("10000.00")
         assert account.outstanding_amount == Decimal("10000.00")
-        print(f"✅ 完整采购流程测试通过")
+        print("✅ 完整采购流程测试通过")
         print(f"  订单号: {order.order_number}")
         print(f"  订单金额: {order.total_amount}")
         print(f"  应付金额: {account.invoice_amount}")

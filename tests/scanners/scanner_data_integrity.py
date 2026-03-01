@@ -51,7 +51,9 @@ class ModelFieldScanner:
                                     "model": model.__name__,
                                     "field": field.name,
                                     "severity": "warning",
-                                    "message": f"字段精度不足: ({field.max_digits}, {field.decimal_places})",
+                                    "message": (
+                                        f"字段精度不足: ({field.max_digits}, {field.decimal_places})"
+                                    ),
                                     "recommendation": "建议精度: (12, 2) 或 (15, 2)",
                                 }
                             )
@@ -279,7 +281,7 @@ class DataConsistencyScanner:
         """扫描采购订单数据一致性"""
         from django.db.models import Sum
 
-        from apps.purchase.models import PurchaseOrder, PurchaseOrderItem
+        from apps.purchase.models import PurchaseOrder
 
         issues = []
 
@@ -309,7 +311,7 @@ class DataConsistencyScanner:
         """扫描销售订单数据一致性"""
         from django.db.models import Sum
 
-        from apps.sales.models import SalesOrder, SalesOrderItem
+        from apps.sales.models import SalesOrder
 
         issues = []
 
